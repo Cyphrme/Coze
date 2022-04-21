@@ -1,28 +1,44 @@
-# Jose
+# Coze vs JOSE
 ## Why JOSE is awesome.
-- Has the goal of doing crypto in a human readable paradigm.
-- Has the goal of updating decrepit crypto standards that are hard to use and
-  sometimes require specific libraries, binaries, encodings, or outside
-  requirements. 
+- Has the goal of doing crypto in a somewhat human readable paradigm.
+- Has the goal of updating old standards that are hard to use and sometimes
+  require specific libraries, binaries, encodings, or other outside dependences.
 - Defines a way to represent cryptographic keys in JSON.
 - JSON crypto keys, both public and private, have thumbprints, which is like a
   PGP fingerprint or Ethereum address. Thumbprints universally address specific
   keys. 
- 
+
 ## Why JOSE could be better.
-- Byte representation is (mostly) assumed to be "RFC 4648 base64 URL Safe
-  Truncated", "b64ut.  Since b64ut doesn't fit evenly into bytes, this makes
-  conversion more difficult.  (More b64ut complaints later.)
-- There's no uniform way to represent digests for various things. 
-- Thumbprints were an afterthought, literally in a later RFC.  Thumbprints have
-  no way to signify hash algorithm.  (2021/05/04)
-- Uses "RFC 4648 base 64 url safe truncated" (b64ut) and signs the UTF-8
-  representation of that string. 
-- Protected headers.  For example, "alg" is required but doesn't have to appear
-  in the "protected" header.  This makes "protected"/"unprotected" headers far
-  less meaningful. 
- 
-base 64 url silliness:
+- The "unencoded" option is still encoded, and was an afterthought.  (RFC 7797)
+- Thumbprints were an afterthought, and defined in a later RFC.  
+- Thumbprints have no way to signify hash algorithm (as of 2021/05/04).  Later,
+  additional RFCs have followed this implicit requirement.  For example RFC
+  8037 specifies that Ed25519 and Ed448, neither of which use SHA-256, use
+  SHA-256 for their thumbprints. 
+- Because headers are always transmitted encoded and not as strings, they increase 
+  in size.  For example,
+  `"eyJhbGciOiJIUzI1NiIsImI2NCI6ZmFsc2UsImNyaXQiOlsiYjY0Il19"` is larger than
+  the unencoded representation `{"alg":"HS256","b64":false,"crit":["b64"]}`
+- Converts UTF-8 to b64ut and encodes that into ASCII bytes, and then then
+  hashes/signs those bytes. That's at least one extra conversion step we
+  consider unneeded.  
+- Protected headers.  For example, "alg" is required but doesn't always have to
+  appear in the "protected" header.  This makes "protected"/"unprotected"
+  headers less meaningful. 
+
+- Any string that is b64ut encoded grows in size, so normal JOSE objects, both
+  the compact (like JWT) and JSON forms grow in size. 
+- Using b64ut everywhere makes JOSE far less useful when small messaging is
+  critical while also decreasing human readability. 
+- There's no uniform method to represent digests. 
+
+
+- Byte representation is defined RFC 4648 base64 URL safe truncated.  Since b64ut doesn't fit evenly into bytes, this makes
+  conversion more difficult.  
+
+
+
+JOSE base 64 url:
 https://tools.ietf.org/html/rfc7515#appendix-A.4.1
  
 Example JWS aesthetic:
@@ -36,16 +52,16 @@ UTF8(eyJhbGciOiJSUzI1NiJ9.eyJpc3MiOiJqb2UiLA0KICJleHAiOjEzMDA4MTkzODAsDQogImh0dH
 # Coze
 ## Coze Vs JOSE
 ### Key Differentiators from JOSE to Coze.
-- We use hex and not "b64ut.  b64ut is also a "bucket convert" encoding, which
+- Coze uses Hex and not b64ut.  b64ut is also a "bucket convert" encoding, which
   we also find cumbersome.  Hex is equivalent in "bucket convert" (treating
   strings as varying units of bytes) as well as "iterative divide by radix"
   (idbr), treating strings as numbers conversion. 
 - JOSE doesn't give a good way to represent byte information.  You're on your
-  own to figure it out although it's suggested to use a base64 url (truncated?).
+  own to figure it out although it's suggested to use a base64 url truncated.
   See section on base64 regarding JOSE comparison. 
-- Canonicalization is used in JOSE, but it's not paramount and only applied
-  narrowly.  Coze uses the generalized "Canonical Hash" (CH) to thumbprint any
-  JSON object or binary blob, including keys and messages.  
+- Canonicalization is used in JOSE, but it's only applied narrowly to
+  thumbprints.  Coze uses the generalized "Canonical Hash" (CH) to thumbprint
+  any JSON object or binary blob, including keys and messages.  
 - Instead of "claims" inside of "payload" which is separate from head, Coze puts
   everything in head. 
 
@@ -71,14 +87,13 @@ A Coze Key is like a JOSE JWK, but it differs in a few significant ways.
 1. Binary data is represented in hex, not b64ut.  For example, the "x" parameter
    for a ECDSA key is in hex and not b64ut.
 2. "iat" (issued at) is required for messages and keys. 
-3. "tmb" and "th" is included in the Coze key and is required.  "tmb" is
-  deterministic digest from the key's canonical form and "th" is the name of the
-  hashing algorithm used. 
+3. "tmb" may be included in the Coze key.  "tmb" is deterministic digest from
+   the key's canonical form and uses the hashing algorithm specified by `alg`. 
   - For JOSE, ["Selection of Hash
     Function"](https://tools.ietf.org/html/rfc7638#section-3.4) isn't well
     defined.  Coze explicitly defines how this is done. 
-4. For ECDSA, the Coze Key thumbprint canon is {"alg","x","y"}.  (No "crv" or
-  "kty"). 
+4. For ECDSA, the Coze Key thumbprint canon is {"alg","x","y"}.  For EdDSA the
+   thumbprint canon is {"alg","x"}
 5. "alg" (algorithm) is required and must refer to a specific cryptographic
   algorithm.  "alg" should be descriptive of any parameter information needed
   about the key's signing algorithm.  For example, for an ecdsa key, "alg"
@@ -102,19 +117,19 @@ A Coze Key is like a JOSE JWK, but it differs in a few significant ways.
 7. "kid" ("Key ID") is an optional human readable label for the key.  "kid" must
    not be used for anything programmatic. 
  - We think JWK's use of `kid` was a bad idea in because it says it "is a hint
-   indicating which key was used".  What the the key hint?  We think this should
-   have be explicitly structured.  This is why we created `std` and `sth`, which
-   is explicitly structured and is explicitly used to identify the key used for
-   siging.  We consider `kid` useless for programmatic function, so we reuse it
-   for human readable key labeling. 
+   indicating which key was used".  What is the key hint?  We think this should
+   have be explicitly structured.  This is why Coze specifies `tmb` , which is
+   explicitly structured and used to identify the key used for siging.  We
+   consider `kid` useless for programmatic function, so we reuse it for human
+   readable key labeling. 
 8.  We use "use" and _NOT_ "key_ops".  "usages" (which is used by
    Javascript implementations) and "key_ops" are both prohibited. 
-9. "Ed25519" and "Ed448" is an algorithm ("alg"), **NOT** a curve ("crv"). An
-  example of a curve would be "Curve25519".  The authors of Coze consider this
-  to be one of the more head scratching JWK/IANA decisions.  For Coze, Ed25519
-  is instantiated with specific key parameters, for example, "Ed25519" has the
-  hashing algorithm  SHA-512. "Ed25519" is a sufficient identifier for both the
-  key and the signing algorithm. 
+9. "Ed25519" and "Ed448" is an algorithm ("alg"), not a curve ("crv"). An
+   example of a curve would be "Curve25519".  The authors of Coze consider this
+   to be one of the more head scratching JWK/IANA decisions.  For Coze, Ed25519
+   is instantiated with specific key parameters, for example, "Ed25519" has the
+   hashing algorithm  SHA-512. "Ed25519" is a sufficient identifier for both the
+   key and the signing algorithm. 
 10. The hex representation is not the value.  This is a small, and for most
    applications, irrelevant distinction. However, for the authors of Coze, we
    found this allowed more efficient references and storage of information. 
@@ -186,7 +201,7 @@ Which is 12 characters.  All strings are still encoded as UTF-8 in JOSE,
 including base64, which is 12 bytes. Base64 is only 75% efficient in the byte
 space. 
 
-25% waste doesn't sound bad, until you realize that standard text plus URL
+25% waste doesn't sound bad, until you realize that normal english plus URL
 characters uses a about 98 characters out of the potential 256 for byte
 encoding.  
 
