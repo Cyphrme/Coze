@@ -24,6 +24,13 @@ Play with Coze here: https://cyphr.me/coze_verifier
 }
 ```
 
+# Coze Design Goals
+ 1. Valid and idiomatic JSON. 
+ 2. Human readable and writable.
+ 3. Small in scope.
+ 4. Cryptographic agility.
+
+
 # Coze Reserved Names
 Coze objects encapsulate a set of JSON name/value pairs.  Coze reserved names
 are short, unique, and unlikely to require namespacing by applications.
@@ -31,6 +38,7 @@ Applications are permitted to use any name except reserved names. The Coze
 objects `head`, `key`, and `cy` have respective reserved names.  
 
 ![Coze Reserved Fields](docs/coze_reserved_fields.png)
+
 
 # Head
 `head` must include the fields `alg`, `iat`, and `tmb`.  `head` may contain the
@@ -211,9 +219,9 @@ The JSON name `cy` is used to wrap Coze objects.  For example:
 ```
 
  We suspect that for the majority of use cases, `cy` is useless.  We recommend
- against needlessly wrapping Coze objects with `cy` as it normally is implicit.
- For example, the JSON object `{"head":{...},"sig":...}` may not be labeled with
- the key `cy` if already implicitly known as a `cy`.
+ against needlessly wrapping implicit Coze objects with `cy`. For example, the
+ JSON object `{"head":{...},"sig":...}` may not be labeled with the key `cy` if
+ already implicitly known as a `cy`.
 
 
 ## `cy` reserved names
@@ -251,14 +259,14 @@ specific parts.
 		},
 		"key": {
 			"alg": "ES256",
-			"iat":1623132000,
+			"iat": 1623132000,
 			"tmb": "0148F4CD9093C9CBE3E8BF78D3E6C9B824F11DD2F29E2B1A630DD1CE1E176CDD",
 			"x": "DA74CE685566D902F19943BF4A3832B1C54706DBC711FA36AEAEB932F80D4633",
 			"y": "91A23AB7F476AAF6B5CDC6F5F1C1B6BF5E3D05E6F6626C94778AC05D3966E8E6"
 		},
 		"can": ["alg","iat","msg","tmb","typ"],
-		"cad":"53BAC7F262C56FF7B6CEF1BCF0D0A3AEB7E668C08D3B13AE161F7F34EDC6F33B",
-		"cyd":"20C57D022AE2DD53D18189B490E504DF52B7CEBEB4B5BC954D475ACE5FDC083E",
+		"cad": "53BAC7F262C56FF7B6CEF1BCF0D0A3AEB7E668C08D3B13AE161F7F34EDC6F33B",
+		"cyd": "20C57D022AE2DD53D18189B490E504DF52B7CEBEB4B5BC954D475ACE5FDC083E",
 		"sig": "E848D97CA3A1BAE8C1AE6ACBAE1E73B7C23C9A74581003CAEB4FCBA4EF39EC8B07996B4F52F5D5925C48A793C54495A3B89DD9A8B55D29E72B8B9DF599E0A734"
 	}
 }
@@ -317,14 +325,15 @@ times.
 - ES256
 - ES384
 - ES512
+- Ed25519 // TODO
 
-## Example algorithm's parameters:
+## `alg` parameters:
 
-ES256
+"alg":"ES256"
 - Genus: ESCDSA
 - Family: EC
 - Use: sig
-- SigSize: 512
+- Sig.Size: 512
 - Curve: P-256
 - Hash: SHA-256
 - Hash.Size:256 
@@ -333,16 +342,17 @@ ES256
 - JSON objects must be valid.
 - JSON field names are always strings (which is standard JSON.)
 - JSON field names and values are case sensitive.
+- UTF-8 encoded and Unicode sorted.  
 
 
 # Gotchas
 Edge cases and non-obvious things.
 
-## `cyd` is the digest over the JSON object `{"cad":"...","sig":"..."}`
-One may expect cyd to be the digest of `cad` || `sig`, or ever the
+## `cyd` is the digest over `{"cad":"...","sig":"..."}`
+One may expect `cyd` to be the digest of `cad` || `sig`, or ever the
 digest of `cy`.
 
-Like `cad`, `cyd` is the digest over a JSON object with a defined canon.
+Like `cad`, `cyd` is the digest of JSON with a defined canon.
 The canon of `cyd` is `["cad","sig"]`.
 
 ## ECDSA has `x` and `y` while EdDSA has just `x`
@@ -379,14 +389,10 @@ Play with Coze here: https://cyphr.me/coze_verifier.
 
 # FAQ
 
-## Coze Design Goals?
- 1. Valid and idiomatic JSON. 
- 2. Reasonably human readable and writable.
- 3. Small in scope.
- 4. Cryptographic agility.
 
 ## Pronunciation?
 Pronounced "Co-zee" like a comfy cozy couch.
+
 
 ## What does "Coze" mean? 
 The English word "Coze" means "a friendly talk; a chat." which is the perfect
@@ -394,13 +400,16 @@ name of a messaging standard.
 
 Jared suggested Coze because it sounds like JOSE or COSE but it's funnier. 
 
+
 ## "Coze" vs "coze"?
 We use upper case "Coze" to refer to the specification, and "coze" to refer to
 coze messages and objects.  
 
+
 ## Why release pre-alpha on 2021/06/08?
 Coze was released on 2021/06/08 (1623132000) since it's 30 years and one day
 after the initial release of PGP 1.0.  
+
 
 ## Fields are Unicode sorted?
 Yes.  Unicode is a superset of ASCII and UTF-8 shares sorting order with
@@ -409,13 +418,16 @@ Unicode.  This results in broad, out of the box compatibility.
 UTF-16 (Javascript) has some code points out of order. For these systems, a
 small amount of additional logic is needed to correct the sort order.  
 
+
 ## Binary?
 No.
 
+
 ## Why not use binary payloads like JOSE?
 Coze is designed for JSON, and JSON is designed for human readable fields. JSON
-is not designed for binary.  Coze is however designed to refer to the digest of
-binary files, which is an acceptable compromise.  
+is not designed for binary.  Coze is designed to refer to digests, of both
+arbitrary binary files and cryptographic hashes, which is an acceptable
+compromise.  
 
 A binary file's digest may be easily included in a coze. The binary
 itself should be transported outside of the coze. 
@@ -443,6 +455,7 @@ Excluding binaries also makes base64 encoding far less useful and Hex an obvious
 choice as any efficiency gains are more relevant for long binary values than
 short digests.  
 
+
 ## Why Hex? 
 Hex is widely supported and easy to implement. Coze requires that byte
 information is always represented as upper case (majuscule), left padded Hex
@@ -456,6 +469,7 @@ Pros of Hex:
 - No special characters.  (Like dash "-" or equal "=")
 - Hex is more ergonomic, like JSON itself.
 
+
 ## Why Hex as a string (in quotes)?
 While JSON syntax permits small Javascript numbers, octal and hexadecimal are
 [explicitly disallowed](https://www.json.org/json-en.html), as well as any other
@@ -463,7 +477,9 @@ form of large number/binary encoding.
 
 >... the octal and hexadecimal formats are not used.
 
-A future JSON5 release of Coze will use the `0X` notation for Hex values.
+A separate, future JSON5 release of Coze will use the quoteless `0X` notation
+for Hex values, but JSON Coze will continue to use quoted Hex.   
+
 
 ## Why "Majuscule" Hex? 
 Written "Hex" with an upper case "H" and spoken "upper case Hex" or "majuscule
@@ -491,6 +507,7 @@ Pros:
 Cons:
 - Some Unix people have an affinity for lower case. 
 
+
 ## Left Padded Hex?
 Don't elide beginning 0's.  Most hex implementations already follow this rule.  
 
@@ -499,10 +516,23 @@ is a whole "empty" byte.  When encoding decimal preceding 0's are typically
 elided. Hex does not omit padding.  For example, in the case of SHA-256, the
 digest is always 32 bytes and 64 characters in Hex.
 
+
 ## Isn't Hex "inefficient"?
-All non-binary encodings are "inefficient" when encoded into ASCII/UTF-8 text,
-such as RFC 4648 base64.  Coze makes heavy use of digests which are short and
-are easily stored as bytes.
+Binary is "inefficient" when encoded into ASCII/UTF-8.  Coze heavily uses
+digests which are short and easily stored as perfectly efficient bytes.
+
+
+## How do I do versioning?
+Use `typ` for API versioning, e.g. `cyphr.me/v1/msg`.
+
+
+## Is Coze versioned?  
+Our hope is Coze stays simple and stable enough to preclude versioning.  `alg`
+refers to a specific set of parameters.  If a parameter needs changing, like the
+hashing algorithm, `alg` would reflect that change.  
+
+
+
 
 ## Why `head` and not `pay`, `payload`, or `body`?
 `head` explicitly denotes the inclusion of cryptographic components.
@@ -511,14 +541,15 @@ Also, excluding short digests, Coze explicitly recommends against including
 binaries in JSON messages. A minor concern was that "payload"/"pay" may denote
 including arbitrary binary values.
 
+
 ## `head` has `alg` and other stuff in it. Why are cryptographic components mixed?
 Coze's `head` includes all payload information, a design we've dubbed a "fat
 head".  We consider single pass hashing critical for Coze's simple design as it
 is human friendly, requires less complexity, and alternatives provide low
 additional value.
 
-Verifying a signed raw message requires hashing `head`.  Parsing `alg` from
-`head` is a small additional cost.  
+Verifying a signed raw message already requires hashing `head`.  Parsing `alg`
+from `head` is a small additional cost.  
 
 Alternative schemes require a larger canon, `{"head":{...},"pay":{...}}`, or
 concatenation like `digest(head) || digest(pay)`.  By hashing only `head`, the
@@ -527,9 +558,9 @@ label `"head"` may then be inferred, `{...}`.  `{...}` is better than
 `{"head":{...},"pay":{...}}`.  
 
 We do not foresee prudence in optimizing for long messages. If early knowledge
-of standard fields is critical for application performance, we suggest
-encapsulating all non-standard fields in "~", the last ASCII character.  For
-example: 
+of Coze standard fields is critical for application performance, we suggest
+encapsulating all non-standard fields in "~", the last ASCII character.  We've
+dubbed this a "tilde encapsulated payload". For example: 
 
 ```
  "head": {
@@ -550,6 +581,7 @@ by many ideas and standards.
  
 See the `coze_vs_jose.md` document for more. 
 
+
 ## Does Coze have checksums?
 For keys, the field `tmb` can the function of a checksum as it is the digest
 over `alg` and the key's public components (such as `x` and `y`).  When given a
@@ -560,21 +592,21 @@ signed message with the key.
 For messages, `cad` or cryptographic verification may serve the function of
 checksums.  
 
+
 ## Why is Coze's scope so limited?
 Coze is intentionally scope limited.  It is easier to extend a limited standard
 than to fix a large standard. Coze can be extended and customized for individual
 applications. 
 
+
 ## Where does the cryptography come from?
 Much of this comes from NIST FIPS (See https://csrc.nist.gov/publications/fips)
 
-For example, FIPS PUB 186-3 defines P-192, P-224, P-256, P-384, and P-521.
+For example, FIPS PUB 186-3 defines P-224, P-256, P-384, and P-521.
+
 
 # Unsupported Things?
-The following features are unsupported because they are out of scope or
-redundant.  Coze doesn't prohibit systems from extending Coze and/or
-implementing application features, but Coze delegates implementation to
-applications. 
+The following are out of scope or redundant.  
 
 ES192, P-192
 - Not really a thing, not implemented anywhere, and dropped from later FIPS.
@@ -583,7 +615,7 @@ SHA1, MD5
  - Hasn't been considered secure for a long while.
 - `kty` - "Key type". Redundant by `alg`. 
 - `iss` - `tmb` fulfills this role.  Systems that need something like an issuer,
- associating messages with people/systems, can look up "issuer" based on
+associating messages with people/systems, can look up "issuer" based on
 thumbprint.  Associate thumbprints to issuers.  This is the design we
 opinionatedly recommend.  
 - `exp`- "Expiration". Outside the scope of Coze.  
@@ -593,18 +625,20 @@ opinionatedly recommend.
 - `jti` - "Token ID/JWT ID". Redundant by `cyd`, `cad`, or an application specified field.
 
 
-
 ## Who created Coze?
 Coze was created by Cyphr.me.  
 
-# Discussion
+
+## Discussion
 https://old.reddit.com/r/CozeJson
 
-# Other Resources
+
+## Other Resources
 Coze Table links: 
 https://docs.google.com/document/d/15_1R7qwfCf-Y3rTamtYS_QXuoTSNrOwbIRopwmv4KOc
 
-# Cyphr.me Online Coze Verifier
+
+## Cyphr.me Online Coze Verifier
 https://cyphr.me/coze_verifier
 
 
@@ -615,5 +649,3 @@ Coze is released under The 3-Clause BSD License.
 
 "Cyphr.me" is a trademark of Cypherpunk, LLC. The Cyphr.me logo is all rights
 reserved Cypherpunk, LLC and may not be used without permission.
-
-

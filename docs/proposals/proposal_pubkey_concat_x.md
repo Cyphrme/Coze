@@ -60,4 +60,4 @@ Cons:
 
 Conclusion:
 
-Move to concated when time permits.  
+Move to concated (when time permits).  
