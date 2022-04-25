@@ -4,7 +4,7 @@ import (
 	"encoding/json"
 	"sort"
 
-	ce "github.com/zamicol/cyphrme/src/coze/enum"
+	ce "github.com/cyphrme/coze/enum"
 )
 
 // Canon returns the canonical form of input. See docs on Canonical().

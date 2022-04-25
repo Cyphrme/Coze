@@ -5,7 +5,7 @@ import (
 	"bytes"
 	"encoding/json"
 
-	ce "github.com/zamicol/cyphrme/src/coze/enum"
+	ce "github.com/cyphrme/coze/enum"
 )
 
 // Head contains the standard fields in a signed Coze object.

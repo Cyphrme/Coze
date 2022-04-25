@@ -12,7 +12,7 @@ import (
 	"math/big"
 	"time"
 
-	ce "github.com/zamicol/cyphrme/src/coze/enum"
+	ce "github.com/cyphrme/coze/enum"
 )
 
 var CozeKeyECDSAArr = []string{"alg", "x", "y"}

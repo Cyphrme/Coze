@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"testing"
 
-	ce "github.com/zamicol/cyphrme/src/coze/enum"
+	ce "github.com/cyphrme/coze/enum"
 )
 
 // TestCH tests CH, Canonical Hash.
