@@ -1,3 +1,7 @@
+
+#⚠️ COZE IS IN PRE-ALPHA AND HAS SECURITY PROBLEMS.  USE AT YOUR OWN RISK ⚠️
+
+
 ![Coze](docs/coze_logo_zami_white_450x273.png)
 
 [Presentation](https://docs.google.com/presentation/d/1bVojfkDs7K9hRwjr8zMW-AoHv5yAZjKL9Z3Bicz5Too)
