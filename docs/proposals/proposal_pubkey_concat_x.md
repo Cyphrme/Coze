@@ -57,7 +57,27 @@ Cons:
 1. Cyphr.me has to rebuild everything
 2. Very minor: To interact with libraries, public key will need to be split into to parts.
 
+# JSON5 and Column Delimited consideration
+JSON5 appears fully compatible.  
 
-Conclusion:
+JSON5 supports Hex in "0x" and "0X" forms. 
+https://github.com/json5/json5/blob/4cf57da675f55c619f959132eb58a5683ca4a9c7/lib/parse.js#L416
 
-Move to concated (when time permits).  
+This proposal assumes that size can be derived from `alg` and thus is "column
+delimited".  
+
+If for some reason this assumption is ever broken, a delimiter of lower case
+'aa' is suggested to separate parts since it is valid hex but the casing can
+carry delimiting information.   
+
+e.g. 
+
+```json5
+"x":OXDA74CE685566D902F19943BF4A3832B1C54706DBC711FA36AEAEB932F80D4633aa91A23AB7F476AAF6B5CDC6F5F1C1B6BF5E3D05E6F6626C94778AC05D3966E8E6
+```
+
+
+
+# Conclusion
+
+Move to concatenated form when time permits.  
