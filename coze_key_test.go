@@ -345,7 +345,7 @@ func BenchmarkNSV(b *testing.B) {
 	fmt.Printf("TestCryptoKeyNSV Pass Count: %+v \n", passCount)
 }
 
-func Example_es256_nsv() {
+func Example_eS256_nsv() {
 	msg := []byte("Test message.")
 
 	ck, err := NewKey(ce.SEAlg(ce.ES256))
