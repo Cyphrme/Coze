@@ -510,7 +510,7 @@ dubbed this a "tilde encapsulated payload". For example:
  }
  ```
 
-## Why not PGP/OpenSSL/LibreSSl/libsodium/JOSE/COSE/etc...?
+## Why not PGP/OpenSSL/LibreSSL/libsodium/JOSE/COSE/etc...?
 We have a lot of respect for existing projects. They're great at what they do.
 Existing solutions were not meeting our particular needs. Coze is influenced
 by many ideas and standards.  
@@ -563,6 +563,7 @@ thumbprint.  Associating thumbprints to issuers is the design we recommend.
 ## Isn't Hex "inefficient"?
 Binary is "inefficient" when encoded into ASCII/UTF-8.  Coze heavily uses
 digests which are short and easily stored as bytes.
+
 
 ## Why Hex? 
 Hex is widely supported and easy to implement. Coze requires that byte
