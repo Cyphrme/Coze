@@ -5,7 +5,6 @@ package coze
 ////////////////////////////////
 
 import (
-	"encoding/hex"
 	"encoding/json"
 	"fmt"
 )
@@ -22,17 +21,6 @@ func ExampleHex_zero_nil() {
 	// Output:
 	// Hex string nil: ``
 	// Hex string zero: `00`
-}
-
-// Demonstates that Go's hex.DecodeString correctly interprets both lower and
-// upper case hex characters.
-func Example_hexUpper() {
-	s, err := hex.DecodeString("00FFAAaaAaaA")
-	if err != nil {
-		fmt.Println(err)
-	}
-	fmt.Println(s)
-	// Output: [0 255 170 170 170 170]
 }
 
 func ExampleHex_marshalJSON() {
