@@ -8,7 +8,7 @@
 
 # Coze 
 Coze is a cryptographic JSON messaging specification designed for human
-readability and writability.
+readability.
 
 Play with Coze here: https://cyphr.me/coze_verifier
 
@@ -552,8 +552,7 @@ SHA1, MD5
 - `kty` - "Key type". Redundant by `alg`. 
 - `iss` - `tmb` fulfills this role.  Systems that need something like an issuer,
 associating messages with people/systems, can look up "issuer" based on
-thumbprint.  Associate thumbprints to issuers.  This is the design we
-opinionatedly recommend.  
+thumbprint.  Associating thumbprints to issuers is the design we recommend.  
 - `exp`- "Expiration". Outside the scope of Coze.  
 - `nbf` - "Not before". Outside the scope of Coze.  
 - `aud` - "Audience". Outside the scope of Coze., but consider denoting this with 'typ'.
