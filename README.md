@@ -393,7 +393,6 @@ Play with Coze here: https://cyphr.me/coze_verifier.
 
 # FAQ
 
-
 ## Pronunciation?
 We say "Co-zee" like a comfy cozy couch.  The English word Coze is pronounced
 "kohz".  
