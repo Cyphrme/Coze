@@ -1,9 +1,5 @@
-
 # ⚠️ COZE IS IN PRE-ALPHA AND HAS SECURITY CONCERNS.  USE AT YOUR OWN RISK ⚠️
-
-
 [![pkg.go.dev](https://pkg.go.dev/badge/github.com/github.com/cyphrme/coze)](https://pkg.go.dev/github.com/cyphrme/coze)
-
 
 ![Coze](docs/coze_logo_zami_white_450x273.png)
 
@@ -398,14 +394,15 @@ Play with Coze here: https://cyphr.me/coze_verifier.
 
 
 ## Pronunciation?
-Pronounced "Co-zee" like a comfy cozy couch.
+We say "Co-zee" like a comfy cozy couch.  The English word Coze is pronounced
+"kohz".  
 
 
 ## What does "Coze" mean? 
-The English word "Coze" means "a friendly talk; a chat." which is the perfect
+The English word "coze" means "a friendly talk; a chat." which is the perfect
 name of a messaging standard. 
 
-Jared suggested Coze because it sounds like JOSE or COSE but it's funnier. 
+Jared suggested Coze because it looks like JOSE or COSE but it's funnier. 
 
 
 ## "Coze" vs "coze"?

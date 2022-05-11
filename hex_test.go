@@ -1,9 +1,5 @@
 package coze
 
-////////////////////////////////
-// Keep package `basecnv` and `coze` hex_test.go in sync.
-////////////////////////////////
-
 import (
 	"encoding/json"
 	"fmt"
@@ -50,16 +46,16 @@ func ExampleHex_unmarshalJSON() {
 	// Output: {"Bar":"00FF"}
 }
 
-func ExampleHexEncodeString() {
+func ExampleHexEncode() {
 	b := []byte{0, 255}
-	fmt.Println(HexEncodeString(b))
+	fmt.Println(HexEncode(b))
 	// Output: 00FF
 }
 
-// ExampleHexDecodeString decodes a string prints the Go string.
-func ExampleHexDecodeString() {
+// ExampleHexDecode decodes a string prints the Go string.
+func ExampleHexDecode() {
 	// Replace the string with what's wanting to be converted to bytes.
-	b, err := HexDecodeString("064BC8ED150C7F0EED574688D5CE11E0F8B6E47CB0E247A882E1DCFBEDCF53AC")
+	b, err := HexDecode("064BC8ED150C7F0EED574688D5CE11E0F8B6E47CB0E247A882E1DCFBEDCF53AC")
 	if err != nil {
 		fmt.Println(err)
 	}
@@ -74,7 +70,7 @@ func ExampleHexDecodeString() {
 	// Output: {6,75,200,237,21,12,127,14,237,87,70,136,213,206,17,224,248,182,228,124,176,226,71,168,130,225,220,251,237,207,83,172,}
 }
 
-// ExampleMustHexDecodeString decomstrates use of Must.
+// ExampleMustHexDecode decomstrates use of Must.
 func ExampleMustHexDecode() {
 	// Replace the string with what's wanting to be converted to bytes.
 	b := MustHexDecode("51E33CB2BF975D426FC349E04277E138AE4329EA2BD664E27D3AEA6DCB3AE199")
@@ -83,14 +79,14 @@ func ExampleMustHexDecode() {
 	// Output: 51E33CB2BF975D426FC349E04277E138AE4329EA2BD664E27D3AEA6DCB3AE199
 }
 
-func ExampleHexDecodeString_odd() {
+func ExampleHexDecode_odd() {
 	// Input Hex is odd and should fail.
-	_, err := HexDecodeString("00FFF")
+	_, err := HexDecode("00FFF")
 	if err == nil {
 		fmt.Println("error should not be nil")
 	}
 
-	b, _ := HexDecodeString("000FFF")
+	b, _ := HexDecode("000FFF")
 	fmt.Println(b)
 	// Output: [0 15 255]
 }
