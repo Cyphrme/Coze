@@ -545,20 +545,21 @@ For example, FIPS PUB 186-3 defines P-224, P-256, P-384, and P-521.
 # Unsupported Things?
 The following are out of scope or redundant.  
 
-ES192, P-192
-- Not really a thing, not implemented anywhere, and dropped from later FIPS.
-- Go doesn't implement p-192
-SHA1, MD5
- - Hasn't been considered secure for a long while.
+- `ES192`, `P-192`: Not really a thing, not implemented anywhere, and dropped
+  from later FIPS.  Go doesn't implement p-192.
+- `SHA1`, `MD5`: Not considered secure for a long time.
 - `kty` - "Key type". Redundant by `alg`. 
 - `iss` - `tmb` fulfills this role.  Systems that need something like an issuer,
 associating messages with people/systems, can look up "issuer" based on
 thumbprint.  Associating thumbprints to issuers is the design we recommend.  
 - `exp`- "Expiration". Outside the scope of Coze.  
 - `nbf` - "Not before". Outside the scope of Coze.  
-- `aud` - "Audience". Outside the scope of Coze., but consider denoting this with 'typ'.
-- `sub` - "Subject". Outside the scope of Coze., but consider denoting this with 'typ'.
-- `jti` - "Token ID/JWT ID". Redundant by `cyd`, `cad`, or an application specified field.
+- `aud` - "Audience". Outside the scope of Coze, but consider denoting this
+  with 'typ'.
+- `sub` - "Subject". Outside the scope of Coze, but consider denoting this with
+  'typ'.
+- `jti` - "Token ID/JWT ID". Redundant by `cyd`, `cad`, or an application
+  specified field.
 
 
 ## Isn't Hex "inefficient"?
