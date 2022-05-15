@@ -229,26 +229,26 @@ The JSON name `cy` is used to wrap Coze objects.  For example:
 
 ## `cy` reserved names
 
-- `cy`   JSON label for a Coze object.  E.g. {"cy":{"head":..., sig:...}}
-- `can`  Canon for hashing over `head`.  E.g. ["alg","iat","tmb","typ"]
+- `cy`   JSON label for a Coze object.  E.g. `{"cy":{"head":..., sig:...}}`
+- `can`  Canon for hashing over `head`.  E.g. `["alg","iat","tmb","typ"]`
 - `cad`  Canon digest.  The digest of `head`.  E.g.: `"24F11D..."`
-- `cyd`  Cy digest, the digest over`cad` and `sig`, which is canon [`cad`,
-           `sig`]. `cyd`'s hash must align with `alg` in `head`.  
-- `head` Wraps the head object.  E.g. "head":{"alg":...}
-- `sig`  Signature over the bytes of `cad`, and `sig` does not rehash `cad` before signing.  E.g. `"sig":"CC3AD6..."`
+- `cyd`  Cy digest, the digest over `["cad","sig"]`. `cyd`'s hash must align with
+  `alg` in `head`.  
+- `head` Label for the head object.  E.g. `"head":{"alg":...}`
+- `sig`  Signature over the bytes of `cad`, and `sig` does not rehash `cad`
+  before signing.  E.g. `"sig":"CC3AD6..."`
 
 Like `cad`, `cyd` is calculated from brace to brace, including the braces.  
 
 `cad` and `cyd` are recalculatable and are recommended to be omitted, although
-they may be useful for reference and debugging.  
+they may be useful for reference.  
 
 ## Example full `cy` with `head`, `key`, `can`, `cad`, `cyd`, and `sig`.  
-The following  expands the first example and is largely redundant. `key` may be
-looked up based on `tmb`. `can`, `cad`, and `cyd` are recalculatable and should
-generally be omitted.  The label `cy` may be inferred. Because of these
-redundancies, it is suggested that the simple Coze objects are used where
-possible.  The following form may be useful for debugging or referring to
-specific parts.  
+The following expands the first example and is largely redundant. `key` may be
+looked up based on `tmb`. `can`, `cad`, and `cyd` are recalculatable and
+generally should be omitted.  The label `cy` may be inferred. Because of these
+redundancies, it is suggested that simple Coze objects are used where possible.
+The following form may be useful when referring to specific parts.  
 
 ```JSON
 {
@@ -307,7 +307,7 @@ message has the field `rvk` with an integer value greater than `0`. The value of
 		"tmb": "0148F4CD9093C9CBE3E8BF78D3E6C9B824F11DD2F29E2B1A630DD1CE1E176CDD",
 		"typ": "cyphr.me/key/revoke"
 	},
-	"sig": "A40E8077DF7D0281AE88F2A23E46705AF4BA8C55E282136A41B5DCA57DD45414D4A12A49B216E2B8009FF51EF70C81828CC5743B762B21375F7E934FDFC38A63"
+	"sig": "FD304BFA877E3B14686BC3BC74E0BAC765A3A0B4A1B2211A54833957DA97AFC2D9CC1592ADC53AD9D9FB8AED9C83676BAB16FD19378CAA203564797FF50F6759"
 }
 ```
 
@@ -315,12 +315,11 @@ message has the field `rvk` with an integer value greater than `0`. The value of
 
 Coze explicitly defines a self-revoke method so that third parties may revoke
 leaked keys. Systems storing Coze keys should mark key as revoked when given a
-self-revoke message.  The integer value "1" is suitable to denote revocation.
+self-revoke message.  Systems may use any non-zero value for `rvk` to denote key
+revocation and the integer value "1" is suitable to denote revocation.
 
 Key expiration policies, such as key rotation, are outside the scope of Coze.
-Because systems may use any non-zero value for `rvk` to denote that a key has
-been revoked, users must not assume future `rvk` times are applied at future
-times.
+Self revokes with future times must immediately be considered as revoked.  
 
 
 # Supported Algorithms 
@@ -428,17 +427,15 @@ No.
 
 
 ## Why not use binary payloads like JOSE?
-Coze is designed for JSON, and JSON is designed for human readable fields. JSON
-is not designed for binary.  Coze is designed to refer to digests, of both
-arbitrary binary files and cryptographic hashes, which is an acceptable
-compromise.  
+Coze is designed for JSON. JSON is not designed for binary but is designed for
+human readable fields.  Coze uses digests, of both arbitrary binary files and
+cryptographic hashes, which is an acceptable compromise.  
 
 A binary file's digest is easily included in a coze, while the binary itself
 should be transported outside of the coze. 
 
-For example, in the case of an image, the digest of the image may be included
-in a coze.  The field `id` below is the digest of an image. The coze includes
-other metadata.  
+For example,  the digest of an image may be included in a coze.  The field `id`
+below is the digest of an image. The coze includes other metadata.  
 
 ```JSON
 {
@@ -455,7 +452,7 @@ other metadata.
 }
 ```
 
-Excluding binaries also makes base64 encoding far less useful and Hex an obvious
+Excluding binaries also makes base64 encoding less useful and Hex an obvious
 choice as any efficiency gains are more relevant for long binary values than
 short digests.  
 
