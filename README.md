@@ -390,6 +390,10 @@ Play with Coze here: https://cyphr.me/coze_verifier.
 ![coze_verifier](docs/Hello_World!.gif)
 
 
+# Other Coze Related Projects
+See also [Coze js](https://github.com/Cyphrme/cozejs).
+
+
 # FAQ
 
 ## Pronunciation?
