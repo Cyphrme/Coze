@@ -41,14 +41,81 @@ Coze would be smaller if base64 was used.  The following is 235 characters.
 "sig": "6EjZfKOhuujBrmrLrh5zt8I8mnRYEAPK60_LpO857IsHmWtPUvXVklxIp5PFRJWjuJ3ZqLVdKecri531meCnNA"
 }
 ```
+Note: this "conversion" is incorrect since `tmb` should be computed using base64 values.  
 
-# Solution
+
+
+# Problems
 Since `alg` already defines sizes and values are padded, encoding is discernible
 from `alg` and string length.
 
 For example, for alg: "ES256", "tmb" is 64 in Hex and 43 in base64.
 
-# Considerations
+- The Hex `tmb`, `cad`, `cyd`, and `sig` are not directly encodable to base64
+  since they would be computed with different encoding.  The base64 `tmb`
+  would need to be digest of the base64 representation of Coze key.  
+
+	The key components `d`, `x`, and `y` are directly encodable to base64.  
+
+### Solutions
+1. Sign, verify, and generate values like `cad` and `tmb` using the Hex form and
+directly convert, but this would burden all implementations with Hex.  This is a
+bad choice.  
+
+2. Sign, verify, and generate values like `cad` and `tmb` using the byte form.
+   This means that user specified fields need to be known as encoded.  We don't
+   solution for this at the moment. 
+
+	 2.1 Can be computed using all forms, and then any form can be looked up. so a
+	 Hex tmb, base64 tmb, and a bytes tmb.  
+
+	 2.2 Use an identifier for base64.  
+		- 0X for Hex, but what for base64?  `b64`, `64x`?
+
+3. Each form uses it's own encoding.  This means that keys have a hextmb and
+   base64tmb
+
+4. Deprecate Hex and use just base64.
+
+Current rank: 4, 3, 2 and 1 isn't viable.  
+
+
+
+
+## Why not deprecate Hex?
+1. Hex is human readable.  
+ A. Small alphabet. 
+ B. No doppelgängers (O0I1l)
+2. Hex is phonetic
+	A. Many people know how to pronounce Hex. 
+	B. "-" and "_" is difficult for some people to pronounce.  
+3. We want to support even more efficient encodings in the future.
+4. It's easier to read.  
+
+Minor: 
+- JSON5 supports a Hex signifier while no signifier for base64 
+
+
+## Why Deprecate Hex
+- While Hex is easier to read, it's also longer.  
+- Hex is 200% of binary while base64 is ~133%
+- Future more efficient encodings don't appear feasible.
+	- basE91 is not JSON safe.  
+	- base85 is a more reasonable pick, and it's only ~7% more efficient.  
+	- base-122 is neat but only more effient in transport and when compression isn't used.  
+- gzip compression is really efficient with base64.
+- Added complexity
+- Design would be easier with a signifier for base.  
+
+From a Coze design perspective:
+- Coze isn't support to be super efficient, it's suppose to be human readable
+  firstly and reasonably efficient secondly.  
+- A more efficient version of Coze would just be a binary standard and not JSON.  
+- At rest we store as bytes.  So transport and "raw" unparsed Coze is the only
+place this is relevant.  
+
+
+# Other Considerations
 
 ## Consideration for using length in determining length
 This proposal uses string length instead of an addition identifier for base64.
@@ -70,43 +137,29 @@ to base64 "AP8".
 RFC 4648 base64 URI truncated (b64ut) is the selected encoding (padding
 characters removed and use the base64url alphabet). 
 
-## Consideration for processing messages and keys
-The encoding isn't relevant. Hex and base64 are still processed as text (UTF-8).
-Hashing can still be started once `alg` is parsed since 
-
 ## Consideration for mixed encoding
-Mixed encoding is unsupported and should result in an error. This is simpler to
-implement.  All relevant lengths can be checked and if any do not match any
-operation should error.  All standard Coze messages and keys should have an
-encoded payload, such as "tmb", to perform the switching over.  
+Mixed encoding should be unsupported and should result in an error. This is
+simpler to implement.  All relevant lengths can be checked and if any do not
+match any operation should error.  All standard Coze messages and keys should
+have an encoded payload, such as "tmb", to perform the switching over.  
 
-Alternatively, each string's length would need to be checked individually.  
+Alternatively, each string's length would need to be checked individually or
+signified.  
 
 If a system wants to sign something from another encoding or mixed encoding,
 convert to the desired encoding before signing.  
 
-## Consideration for the online tool.
-The online tool will have an additional added button Hex to base64 and base64 to
-Hex.  
 
 ## Considered Alternatives
-1. Use an identifier for base64 encoding.  "_64"
+1. Use an `alg` identifier for base64 encoding.  "_64"
 
-## Future considerations
-Perhaps base 85, basE91, or another efficient encoding can be supported,
-especially since JSON itself is not URI safe. 
+If an identifier is used, it should be applied first to Hex, and not base64
+since Hex is longer.  If a systems is using the longer form wouldn't care about
+the 
 
-Since we want to support more efficient encodings than base64, supporting
-multiple encodings, (Hex and base64) appears to be a logical first step.  
 
-## Why not deprecate Hex?
-1. Hex is human readable.  
- A. Small alphabet. 
- B. No doppelgängers (O0I1l)
-2. Hex is phonetic
-	A. Many people know how to pronounce Hex. 
-	B. "-" and "_" is difficult for some people to pronounce.  
-3. We want to support even more efficient encodings in the future.  
+# Conclusion
+Deprecate Hex and move to base64.  
 
 
 ## Appendix

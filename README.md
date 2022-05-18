@@ -498,7 +498,7 @@ of Coze standard fields is critical for application performance, we suggest
 encapsulating all non-standard fields in "~", the last ASCII character.  We've
 dubbed this a "tilde encapsulated payload". For example: 
 
-```
+```json
  "head": {
   "alg": "ES256",
   "iat": 1623132000,
