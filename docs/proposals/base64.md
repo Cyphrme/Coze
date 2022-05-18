@@ -2,7 +2,8 @@
 
 ## Problem: Hex Coze messages are longer than JWT
 
-Coze messages are larger than they would be with base64 values. Coze messages can be (much) smaller than JWTs if base64 encoded.  
+Coze messages are larger than they would be with base64 values. Coze messages
+can be (much) smaller than JWTs if base64 encoded.  
 
 For example, when compactified the following is 298 characters.  
 ```json
@@ -26,7 +27,7 @@ eyJhbGciOiJFUzI1NiIsInR5cCI6IkpXVCJ9.eyJtc2ciOiJDb3plIFJvY2tzIiwiaWF0IjoxNjI3NTE
 
 
 
-The Coze would be smaller if base64 was used.  The following is 235 characters.  
+Coze would be smaller if base64 was used.  The following is 235 characters.  
 
 ```json
 {
@@ -34,10 +35,10 @@ The Coze would be smaller if base64 was used.  The following is 235 characters.
  "alg": "ES256",
  "iat": 1623132000,
  "msg": "Coze Rocks",
- "tmb": "AUj0zZCTycvj6L940+bJuCTxHdLynisaYw3Rzh4XbN0",
+ "tmb": "AUj0zZCTycvj6L940-bJuCTxHdLynisaYw3Rzh4XbN0",
  "typ": "cyphr.me/msg/create"
 },
-"sig": "6EjZfKOhuujBrmrLrh5zt8I8mnRYEAPK60/LpO857IsHmWtPUvXVklxIp5PFRJWjuJ3ZqLVdKecri531meCnNA"
+"sig": "6EjZfKOhuujBrmrLrh5zt8I8mnRYEAPK60_LpO857IsHmWtPUvXVklxIp5PFRJWjuJ3ZqLVdKecri531meCnNA"
 }
 ```
 
@@ -58,7 +59,7 @@ by (4/3 * number of bytes) rounded up to the nearest integer.
 
 Single byte Hex, e.g. with two values `FF`, would be indiscernable from the
 base64 `_w` based on length.  All other longer values are discernable:  the
-Hex`FF01` converts to base64`_wE`.
+Hex `FF01` converts to base64`_wE`.
 
 This situation is considered unlikely and is considered to be an acceptable
 cost.  Since Coze specifies that values are always padded, if this ever was a
@@ -69,15 +70,20 @@ to base64 "AP8".
 RFC 4648 base64 URI truncated (b64ut) is the selected encoding (padding
 characters removed and use the base64url alphabet). 
 
+## Consideration for processing messages and keys
+The encoding isn't relevant. Hex and base64 are still processed as text (UTF-8).
+Hashing can still be started once `alg` is parsed since 
+
 ## Consideration for mixed encoding
 Mixed encoding is unsupported and should result in an error. This is simpler to
 implement.  All relevant lengths can be checked and if any do not match any
-operation should error.  
+operation should error.  All standard Coze messages and keys should have an
+encoded payload, such as "tmb", to perform the switching over.  
 
 Alternatively, each string's length would need to be checked individually.  
 
-If a system wants to sign something from another encoding, convert to the
-desired encoding before signing.  
+If a system wants to sign something from another encoding or mixed encoding,
+convert to the desired encoding before signing.  
 
 ## Consideration for the online tool.
 The online tool will have an additional added button Hex to base64 and base64 to
@@ -87,10 +93,20 @@ Hex.
 1. Use an identifier for base64 encoding.  "_64"
 
 ## Future considerations
-Perhaps base 85, basE91, or another efficient encoding can be supported, especially since JSON itself is not URI safe. 
+Perhaps base 85, basE91, or another efficient encoding can be supported,
+especially since JSON itself is not URI safe. 
 
+Since we want to support more efficient encodings than base64, supporting
+multiple encodings, (Hex and base64) appears to be a logical first step.  
 
-
+## Why not deprecate Hex?
+1. Hex is human readable.  
+ A. Small alphabet. 
+ B. No doppelgängers (O0I1l)
+2. Hex is phonetic
+	A. Many people know how to pronounce Hex. 
+	B. "-" and "_" is difficult for some people to pronounce.  
+3. We want to support even more efficient encodings in the future.  
 
 
 ## Appendix
