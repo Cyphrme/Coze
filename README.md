@@ -108,8 +108,7 @@ is generated from `alg`'s thumbprint canon fields and not `typ`. For example,
 the algorithm `ES256` uses a thumbprint canon of `["alg", "x", "y"]` and a
 hashing algorithm of `SHA-256`. See the thumbprint section for more.
 
-Either Hex or base64 with URL safe alphabet and padding omitted may be used
-for encoded values. 
+Encoded values use base64 with the URI safe alphabet and padding omitted.
 
 # Canon
 Coze JSON objects are canonicalized and hashed for creating digests, signing,
