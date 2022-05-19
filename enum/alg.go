@@ -367,6 +367,42 @@ func (a SEAlg) Hash() HashAlg {
 	return SigAlg(a).Hash() // Only SigAlgs are supported at the moment.
 }
 
+// XSize returns the byte size of `x`.  Returns 0 on error.
+func (a SEAlg) XSize() int {
+	// For ECDSA (ES224, ES256, ES384, and ES512), the x size is the concatenation
+	// of the x and y component.
+	switch SigAlg(a) {
+	case ES224:
+		return 56
+	case ES256:
+		return 64
+	case ES384:
+		return 96
+	case ES512:
+		return 128
+	case Ed25519:
+		return 32
+	}
+	return 0
+}
+
+// DSize returns the byte size of `d`.  Returns 0 on error.
+func (a SEAlg) DSize() int {
+	switch SigAlg(a) {
+	case ES224:
+		return 28
+	case ES256:
+		return 32
+	case ES384:
+		return 48
+	case ES512:
+		return 64
+	case Ed25519:
+		return 32
+	}
+	return 0
+}
+
 //////////////
 //  SigAlg  //
 //////////////

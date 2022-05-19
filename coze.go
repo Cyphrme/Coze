@@ -12,7 +12,7 @@ import (
 type Head struct {
 	Alg ce.SEAlg `json:"alg"`           // e.g. "ES256"
 	Iat int64    `json:"iat"`           // e.g. 1623132000
-	Tmb Hex      `json:"tmb"`           // e.g. "0148F4CD9093C9CBE3E8BF78D3E6C9B824F11DD2F29E2B1A630DD1CE1E176CDD"
+	Tmb B64      `json:"tmb"`           // e.g. "0148F4CD9093C9CBE3E8BF78D3E6C9B824F11DD2F29E2B1A630DD1CE1E176CDD"
 	Typ string   `json:"typ,omitempty"` // e.g. "cyphr.me/msg/create"
 }
 

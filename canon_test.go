@@ -20,8 +20,7 @@ func TestCH(t *testing.T) {
 	}
 }
 
-// ExampleCanonical tests CHH (Canonical Hash Hex), which calls CH, which calls
-// Canon.
+// ExampleCanonical tests CH (Canonical Hash), which calls Canon.
 func ExampleCanonical() {
 	var b []byte
 	var err error

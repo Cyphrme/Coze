@@ -28,12 +28,12 @@ import (
 //
 // SCH: The "Standard Coze Head" fields ["alg","iat","tmb","typ"] in a Coze object. Populated by Coze functions like "SetMeta", and is ignored by marshaling/unmarshaling.
 type Cy struct {
-	Cad  Hex             `json:"cad,omitempty"`
+	Cad  B64             `json:"cad,omitempty"`
 	Can  []string        `json:"can,omitempty"`
-	Cyd  Hex             `json:"cyd,omitempty"`
+	Cyd  B64             `json:"cyd,omitempty"`
 	Head json.RawMessage `json:"head"`
 	Key  *CozeKey        `json:"key,omitempty"` // Must be pointer for json.Marshal. https://github.com/golang/go/issues/11939
-	Sig  Hex             `json:"sig,omitempty"`
+	Sig  B64             `json:"sig,omitempty"`
 	Sigs json.RawMessage `json:"sigs,omitempty"`
 
 	Sch Head `json:"-"`
@@ -118,7 +118,7 @@ func (cy *Cy) SetMeta() (err error) {
 }
 
 // GenCyd generates and returns `cyd`.
-func GenCyd(hash ce.HashAlg, cad Hex, sig Hex) (cyd Hex) {
+func GenCyd(hash ce.HashAlg, cad B64, sig B64) (cyd B64) {
 	var cadSig = []byte(fmt.Sprintf(`{"cad":"%s","sig":"%s"}`, cad, sig))
 	return ce.Hash(hash, cadSig)
 }
@@ -149,18 +149,18 @@ func (cy *Cy) Verify(ck *CozeKey, canon interface{}) (bool, error) {
 // implementing Coze should not define their own "cy" types, but their own
 // "head" types.  Those head types may then be converted into Coze.Cy types.
 type Cyer interface {
-	Cy(sig Hex) (*Cy, error)
+	Cy(sig B64) (*Cy, error)
 }
 
 // Method Cy implements the Cyer interface.
-func (cy *Cy) Cy(sig Hex) (*Cy, error) {
+func (cy *Cy) Cy(sig B64) (*Cy, error) {
 	cy.Sig = sig
 	return cy, nil
 }
 
 // Verify is a convenience function that is is equivalent to calling
 // `Cyer.Cy().Verify(ck, canon)`. See docs on cy.Verify.
-func Verify(cy Cyer, ck *CozeKey, sig Hex, canon interface{}) (bool, error) {
+func Verify(cy Cyer, ck *CozeKey, sig B64, canon interface{}) (bool, error) {
 	c, err := cy.Cy(sig)
 	if err != nil {
 		return false, err

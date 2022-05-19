@@ -71,7 +71,7 @@ func CanonB(b []byte) (can []string, err error) {
 // CH (Canonical Hash) accepts []byte and an optional canon, and returns digest
 // of the canonical form.
 // If input is already in canonical form, cozeenum.Hash() can be called instead.
-func CH(input []byte, canon interface{}, hash ce.HashAlg) (digest Hex, err error) {
+func CH(input []byte, canon interface{}, hash ce.HashAlg) (digest B64, err error) {
 	b, err := Canonical(input, canon)
 	if err != nil {
 		return nil, err

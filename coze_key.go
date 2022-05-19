@@ -12,23 +12,17 @@ import (
 	"math/big"
 	"time"
 
+	"github.com/cyphrme/coze/enum"
 	ce "github.com/cyphrme/coze/enum"
 )
 
-var CozeKeyECDSAArr = []string{"alg", "x", "y"}
-var CozeKeyEdDSAArr = []string{"alg", "x"}
+// CozeKeyArrayCanon is the canonical form of a Coze Key in array form.
+var CozeKeyArrayCanon = []string{"alg", "x"}
 
-// Canonical form of a ECDSA CozeKey
-type CozeKeyECDSACanon struct {
+// CozeKeyCanon is the canonical form of a Coze Key in struct form.
+type CozeKeyCanon struct {
 	Alg string `json:"alg"`
-	X   Hex    `json:"x"`
-	Y   Hex    `json:"y"`
-}
-
-// Canonical form of a EdDSA CozeKey
-type CozeKeyEdDSACanon struct {
-	Alg string `json:"alg"`
-	X   Hex    `json:"x"`
+	X   B64    `json:"x"`
 }
 
 // CozeKey is a Coze key.
@@ -43,14 +37,9 @@ type CozeKeyEdDSACanon struct {
 // Recommended Fields:
 //	- `kid` - Human readable label and must not be used programatically. E.g. "My Cyphr.me key".
 //
-// ECDSA Fields
+// Key Fields
 //	- `d` - Private component.
-//	- `x` - Public x component. (Without JSON omitempty since X is always set, public/private and all algs.)
-//	- `y` - Public y component.
-//
-// EdDSA Fields
-//	- `d` - Private component.
-//	- `x` - Public component (y concatenated with x).
+//	- `x` - Public component. Without JSON omitempty since x is always set, public, private, and all algs.
 //
 // Revoked
 //  - `rvk` - Unix time of key revocation. See docs on `rvk`. E.g. 1626069601.
@@ -62,12 +51,11 @@ type CozeKey struct {
 	Alg ce.SEAlg `json:"alg"`
 	Kid string   `json:"kid,omitempty"`
 	Iat int64    `json:"iat"`
-	Tmb Hex      `json:"tmb"`
+	Tmb B64      `json:"tmb"`
 
 	// ECDSA/EdDSA parameters
-	D Hex `json:"d,omitempty"`
-	X Hex `json:"x"`
-	Y Hex `json:"y,omitempty"`
+	D B64 `json:"d,omitempty"`
+	X B64 `json:"x"` // No omitempty since X is always set.
 
 	// Revoked
 	Rvk int64 `json:"rvk,omitempty"`
@@ -85,8 +73,7 @@ type CozeKey struct {
 // 	"kid":"Example Coze Key",
 // 	"iat":1623132000,
 // 	"tmb":"9EC680EEDE972F334D9B1F6775D0E61B510884DD663F982DD8323EC07D2E3FB6",
-// 	"x":"C8E9E522BE0CD40B20DB86DE972B9158C227EDBE99DD2C280544C23D20728A64",
-// 	"y":"5FE39DD3B1DDBEEA9C80A400C7CF6D2E43FFE40F660873688AAB1D676020ACBD"
+// 	"x":"C8E9E522BE0CD40B20DB86DE972B9158C227EDBE99DD2C280544C23D20728A645FE39DD3B1DDBEEA9C80A400C7CF6D2E43FFE40F660873688AAB1D676020ACBD",
 // }
 func (c *CozeKey) String() string {
 	b, err := Marshal(c)
@@ -114,8 +101,7 @@ func NewKey(alg ce.SEAlg) (c *CozeKey, err error) {
 			eck, err = ecdsa.GenerateKey(elliptic.P521(), rand.Reader)
 		}
 		c.D = eck.D.Bytes()
-		c.X = eck.X.Bytes()
-		c.Y = eck.Y.Bytes()
+		c.X = append(eck.X.Bytes()[:], eck.Y.Bytes()[:]...)
 	} else if c.Alg == ce.SEAlg(ce.Ed25519) {
 		var pub, pri []byte
 		pub, pri, err = ed25519.GenerateKey(rand.Reader)
@@ -148,16 +134,16 @@ func (c *CozeKey) Thumbprint() (err error) {
 // Thumbprint generates Coze key thumbprint (`tmb`). For ECDSA, `tmb` is the
 // digest of canon [alg, x, y] and for EdDSA `tmb` is the digest of canon [alg,
 // x]
-func Thumbprint(c *CozeKey) (tmb Hex, err error) {
+func Thumbprint(c *CozeKey) (tmb B64, err error) {
 	b, err := Marshal(c)
 	if err != nil {
 		return nil, err
 	}
 
 	if c.Alg.SigAlg().Genus() == ce.Ecdsa {
-		tmb, err = CH(b, &CozeKeyECDSACanon{}, c.Alg.Hash())
+		tmb, err = CH(b, &CozeKeyCanon{}, c.Alg.Hash())
 	} else if c.Alg.SigAlg().Genus() == ce.Eddsa {
-		tmb, err = CH(b, &CozeKeyEdDSACanon{}, c.Alg.Hash())
+		tmb, err = CH(b, &CozeKeyCanon{}, c.Alg.Hash())
 	} else {
 		return nil, errors.New("coze: unknown coze key alg " + c.Alg.String() + " for thumbprint generation.")
 	}
@@ -166,7 +152,7 @@ func Thumbprint(c *CozeKey) (tmb Hex, err error) {
 }
 
 // Sign uses a private Coze key to sign a digest.
-func (c *CozeKey) Sign(digest Hex) (sig Hex, err error) {
+func (c *CozeKey) Sign(digest B64) (sig B64, err error) {
 	if len(c.D) == 0 {
 		return nil, errors.New("coze: `d` is not set.  Signing requires private key. ")
 	}
@@ -188,7 +174,7 @@ func (c *CozeKey) Sign(digest Hex) (sig Hex, err error) {
 }
 
 // SignRaw uses a private Coze key to sign a pre-hashed, raw message.
-func (c *CozeKey) SignRaw(msg []byte) (sig Hex, err error) {
+func (c *CozeKey) SignRaw(msg []byte) (sig B64, err error) {
 	if len(c.D) == 0 {
 		return nil, errors.New("coze: `d` is not set.  Signing requires private key. ")
 	}
@@ -215,7 +201,7 @@ func (c *CozeKey) SignRaw(msg []byte) (sig Hex, err error) {
 // SignHead signs head. Canon is optional.
 //
 // TODO:  Parse out MinCy and verify sanity.
-func (c *CozeKey) SignHead(head interface{}, canon interface{}) (sig Hex, err error) {
+func (c *CozeKey) SignHead(head interface{}, canon interface{}) (sig B64, err error) {
 	b, err := Canon(head, canon)
 	if err != nil {
 		return nil, err
@@ -319,35 +305,16 @@ func (c *CozeKey) Valid() (valid bool) {
 // Correct:
 //
 // 1. Ensures required headers exist.
-// 2. Checks the length of public components.
+// 2. Checks the length of x.
 // 3. Recalculates `tmb` and if incorrect throws an error.
-// 4. If containing private components, generates and verifies a signature, thus
+// 4. If containing d, generates and verifies a signature, thus
 //    verifying the key, by calling Valid()
 func Correct(ck CozeKey) (bool, error) {
-	var xLen, yLen int
-	switch ce.SigAlg(ck.Alg) {
-	case ce.ES224:
-		xLen = 28
-		yLen = 28
-	case ce.ES256:
-		xLen = 32
-		yLen = 32
-	case ce.ES384:
-		xLen = 48
-		yLen = 48
-	case ce.ES512:
-		xLen = 64
-		yLen = 64
-	case ce.Ed25519:
-		xLen = 32
-		yLen = 0
-	default:
+	var xLen = enum.SEAlg(ck.Alg).XSize()
+	if xLen == 0 {
 		return false, errors.New("coze.Correct: unknown alg")
 	}
 
-	if len(ck.Y) != yLen {
-		return false, fmt.Errorf("coze.Correct: y is incorrect length %d for alg %s", len(ck.Y), ck.Alg)
-	}
 	if len(ck.X) != xLen {
 		return false, fmt.Errorf("coze.Correct: x is incorrect length: %d for alg %s", len(ck.X), ck.Alg)
 	}
@@ -386,10 +353,11 @@ func (cozekey *CozeKey) ToCryptoKey() (ck *ce.CryptoKey, err error) {
 	if cozekey == nil {
 		return nil, errors.New("coze: nil Coze Key")
 	}
-	if len(cozekey.X) == 0 || len(cozekey.Y) == 0 {
+	if len(cozekey.X) == 0 {
 		return nil, errors.New("coze: invalid CozeKey")
 	}
 
+	// TODO support Ed25519
 	switch cozekey.Alg.SigAlg().Genus() {
 	default:
 		return nil, errors.New("unsupported alg")
@@ -413,8 +381,9 @@ func ecdsaCozeKeyToCryptoKey(ck *CozeKey) (key *ce.CryptoKey, err error) {
 	key.Alg = ck.Alg
 	curve := ck.Alg.Curve().EllipticCurve()
 
-	x := new(big.Int).SetBytes(ck.X)
-	y := new(big.Int).SetBytes(ck.Y)
+	half := len(ck.X) / 2
+	x := new(big.Int).SetBytes(ck.X[:half])
+	y := new(big.Int).SetBytes(ck.X[half:])
 
 	ec := ecdsa.PublicKey{
 		Curve: curve,
