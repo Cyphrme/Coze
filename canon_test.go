@@ -7,20 +7,20 @@ import (
 	ce "github.com/cyphrme/coze/enum"
 )
 
-// TestCH tests CH, Canonical Hash.
-func TestCH(t *testing.T) {
-	//	The "canonical digest" of`head` is `cad`.
-	cad, err := CH([]byte(Golden_Head_String), nil, ce.Sha256)
+// TestCanonHash.
+func TestCanonHash(t *testing.T) {
+	//	The canonical digest of`head` is `cad`.
+	cad, err := CanonHash([]byte(Golden_Head), nil, ce.Sha256)
 
 	if err != nil {
 		t.Fatal(err)
 	}
-	if cad.String() != "0C359495353CD108BF5477F1084B4C2A656C565D2168D496A149B0990AE94286" {
-		t.Fatal("canonical hash hex does not match")
+	if cad.String() != "aC2YKfNvovfnZOw_RVxSEW6NeaUq41DZXX0oeaOboRg" {
+		t.Fatal("canonical hash does not match.  Got: " + cad.String())
 	}
 }
 
-// ExampleCanonical tests CH (Canonical Hash), which calls Canon.
+// ExampleCanonical.
 func ExampleCanonical() {
 	var b []byte
 	var err error
@@ -38,22 +38,18 @@ func ExampleCanonical() {
 		C string `json:"c"`
 	}
 
-	//////////////////
 	// struct (out of order) with struct (in order) canon
-	/////////////////
 	var cba = ABC{
 		C: "c", B: "b", A: "a",
 	}
-	b, err = Canon(cba, new(ABC))
+	b, err = CanonicalStruct(cba, new(ABC))
 	if err != nil {
 		fmt.Println(err)
 	}
 	fmt.Printf("Input: struct; Canon: struct => %s\n", b)
 
-	//////////////////
 	// []byte (out of order) with nil canon.  Missing field  "b" should be omitted
 	// from output.
-	//////////////////
 	ca, err := Marshal(map[string]string{"c": "c", "a": "a"})
 	if err != nil {
 		fmt.Println(err)
@@ -65,10 +61,8 @@ func ExampleCanonical() {
 	}
 	fmt.Printf("Input: []byte; Canon: nil    => %s\n", b)
 
-	//////////////////
 	// []byte (out of order) with struct (in order) canon. Missing field "b"
 	// should be omitted from output.
-	//////////////////
 	ca, err = Marshal(map[string]string{"c": "c", "a": "a"})
 	if err != nil {
 		fmt.Println(err)
@@ -96,53 +90,53 @@ func ExampleCanonical() {
 	// Input: []byte; Canon: nil    => {"a":"a","c":"c"}
 }
 
-func ExampleCanonS() {
+func ExampleCanonStruct() {
 	type structWithEmbedded struct {
-		// Fields are out of order since CanonS must return in order.
-		Name string `json:"name"`
 		Head
+		Name string `json:"name"`
 	}
 
 	var s = structWithEmbedded{
-		Name: "Bob",
 		Head: Head{
 			Alg: ce.SEAlg(ce.ES256),
 			Iat: 1626479633,
 			Typ: "cyphr.me",
 		},
+		Name: "Bob",
 	}
 
 	marshaled, err := Marshal(s)
 	if err != nil {
 		fmt.Println(err)
 	}
-	fmt.Printf("Marshaled: %s\n", marshaled)
+	fmt.Printf("%s\n", marshaled)
 
-	can, err := CanonS(s)
+	can, err := CanonStruct(s)
 	if err != nil {
 		fmt.Println(err)
 	}
 	fmt.Println(can)
 
-	// Example with an empty struct.  Since Typ tag is `json:omitempty`, it will
-	// not br present in the canon.
+	// Example with an empty struct demonstrating the bahavior of
+	// `json:omitempty`.
 	ss := structWithEmbedded{}
-	can, err = CanonS(ss)
+	can, err = CanonStruct(ss)
 	if err != nil {
 		fmt.Println(err)
 	}
 	fmt.Println(can)
 	// Output:
-	// Marshaled: {"name":"Bob","alg":"ES256","iat":1626479633,"tmb":"","typ":"cyphr.me"}
-	// [alg iat name tmb typ]
-	// [alg iat name tmb]
+	// {"alg":"ES256","iat":1626479633,"typ":"cyphr.me","name":"Bob"}
+	// [alg iat name typ]
+	// [name]
+
 }
 
-func ExampleCanonB() {
-	// Out of order since CanonB should return in order
+func ExampleCanon() {
+	// Out of order since Canon should return in order
 	b := []byte(`{"z":"z","a":"a"}`)
 
-	can, err := CanonB(b)
+	can, err := Canon(b)
 	if err != nil {
 		fmt.Println(err)
 	}

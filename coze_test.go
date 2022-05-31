@@ -5,18 +5,11 @@ import (
 	"fmt"
 )
 
-const Golden_Head_String = `{
-	"alg": "ES256",
-	"iat": 1623132000,
-	"tmb": "0148F4CD9093C9CBE3E8BF78D3E6C9B824F11DD2F29E2B1A630DD1CE1E176CDD",
-	"typ": "cyphr.me"
-	}`
-
 //ExampleCyUnmarshal tests unmarshalling a `cy`.
 func ExampleHead_jsonUnmarshal() {
 	h := &Head{}
 
-	err := json.Unmarshal([]byte(Golden_Head_String), h)
+	err := json.Unmarshal([]byte(Golden_Head), h)
 	if err != nil {
 		fmt.Println(err)
 	}
@@ -28,7 +21,7 @@ func ExampleHead_jsonUnmarshal() {
 
 	fmt.Printf("%s\n", out)
 	// Output:
-	// {"alg":"ES256","iat":1623132000,"tmb":"0148F4CD9093C9CBE3E8BF78D3E6C9B824F11DD2F29E2B1A630DD1CE1E176CDD","typ":"cyphr.me"}
+	// {"alg":"ES256","iat":1627518000,"tmb":"cLj8vsYtMBwYkzoFVZHBZo6SNL8wSdCIjCKAwXNuhOk","typ":"cyphr.me/msg"}
 }
 
 // Example_jsonMarshalRaw demonstrates using nil for RawMessage.  RawMessage

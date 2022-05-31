@@ -49,13 +49,12 @@ standard field `typ` and custom fields.  In the first example, `msg` is a custom
 field.
 
 ## `head` Reserved Names
-- `alg`  (Required) Specific signing algorithm.  E.g. `"ES256"`
-- `iat`  (Required) The time when the message was signed. E.g. `1623132000`
-- `tmb`  (Required) Thumbprint of the key used to sign the message.  E.g.
-           `"0148F4..."`
-- `typ`  (Optional) Type of `head`. `typ` may denote the canon of `head`. 
-           E.g. `"cyphr.me/msg/create"` denotes the canon 
-				   `["alg","iat","msg","tmb", "typ"]`
+- `alg`  Specific signing algorithm.  E.g. `"ES256"`
+- `iat`  The time when the message was signed. E.g. `1623132000`
+- `tmb`  Thumbprint of the key used to sign the message.  E.g. `"0148F4..."`
+- `typ`  Type of `head`. `typ` may denote the canon of `head`. E.g.
+           `"cyphr.me/msg/create"` denotes the canon `["alg","iat","msg","tmb",
+           "typ"]`
 
 
 # Coze Key
@@ -64,10 +63,9 @@ field.
 {
 	"alg":"ES256",
 	"iat":1623132000,
-	"tmb":"0148F4CD9093C9CBE3E8BF78D3E6C9B824F11DD2F29E2B1A630DD1CE1E176CDD",
 	"kid":"Zami's Majuscule Key.",
-	"x":"DA74CE685566D902F19943BF4A3832B1C54706DBC711FA36AEAEB932F80D4633",
-	"y":"91A23AB7F476AAF6B5CDC6F5F1C1B6BF5E3D05E6F6626C94778AC05D3966E8E6"
+	"tmb":"cLj8vsYtMBwYkzoFVZHBZo6SNL8wSdCIjCKAwXNuhOk",
+	"x":"2nTOaFVm2QLxmUO_SjgyscVHBtvHEfo2rq65MvgNRjORojq39Haq9rXNxvXxwba_Xj0F5vZibJR3isBdOWbo5g"
 }
 ```
 
@@ -75,13 +73,12 @@ field.
 ```JSON
 {
 	"alg":"ES256",
-	"d":"6CDB2D838FC7DE6DD29513AE7F045212089B2EB06E46AF75D783AF75AA5CA550",
 	"iat":1623132000,
-	"tmb":"0148F4CD9093C9CBE3E8BF78D3E6C9B824F11DD2F29E2B1A630DD1CE1E176CDD",
 	"kid":"Zami's Majuscule Key.",
-	"x":"DA74CE685566D902F19943BF4A3832B1C54706DBC711FA36AEAEB932F80D4633",
-	"y":"91A23AB7F476AAF6B5CDC6F5F1C1B6BF5E3D05E6F6626C94778AC05D3966E8E6"
-}
+	"d":"bNstg4_H3m3SlROufwRSEgibLrBuRq9114OvdapcpVA",
+	"tmb":"cLj8vsYtMBwYkzoFVZHBZo6SNL8wSdCIjCKAwXNuhOk",
+	"x":"2nTOaFVm2QLxmUO_SjgyscVHBtvHEfo2rq65MvgNRjORojq39Haq9rXNxvXxwba_Xj0F5vZibJR3isBdOWbo5g"
+}`
 ```
 
 ## Coze Key Reserved Names
@@ -90,14 +87,12 @@ to `alg`.
 
 - `key`  (Object) Key object. E.g. `"key":{"alg":"ES256", ...}`
 - `alg`  (Required) Signing algorithm.  E.g. `"ES256"`
-- `d`    (Private Key Required) Private component.  E.g. `"6CDB2D..."`
+- `d`    (Private Key Required) Private component.  E.g. `"bNstg4..."`
 - `iat`  (Required) "Issued at"  When the key was created. E.g. `1623132000`
 - `kid`  (Recommended) Human readable, non-programmatic identifier for the key.
             E.g. `"kid":"My Cyphr.me Key"`. 
-- `tmb`  (Required) Thumbprint of the key.  E.g. `"0148F4..."`
-- `x`    (ECDSA/EdDSA Required) X component for ECDSA, Y concatenated with X for
-            EdDSA.  E.g. `"DA74CE..."`.
-- `y`    (ECDSA Required) Y component.  E.g. `"91A23A..."`. 
+- `tmb`  (Required) Thumbprint of the key.  E.g. `"cLj8vs..."`
+- `x`    (Key Required) X concatenated with Y for EdDSA.  E.g. `"2nTOaF..."`.
 - `typ`  (Optional) Optional type for application specific fields.  
 - `rvk`  (Optional) Time of key revocation.  See the `rvk` section.  
 
@@ -226,7 +221,9 @@ The JSON name `cy` is used to wrap Coze objects.  For example:
  We suspect that for the majority of use cases, `cy` is useless.  We recommend
  against needlessly wrapping implicit Coze objects with `cy`. For example, the
  JSON object `{"head":{...},"sig":...}` may not be labeled with the key `cy` if
- already implicitly known as a `cy`.
+ already implicitly known as a `cy`.  The label "coze" may be used as an alias
+ for "cy", however, programmatically, `cy` should be named `cy` to avoid
+ confusion.  
 
 
 ## `cy` reserved names
@@ -323,7 +320,6 @@ revocation and the integer value "1" is suitable to denote revocation.
 Key expiration policies, such as key rotation, are outside the scope of Coze.
 Self revokes with future times must immediately be considered as revoked.  
 
-
 # Supported Algorithms 
 - ES224
 - ES256
@@ -396,6 +392,7 @@ Play with Coze here: https://cyphr.me/coze_verifier.
 See also [Coze js](https://github.com/Cyphrme/cozejs).
 
 
+
 # FAQ
 
 ## Pronunciation?
@@ -428,6 +425,16 @@ UTF-16 (Javascript) has some code points out of order. For these systems, a
 small amount of additional logic is needed to correct the sort order.  
 
 
+## Zero case
+If `alg` and `tmb` are know by the application, a zero case is legitimate.  
+```json
+{
+ "head": {},
+ "sig": "TODOSIGHERE"
+}
+```
+// TODO correct sig with key above.  
+
 ## Binary?
 No.
 
@@ -459,14 +466,14 @@ below is the digest of an image. The coze includes other metadata.
 ```
 
 
-## How do I do versioning?
-Use `typ` for API versioning, e.g. `cyphr.me/v1/msg`.
-
-
 ## Is Coze versioned?  
 Our hope is Coze stays simple and stable enough to preclude versioning.  `alg`
 refers to a specific set of parameters.  If a parameter needs changing, like the
 hashing algorithm, `alg` would reflect that change.  
+
+
+## How do I do versioning?
+Use `typ` for API versioning, e.g. `cyphr.me/v1/msg`.
 
 
 ## Why `head` and not `pay`, `payload`, or `body`?
@@ -498,7 +505,7 @@ encapsulating all non-standard fields in "~", the last ASCII character.  We've
 dubbed this a "tilde encapsulated payload". For example: 
 
 ```json
- "head": {
+{
   "alg": "ES256",
   "iat": 1623132000,
   "tmb": "0148F4CD9093C9CBE3E8BF78D3E6C9B824F11DD2F29E2B1A630DD1CE1E176CDD",

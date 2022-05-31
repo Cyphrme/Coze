@@ -1,4 +1,27 @@
+# Coze Vs "X" Disclaimer
+We have a lot of respect for the various projects in the space.  Many projects
+have noble goals and we're thankful they exists.  We also don't think it's cool
+to "take a dump" all over someone else's work when the authors have worked so
+hard to bring value, freely, to everyone.  
+
+We also think it's important to give specific reason why Coze's design is
+different from other projects.  In this document, we attempt to give specific
+reasons why Coze was needed.  
+
+# Why not "x"?
+
+## signify (OpenBSD):
+ - No browser implementations. 
+ - No algorithm agility.  
+ - Not JSON.  
+
+
+
 # Coze vs JOSE
+
+We have a lot of respect for JOSE.  We think its goals are noble
+and we're glad it exists.  
+
 ## Why JOSE is awesome.
 - Has the goal of doing crypto in a somewhat human readable paradigm.
 - Has the goal of updating old standards that are hard to use and sometimes
@@ -8,7 +31,7 @@
   PGP fingerprint or Ethereum address. Thumbprints universally address specific
   keys. 
 
-## Why JOSE could be better.
+## How JOSE could be better.
 - JWT is not JSON (despite the name) and JWS is valid, but base64 encoded, JSON. 
 - The "unencoded" option is still encoded, and was added to the standard later.
   (RFC 7797)
@@ -18,7 +41,7 @@
   followed this implicit requirement.  For example RFC 8037 specifies that
   Ed25519 and Ed448, neither of which use SHA-256, use SHA-256 for their
   thumbprints. 
-- Because headers are always transmitted encoded and as base64, they increase in
+- Headers are always transmitted encoded and as base64 and they increase in
   size.  For example,
   `"eyJhbGciOiJIUzI1NiIsImI2NCI6ZmFsc2UsImNyaXQiOlsiYjY0Il19"` is larger than
   the unencoded representation `{"alg":"HS256","b64":false,"crit":["b64"]}`
@@ -139,7 +162,7 @@ as of 2021/05/13.
 
 
 
- ## Example JWK (Coze does not use JWK, this is just for comparison):
+## Reference Example JWK:
 ```json
 {
  "crv": "P-256",
@@ -153,9 +176,7 @@ as of 2021/05/13.
 
 
 
-
 ## Encoding Waste Example
-
 The example string, "Potatoes,"
 
 is 9 characters, and is encoded in UTF-8 as 9 bytes.  

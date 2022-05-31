@@ -8,10 +8,10 @@ import (
 
 // Type B64 is a Coze addition to Go's base64.  B64 is useful for marshaling and
 // unmarshalling structs. B64's underlying type is []byte and is represented in
-// JSON as a base 64 URI truncated strings (b64ut).
+// JSON as base64 URI truncated (b64ut).
 //
-// When converting integers or other types, `nil` in B64 is "" and a zero type
-// (for instance "0") in B64 is encoded as "AA".
+// When converting integers or other types, `nil` in B64 is "" and the zero is
+// encoded as "AA".
 //
 type B64 []byte
 

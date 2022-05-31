@@ -7,6 +7,7 @@ import (
 	"crypto/ed25519"
 	"crypto/elliptic"
 	"crypto/rand"
+	"encoding/json"
 	"errors"
 	"fmt"
 	"math/big"
@@ -25,56 +26,40 @@ type CozeKeyCanon struct {
 	X   B64    `json:"x"`
 }
 
-// CozeKey is a Coze key.
+// CozeKey is a Coze key. See `README.md` for details.
 //
-// See `README.md` for details.
+// Fields must be in order for correct JSON marshaling.
 //
-// Required Fields (Plus any `alg` specific fields.)
-//	- `alg` - Specific algorithm of the key. E.g. "ES256" or "Ed25519".
+// Required Fields
+//	- `alg` - Specific key algorithm. E.g. "ES256" or "Ed25519".
+//
+// Recommended and Optional Fields:
+//	- `kid` - Human readable label and must not be used programmatically. E.g. "My Coze key".
 //	- `iat` - Unix time of when the key was created. E.g. 1626069600.
 //	- `tmb` - Key's thumbprint. E.g. "0148F4CD9093C9CBE3E8BF78D3E6C9B824F11DD2F29E2B1A630DD1CE1E176CDD".
-//
-// Recommended Fields:
-//	- `kid` - Human readable label and must not be used programatically. E.g. "My Cyphr.me key".
+//	- `typ` - The key's type and may be used by applications to identify the key.  "coze/key".
 //
 // Key Fields
 //	- `d` - Private component.
-//	- `x` - Public component. Without JSON omitempty since x is always set, public, private, and all algs.
+//	- `x` - Public component.
 //
-// Revoked
+// Revoked.  Key revocation should be done through a Coze message using the
+// `rvk`` field in `head` (See the Coze README).  The Coze key field `rvk` is
+// useful for storing a key's revocation state.
 //  - `rvk` - Unix time of key revocation. See docs on `rvk`. E.g. 1626069601.
-//
-// Optional standard fields
-//	-`typ` - The key's type.  "coze/key".
 //
 type CozeKey struct {
 	Alg ce.SEAlg `json:"alg"`
+	D   B64      `json:"d,omitempty"`
+	Iat int64    `json:"iat,omitempty"`
 	Kid string   `json:"kid,omitempty"`
-	Iat int64    `json:"iat"`
-	Tmb B64      `json:"tmb"`
-
-	// ECDSA/EdDSA parameters
-	D B64 `json:"d,omitempty"`
-	X B64 `json:"x"` // No omitempty since X is always set.
-
-	// Revoked
-	Rvk int64 `json:"rvk,omitempty"`
-
-	// Optional parameters
-	Typ string `json:"typ,omitempty"`
+	Rvk int64    `json:"rvk,omitempty"`
+	Tmb B64      `json:"tmb,omitempty"`
+	Typ string   `json:"typ,omitempty"`
+	X   B64      `json:"x,omitempty"`
 }
 
 // String returns the stringified Coze key.
-//
-// Example ECDSA Coze key:
-// {
-// 	"alg":"ES256",
-// 	"d":"95DE8C5F50A71B392417AE0E5D60CD63AFF967FC6DA8060DECC031B0E63B3280"
-// 	"kid":"Example Coze Key",
-// 	"iat":1623132000,
-// 	"tmb":"9EC680EEDE972F334D9B1F6775D0E61B510884DD663F982DD8323EC07D2E3FB6",
-// 	"x":"C8E9E522BE0CD40B20DB86DE972B9158C227EDBE99DD2C280544C23D20728A645FE39DD3B1DDBEEA9C80A400C7CF6D2E43FFE40F660873688AAB1D676020ACBD",
-// }
 func (c *CozeKey) String() string {
 	b, err := Marshal(c)
 	if err != nil {
@@ -101,6 +86,7 @@ func NewKey(alg ce.SEAlg) (c *CozeKey, err error) {
 			eck, err = ecdsa.GenerateKey(elliptic.P521(), rand.Reader)
 		}
 		c.D = eck.D.Bytes()
+		// In Coze, X and Y are concatenated into field `x`
 		c.X = append(eck.X.Bytes()[:], eck.Y.Bytes()[:]...)
 	} else if c.Alg == ce.SEAlg(ce.Ed25519) {
 		var pub, pri []byte
@@ -114,11 +100,13 @@ func NewKey(alg ce.SEAlg) (c *CozeKey, err error) {
 		return nil, err
 	}
 
-	c.Kid = "My Coze Key"
 	c.Iat = time.Now().Unix()
 	err = c.Thumbprint()
+	if err != nil {
+		return nil, err
+	}
 
-	return c, err
+	return c, nil
 }
 
 // Thumbprint generates and sets the Coze key thumbprint (`tmb`).
@@ -131,9 +119,8 @@ func (c *CozeKey) Thumbprint() (err error) {
 	return
 }
 
-// Thumbprint generates Coze key thumbprint (`tmb`). For ECDSA, `tmb` is the
-// digest of canon [alg, x, y] and for EdDSA `tmb` is the digest of canon [alg,
-// x]
+// Thumbprint generates Coze key thumbprint `tmb` which is the digest of canon
+// [alg, x]
 func Thumbprint(c *CozeKey) (tmb B64, err error) {
 	b, err := Marshal(c)
 	if err != nil {
@@ -141,9 +128,9 @@ func Thumbprint(c *CozeKey) (tmb B64, err error) {
 	}
 
 	if c.Alg.SigAlg().Genus() == ce.Ecdsa {
-		tmb, err = CH(b, &CozeKeyCanon{}, c.Alg.Hash())
+		tmb, err = CanonHash(b, &CozeKeyCanon{}, c.Alg.Hash())
 	} else if c.Alg.SigAlg().Genus() == ce.Eddsa {
-		tmb, err = CH(b, &CozeKeyCanon{}, c.Alg.Hash())
+		tmb, err = CanonHash(b, &CozeKeyCanon{}, c.Alg.Hash())
 	} else {
 		return nil, errors.New("coze: unknown coze key alg " + c.Alg.String() + " for thumbprint generation.")
 	}
@@ -198,14 +185,16 @@ func (c *CozeKey) SignRaw(msg []byte) (sig B64, err error) {
 	return sig, nil
 }
 
-// SignHead signs head. Canon is optional.
-//
-// TODO:  Parse out MinCy and verify sanity.
-func (c *CozeKey) SignHead(head interface{}, canon interface{}) (sig B64, err error) {
-	b, err := Canon(head, canon)
+// SignHead signs head. Canon may be nil.
+func (c *CozeKey) SignHead(head json.RawMessage, canon interface{}) (sig B64, err error) {
+	b, err := Canonical(head, canon)
 	if err != nil {
 		return nil, err
 	}
+	// TODO Don't sign on wrong tmb.
+	// TODO:  Verify sanity.
+	// TODO: what about iat?  flag?
+
 	return c.SignRaw(b)
 }
 
@@ -217,22 +206,6 @@ func (c *CozeKey) SignCy(cy *Cy, canon interface{}) (err error) {
 	}
 	cy.Sig = sig
 	return
-}
-
-// SignCyM is a convenience function for signing a Cy and returning the
-// marshaled bytes of the Cy.
-func SignCyM(cyer Cyer, key *CozeKey) ([]byte, error) {
-	cy, err := cyer.Cy(nil)
-	if err != nil {
-		return nil, err
-	}
-
-	err = key.SignCy(cy, nil)
-	if err != nil {
-		return nil, err
-	}
-
-	return cy.MarshalJSON()
 }
 
 // Verify uses a public Coze key to verify a raw message.
@@ -254,7 +227,7 @@ func (c *CozeKey) VerifyRaw(msg []byte, sig []byte) (valid bool, err error) {
 
 // VerifyDigest uses a public coze key to verify a digest.
 //
-// TODO Go's ed25519 package does not currently support verifying with a digest.
+// TODO Go's ed25519 package currently does not currently support verifying with a digest.
 // https://pkg.go.dev/crypto/ed25519#Verify
 func (c *CozeKey) VerifyDigest(digest []byte, sig []byte) (valid bool, err error) {
 	if len(sig) == 0 {
