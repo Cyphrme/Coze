@@ -34,10 +34,10 @@ correct sorting.
    repeat.
 4. "" an alias for `alg`. 
 5. Repeat sorted first `alg` in `head`, (e.g. " alg" and "alg") 
-6. Repeat `alg` in `cy`. (`alg` in `cy` alone isn't considered a viable option
+6. Repeat `alg` in `coze`. (`alg` in `coze` alone isn't considered a viable option
    since it wouldn't be signed)
 7. Use "pay" for payload. 
-	a. pay in `cy` 
+	a. pay in `coze` 
 	b. pay in `head`
 8. Use `"~"` for payload.  (Last ASCII character)
 

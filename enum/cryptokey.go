@@ -7,6 +7,7 @@ import (
 	"crypto/elliptic"
 	"crypto/rand"
 	"errors"
+	"fmt"
 	"math/big"
 )
 
@@ -18,7 +19,7 @@ type CryptoKey struct {
 	Private *crypto.PrivateKey
 }
 
-// NewCryptoKey generates a new cryptokey.
+// NewCryptoKey generates a new CryptoKey.
 func NewCryptoKey(alg SEAlg) (ck *CryptoKey, err error) {
 	var cryptoKey CryptoKey
 	cryptoKey.Alg = alg
@@ -45,10 +46,10 @@ func NewCryptoKey(alg SEAlg) (ck *CryptoKey, err error) {
 		keyPair, err = ecdsa.GenerateKey(elliptic.P256(), rand.Reader)
 	case ES384:
 		keyPair, err = ecdsa.GenerateKey(elliptic.P384(), rand.Reader)
-	case ES512: // ES512 and **NOT "ES521"** The curve != the alg.
+	case ES512: // ES512/P521. The curve != the alg.
 		keyPair, err = ecdsa.GenerateKey(elliptic.P521(), rand.Reader)
 	default:
-		return nil, errors.New("cozeenum.NewCryptoKey: Unknown Alg")
+		return nil, errors.New("coze.enum.NewCryptoKey: Unknown Alg")
 	}
 
 	if err != nil {
@@ -63,20 +64,15 @@ func NewCryptoKey(alg SEAlg) (ck *CryptoKey, err error) {
 	return &cryptoKey, nil
 }
 
-// Sign signs a msg.  `msg` should be pre-hash.  On error, returns zero bytes.
-func (c CryptoKey) SignRaw(msg []byte) (sig []byte, err error) {
-	return c.Sign(Hash(c.Alg.Hash(), msg))
-}
-
-// SignDigest signs a precalculated digest.  On error, returns zero bytes.
-// Digest's size must match c.Alg.Hash().Size().
+// Sign signs a precalculated digest.  On error, returns zero bytes. Digest's
+// length must match c.Alg.Hash().Size().
 func (c CryptoKey) Sign(digest []byte) (sig []byte, err error) {
 	switch c.Alg.SigAlg() {
 	default:
-		return nil, errors.New("cozeenum.SignDigest: Unknown Alg")
+		return nil, errors.New("coze.enum.SignDigest: Unknown Alg")
 	case ES224, ES256, ES384, ES512:
 		if len(digest) != c.Alg.Hash().Size() {
-			return nil, errors.New("cryptokey: digest size does not match cryptokey.alg.hash size")
+			return nil, errors.New(fmt.Sprintf("coze.enum: digest length does not match alg.hash.size. Len: %d, Alg: %s.", len(digest), c.Alg.String()))
 		}
 
 		priv := *c.Private
@@ -97,22 +93,13 @@ func (c CryptoKey) Sign(digest []byte) (sig []byte, err error) {
 			return nil, err
 		}
 
-		sig = PadSig(r, s, c.Alg.SigAlg().SigSize())
+		return PadCon(r, s, c.Alg.SigAlg().SigSize()), nil
 	}
-
-	return sig, nil
 }
 
-// Verify verifies that a signature with a given public cryptokey and
-// signed message.
-func (c CryptoKey) Verify(msg, sig []byte) (valid bool, err error) {
-	digest := Hash(c.Alg.Hash(), msg)
-	return c.VerifyDigest(digest, sig)
-}
-
-// VerifyDigest verifies that a signature is valid with a given public cryptokey
+// Verify verifies that a signature is valid with a given public CryptoKey
 // and digest. `digest` should be the digest of the original msg to verify.
-func (c CryptoKey) VerifyDigest(digest, sig []byte) (valid bool, err error) {
+func (c CryptoKey) Verify(digest, sig []byte) (valid bool, err error) {
 	var size = c.Alg.SigAlg().SigSize() / 2
 
 	r := big.NewInt(0).SetBytes(sig[:size])
@@ -124,8 +111,16 @@ func (c CryptoKey) VerifyDigest(digest, sig []byte) (valid bool, err error) {
 		return false, errors.New("cryptokey: public key is invalid")
 	}
 
-	if !ecdsa.Verify(&v, digest, r, s) {
-		return false, nil
-	}
-	return true, nil
+	return ecdsa.Verify(&v, digest, r, s), nil
+}
+
+// SignMsg signs a pre-hash msg.  On error, returns zero bytes.
+func (c CryptoKey) SignMsg(msg []byte) (sig []byte, err error) {
+	return c.Sign(Hash(c.Alg.Hash(), msg))
+}
+
+// Verify verifies that a signature with a given public CryptoKey and
+// signed message.
+func (c CryptoKey) VerifyMsg(msg, sig []byte) (valid bool, err error) {
+	return c.Verify(Hash(c.Alg.Hash(), msg), sig)
 }

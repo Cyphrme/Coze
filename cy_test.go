@@ -28,7 +28,7 @@ var Golden_Cy = `{
  }`
 
 var Golden_Cy_En = `{
-	"cy":` + Golden_Cy + `
+	"coze":` + Golden_Cy + `
 }`
 
 var Golden_Cy_W_Key = `{
@@ -38,7 +38,7 @@ var Golden_Cy_W_Key = `{
 	"sig": "` + Golden_Sig + `"
  }`
 
-//ExampleCy_jsonUnMarshal tests unmarshalling a `cy`.
+//ExampleCy_jsonUnMarshal tests unmarshalling a `coze`.
 func ExampleCy_jsonUnMarshal() {
 	cy := new(Cy)
 	err := json.Unmarshal([]byte(Golden_Cy), cy)
@@ -56,10 +56,10 @@ func ExampleCy_jsonUnMarshal() {
 	//{"head":{"msg":"Coze Rocks","alg":"ES256","iat":1627518000,"tmb":"cLj8vsYtMBwYkzoFVZHBZo6SNL8wSdCIjCKAwXNuhOk","typ":"cyphr.me/msg"},"sig":"Z8yK1AuBWdfGzwmXK_xwlZizlFsxFkK7bKJ8FEDoNEA1IFJECjaK0ZLPLDIFhLX6kD8jis-9tCKlB1Qzb-mEzg"}
 }
 
-func ExampleCyEn_jsonMarshal() {
+func ExampleCoze_jsonMarshal() {
 	var err error
 
-	cye := new(CyEn)
+	cye := new(Coze)
 
 	err = json.Unmarshal([]byte(Golden_Cy_En), cye)
 	if err != nil {
@@ -73,48 +73,48 @@ func ExampleCyEn_jsonMarshal() {
 
 	fmt.Printf("%+s\n", b)
 	// Output:
-	//{"cy":{"head":{"msg":"Coze Rocks","alg":"ES256","iat":1627518000,"tmb":"cLj8vsYtMBwYkzoFVZHBZo6SNL8wSdCIjCKAwXNuhOk","typ":"cyphr.me/msg"},"sig":"Z8yK1AuBWdfGzwmXK_xwlZizlFsxFkK7bKJ8FEDoNEA1IFJECjaK0ZLPLDIFhLX6kD8jis-9tCKlB1Qzb-mEzg"}}
+	//{"coze":{"head":{"msg":"Coze Rocks","alg":"ES256","iat":1627518000,"tmb":"cLj8vsYtMBwYkzoFVZHBZo6SNL8wSdCIjCKAwXNuhOk","typ":"cyphr.me/msg"},"sig":"Z8yK1AuBWdfGzwmXK_xwlZizlFsxFkK7bKJ8FEDoNEA1IFJECjaK0ZLPLDIFhLX6kD8jis-9tCKlB1Qzb-mEzg"}}
 }
 
-// // TestVerifyCy
-// func TestVerifyCy(t *testing.T) {
-// 	var cy *Cy
-// 	err := json.Unmarshal([]byte(Golden_Cy), &cy)
-// 	if err != nil {
-// 		t.Fatal(err)
-// 	}
+// TestVerifyCy
+func TestVerifyCy(t *testing.T) {
+	var cy *Cy
+	err := json.Unmarshal([]byte(Golden_Cy), &cy)
+	if err != nil {
+		t.Fatal(err)
+	}
 
-// 	cozekey := Golden_Key
+	cozekey := Golden_Key
 
-// 	ck, err := cozekey.ToCryptoKey()
-// 	if err != nil {
-// 		t.Fatal(err)
-// 	}
+	ck, err := cozekey.ToCryptoKey()
+	if err != nil {
+		t.Fatal(err)
+	}
 
-// 	// fmt.Printf("ck: %+v\n", ck)
-// 	// fmt.Printf("\n Coze Key in testing: %+v \n", cozekey)
-// 	// fmt.Printf("\n Crypto Key: %+v \n", ck)
-// 	// fmt.Printf("\n Crypto Key Private: %+v \n", *ck.Private)
-// 	// fmt.Printf("\n Crypto Key Public: %+v \n", *ck.Public)
+	// fmt.Printf("ck: %+v\n", ck)
+	// fmt.Printf("\n Coze Key in testing: %+v \n", cozekey)
+	// fmt.Printf("\n Crypto Key: %+v \n", ck)
+	// fmt.Printf("\n Crypto Key Private: %+v \n", *ck.Private)
+	// fmt.Printf("\n Crypto Key Public: %+v \n", *ck.Public)
 
-// 	ch, err := CH(cy.Head, nil, ce.Sha256)
-// 	if err != nil {
-// 		t.Fatal(err)
-// 	}
+	ch, err := CanonHash(cy.Head, nil, ce.Sha256)
+	if err != nil {
+		t.Fatal(err)
+	}
 
-// 	// fmt.Printf("Canonical Hash (cad): %+v\n", ch)
-// 	// fmt.Printf("Head String: %+v\n", string(headB))
-// 	// fmt.Printf("CAD Hex: %X\n", ch)
-// 	// fmt.Printf("Sig Hex: %s\n", cy.Sig)
+	// fmt.Printf("Canonical Hash (cad): %+v\n", ch)
+	// fmt.Printf("Head String: %+v\n", string(headB))
+	// fmt.Printf("CAD Hex: %X\n", ch)
+	// fmt.Printf("Sig Hex: %s\n", cy.Sig)
 
-// 	valid, err := ck.VerifyDigest(ch, cy.Sig)
-// 	if err != nil {
-// 		t.Fatal(err)
-// 	}
-// 	if !valid {
-// 		t.Fatal("Not a valid cy.sig.")
-// 	}
-// }
+	valid, err := ck.Verify(ch, cy.Sig)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if !valid {
+		t.Fatal("Not a valid cy.sig.")
+	}
+}
 
 func ExampleCy_Verify() {
 	var cy Cy
@@ -166,7 +166,7 @@ func TestVerifyCyMsg(t *testing.T) {
 	// fmt.Printf("Cy: %+v\n", cy)
 	// fmt.Printf("Head: %s\n", cy.Head)
 
-	valid, err := Golden_Key.VerifyRaw(cy.Head, cy.Sig)
+	valid, err := Golden_Key.VerifyMsg(cy.Head, cy.Sig)
 
 	if err != nil {
 		t.Fatal(err)
@@ -182,7 +182,7 @@ func TestVerifyCyMsg(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	valid, err = Golden_Key.VerifyDigest(ch, cy.Sig)
+	valid, err = Golden_Key.Verify(ch, cy.Sig)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -214,7 +214,7 @@ func ExampleCy_verify_manual() {
 		fmt.Println(err)
 	}
 
-	t, err := Golden_Key.VerifyRaw(b, cy.Sig)
+	t, err := Golden_Key.VerifyMsg(b, cy.Sig)
 	if err != nil {
 		fmt.Println(err)
 	}

@@ -5,7 +5,7 @@ import (
 	"fmt"
 )
 
-//ExampleCyUnmarshal tests unmarshalling a `cy`.
+//ExampleHead_jsonUnmarshal tests unmarshalling a Head.
 func ExampleHead_jsonUnmarshal() {
 	h := &Head{}
 

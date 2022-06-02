@@ -46,7 +46,7 @@ func ExampleCozeKey_String() {
 	// {"alg":"ES256","d":"bNstg4_H3m3SlROufwRSEgibLrBuRq9114OvdapcpVA","iat":1623132000,"kid":"Zami's Majuscule Key.","tmb":"cLj8vsYtMBwYkzoFVZHBZo6SNL8wSdCIjCKAwXNuhOk","x":"2nTOaFVm2QLxmUO_SjgyscVHBtvHEfo2rq65MvgNRjORojq39Haq9rXNxvXxwba_Xj0F5vZibJR3isBdOWbo5g"}
 }
 
-//ExampleCyUnmarshal tests unmarshalling a `cy`.
+//ExampleCozeKey_jsonUnmarshal tests unmarshalling a Coze key.
 func ExampleCozeKey_jsonUnmarshal() {
 	cozekey := new(CozeKey)
 	err := json.Unmarshal([]byte(Golden_Key_String), cozekey)
@@ -112,12 +112,12 @@ func ExampleCozeKey_Valid() {
 }
 
 func ExampleCozeKey_SignRaw() {
-	sig, err := Golden_Key.SignRaw(TestMsg)
+	sig, err := Golden_Key.SignMsg(TestMsg)
 	if err != nil {
 		fmt.Println(err)
 	}
 
-	valid, err := Golden_Key.VerifyRaw(TestMsg, sig)
+	valid, err := Golden_Key.VerifyMsg(TestMsg, sig)
 
 	if err != nil {
 		fmt.Println(err)
@@ -126,21 +126,6 @@ func ExampleCozeKey_SignRaw() {
 
 	fmt.Printf("%v\n", valid)
 	// Output: true
-}
-
-func TestCozeKey_SignRaw(t *testing.T) {
-	sig, err := Golden_Key.SignRaw(TestMsg)
-	if err != nil {
-		fmt.Println(err)
-	}
-	valid, err := Golden_Key.VerifyRaw(TestMsg, sig)
-
-	if err != nil {
-		t.Fatal(err)
-	}
-	if !valid {
-		t.Fatal("Signature is not valid.")
-	}
 }
 
 func ExampleCozeKey_SignCy() {
@@ -195,11 +180,11 @@ func ExampleCozeKey_SignRaw_ed25519() {
 		fmt.Println(err)
 	}
 
-	s, err := ck.SignRaw(TestMsg)
+	s, err := ck.SignMsg(TestMsg)
 	if err != nil {
 		fmt.Println(err)
 	}
-	v, err := ck.VerifyRaw(TestMsg, s)
+	v, err := ck.VerifyMsg(TestMsg, s)
 	if err != nil {
 		fmt.Println(err)
 	}
@@ -220,7 +205,7 @@ func ExampleCozeKey_VerifyRaw() {
 		fmt.Println(err)
 	}
 
-	valid, err := Golden_Key.VerifyRaw(TestMsg, sb)
+	valid, err := Golden_Key.VerifyMsg(TestMsg, sb)
 
 	if err != nil {
 		fmt.Println(err)
@@ -246,11 +231,11 @@ func TestGenKeys(t *testing.T) {
 			t.Fatal(err)
 		}
 
-		s, err := cozeKey.SignRaw(TestMsg)
+		s, err := cozeKey.SignMsg(TestMsg)
 		if err != nil {
 			t.Fatal(err)
 		}
-		v, err := cozeKey.VerifyRaw(TestMsg, s)
+		v, err := cozeKey.VerifyMsg(TestMsg, s)
 		if err != nil {
 			t.Fatal(err)
 		}
@@ -260,74 +245,37 @@ func TestGenKeys(t *testing.T) {
 	}
 }
 
-// go test -bench=.
-func BenchmarkGenKeys(b *testing.B) {
-	for i := 0; i < b.N; i++ {
-		n := b.N % 5
-		algs := []ce.SigAlg{
-			ce.ES224,
-			ce.ES256,
-			ce.ES384,
-			ce.ES512,
-			ce.Ed25519,
-		}
-
-		cozeKey, err := NewKey(ce.SEAlg(algs[n]))
-		if err != nil {
-			panic(err)
-		}
-
-		s, err := cozeKey.SignRaw(TestMsg)
-		if err != nil {
-			panic(err)
-		}
-		v, err := cozeKey.VerifyRaw(TestMsg, s)
-		if err != nil {
-			panic(err)
-		}
-		if v != true {
-			panic("signature was not verified.  Alg: " + cozeKey.Alg.String())
-		}
-	}
-}
-
 // BenchmarkNSV benchmarks several methods on a Coze Key. (NSV = New, Sign,
-// Verify) It generatea a new Coze Key, sign a message, and verifies the
+// Verify) It generates a new Coze Key, sign a message, and verifies the
 // signature.
-// `go test -bench=.`
+// go test -bench=.
+// go test -bench=BenchmarkNSV -benchtime=30s
 func BenchmarkNSV(b *testing.B) {
-	var passCount = 0
-
 	// TODO Ed25519 Support:
-	var algs = []ce.SigAlg{ce.ES224, ce.ES256, ce.ES384, ce.ES512}
+	var algs = []ce.SigAlg{ce.ES224, ce.ES256, ce.ES384, ce.ES512, ce.Ed25519}
 
 	for j := 0; j < b.N; j++ {
 		for i := 0; i < len(algs); i++ {
-			// log.Printf("Alg: %s\n", algs[i])
 			ck, err := NewKey(ce.SEAlg(algs[i]))
-			//log.Printf("Alg: %+v, Key: %+v\n", ck.Alg, ck)
 			if err != nil {
-				panic("Could not generate Coze Key.")
+				b.Fatal("Could not generate Coze Key.")
 			}
 
-			sig, err := ck.SignRaw(TestMsg)
+			sig, err := ck.SignMsg(TestMsg)
 			if err != nil {
-				panic(err)
+				b.Fatal(err)
 			}
 
-			valid, err := ck.VerifyRaw(TestMsg, sig)
+			valid, err := ck.VerifyMsg(TestMsg, sig)
 			if err != nil {
-				panic(err)
+				b.Fatal(err)
 			}
 			if !valid {
-				panic("The signature was invalid")
+				b.Fatalf("The signature was invalid.  Alg: %s", ck.Alg)
 			}
-
-			passCount++
 		}
 	}
 
-	fmt.Printf("TestCryptoKeyNSV Pass Count: %+v \n", passCount)
 }
 
 func Example_eS256_nsv() {
@@ -339,15 +287,12 @@ func Example_eS256_nsv() {
 		panic("Could not generate Coze Key.")
 	}
 
-	sig, err := ck.SignRaw(msg)
+	sig, err := ck.SignMsg(msg)
 	if err != nil {
 		panic(err)
 	}
 
-	valid, err := ck.VerifyRaw(msg, sig)
-	if err != nil {
-		panic(err)
-	}
+	valid, _ := ck.VerifyMsg(msg, sig)
 	if !valid {
 		panic("The signature was invalid")
 	}

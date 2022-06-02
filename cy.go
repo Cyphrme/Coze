@@ -10,16 +10,18 @@ import (
 	ce "github.com/cyphrme/coze/enum"
 )
 
-// Cy is for signed Coze objects.  See the Coze docs (README.md) for more on the
-// construction of `cy`.  Fields must appear in correct order for JSON
-// marshaling.
+// Cy is for signed Coze objects (cozies).  See the Coze docs (README.md) for
+// more on the construction of `coze`.
 //
-// Fields: Cad: head's canon digest.
+// (Struct fields must appear in sorted order for JSON marshaling.)
 //
-// Can: Explicit canon of head.  In not present, `can` is assumed implicitly
-// from `head`'s present fields.
+// Fields:
 //
-// Cyd: Cy digest.  Thumbprint of `cy` with canon ["cad","sig"].
+// Cad: head's canon digest.
+//
+// Can: Explicit canon of head.
+//
+// Cyd: Cy digest.  Thumbprint of `coze` with canon ["cad","sig"].
 //
 // Head: Head serialized for input or after canonicalization/normalization.
 //
@@ -28,8 +30,6 @@ import (
 // https://github.com/golang/go/issues/11939.
 //
 // Sig: signature over head.
-//
-// Sigs: Slice of signatures. (currently not implemented)
 //
 // Parsed: The parsed standard Coze head fields ["alg","iat","tmb","typ"].
 // Populated by Coze functions like "SetMeta", and is ignored by
@@ -41,24 +41,21 @@ type Cy struct {
 	Head json.RawMessage `json:"head"`
 	Key  *CozeKey        `json:"key,omitempty"` // Must be pointer for Marshal.
 	Sig  B64             `json:"sig,omitempty"`
-	Sigs json.RawMessage `json:"sigs,omitempty"`
 
 	Parsed Head `json:"-"`
+}
+
+// Coze is a JSON encapsulator for coze.Cy and is used to wrap struct Cy into a
+// JSON `coze`.
+type Coze struct {
+	Cy Cy `json:"coze"`
 }
 
 // CydCanon is the canon for a `cyd`.
 var CydCanon = []string{"head", "sig"}
 
-// CyEn a JSON encapsulator for coze.Cy. It's useful for wrapping struct Cy into
-// a JSON `cy`.
-type CyEn struct {
-	Cy Cy `json:"cy"`
-}
-
-// SetMeta canonicalizes Head and recalculates Meta for a given `cy`.
-// Cy.Head and Cy.Sig must be set.
-//
-// SetMeta does not verify cy.
+// SetMeta canonicalizes Head and recalculates meta for a given `coze`. Cy.Head
+// and Cy.Sig must be set.  SetMeta does no cryptographic verification.
 //
 // SeMeta recalculates [can, cad, cyd]
 //
@@ -88,6 +85,7 @@ func (cy *Cy) SetMeta() (err error) {
 		cy.Can = c
 	}
 
+	// TODO don't do this.
 	// Canonicalize `head` and marshal.
 	b, err := Canonical(cy.Head, cy.Can)
 	if err != nil {
@@ -113,7 +111,7 @@ func GenCyd(hash ce.HashAlg, cad B64, sig B64) (cyd B64) {
 	return ce.Hash(hash, cadSig)
 }
 
-// Verify cryptographically verifies `cy` with given `sig`.  Canon is optional.
+// Verify cryptographically verifies `coze` with given `sig`.  Canon is optional.
 func (cy *Cy) Verify(ck *CozeKey, canon interface{}) (bool, error) {
 	if cy.Sig == nil {
 		return false, errors.New("coze: sig is nil")
@@ -128,10 +126,9 @@ func (cy *Cy) Verify(ck *CozeKey, canon interface{}) (bool, error) {
 		return false, errors.New("coze: key tmb and cy tmb do not match")
 	}
 
-	// Canonical removes spaces or canonicalizes
 	b, err := Canonical(cy.Head, canon)
 	if err != nil {
 		return false, err
 	}
-	return ck.VerifyRaw(b, cy.Sig)
+	return ck.VerifyMsg(b, cy.Sig)
 }

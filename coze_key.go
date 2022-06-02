@@ -85,19 +85,25 @@ func NewKey(alg ce.SEAlg) (c *CozeKey, err error) {
 		case ce.ES512:
 			eck, err = ecdsa.GenerateKey(elliptic.P521(), rand.Reader)
 		}
-		c.D = eck.D.Bytes()
-		// In Coze, X and Y are concatenated into field `x`
-		c.X = append(eck.X.Bytes()[:], eck.Y.Bytes()[:]...)
+
+		if err != nil {
+			return nil, err
+		}
+
+		d := make([]byte, alg.DSize())
+		c.D = eck.D.FillBytes(d) // Left pads bytes
+		c.X = enum.PadCon(eck.X, eck.Y, alg.XSize())
+
 	} else if c.Alg == ce.SEAlg(ce.Ed25519) {
 		var pub, pri []byte
 		pub, pri, err = ed25519.GenerateKey(rand.Reader)
+		if err != nil {
+			return nil, err
+		}
 		c.D = pri
 		c.X = pub
 	} else {
 		return nil, errors.New("coze.NewKey:unsupported alg")
-	}
-	if err != nil {
-		return nil, err
 	}
 
 	c.Iat = time.Now().Unix()
@@ -160,8 +166,8 @@ func (c *CozeKey) Sign(digest B64) (sig B64, err error) {
 	return sig, nil
 }
 
-// SignRaw uses a private Coze key to sign a pre-hashed, raw message.
-func (c *CozeKey) SignRaw(msg []byte) (sig B64, err error) {
+// SignMsg uses a private Coze key to sign a pre-hashed, raw message.
+func (c *CozeKey) SignMsg(msg []byte) (sig B64, err error) {
 	if len(c.D) == 0 {
 		return nil, errors.New("coze: `d` is not set.  Signing requires private key. ")
 	}
@@ -177,7 +183,7 @@ func (c *CozeKey) SignRaw(msg []byte) (sig B64, err error) {
 	if err != nil {
 		return nil, err
 	}
-	sig, err = ck.SignRaw(msg)
+	sig, err = ck.SignMsg(msg)
 	if err != nil {
 		return nil, err
 	}
@@ -195,7 +201,7 @@ func (c *CozeKey) SignHead(head json.RawMessage, canon interface{}) (sig B64, er
 	// TODO:  Verify sanity.
 	// TODO: what about iat?  flag?
 
-	return c.SignRaw(b)
+	return c.SignMsg(b)
 }
 
 // SignCy signs a given Cy.Head and populates `sig`.
@@ -208,8 +214,8 @@ func (c *CozeKey) SignCy(cy *Cy, canon interface{}) (err error) {
 	return
 }
 
-// Verify uses a public Coze key to verify a raw message.
-func (c *CozeKey) VerifyRaw(msg []byte, sig []byte) (valid bool, err error) {
+// VerifyMsg uses a public Coze key to verify a pre-hash message.
+func (c *CozeKey) VerifyMsg(msg []byte, sig []byte) (valid bool, err error) {
 	if len(sig) == 0 {
 		return false, errors.New("coze: sig is empty")
 	}
@@ -222,14 +228,14 @@ func (c *CozeKey) VerifyRaw(msg []byte, sig []byte) (valid bool, err error) {
 	if err != nil {
 		return false, err
 	}
-	return ck.Verify(msg, sig)
+	return ck.VerifyMsg(msg, sig)
 }
 
-// VerifyDigest uses a public coze key to verify a digest.
+// Verify uses a public coze key to verify a digest.
 //
 // TODO Go's ed25519 package currently does not currently support verifying with a digest.
 // https://pkg.go.dev/crypto/ed25519#Verify
-func (c *CozeKey) VerifyDigest(digest []byte, sig []byte) (valid bool, err error) {
+func (c *CozeKey) Verify(digest []byte, sig []byte) (valid bool, err error) {
 	if len(sig) == 0 {
 		return false, errors.New("coze: sig is empty")
 	}
@@ -239,14 +245,12 @@ func (c *CozeKey) VerifyDigest(digest []byte, sig []byte) (valid bool, err error
 		return false, err
 	}
 
-	return ck.VerifyDigest(digest, sig)
+	return ck.Verify(digest, sig)
 }
 
 // Valid validates a private Coze Key and returns a bool.
 //
-// Valid works by
-//  1. Ensuring required fields are present.
-//  2. Signing a message and verifying a valid signature.
+// Valid works by signing a message and verifying a valid signature.
 //
 // Valid always returns false on public keys.  Use function "Verify" for public
 // keys with signed message and "Correct" for public keys without signed
@@ -257,12 +261,12 @@ func (c *CozeKey) Valid() (valid bool) {
 	}
 
 	msg := []byte("Testing")
-	sig, err := c.SignRaw(msg)
+	sig, err := c.SignMsg(msg)
 
 	if err != nil {
 		return false
 	}
-	valid, err = c.VerifyRaw(msg, sig)
+	valid, err = c.VerifyMsg(msg, sig)
 	if err != nil {
 		return false
 	}
@@ -322,7 +326,7 @@ func (ck *CozeKey) IsPrivate() bool {
 
 // ToCryptoKey takes a Coze Key object and returns a crypto key object.
 func (cozekey *CozeKey) ToCryptoKey() (ck *ce.CryptoKey, err error) {
-	// fmt.Printf("\n Ck Private: %+v \n", cozekey)
+	//fmt.Printf("\n Ck Private: %+v \n", cozekey)
 	if cozekey == nil {
 		return nil, errors.New("coze: nil Coze Key")
 	}
@@ -354,7 +358,7 @@ func ecdsaCozeKeyToCryptoKey(ck *CozeKey) (key *ce.CryptoKey, err error) {
 	key.Alg = ck.Alg
 	curve := ck.Alg.Curve().EllipticCurve()
 
-	half := len(ck.X) / 2
+	half := ck.Alg.XSize() / 2
 	x := new(big.Int).SetBytes(ck.X[:half])
 	y := new(big.Int).SetBytes(ck.X[half:])
 

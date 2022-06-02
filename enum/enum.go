@@ -10,8 +10,9 @@ import (
 
 // Hash hashes msg and returns the digest or a set size. Returns nil on error.
 //
-// This function was written because it doesn't exist in the standard lib.  If
-// in the future there is a standard lib function, use that and deprecate this.
+// This function was written because it doesn't exist in the standard library.
+// If in the future there is a standard lib function, use that and deprecate
+// this.
 //
 // Shake128 returns 32 bytes. Shake256 returns 64 bytes.
 func Hash(c HashAlg, msg []byte) (digest []byte) {
@@ -45,34 +46,30 @@ func Hash(c HashAlg, msg []byte) (digest []byte) {
 	return
 }
 
-// PadSig creates a signature that is the padded concatendation of R and S.
-// Padding is needed because R and S are integers that can vary in size.
+// PadCon creates a left padded concatenation of two input integers. From Go's
+// packages, X, Y, R, and S  are type big.Int that can vary in size. When
+// converting to fixed sized bytes left padding is needed before encoding.
 //
-// For ECDSA sig is always R || S of a fixed size with left
-// padding.  For example, ES256 should always have a 64 byte signature. [0,0, 1
-// .... || 0,0,1 ...]
+// For ECDSA, Coze's `x` is left padded concatenation of X || Y.  For example,
+// ES256's `x` is always 64 bytes.
+//
+// For ECDSA `sig` is always R || S of a fixed size with left padding.  For
+// example, ES256 must have a 64 byte signature. [0,0, 1 .... || 0,0,1 ...].
 //
 // Note: ES512's signature size is 132 bytes (and not 128, 131, or 130.25),
 // because R and S are each respectively rounded up and padded to 528 and for a
 // total signature size of 1056 bits.
 // See https://datatracker.ietf.org/doc/html/rfc4754#section-7
-func PadSig(r, s *big.Int, size int) (sig []byte) {
+func PadCon(r, s *big.Int, size int) (sig []byte) {
 	sig = make([]byte, size)
 	half := size / 2
 
-	// R
-	rb := r.Bytes() // get r bytes
-	n := copy(sig[half-len(rb):], rb)
-	if n != len(rb) {
-		return nil
-	}
+	rb := r.Bytes()
+	copy(sig[half-len(rb):], rb)
 
-	// S
-	sb := s.Bytes() // get s bytes
-	n = copy(sig[half+(half-(len(sb))):], sb)
-	if n != len(sb) {
-		return nil
-	}
+	sb := s.Bytes()
+	copy(sig[half+(half-(len(sb))):], sb)
+
 	return sig
 }
 

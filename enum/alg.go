@@ -46,13 +46,13 @@
 //  - Other future broad types...
 //  -- ECDH
 //
-// "SE" (singing, encryption) is the super type of signing and encryption.  SE
+// "SE" (singing, encryption) is the super type of signing and encryption and
 // excludes hashing.
 //
 // The integer value of the enum will change in the future. Use the string name
 // for algos when storing information.
 //
-// See the main Coze README for unsupported algs and things.
+// See the main Coze README for unsupported things.
 package enum
 
 import (
@@ -75,7 +75,7 @@ type SigAlg SEAlg // Signing Algorithm
 type EncAlg SEAlg // Encryption Algorithm
 
 type Crv int    // Curve type.  Used for EC curves.
-type KeyUse int // Key Use. 2021/05/19 Right now only "enc" or "sig"
+type KeyUse int // Key Use. 2021/05/19 Right now only "sig (Perhaps "enc" in the future)
 
 // SEAlg is the Signing or Encryption alg.  Super type of SigAlg and EncAlg and
 // is itself not a specific algorithm and is not included in Alg.
@@ -89,11 +89,13 @@ type Params struct {
 	Name     string
 	Genus    GenAlg
 	Family   FamAlg
+	XSize    int     `json:"X.Size,omitempty"`
+	DSize    int     `json:"D.Size,omitempty"`
 	Hash     HashAlg `json:",omitempty"`
 	HashSize int     `json:"Hash.Size,omitempty"`
 	SigSize  int     `json:"Sig.Size,omitempty"`
 	Curve    Crv     `json:",omitempty"`
-	KeyUse   KeyUse  `json:",omitempty"`
+	KeyUse   KeyUse  `json:"Use,omitempty"`
 }
 
 // Params sets and returns a Params struct. See struct definition.
@@ -102,6 +104,8 @@ func (a Alg) Params() Params {
 	p.Name = a.String()
 	p.Genus = a.Genus()
 	p.Family = a.Family()
+	p.XSize = SEAlg(a).XSize()
+	p.DSize = SEAlg(a).DSize()
 	p.Hash = a.Hash()
 	p.HashSize = a.Hash().Size()
 	p.SigSize = a.SigAlg().SigSize()
@@ -369,8 +373,7 @@ func (a SEAlg) Hash() HashAlg {
 
 // XSize returns the byte size of `x`.  Returns 0 on error.
 func (a SEAlg) XSize() int {
-	// For ECDSA (ES224, ES256, ES384, and ES512), the x size is the concatenation
-	// of the x and y component.
+	// For ECDSA `x` is the concatenation of X and Y.
 	switch SigAlg(a) {
 	case ES224:
 		return 56
@@ -379,7 +382,7 @@ func (a SEAlg) XSize() int {
 	case ES384:
 		return 96
 	case ES512:
-		return 128
+		return 132 // X and Y are 66 bytes (Rounded up for P521)
 	case Ed25519:
 		return 32
 	}
@@ -396,7 +399,7 @@ func (a SEAlg) DSize() int {
 	case ES384:
 		return 48
 	case ES512:
-		return 64
+		return 66 // Rounded up for P521
 	case Ed25519:
 		return 32
 	}

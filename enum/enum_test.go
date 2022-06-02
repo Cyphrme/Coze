@@ -13,34 +13,29 @@ func BenchmarkNSV(b *testing.B) {
 	var passCount = 0
 
 	msg := []byte("Test message.")
-	// TODO Ed25519 Support: Ed25519
+	// TODO Ed25519
 	var algs = []SigAlg{ES224, ES256, ES384, ES512}
 
 	for j := 0; j < b.N; j++ {
 		for i := 0; i < len(algs); i++ {
-			// log.Printf("Alg: %s\n", algs[i])
 			cryptoKey, err := NewCryptoKey(SEAlg(algs[i]))
-			//log.Printf("Alg: %+v, Key: %+v\n", cryptoKey.Alg, *cryptoKey.Private)
 			if err != nil {
 				panic("Could not generate a new valid Crypto Key.")
 			}
 
-			sig, err := cryptoKey.Sign(msg)
+			sig, err := cryptoKey.SignMsg(msg)
 			if err != nil {
 				panic(err)
 			}
 
-			valid, err := cryptoKey.Verify(msg, sig)
-			if err != nil {
-				panic(err)
-			}
+			valid, _ := cryptoKey.VerifyMsg(msg, sig)
 			if !valid {
 				panic("The signature was invalid")
 			}
 
 			// Test VerifyDigest
 			msgDigest := Hash(SigAlg(algs[i]).Hash(), msg)
-			valid, _ = cryptoKey.VerifyDigest(msgDigest, sig)
+			valid, _ = cryptoKey.Verify(msgDigest, sig)
 			if !valid {
 				panic("The signature was invalid")
 			}
@@ -141,11 +136,11 @@ func ExampleAlg_Params() {
 
 	// Output:
 	// [ES224 ES256 ES384 ES512 Ed25519 SHA-224 SHA-256 SHA-384 SHA-512 SHA3-224 SHA3-256 SHA3-384 SHA3-512 SHAKE128 SHAKE256]
-	// {"Name":"ES224","Genus":"ECDSA","Family":"EC","Hash":"SHA-224","Hash.Size":28,"Sig.Size":56,"Curve":"P-224","KeyUse":"sig"}
-	// {"Name":"ES256","Genus":"ECDSA","Family":"EC","Hash":"SHA-256","Hash.Size":32,"Sig.Size":64,"Curve":"P-256","KeyUse":"sig"}
-	// {"Name":"ES384","Genus":"ECDSA","Family":"EC","Hash":"SHA-384","Hash.Size":48,"Sig.Size":96,"Curve":"P-384","KeyUse":"sig"}
-	// {"Name":"ES512","Genus":"ECDSA","Family":"EC","Hash":"SHA-512","Hash.Size":64,"Sig.Size":132,"Curve":"P-521","KeyUse":"sig"}
-	// {"Name":"Ed25519","Genus":"EdDSA","Family":"EC","Hash":"SHA-512","Hash.Size":64,"Sig.Size":64,"Curve":"Curve25519","KeyUse":"sig"}
+	// {"Name":"ES224","Genus":"ECDSA","Family":"EC","X.Size":56,"D.Size":28,"Hash":"SHA-224","Hash.Size":28,"Sig.Size":56,"Curve":"P-224","Use":"sig"}
+	// {"Name":"ES256","Genus":"ECDSA","Family":"EC","X.Size":64,"D.Size":32,"Hash":"SHA-256","Hash.Size":32,"Sig.Size":64,"Curve":"P-256","Use":"sig"}
+	// {"Name":"ES384","Genus":"ECDSA","Family":"EC","X.Size":96,"D.Size":48,"Hash":"SHA-384","Hash.Size":48,"Sig.Size":96,"Curve":"P-384","Use":"sig"}
+	// {"Name":"ES512","Genus":"ECDSA","Family":"EC","X.Size":132,"D.Size":66,"Hash":"SHA-512","Hash.Size":64,"Sig.Size":132,"Curve":"P-521","Use":"sig"}
+	// {"Name":"Ed25519","Genus":"EdDSA","Family":"EC","X.Size":32,"D.Size":32,"Hash":"SHA-512","Hash.Size":64,"Sig.Size":64,"Curve":"Curve25519","Use":"sig"}
 	// {"Name":"SHA-224","Genus":"SHA2","Family":"SHA","Hash":"SHA-224","Hash.Size":28}
 	// {"Name":"SHA-256","Genus":"SHA2","Family":"SHA","Hash":"SHA-256","Hash.Size":32}
 	// {"Name":"SHA-384","Genus":"SHA2","Family":"SHA","Hash":"SHA-384","Hash.Size":48}
@@ -156,4 +151,5 @@ func ExampleAlg_Params() {
 	// {"Name":"SHA3-512","Genus":"SHA3","Family":"SHA","Hash":"SHA3-512","Hash.Size":64}
 	// {"Name":"SHAKE128","Genus":"SHA3","Family":"SHA","Hash":"SHAKE128","Hash.Size":32}
 	// {"Name":"SHAKE256","Genus":"SHA3","Family":"SHA","Hash":"SHAKE256","Hash.Size":64}
+
 }

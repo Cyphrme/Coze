@@ -14,6 +14,7 @@ reasons why Coze was needed.
  - No browser implementations. 
  - No algorithm agility.  
  - Not JSON.  
+ - No real plan to expand its use.  
 
 
 
@@ -30,30 +31,30 @@ and we're glad it exists.
 - JSON crypto keys, both public and private, have thumbprints, which is like a
   PGP fingerprint or Ethereum address. Thumbprints universally address specific
   keys. 
+- Permits algorithm agility.  
 
 ## How JOSE could be better.
-- JWT is not JSON (despite the name) and JWS is valid, but base64 encoded, JSON. 
+- JWT is not JSON (despite the name).  JWT is not JSON in both encoded and
+  decoded form.
 - The "unencoded" option is still encoded, and was added to the standard later.
   (RFC 7797)
-		- (Thumbprints were also added later.)
 - Thumbprints have no way to signify hash algorithm (as of 2021/05/04) and it
-  appears to be always assumed to be SHA-256.  Later, additional RFCs have
-  followed this implicit requirement.  For example RFC 8037 specifies that
-  Ed25519 and Ed448, neither of which use SHA-256, use SHA-256 for their
-  thumbprints. 
+  appears to be always assumed to be SHA-256, even for ES384 and ES512.  Later,
+  additional RFCs have followed this implicit requirement.  For example RFC 8037
+  specifies that Ed25519 and Ed448, neither of which use SHA-256, use SHA-256
+  for their thumbprints. 
 - Headers are always transmitted encoded and as base64 and they increase in
   size.  For example,
   `"eyJhbGciOiJIUzI1NiIsImI2NCI6ZmFsc2UsImNyaXQiOlsiYjY0Il19"` is larger than
-  the unencoded representation `{"alg":"HS256","b64":false,"crit":["b64"]}`
-- Converts UTF-8 to b64ut and encodes that into ASCII bytes, and then then
-  hashes/signs those bytes. That's at least one extra conversion step we
-  consider unneeded.  
+  the unencoded representation `{"alg":"HS256","b64":false,"crit":["b64"]}`.
+- Converts UTF-8 to b64ut and encodes that into ASCII bytes, and then 
+  hashes/signs those bytes. That's at least one extra conversion.
 - JOSE's double encoding of some base64 values is inefficient.  
 - Protected headers.  For example, "alg" is required but doesn't always have to
   appear in the "protected" header.  This makes "protected"/"unprotected"
   headers less meaningful. 
 - Any string that re-encodes b64ut grows in size. normal JOSE objects, both the
-  compact (like JWT) and JSON forms grow in size. 
+  compact (like JWT) and JSON forms grow in size.
 
 
 JOSE:
