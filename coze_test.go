@@ -5,11 +5,11 @@ import (
 	"fmt"
 )
 
-//ExampleHead_jsonUnmarshal tests unmarshalling a Head.
-func ExampleHead_jsonUnmarshal() {
-	h := &Head{}
+//ExamplePay_jsonUnmarshal tests unmarshalling a Pay.
+func ExamplePay_jsonUnmarshal() {
+	h := &Pay{}
 
-	err := json.Unmarshal([]byte(Golden_Head), h)
+	err := json.Unmarshal([]byte(Golden_Pay), h)
 	if err != nil {
 		fmt.Println(err)
 	}

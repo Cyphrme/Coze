@@ -46,9 +46,14 @@ func Hash(c HashAlg, msg []byte) (digest []byte) {
 	return
 }
 
-// PadCon creates a left padded concatenation of two input integers. From Go's
-// packages, X, Y, R, and S  are type big.Int that can vary in size. When
-// converting to fixed sized bytes left padding is needed before encoding.
+// PadCon creates a big-endian byte slice with given size that is the left
+// padded concatenation  of two input integers.  From Go's packages, X, Y, R,
+// and S  are type big.Int that can vary in size. Before encoding to fixed sized
+// string (both base64 and Hex encode into fixed size strings), left padding of
+// bytes is needed.  Parameter `size` must be even.
+//
+// NOTE: EdDSA is little-endian while ECDSA is big-endian.  EdDSA should not be
+// used with this function.
 //
 // For ECDSA, Coze's `x` is left padded concatenation of X || Y.  For example,
 // ES256's `x` is always 64 bytes.
@@ -61,6 +66,10 @@ func Hash(c HashAlg, msg []byte) (digest []byte) {
 // total signature size of 1056 bits.
 // See https://datatracker.ietf.org/doc/html/rfc4754#section-7
 func PadCon(r, s *big.Int, size int) (sig []byte) {
+	if !(size%2 == 0) {
+		panic("size must be even.")
+	}
+
 	sig = make([]byte, size)
 	half := size / 2
 

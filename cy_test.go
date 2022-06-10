@@ -7,12 +7,12 @@ import (
 	"fmt"
 	"testing"
 
-	ce "github.com/cyphrme/coze/enum"
+	"github.com/cyphrme/coze/enum"
 )
 
 var testMsg = []byte("Coze Rock")
 
-var Golden_Head = `{
+var Golden_Pay = `{
 	"msg": "Coze Rocks",
 	"alg": "ES256",
 	"iat": 1627518000,
@@ -23,7 +23,7 @@ var Golden_Head = `{
 var Golden_Sig = "Z8yK1AuBWdfGzwmXK_xwlZizlFsxFkK7bKJ8FEDoNEA1IFJECjaK0ZLPLDIFhLX6kD8jis-9tCKlB1Qzb-mEzg"
 
 var Golden_Cy = `{
-	"head":` + Golden_Head + `,
+	"pay":` + Golden_Pay + `,
 	"sig": "` + Golden_Sig + `"
  }`
 
@@ -32,7 +32,7 @@ var Golden_Cy_En = `{
 }`
 
 var Golden_Cy_W_Key = `{
-	"head": ` + Golden_Head + `,
+	"pay": ` + Golden_Pay + `,
 	"key": ` + Golden_Key_String + `
 	,
 	"sig": "` + Golden_Sig + `"
@@ -53,7 +53,7 @@ func ExampleCy_jsonUnMarshal() {
 	}
 	fmt.Println(string(b))
 	// Output:
-	//{"head":{"msg":"Coze Rocks","alg":"ES256","iat":1627518000,"tmb":"cLj8vsYtMBwYkzoFVZHBZo6SNL8wSdCIjCKAwXNuhOk","typ":"cyphr.me/msg"},"sig":"Z8yK1AuBWdfGzwmXK_xwlZizlFsxFkK7bKJ8FEDoNEA1IFJECjaK0ZLPLDIFhLX6kD8jis-9tCKlB1Qzb-mEzg"}
+	//{"pay":{"msg":"Coze Rocks","alg":"ES256","iat":1627518000,"tmb":"cLj8vsYtMBwYkzoFVZHBZo6SNL8wSdCIjCKAwXNuhOk","typ":"cyphr.me/msg"},"sig":"Z8yK1AuBWdfGzwmXK_xwlZizlFsxFkK7bKJ8FEDoNEA1IFJECjaK0ZLPLDIFhLX6kD8jis-9tCKlB1Qzb-mEzg"}
 }
 
 func ExampleCoze_jsonMarshal() {
@@ -73,7 +73,7 @@ func ExampleCoze_jsonMarshal() {
 
 	fmt.Printf("%+s\n", b)
 	// Output:
-	//{"coze":{"head":{"msg":"Coze Rocks","alg":"ES256","iat":1627518000,"tmb":"cLj8vsYtMBwYkzoFVZHBZo6SNL8wSdCIjCKAwXNuhOk","typ":"cyphr.me/msg"},"sig":"Z8yK1AuBWdfGzwmXK_xwlZizlFsxFkK7bKJ8FEDoNEA1IFJECjaK0ZLPLDIFhLX6kD8jis-9tCKlB1Qzb-mEzg"}}
+	//{"coze":{"pay":{"msg":"Coze Rocks","alg":"ES256","iat":1627518000,"tmb":"cLj8vsYtMBwYkzoFVZHBZo6SNL8wSdCIjCKAwXNuhOk","typ":"cyphr.me/msg"},"sig":"Z8yK1AuBWdfGzwmXK_xwlZizlFsxFkK7bKJ8FEDoNEA1IFJECjaK0ZLPLDIFhLX6kD8jis-9tCKlB1Qzb-mEzg"}}
 }
 
 // TestVerifyCy
@@ -91,21 +91,10 @@ func TestVerifyCy(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	// fmt.Printf("ck: %+v\n", ck)
-	// fmt.Printf("\n Coze Key in testing: %+v \n", cozekey)
-	// fmt.Printf("\n Crypto Key: %+v \n", ck)
-	// fmt.Printf("\n Crypto Key Private: %+v \n", *ck.Private)
-	// fmt.Printf("\n Crypto Key Public: %+v \n", *ck.Public)
-
-	ch, err := CanonHash(cy.Head, nil, ce.Sha256)
+	ch, err := CanonHash(cy.Pay, nil, enum.Sha256)
 	if err != nil {
 		t.Fatal(err)
 	}
-
-	// fmt.Printf("Canonical Hash (cad): %+v\n", ch)
-	// fmt.Printf("Head String: %+v\n", string(headB))
-	// fmt.Printf("CAD Hex: %X\n", ch)
-	// fmt.Printf("Sig Hex: %s\n", cy.Sig)
 
 	valid, err := ck.Verify(ch, cy.Sig)
 	if err != nil {
@@ -157,16 +146,16 @@ func TestVerifyCyMsg(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	// Unmarshal does not normalize head bytes.  SetMeta() does.
+	// Unmarshal does not normalize pay bytes.  SetMeta() does.
 	err = cy.SetMeta()
 	if err != nil {
 		t.Fatal(err)
 	}
 
 	// fmt.Printf("Cy: %+v\n", cy)
-	// fmt.Printf("Head: %s\n", cy.Head)
+	// fmt.Printf("Pay: %s\n", cy.Pay)
 
-	valid, err := Golden_Key.VerifyMsg(cy.Head, cy.Sig)
+	valid, err := Golden_Key.VerifyMsg(cy.Pay, cy.Sig)
 
 	if err != nil {
 		t.Fatal(err)
@@ -177,7 +166,7 @@ func TestVerifyCyMsg(t *testing.T) {
 	}
 
 	// Test again with the manually calculated digest.
-	ch, err := CanonHash(cy.Head, nil, ce.Sha256)
+	ch, err := CanonHash(cy.Pay, nil, enum.Sha256)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -203,13 +192,13 @@ func ExampleCy_verify_manual() {
 		fmt.Println(err)
 	}
 	// debugging
-	// fmt.Printf("Cy.Head: %s\n,, Cy.Head: %+v\n", cy.Head, cy.Head)
+	fmt.Printf("Cy.Pay: %s\n,, Cy.Pay: %+v\n", cy.Pay, cy.Pay)
 
 	if bytes.Compare(cy.Parsed.Tmb, Golden_Key.Tmb) != 0 {
 		fmt.Println("coze: key thumbprints do not match")
 	}
 
-	b, err := Marshal(cy.Head)
+	b, err := Marshal(cy.Pay)
 	if err != nil {
 		fmt.Println(err)
 	}
@@ -242,7 +231,7 @@ func ExampleCy_SetMeta() {
 	fmt.Printf("%s\n", cyb)
 
 	// Output:
-	// {"cad":"aC2YKfNvovfnZOw_RVxSEW6NeaUq41DZXX0oeaOboRg","can":["alg","iat","msg","tmb","typ"],"cyd":"D9riVnxvV5qxoJLFbq4pzhoetcOaKASHvln_C7aip3I","head":{"alg":"ES256","iat":1627518000,"msg":"Coze Rocks","tmb":"cLj8vsYtMBwYkzoFVZHBZo6SNL8wSdCIjCKAwXNuhOk","typ":"cyphr.me/msg"},"sig":"Z8yK1AuBWdfGzwmXK_xwlZizlFsxFkK7bKJ8FEDoNEA1IFJECjaK0ZLPLDIFhLX6kD8jis-9tCKlB1Qzb-mEzg"}
+	// {"can":["alg","iat","msg","tmb","typ"],"cad":"aC2YKfNvovfnZOw_RVxSEW6NeaUq41DZXX0oeaOboRg","cyd":"D9riVnxvV5qxoJLFbq4pzhoetcOaKASHvln_C7aip3I","pay":{"msg":"Coze Rocks","alg":"ES256","iat":1627518000,"tmb":"cLj8vsYtMBwYkzoFVZHBZo6SNL8wSdCIjCKAwXNuhOk","typ":"cyphr.me/msg"},"sig":"Z8yK1AuBWdfGzwmXK_xwlZizlFsxFkK7bKJ8FEDoNEA1IFJECjaK0ZLPLDIFhLX6kD8jis-9tCKlB1Qzb-mEzg"}
 }
 
 func ExampleGenCyd_manual() {
@@ -261,7 +250,7 @@ func ExampleGenCyd_manual() {
 	cy.Cad = nil
 
 	// "Manually" recalculate values.
-	cy.Cad, err = CanonHash(cy.Head, nil, cy.Parsed.Alg.Hash())
+	cy.Cad, err = CanonHash(cy.Pay, nil, cy.Parsed.Alg.Hash())
 	if err != nil {
 		fmt.Println(err)
 	}

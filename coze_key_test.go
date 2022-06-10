@@ -6,13 +6,13 @@ import (
 	"fmt"
 	"testing"
 
-	ce "github.com/cyphrme/coze/enum"
+	"github.com/cyphrme/coze/enum"
 )
 
 var TestMsg = []byte("Coze Key Test Message.")
 
 var Golden_Key = CozeKey{
-	Alg: ce.SEAlg(ce.ES256),
+	Alg: enum.SEAlg(enum.ES256),
 	Kid: "Zami's Majuscule Key.",
 	Iat: 1623132000,
 	X:   []byte{218, 116, 206, 104, 85, 102, 217, 2, 241, 153, 67, 191, 74, 56, 50, 177, 197, 71, 6, 219, 199, 17, 250, 54, 174, 174, 185, 50, 248, 13, 70, 51, 145, 162, 58, 183, 244, 118, 170, 246, 181, 205, 198, 245, 241, 193, 182, 191, 94, 61, 5, 230, 246, 98, 108, 148, 119, 138, 192, 93, 57, 102, 232, 230},
@@ -31,7 +31,7 @@ const Golden_Key_String = `{
 
 // The very last byte in D was purposely changed from 80, to 81, which should make it invalid.
 var Golden_Bad_Key = &CozeKey{
-	Alg: ce.SEAlg(ce.ES256),
+	Alg: enum.SEAlg(enum.ES256),
 	Kid: "Zami's Majuscule Key.",
 	Iat: 1623132000,
 	X:   []byte{218, 116, 206, 104, 85, 102, 217, 2, 241, 153, 67, 191, 74, 56, 50, 177, 197, 71, 6, 219, 199, 17, 250, 54, 174, 174, 185, 50, 248, 13, 70, 51, 145, 162, 58, 183, 244, 118, 170, 246, 181, 205, 198, 245, 241, 193, 182, 191, 94, 61, 5, 230, 246, 98, 108, 148, 119, 138, 192, 93, 57, 102, 232, 230},
@@ -130,7 +130,7 @@ func ExampleCozeKey_SignRaw() {
 
 func ExampleCozeKey_SignCy() {
 	cy := new(Cy)
-	cy.Head = []byte(Golden_Head)
+	cy.Pay = []byte(Golden_Pay)
 
 	err := Golden_Key.SignCy(cy, nil)
 	if err != nil {
@@ -138,7 +138,7 @@ func ExampleCozeKey_SignCy() {
 	}
 
 	// To print sig, use:
-	//fmt.Printf("%+s\n %s\n, %v\n", cy.Head, cy.Sig, []byte(cy.Sig))
+	//fmt.Printf("%+s\n %s\n, %v\n", cy.Pay, cy.Sig, []byte(cy.Sig))
 	v, err := cy.Verify(&Golden_Key, nil)
 	if err != nil {
 		fmt.Println(err)
@@ -154,11 +154,11 @@ func ExampleCozeKey_SignCy() {
 
 	// Output:
 	// true
-	//{"head":{"msg":"Coze Rocks","alg":"ES256","iat":1627518000,"tmb":"cLj8vsYtMBwYkzoFVZHBZo6SNL8wSdCIjCKAwXNuhOk","typ":"cyphr.me/msg"}}
+	//{"pay":{"msg":"Coze Rocks","alg":"ES256","iat":1627518000,"tmb":"cLj8vsYtMBwYkzoFVZHBZo6SNL8wSdCIjCKAwXNuhOk","typ":"cyphr.me/msg"}}
 }
 
 func ExampleNewKey_es256_valid() {
-	ck, err := NewKey(ce.SEAlg(ce.ES256))
+	ck, err := NewKey(enum.SEAlg(enum.ES256))
 	if err != nil {
 		fmt.Println(err)
 	}
@@ -174,27 +174,28 @@ func ExampleNewKey_es256_valid() {
 	// ES256 true
 }
 
-func ExampleCozeKey_SignRaw_ed25519() {
-	ck, err := NewKey(ce.SEAlg(ce.Ed25519))
-	if err != nil {
-		fmt.Println(err)
-	}
+// TODO reconsider this test once Ed25519ph is supported by Go.
+// func ExampleCozeKey_SignRaw_ed25519() {
+// 	ck, err := NewKey(enum.SEAlg(enum.Ed25519))
+// 	if err != nil {
+// 		fmt.Println(err)
+// 	}
 
-	s, err := ck.SignMsg(TestMsg)
-	if err != nil {
-		fmt.Println(err)
-	}
-	v, err := ck.VerifyMsg(TestMsg, s)
-	if err != nil {
-		fmt.Println(err)
-	}
-	if v != true {
-		fmt.Println("signature was not verified")
-	}
-	fmt.Printf("%s %v\n", ck.Alg, v)
-	// Output:
-	// Ed25519 true
-}
+// 	s, err := ck.SignMsg(TestMsg)
+// 	if err != nil {
+// 		fmt.Println(err)
+// 	}
+// 	v, err := ck.VerifyMsg(TestMsg, s)
+// 	if err != nil {
+// 		fmt.Println(err)
+// 	}
+// 	if v != true {
+// 		fmt.Println("signature was not verified")
+// 	}
+// 	fmt.Printf("%s %v\n", ck.Alg, v)
+// 	// Output:
+// 	// Ed25519 true
+// }
 
 // ExampleCozeKey_Verify verifies a signature.
 func ExampleCozeKey_VerifyRaw() {
@@ -217,16 +218,16 @@ func ExampleCozeKey_VerifyRaw() {
 }
 
 func TestGenKeys(t *testing.T) {
-	algs := []ce.SigAlg{
-		ce.ES224,
-		ce.ES256,
-		ce.ES384,
-		ce.ES512,
-		//ce.Ed25519 //TODO
+	algs := []enum.SigAlg{
+		enum.ES224,
+		enum.ES256,
+		enum.ES384,
+		enum.ES512,
+		//enum.Ed25519 //TODO
 	}
 
 	for _, alg := range algs {
-		cozeKey, err := NewKey(ce.SEAlg(alg))
+		cozeKey, err := NewKey(enum.SEAlg(alg))
 		if err != nil {
 			t.Fatal(err)
 		}
@@ -252,11 +253,11 @@ func TestGenKeys(t *testing.T) {
 // go test -bench=BenchmarkNSV -benchtime=30s
 func BenchmarkNSV(b *testing.B) {
 	// TODO Ed25519 Support:
-	var algs = []ce.SigAlg{ce.ES224, ce.ES256, ce.ES384, ce.ES512, ce.Ed25519}
+	var algs = []enum.SigAlg{enum.ES224, enum.ES256, enum.ES384, enum.ES512, enum.Ed25519}
 
 	for j := 0; j < b.N; j++ {
 		for i := 0; i < len(algs); i++ {
-			ck, err := NewKey(ce.SEAlg(algs[i]))
+			ck, err := NewKey(enum.SEAlg(algs[i]))
 			if err != nil {
 				b.Fatal("Could not generate Coze Key.")
 			}
@@ -281,7 +282,7 @@ func BenchmarkNSV(b *testing.B) {
 func Example_eS256_nsv() {
 	msg := []byte("Test message.")
 
-	ck, err := NewKey(ce.SEAlg(ce.ES256))
+	ck, err := NewKey(enum.SEAlg(enum.ES256))
 	// log.Printf("Alg: %+v, Key: %+v\n", ck.Alg, ck)
 	if err != nil {
 		panic("Could not generate Coze Key.")

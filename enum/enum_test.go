@@ -5,6 +5,8 @@ import (
 	"testing"
 )
 
+// Signing and verifying tests are done in package Coze.
+
 // BenchmarkNSV (New, Sign, Verify) will generate a new Crypto Key, sign a
 // message with that key. verify the signature, and return the results.  It will
 // also test verify digest.
@@ -151,5 +153,4 @@ func ExampleAlg_Params() {
 	// {"Name":"SHA3-512","Genus":"SHA3","Family":"SHA","Hash":"SHA3-512","Hash.Size":64}
 	// {"Name":"SHAKE128","Genus":"SHA3","Family":"SHA","Hash":"SHAKE128","Hash.Size":32}
 	// {"Name":"SHAKE256","Genus":"SHA3","Family":"SHA","Hash":"SHAKE256","Hash.Size":64}
-
 }

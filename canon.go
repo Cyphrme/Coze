@@ -2,32 +2,47 @@ package coze
 
 import (
 	"encoding/json"
-	"sort"
+	"fmt"
 
-	ce "github.com/cyphrme/coze/enum"
+	"github.com/cyphrme/coze/enum"
 )
 
-// Canon returns a canon from raw JSON.
+// Canon returns the current canon from raw JSON.
 //
 // It returns only top level fields with no recursion or promotion of embedded
 // fields.
 func Canon(raw json.RawMessage) (can []string, err error) {
-	// In Go, map order is unspecified and package json cannot unmarshal into
-	// array/slice.  Unmarshal into a map, put keys into a slice, and sort.
-	var m map[string]interface{}
-	err = json.Unmarshal(raw, &m)
+	var ms = MapSlice{}
+
+	err = json.Unmarshal(raw, &ms)
 	if err != nil {
 		return nil, err
 	}
 
-	keys := make([]string, len(m))
+	keys := make([]string, len(ms))
 	i := 0
-	for k := range m {
-		keys[i] = k
+	for _, v := range ms {
+		keys[i] = fmt.Sprintf("%v", v.Key)
 		i++
 	}
-	sort.Strings(keys)
 	return keys, nil
+
+	// // Old:
+	// // In Go, map order is unspecified and package json cannot unmarshal into
+	// // array/slice.  Unmarshal into a map, put keys into a slice, and sort.
+	// var m map[string]interface{}
+	// err = json.Unmarshal(raw, &m)
+	// if err != nil {
+	// 	return nil, err
+	// }
+
+	// keys := make([]string, len(m))
+	// i := 0
+	// for k := range m {
+	// 	keys[i] = k
+	// 	i++
+	// }
+	// return keys, nil
 }
 
 // CanonStruct generates a canon from the given struct.
@@ -75,15 +90,16 @@ func CanonicalStruct(structure interface{}, canon interface{}) (b []byte, err er
 	return Canonical(m, canon)
 }
 
-// CanonHash accepts []byte and an optional canon, and returns digest
-// of the canonical form.
+// CanonHash accepts []byte and optional canon and returns digest.
 //
-// If input is already in canonical form, enum.Hash() can be called instead.
-func CanonHash(input []byte, canon interface{}, hash ce.HashAlg) (digest B64, err error) {
-	b, err := Canonical(input, canon)
-	if err != nil {
-		return nil, err
+// If input is already in canonical form, enum.Hash() may also be called instead.
+func CanonHash(input []byte, canon interface{}, hash enum.HashAlg) (digest B64, err error) {
+	if canon != nil {
+		input, err = Canonical(input, canon)
+		if err != nil {
+			return nil, err
+		}
 	}
 
-	return ce.Hash(hash, b), nil
+	return enum.Hash(hash, input), nil
 }

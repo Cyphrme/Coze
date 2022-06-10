@@ -14,7 +14,6 @@ import (
 	"time"
 
 	"github.com/cyphrme/coze/enum"
-	ce "github.com/cyphrme/coze/enum"
 )
 
 // CozeKeyArrayCanon is the canonical form of a Coze Key in array form.
@@ -49,14 +48,14 @@ type CozeKeyCanon struct {
 //  - `rvk` - Unix time of key revocation. See docs on `rvk`. E.g. 1626069601.
 //
 type CozeKey struct {
-	Alg ce.SEAlg `json:"alg"`
-	D   B64      `json:"d,omitempty"`
-	Iat int64    `json:"iat,omitempty"`
-	Kid string   `json:"kid,omitempty"`
-	Rvk int64    `json:"rvk,omitempty"`
-	Tmb B64      `json:"tmb,omitempty"`
-	Typ string   `json:"typ,omitempty"`
-	X   B64      `json:"x,omitempty"`
+	Alg enum.SEAlg `json:"alg"`
+	D   B64        `json:"d,omitempty"`
+	Iat int64      `json:"iat,omitempty"`
+	Kid string     `json:"kid,omitempty"`
+	Rvk int64      `json:"rvk,omitempty"`
+	Tmb B64        `json:"tmb,omitempty"`
+	Typ string     `json:"typ,omitempty"`
+	X   B64        `json:"x,omitempty"`
 }
 
 // String returns the stringified Coze key.
@@ -69,20 +68,20 @@ func (c *CozeKey) String() string {
 }
 
 // NewKey generates a new Coze Key.
-func NewKey(alg ce.SEAlg) (c *CozeKey, err error) {
+func NewKey(alg enum.SEAlg) (c *CozeKey, err error) {
 	c = new(CozeKey)
 	c.Alg = alg
 
-	if c.Alg.SigAlg().Genus() == ce.Ecdsa {
+	if c.Alg.SigAlg().Genus() == enum.Ecdsa {
 		eck := new(ecdsa.PrivateKey)
-		switch ce.SigAlg(alg) {
-		case ce.ES224:
+		switch enum.SigAlg(alg) {
+		case enum.ES224:
 			eck, err = ecdsa.GenerateKey(elliptic.P224(), rand.Reader)
-		case ce.ES256:
+		case enum.ES256:
 			eck, err = ecdsa.GenerateKey(elliptic.P256(), rand.Reader)
-		case ce.ES384:
+		case enum.ES384:
 			eck, err = ecdsa.GenerateKey(elliptic.P384(), rand.Reader)
-		case ce.ES512:
+		case enum.ES512:
 			eck, err = ecdsa.GenerateKey(elliptic.P521(), rand.Reader)
 		}
 
@@ -94,7 +93,7 @@ func NewKey(alg ce.SEAlg) (c *CozeKey, err error) {
 		c.D = eck.D.FillBytes(d) // Left pads bytes
 		c.X = enum.PadCon(eck.X, eck.Y, alg.XSize())
 
-	} else if c.Alg == ce.SEAlg(ce.Ed25519) {
+	} else if c.Alg == enum.SEAlg(enum.Ed25519) {
 		var pub, pri []byte
 		pub, pri, err = ed25519.GenerateKey(rand.Reader)
 		if err != nil {
@@ -133,9 +132,9 @@ func Thumbprint(c *CozeKey) (tmb B64, err error) {
 		return nil, err
 	}
 
-	if c.Alg.SigAlg().Genus() == ce.Ecdsa {
+	if c.Alg.SigAlg().Genus() == enum.Ecdsa {
 		tmb, err = CanonHash(b, &CozeKeyCanon{}, c.Alg.Hash())
-	} else if c.Alg.SigAlg().Genus() == ce.Eddsa {
+	} else if c.Alg.SigAlg().Genus() == enum.Eddsa {
 		tmb, err = CanonHash(b, &CozeKeyCanon{}, c.Alg.Hash())
 	} else {
 		return nil, errors.New("coze: unknown coze key alg " + c.Alg.String() + " for thumbprint generation.")
@@ -150,14 +149,18 @@ func (c *CozeKey) Sign(digest B64) (sig B64, err error) {
 		return nil, errors.New("coze: `d` is not set.  Signing requires private key. ")
 	}
 
-	if c.Alg.SigAlg() == ce.Ed25519 {
+	if c.Alg.SigAlg() == enum.Ed25519 {
+		// TODO Coze signs hashed messages and "pure" Ed signs messages.  Ed's
+		// pre-hash and the post-hash methods are different and produce different
 		// TODO https://github.com/golang/go/issues/31804#issuecomment-1103824216
+		return nil, errors.New("Ed25519 is currently unsupported")
 	}
 
 	ck, err := c.ToCryptoKey()
 	if err != nil {
 		return nil, err
 	}
+	// Cryptokey handles all error checking.
 	sig, err = ck.Sign(digest)
 	if err != nil {
 		return nil, err
@@ -168,45 +171,25 @@ func (c *CozeKey) Sign(digest B64) (sig B64, err error) {
 
 // SignMsg uses a private Coze key to sign a pre-hashed, raw message.
 func (c *CozeKey) SignMsg(msg []byte) (sig B64, err error) {
-	if len(c.D) == 0 {
-		return nil, errors.New("coze: `d` is not set.  Signing requires private key. ")
-	}
-
-	if c.Alg.SigAlg() == ce.Ed25519 {
-		// TODO this is the wrong Ed signing function as Ed sings hashed messages and in Ed, the
-		// pre-hash and the post-hash methods are different and produce different
-		// results. See https://github.com/golang/go/issues/31804#issuecomment-1103824216
-		return ed25519.Sign(ed25519.PrivateKey(c.D), msg), nil
-	}
-
-	ck, err := c.ToCryptoKey()
-	if err != nil {
-		return nil, err
-	}
-	sig, err = ck.SignMsg(msg)
-	if err != nil {
-		return nil, err
-	}
-
-	return sig, nil
+	return c.Sign(enum.Hash(c.Alg.Hash(), msg))
 }
 
-// SignHead signs head. Canon may be nil.
-func (c *CozeKey) SignHead(head json.RawMessage, canon interface{}) (sig B64, err error) {
+// SignPay signs head. Canon may be nil.
+func (c *CozeKey) SignPay(head json.RawMessage, canon interface{}) (sig B64, err error) {
 	b, err := Canonical(head, canon)
 	if err != nil {
 		return nil, err
 	}
 	// TODO Don't sign on wrong tmb.
-	// TODO:  Verify sanity.
+	// TODO: Verify sanity.
 	// TODO: what about iat?  flag?
 
 	return c.SignMsg(b)
 }
 
-// SignCy signs a given Cy.Head and populates `sig`.
+// SignCy signs a given Cy.Pay and populates `sig`.
 func (c *CozeKey) SignCy(cy *Cy, canon interface{}) (err error) {
-	sig, err := c.SignHead(cy.Head, canon)
+	sig, err := c.SignPay(cy.Pay, canon)
 	if err != nil {
 		return err
 	}
@@ -220,7 +203,7 @@ func (c *CozeKey) VerifyMsg(msg []byte, sig []byte) (valid bool, err error) {
 		return false, errors.New("coze: sig is empty")
 	}
 
-	if c.Alg.SigAlg() == ce.Ed25519 {
+	if c.Alg.SigAlg() == enum.Ed25519 {
 		return ed25519.Verify(ed25519.PublicKey(c.X), msg, sig), nil
 	}
 
@@ -325,7 +308,7 @@ func (ck *CozeKey) IsPrivate() bool {
 }
 
 // ToCryptoKey takes a Coze Key object and returns a crypto key object.
-func (cozekey *CozeKey) ToCryptoKey() (ck *ce.CryptoKey, err error) {
+func (cozekey *CozeKey) ToCryptoKey() (ck *enum.CryptoKey, err error) {
 	//fmt.Printf("\n Ck Private: %+v \n", cozekey)
 	if cozekey == nil {
 		return nil, errors.New("coze: nil Coze Key")
@@ -338,20 +321,21 @@ func (cozekey *CozeKey) ToCryptoKey() (ck *ce.CryptoKey, err error) {
 	switch cozekey.Alg.SigAlg().Genus() {
 	default:
 		return nil, errors.New("unsupported alg")
-	case ce.Ecdsa:
+	case enum.Ecdsa:
 		ck, err = ecdsaCozeKeyToCryptoKey(cozekey)
 		return
 	}
 }
 
 // ecdsaCozeKeyToCryptoKey take a Coze Key (public or private) and returns a
-// CryptoKey pair.
-func ecdsaCozeKeyToCryptoKey(ck *CozeKey) (key *ce.CryptoKey, err error) {
-	if ck.Alg.SigAlg().Genus() != ce.Ecdsa {
+// CryptoKey pair.  Organizationally, this function would be better in the enum
+// package but that would result in an import cycle.
+func ecdsaCozeKeyToCryptoKey(ck *CozeKey) (key *enum.CryptoKey, err error) {
+	if ck.Alg.SigAlg().Genus() != enum.Ecdsa {
 		return nil, errors.New("coze: unsupported alg for ecdsaCozeKeyToCryptoKey.")
 	}
 
-	key = new(ce.CryptoKey)
+	key = new(enum.CryptoKey)
 	key.Private = new(crypto.PrivateKey)
 	key.Public = new(crypto.PublicKey)
 

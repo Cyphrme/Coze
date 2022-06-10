@@ -43,7 +43,7 @@ and we're glad it exists.
   additional RFCs have followed this implicit requirement.  For example RFC 8037
   specifies that Ed25519 and Ed448, neither of which use SHA-256, use SHA-256
   for their thumbprints. 
-- Headers are always transmitted encoded and as base64 and they increase in
+- Payers are always transmitted encoded and as base64 and they increase in
   size.  For example,
   `"eyJhbGciOiJIUzI1NiIsImI2NCI6ZmFsc2UsImNyaXQiOlsiYjY0Il19"` is larger than
   the unencoded representation `{"alg":"HS256","b64":false,"crit":["b64"]}`.

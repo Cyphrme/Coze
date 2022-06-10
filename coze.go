@@ -5,16 +5,15 @@ import (
 	"bytes"
 	"encoding/json"
 
-	ce "github.com/cyphrme/coze/enum"
+	"github.com/cyphrme/coze/enum"
 )
 
-// Head contains the standard fields in a signed Coze object.
-// TODO prehaps create a RVK struct.
-type Head struct {
-	Alg ce.SEAlg `json:"alg,omitempty"` // e.g. "ES256"
-	Iat int64    `json:"iat,omitempty"` // e.g. 1623132000
-	Tmb B64      `json:"tmb,omitempty"` // e.g. "cLj8vsYtMBwYkzoFVZHBZo6SNL8wSdCIjCKAwXNuhOk"
-	Typ string   `json:"typ,omitempty"` // e.g. "cyphr.me/msg/create"
+// Pay contains the standard fields in a signed Coze object.
+type Pay struct {
+	Alg enum.SEAlg `json:"alg,omitempty"` // e.g. "ES256"
+	Iat int64      `json:"iat,omitempty"` // e.g. 1623132000
+	Tmb B64        `json:"tmb,omitempty"` // e.g. "cLj8vsYtMBwYkzoFVZHBZo6SNL8wSdCIjCKAwXNuhOk"
+	Typ string     `json:"typ,omitempty"` // e.g. "cyphr.me/msg/create"
 }
 
 // CozeMarshaler is a UTF-8 marshaler for Go structs.  Go's `json.Marshal`

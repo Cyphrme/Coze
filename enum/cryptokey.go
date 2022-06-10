@@ -97,6 +97,11 @@ func (c CryptoKey) Sign(digest []byte) (sig []byte, err error) {
 	}
 }
 
+// SignMsg signs a pre-hash msg.  On error, returns zero bytes.
+func (c CryptoKey) SignMsg(msg []byte) (sig []byte, err error) {
+	return c.Sign(Hash(c.Alg.Hash(), msg))
+}
+
 // Verify verifies that a signature is valid with a given public CryptoKey
 // and digest. `digest` should be the digest of the original msg to verify.
 func (c CryptoKey) Verify(digest, sig []byte) (valid bool, err error) {
@@ -112,11 +117,6 @@ func (c CryptoKey) Verify(digest, sig []byte) (valid bool, err error) {
 	}
 
 	return ecdsa.Verify(&v, digest, r, s), nil
-}
-
-// SignMsg signs a pre-hash msg.  On error, returns zero bytes.
-func (c CryptoKey) SignMsg(msg []byte) (sig []byte, err error) {
-	return c.Sign(Hash(c.Alg.Hash(), msg))
 }
 
 // Verify verifies that a signature with a given public CryptoKey and

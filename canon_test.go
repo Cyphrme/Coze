@@ -4,18 +4,29 @@ import (
 	"fmt"
 	"testing"
 
-	ce "github.com/cyphrme/coze/enum"
+	"github.com/cyphrme/coze/enum"
 )
 
 // TestCanonHash.
 func TestCanonHash(t *testing.T) {
-	//	The canonical digest of`head` is `cad`.
-	cad, err := CanonHash([]byte(Golden_Head), nil, ce.Sha256)
+	// With Canon
+	canon := []string{"alg", "iat", "msg", "tmb", "typ"}
+	cad, err := CanonHash([]byte(Golden_Pay), canon, enum.Sha256)
 
 	if err != nil {
 		t.Fatal(err)
 	}
 	if cad.String() != "aC2YKfNvovfnZOw_RVxSEW6NeaUq41DZXX0oeaOboRg" {
+		t.Fatal("canonical hash does not match.  Got: " + cad.String())
+	}
+
+	// Without canon
+	cad, err = CanonHash([]byte(Golden_Pay), nil, enum.Sha256)
+
+	if err != nil {
+		t.Fatal(err)
+	}
+	if cad.String() != "yRpc2dKE_Z7vhOeWiKbtRka9vQIDlPxZsdjsAJZ2ZRM" {
 		t.Fatal("canonical hash does not match.  Got: " + cad.String())
 	}
 }
@@ -92,13 +103,13 @@ func ExampleCanonical() {
 
 func ExampleCanonStruct() {
 	type structWithEmbedded struct {
-		Head
+		Pay
 		Name string `json:"name"`
 	}
 
 	var s = structWithEmbedded{
-		Head: Head{
-			Alg: ce.SEAlg(ce.ES256),
+		Pay: Pay{
+			Alg: enum.SEAlg(enum.ES256),
 			Iat: 1626479633,
 			Typ: "cyphr.me",
 		},
@@ -117,7 +128,7 @@ func ExampleCanonStruct() {
 	}
 	fmt.Println(can)
 
-	// Example with an empty struct demonstrating the bahavior of
+	// Example with an empty struct demonstrating the behavior of
 	// `json:omitempty`.
 	ss := structWithEmbedded{}
 	can, err = CanonStruct(ss)

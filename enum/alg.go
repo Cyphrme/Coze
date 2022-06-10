@@ -468,8 +468,7 @@ const (
 //  HashAlg  //
 ////////////////
 
-// HashAlg's does not exist in JOSE currently.  We created this for ourselves.
-// See also https://golang.org/pkg/crypto/Hash
+// HashAlg is a hashing algorithm. See also https://golang.org/pkg/crypto/Hash
 const (
 	// HashAlg is after Alg, SigAlg, and EncAlg.
 	UnknownHashAlg HashAlg = iota + 12
@@ -512,7 +511,7 @@ func ParseHashAlg(s string) HashAlg {
 
 // goHash returns a Go hash.Hash from the hashing algo.
 //
-// SHAKE does not satisfy Go's hash.Hash (it uses sha3.SkakeHash)
+// SHAKE does not satisfy Go's hash.Hash and uses sha3.SkakeHash.
 func (ha *HashAlg) goHash() (h hash.Hash) {
 	switch *ha {
 	case Sha224:
