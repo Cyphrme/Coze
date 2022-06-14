@@ -23,7 +23,7 @@ Play with Coze here: https://cyphr.me/coze_verifier
 		"tmb": "cLj8vsYtMBwYkzoFVZHBZo6SNL8wSdCIjCKAwXNuhOk",
 		"typ": "cyphr.me/msg"
 	},
-	"sig": "Z8yK1AuBWdfGzwmXK_xwlZizlFsxFkK7bKJ8FEDoNEA1IFJECjaK0ZLPLDIFhLX6kD8jis-9tCKlB1Qzb-mEzg"
+	"sig": "ywctP6lEQ_HcYLhgpoecqhFrqNpBSyNPuAPOV94SThuztJek7x7H9mXFD0xTrlmQPg_WC7jwg70nzNoGn70JyA"
 }
 ```
 

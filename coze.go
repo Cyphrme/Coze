@@ -28,7 +28,7 @@ type CozeMarshaler interface {
 // escapes for HTML friendliness.  Where JSON may include these characters,
 // json.Marshal should not be used. Playground of Go breaking a book title:
 // https://play.golang.org/p/o2hiX0c62oN
-func Marshal(i interface{}) ([]byte, error) {
+func Marshal(i any) ([]byte, error) {
 	buffer := &bytes.Buffer{}
 	encoder := json.NewEncoder(buffer)
 	encoder.SetEscapeHTML(false)
@@ -42,7 +42,7 @@ func Marshal(i interface{}) ([]byte, error) {
 // MarshalPretty is the pretty version of Marshal. It uses 4 spaces for each
 // level.  Spaces instead of tabs because some applications use 8 spaces per
 // tab, which is excessive.
-func MarshalPretty(i interface{}) ([]byte, error) {
+func MarshalPretty(i any) ([]byte, error) {
 	buffer := &bytes.Buffer{}
 	encoder := json.NewEncoder(buffer)
 	encoder.SetIndent("", "    ")
@@ -52,4 +52,9 @@ func MarshalPretty(i interface{}) ([]byte, error) {
 		return nil, err
 	}
 	return bytes.TrimRight(buffer.Bytes(), "\n"), nil
+}
+
+// Hash is a convenience function for enum.Hash that returns B64.
+func Hash(alg enum.HashAlg, msg []byte) (digest B64) {
+	return B64(enum.Hash(alg, msg))
 }

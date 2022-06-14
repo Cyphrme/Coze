@@ -13,6 +13,8 @@ import (
 // When converting integers or other types, `nil` in B64 is "" and the zero is
 // encoded as "AA".
 //
+// To unencode from string, use the base64 package:
+// base64.URLEncoding.WithPadding(base64.NoPadding).DecodeString(b64String)
 type B64 []byte
 
 // UnmarshalJSON implements JSON.UnmarshalJSON.  It is a custom unmarshaler for
@@ -48,4 +50,13 @@ func (t B64) GoString() string {
 	// Base256 representation
 	// return fmt.Sprintf("%s", []byte(t))
 	return fmt.Sprintf("%X", []byte(t))
+}
+
+// MustDecode decodes a base64 string to B64.  Will panic on error.
+func MustDecode(b64 string) B64 {
+	b, err := base64.URLEncoding.WithPadding(base64.NoPadding).DecodeString(b64)
+	if err != nil {
+		panic(err)
+	}
+	return b
 }

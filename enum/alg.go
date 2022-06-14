@@ -23,6 +23,7 @@
 //  --- ES512
 //  -- EdDSA
 //  --- Ed25519
+//  --- Ed25519ph
 //  --- Ed448
 //  - SHA
 //  -- SHA-2
@@ -197,6 +198,8 @@ func (a *Alg) Parse(s string) {
 		*a = Alg(ES512)
 	case "Ed25519":
 		*a = Alg(Ed25519)
+	case "Ed25519ph":
+		*a = Alg(Ed25519ph)
 	case "Ed448":
 		*a = Alg(Ed448)
 	//	// Not implemented:
@@ -244,6 +247,7 @@ func getString(i int) (s string) {
 		"ES384",
 		"ES512",
 		"Ed25519",
+		"Ed25519ph",
 		"Ed448",
 		"RS256", // TODO support RSA. (Placeholders for future.)
 		"RS384",
@@ -280,7 +284,7 @@ func (a Alg) Genus() GenAlg {
 		return UnknownGenAlg
 	case Alg(ES224), Alg(ES256), Alg(ES384), Alg(ES512):
 		return Ecdsa
-	case Alg(Ed25519), Alg(Ed448):
+	case Alg(Ed25519), Alg(Ed25519ph), Alg(Ed448):
 		return Eddsa
 	case Alg(Sha224), Alg(Sha256), Alg(Sha384), Alg(Sha512):
 		return SHA2
@@ -294,7 +298,7 @@ func (a Alg) Family() (f FamAlg) {
 	switch a {
 	default:
 		f = UnknownFamAlg
-	case Alg(ES224), Alg(ES256), Alg(ES384), Alg(ES512), Alg(Ed25519), Alg(Ed448):
+	case Alg(ES224), Alg(ES256), Alg(ES384), Alg(ES512), Alg(Ed25519), Alg(Ed25519ph), Alg(Ed448):
 		f = EC
 	case Alg(Sha224), Alg(Sha256), Alg(Sha384), Alg(Sha512), Alg(Sha3224), Alg(Sha3256), Alg(Sha3384), Alg(Sha3512), Alg(Shake128), Alg(Shake256):
 		f = SHA
@@ -339,6 +343,8 @@ func (s SEAlg) SigAlg() (sa SigAlg) {
 		sa = ES512
 	case SEAlg(Ed25519):
 		sa = Ed25519
+	case SEAlg(Ed25519ph):
+		sa = Ed25519ph
 	case SEAlg(Ed448):
 		sa = Ed448
 	}
@@ -383,7 +389,7 @@ func (a SEAlg) XSize() int {
 		return 96
 	case ES512:
 		return 132 // X and Y are 66 bytes (Rounded up for P521)
-	case Ed25519:
+	case Ed25519, Ed25519ph:
 		return 32
 	}
 	return 0
@@ -394,14 +400,12 @@ func (a SEAlg) DSize() int {
 	switch SigAlg(a) {
 	case ES224:
 		return 28
-	case ES256:
+	case ES256, Ed25519, Ed25519ph:
 		return 32
 	case ES384:
 		return 48
 	case ES512:
 		return 66 // Rounded up for P521
-	case Ed25519:
-		return 32
 	}
 	return 0
 }
@@ -418,6 +422,7 @@ const (
 	ES512
 
 	Ed25519
+	Ed25519ph
 	Ed448
 
 	// // Not implemented:
@@ -434,7 +439,7 @@ func (s SigAlg) FamAlg() FamAlg {
 	switch s {
 	default:
 		return UnknownFamAlg
-	case ES224, ES256, ES384, ES512, Ed25519, Ed448:
+	case ES224, ES256, ES384, ES512, Ed25519, Ed25519ph, Ed448:
 		return EC
 		// // Not implemented:
 		// case RS256, RS384, RS512:
@@ -452,7 +457,7 @@ func (s SigAlg) Genus() GenAlg {
 		return UnknownGenAlg
 	case ES224, ES256, ES384, ES512:
 		return Ecdsa
-	case Ed25519, Ed448:
+	case Ed25519, Ed25519ph, Ed448:
 		return Eddsa
 	}
 }
@@ -471,7 +476,7 @@ const (
 // HashAlg is a hashing algorithm. See also https://golang.org/pkg/crypto/Hash
 const (
 	// HashAlg is after Alg, SigAlg, and EncAlg.
-	UnknownHashAlg HashAlg = iota + 12
+	UnknownHashAlg HashAlg = iota + 13
 	Sha224                 // SHA-2
 	Sha256
 	Sha384
@@ -575,7 +580,7 @@ func (s SigAlg) Hash() HashAlg {
 		h = Sha256
 	case ES384:
 		h = Sha384
-	case ES512, Ed25519:
+	case ES512, Ed25519, Ed25519ph:
 		h = Sha512
 	}
 	return h
@@ -588,7 +593,7 @@ func (s SigAlg) SigSize() int {
 	switch s {
 	case ES224:
 		return 56
-	case ES256, Ed25519:
+	case ES256, Ed25519, Ed25519ph:
 		return 64
 	case ES384:
 		return 96
@@ -675,20 +680,20 @@ const (
 
 // Curve returns the curve for the given alg, if it has one.
 func (a Alg) Curve() (c Crv) {
-	switch a {
+	switch SigAlg(a) {
 	default:
 		c = UnknownCrv
-	case Alg(ES224):
+	case ES224:
 		c = P224
-	case Alg(ES256):
+	case ES256:
 		c = P256
-	case Alg(ES384):
+	case ES384:
 		c = P384
-	case Alg(ES512):
+	case ES512:
 		c = P521
-	case Alg(Ed25519):
+	case Ed25519:
 		c = Curve25519
-	case Alg(Ed448):
+	case Ed448:
 		c = Curve448
 	}
 	return

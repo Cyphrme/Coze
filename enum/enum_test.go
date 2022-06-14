@@ -30,14 +30,14 @@ func BenchmarkNSV(b *testing.B) {
 				panic(err)
 			}
 
-			valid, _ := cryptoKey.VerifyMsg(msg, sig)
+			valid := cryptoKey.VerifyMsg(msg, sig)
 			if !valid {
 				panic("The signature was invalid")
 			}
 
 			// Test VerifyDigest
 			msgDigest := Hash(SigAlg(algs[i]).Hash(), msg)
-			valid, _ = cryptoKey.Verify(msgDigest, sig)
+			valid = cryptoKey.Verify(msgDigest, sig)
 			if !valid {
 				panic("The signature was invalid")
 			}

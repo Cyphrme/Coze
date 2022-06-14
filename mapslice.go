@@ -8,15 +8,11 @@ import (
 )
 
 // Taken from: https://github.com/golang/go/issues/27179#issuecomment-587528269,
-// https://github.com/ake-persson/mapslice-json, and
-// https://go.dev/play/p/yZ5DxZLIMXC.  Thanks ake-persson!
-
-// HELPWANTED: If someone wants to write canon getting order more efficiently,
-// have at it.  For now, this works and has proved durable in our testing.
+// https://github.com/ake-persson/mapslice-json.  Thanks ake-persson!
 
 // MapItem representation of one map item.
 type MapItem struct {
-	Key, Value interface{}
+	Key, Value any
 	index      uint64
 }
 
@@ -32,6 +28,11 @@ var indexCounter uint64
 func nextIndex() uint64 {
 	indexCounter++
 	return indexCounter
+}
+
+// MapItem as a string.
+func (mi MapItem) String() string {
+	return fmt.Sprintf("{%v %v}", mi.Key, mi.Value)
 }
 
 // MarshalJSON for map slice.
@@ -68,7 +69,7 @@ func (ms *MapSlice) UnmarshalJSON(b []byte) error {
 
 // UnmarshalJSON for map item.
 func (mi *MapItem) UnmarshalJSON(b []byte) error {
-	var v interface{}
+	var v any
 	if err := json.Unmarshal(b, &v); err != nil {
 		return err
 	}

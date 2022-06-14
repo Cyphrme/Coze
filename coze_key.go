@@ -43,7 +43,7 @@ type CozeKeyCanon struct {
 //	- `x` - Public component.
 //
 // Revoked.  Key revocation should be done through a Coze message using the
-// `rvk`` field in `head` (See the Coze README).  The Coze key field `rvk` is
+// `rvk`` field in `pay` (See the Coze README).  The Coze key field `rvk` is
 // useful for storing a key's revocation state.
 //  - `rvk` - Unix time of key revocation. See docs on `rvk`. E.g. 1626069601.
 //
@@ -132,13 +132,7 @@ func Thumbprint(c *CozeKey) (tmb B64, err error) {
 		return nil, err
 	}
 
-	if c.Alg.SigAlg().Genus() == enum.Ecdsa {
-		tmb, err = CanonHash(b, &CozeKeyCanon{}, c.Alg.Hash())
-	} else if c.Alg.SigAlg().Genus() == enum.Eddsa {
-		tmb, err = CanonHash(b, &CozeKeyCanon{}, c.Alg.Hash())
-	} else {
-		return nil, errors.New("coze: unknown coze key alg " + c.Alg.String() + " for thumbprint generation.")
-	}
+	tmb, err = CanonHash(b, &CozeKeyCanon{}, c.Alg.Hash())
 
 	return tmb, err
 }
@@ -146,13 +140,16 @@ func Thumbprint(c *CozeKey) (tmb B64, err error) {
 // Sign uses a private Coze key to sign a digest.
 func (c *CozeKey) Sign(digest B64) (sig B64, err error) {
 	if len(c.D) == 0 {
-		return nil, errors.New("coze: `d` is not set.  Signing requires private key. ")
+		return nil, errors.New("coze Sign: private key `d` is not set.")
 	}
 
 	if c.Alg.SigAlg() == enum.Ed25519 {
 		// TODO Coze signs hashed messages and "pure" Ed signs messages.  Ed's
 		// pre-hash and the post-hash methods are different and produce different
 		// TODO https://github.com/golang/go/issues/31804#issuecomment-1103824216
+
+		// TODO Go's ed25519 package currently does not currently support verifying with a digest.
+		// https://pkg.go.dev/crypto/ed25519#Verify
 		return nil, errors.New("Ed25519 is currently unsupported")
 	}
 
@@ -169,27 +166,24 @@ func (c *CozeKey) Sign(digest B64) (sig B64, err error) {
 	return sig, nil
 }
 
-// SignMsg uses a private Coze key to sign a pre-hashed, raw message.
-func (c *CozeKey) SignMsg(msg []byte) (sig B64, err error) {
-	return c.Sign(enum.Hash(c.Alg.Hash(), msg))
-}
-
-// SignPay signs head. Canon may be nil.
-func (c *CozeKey) SignPay(head json.RawMessage, canon interface{}) (sig B64, err error) {
-	b, err := Canonical(head, canon)
+// SignCy signs Cy.Pay and populates `sig`.  Canon is optional.
+func (c *CozeKey) SignCy(cy *Cy, canon any) (err error) {
+	// Get Coze standard fields
+	h := new(Pay)
+	err = json.Unmarshal(cy.Pay, h)
 	if err != nil {
-		return nil, err
+		return err
 	}
-	// TODO Don't sign on wrong tmb.
-	// TODO: Verify sanity.
-	// TODO: what about iat?  flag?
+	if !bytes.Equal(h.Tmb, c.Tmb) {
+		return errors.New("coze: key tmb and cy tmb do not match")
+	}
 
-	return c.SignMsg(b)
-}
+	b, err := Canonical(cy.Pay, canon) // compactify
+	if err != nil {
+		return err
+	}
 
-// SignCy signs a given Cy.Pay and populates `sig`.
-func (c *CozeKey) SignCy(cy *Cy, canon interface{}) (err error) {
-	sig, err := c.SignPay(cy.Pay, canon)
+	sig, err := c.Sign(Hash(c.Alg.Hash(), b))
 	if err != nil {
 		return err
 	}
@@ -197,43 +191,42 @@ func (c *CozeKey) SignCy(cy *Cy, canon interface{}) (err error) {
 	return
 }
 
-// VerifyMsg uses a public Coze key to verify a pre-hash message.
-func (c *CozeKey) VerifyMsg(msg []byte, sig []byte) (valid bool, err error) {
-	if len(sig) == 0 {
-		return false, errors.New("coze: sig is empty")
-	}
-
-	if c.Alg.SigAlg() == enum.Ed25519 {
-		return ed25519.Verify(ed25519.PublicKey(c.X), msg, sig), nil
-	}
-
-	ck, err := c.ToCryptoKey()
-	if err != nil {
-		return false, err
-	}
-	return ck.VerifyMsg(msg, sig)
-}
-
 // Verify uses a public coze key to verify a digest.
 //
-// TODO Go's ed25519 package currently does not currently support verifying with a digest.
-// https://pkg.go.dev/crypto/ed25519#Verify
-func (c *CozeKey) Verify(digest []byte, sig []byte) (valid bool, err error) {
-	if len(sig) == 0 {
-		return false, errors.New("coze: sig is empty")
-	}
-
+func (c *CozeKey) Verify(digest, sig B64) (valid bool) {
 	ck, err := c.ToCryptoKey()
 	if err != nil {
-		return false, err
+		return false
 	}
 
 	return ck.Verify(digest, sig)
 }
 
-// Valid validates a private Coze Key and returns a bool.
-//
-// Valid works by signing a message and verifying a valid signature.
+// Verify cryptographically verifies `coze` with given `sig`.  Canon is optional.
+func (ck *CozeKey) VerifyCy(cy *Cy) (bool, error) {
+	if cy.Sig == nil {
+		return false, errors.New("coze: sig is nil")
+	}
+
+	h := new(Pay)
+	err := json.Unmarshal(cy.Pay, h)
+	if err != nil {
+		return false, err
+	}
+	if !bytes.Equal(h.Tmb, ck.Tmb) {
+		return false, errors.New("coze: key tmb and cy tmb do not match")
+	}
+
+	b, err := Canonical(cy.Pay, nil)
+	if err != nil {
+		return false, err
+	}
+
+	return ck.Verify(Hash(ck.Alg.Hash(), b), cy.Sig), nil
+}
+
+// Valid validates a private Coze Key by signing a message and verifying a valid
+// signature.
 //
 // Valid always returns false on public keys.  Use function "Verify" for public
 // keys with signed message and "Correct" for public keys without signed
@@ -242,17 +235,15 @@ func (c *CozeKey) Valid() (valid bool) {
 	if c.D == nil || len(c.D) == 0 {
 		return false
 	}
+	// Random message
+	msg := []byte("a0HwToVezVCBrucf3RiBW4xDWSnap1GZTvNfkI7q77k")
+	digest := Hash(c.Alg.Hash(), msg)
 
-	msg := []byte("Testing")
-	sig, err := c.SignMsg(msg)
-
+	sig, err := c.Sign(digest)
 	if err != nil {
 		return false
 	}
-	valid, err = c.VerifyMsg(msg, sig)
-	if err != nil {
-		return false
-	}
+	valid = c.Verify(digest, sig)
 
 	return valid
 }
@@ -264,7 +255,7 @@ func (c *CozeKey) Valid() (valid bool) {
 //
 // Correct:
 //
-// 1. Ensures required headers exist.
+// 1. Ensures required fields exist.
 // 2. Checks the length of x.
 // 3. Recalculates `tmb` and if incorrect throws an error.
 // 4. If containing d, generates and verifies a signature, thus
@@ -307,7 +298,9 @@ func (ck *CozeKey) IsPrivate() bool {
 	return false
 }
 
-// ToCryptoKey takes a Coze Key object and returns a crypto key object.
+// ToCryptoKey takes a Coze Key and returns a crypto key.  Organizationally,
+// this function would be better in the enum package but that would result in an
+// import cycle.
 func (cozekey *CozeKey) ToCryptoKey() (ck *enum.CryptoKey, err error) {
 	//fmt.Printf("\n Ck Private: %+v \n", cozekey)
 	if cozekey == nil {
@@ -317,20 +310,27 @@ func (cozekey *CozeKey) ToCryptoKey() (ck *enum.CryptoKey, err error) {
 		return nil, errors.New("coze: invalid CozeKey")
 	}
 
-	// TODO support Ed25519
 	switch cozekey.Alg.SigAlg().Genus() {
 	default:
 		return nil, errors.New("unsupported alg")
 	case enum.Ecdsa:
-		ck, err = ecdsaCozeKeyToCryptoKey(cozekey)
+		ck, err = ecDSACozeKeyToCryptoKey(cozekey)
+		return
+	case enum.Eddsa:
+		ck, err = edDSACozeKeyToCryptoKey(cozekey)
 		return
 	}
+}
+
+func edDSACozeKeyToCryptoKey(ck *CozeKey) (key *enum.CryptoKey, err error) {
+	// TODO support Ed25519
+	return nil, nil
 }
 
 // ecdsaCozeKeyToCryptoKey take a Coze Key (public or private) and returns a
 // CryptoKey pair.  Organizationally, this function would be better in the enum
 // package but that would result in an import cycle.
-func ecdsaCozeKeyToCryptoKey(ck *CozeKey) (key *enum.CryptoKey, err error) {
+func ecDSACozeKeyToCryptoKey(ck *CozeKey) (key *enum.CryptoKey, err error) {
 	if ck.Alg.SigAlg().Genus() != enum.Ecdsa {
 		return nil, errors.New("coze: unsupported alg for ecdsaCozeKeyToCryptoKey.")
 	}

@@ -21,7 +21,10 @@ func ExampleB64_zero_nil() {
 
 func ExampleB64_marshalJSON() {
 	h := B64([]byte{0, 255})
-	b, _ := h.MarshalJSON()
+	b, err := h.MarshalJSON()
+	if err != nil {
+		fmt.Println(err)
+	}
 	stringed := string(b)
 	fmt.Println(stringed)
 	// Output: "AP8"
@@ -40,7 +43,10 @@ func ExampleB64_unmarshalJSON() {
 		fmt.Println(err)
 	}
 
-	b, _ := Marshal(f)
+	b, err := Marshal(f)
+	if err != nil {
+		fmt.Println(err)
+	}
 
 	fmt.Printf("%s", b)
 	// Output: {"Bar":"AP8"}
