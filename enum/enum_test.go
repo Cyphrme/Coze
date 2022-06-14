@@ -122,7 +122,7 @@ func ExampleHashAlg_Parse() {
 
 func ExampleAlg_Params() {
 	algs := []Alg{
-		Alg(ES224), Alg(ES256), Alg(ES384), Alg(ES512), Alg(Ed25519),
+		Alg(ES224), Alg(ES256), Alg(ES384), Alg(ES512), Alg(Ed25519), Alg(Ed25519ph),
 		Alg(Sha224), Alg(Sha256), Alg(Sha384), Alg(Sha512),
 		Alg(Sha3224), Alg(Sha3256), Alg(Sha3384), Alg(Sha3512),
 		Alg(Shake128), Alg(Shake256),
@@ -137,12 +137,13 @@ func ExampleAlg_Params() {
 	}
 
 	// Output:
-	// [ES224 ES256 ES384 ES512 Ed25519 SHA-224 SHA-256 SHA-384 SHA-512 SHA3-224 SHA3-256 SHA3-384 SHA3-512 SHAKE128 SHAKE256]
+	// [ES224 ES256 ES384 ES512 Ed25519 Ed25519ph SHA-224 SHA-256 SHA-384 SHA-512 SHA3-224 SHA3-256 SHA3-384 SHA3-512 SHAKE128 SHAKE256]
 	// {"Name":"ES224","Genus":"ECDSA","Family":"EC","X.Size":56,"D.Size":28,"Hash":"SHA-224","Hash.Size":28,"Sig.Size":56,"Curve":"P-224","Use":"sig"}
 	// {"Name":"ES256","Genus":"ECDSA","Family":"EC","X.Size":64,"D.Size":32,"Hash":"SHA-256","Hash.Size":32,"Sig.Size":64,"Curve":"P-256","Use":"sig"}
 	// {"Name":"ES384","Genus":"ECDSA","Family":"EC","X.Size":96,"D.Size":48,"Hash":"SHA-384","Hash.Size":48,"Sig.Size":96,"Curve":"P-384","Use":"sig"}
 	// {"Name":"ES512","Genus":"ECDSA","Family":"EC","X.Size":132,"D.Size":66,"Hash":"SHA-512","Hash.Size":64,"Sig.Size":132,"Curve":"P-521","Use":"sig"}
 	// {"Name":"Ed25519","Genus":"EdDSA","Family":"EC","X.Size":32,"D.Size":32,"Hash":"SHA-512","Hash.Size":64,"Sig.Size":64,"Curve":"Curve25519","Use":"sig"}
+	// {"Name":"Ed25519ph","Genus":"EdDSA","Family":"EC","X.Size":32,"D.Size":32,"Hash":"SHA-512","Hash.Size":64,"Sig.Size":64,"Curve":"Curve25519","Use":"sig"}
 	// {"Name":"SHA-224","Genus":"SHA2","Family":"SHA","Hash":"SHA-224","Hash.Size":28}
 	// {"Name":"SHA-256","Genus":"SHA2","Family":"SHA","Hash":"SHA-256","Hash.Size":32}
 	// {"Name":"SHA-384","Genus":"SHA2","Family":"SHA","Hash":"SHA-384","Hash.Size":48}

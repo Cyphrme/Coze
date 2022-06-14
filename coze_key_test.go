@@ -229,7 +229,7 @@ func TestGenKeys(t *testing.T) {
 			t.Fatal(err)
 		}
 
-		dig := Hash(enum.SEAlg(alg).Hash(), []byte("Test Message"))
+		dig := Hash(alg.Hash(), []byte("Test Message"))
 		s, err := cozeKey.Sign(dig)
 		if err != nil {
 			t.Fatal(err)

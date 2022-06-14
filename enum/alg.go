@@ -309,6 +309,7 @@ func (a Alg) Family() (f FamAlg) {
 // Hash returns respective hashing algorithm if specified.  If alg is a hashing
 // algorithm, it returns itself.
 func (a Alg) Hash() HashAlg {
+	// Return itself if Alg is a HashAlg
 	if a.Family() == SHA {
 		return HashAlg(a)
 	}
@@ -374,7 +375,7 @@ func (h SEAlg) Curve() Crv {
 
 // Hash returns respective hashing algorithm if specified.
 func (a SEAlg) Hash() HashAlg {
-	return SigAlg(a).Hash() // Only SigAlgs are supported at the moment.
+	return a.SigAlg().Hash() // Only SigAlgs support .Hash() at the moment.
 }
 
 // XSize returns the byte size of `x`.  Returns 0 on error.
@@ -408,58 +409,6 @@ func (a SEAlg) DSize() int {
 		return 66 // Rounded up for P521
 	}
 	return 0
-}
-
-//////////////
-//  SigAlg  //
-//////////////
-const (
-	// Must be in order according to Alg.Parse()
-	UnknownSignAlg SigAlg = iota + 1
-	ES224
-	ES256
-	ES384
-	ES512
-
-	Ed25519
-	Ed25519ph
-	Ed448
-
-	// // Not implemented:
-	// RS256
-	// RS384
-	// RS512
-)
-
-func (a Alg) SigAlg() SigAlg {
-	return SigAlg(a)
-}
-
-func (s SigAlg) FamAlg() FamAlg {
-	switch s {
-	default:
-		return UnknownFamAlg
-	case ES224, ES256, ES384, ES512, Ed25519, Ed25519ph, Ed448:
-		return EC
-		// // Not implemented:
-		// case RS256, RS384, RS512:
-		// 	return RSA
-	}
-}
-
-func (s SigAlg) MarshalJSON() ([]byte, error) {
-	return []byte(`"` + s.String() + `"`), nil
-}
-
-func (s SigAlg) Genus() GenAlg {
-	switch s {
-	default:
-		return UnknownGenAlg
-	case ES224, ES256, ES384, ES512:
-		return Ecdsa
-	case Ed25519, Ed25519ph, Ed448:
-		return Eddsa
-	}
 }
 
 ///////////////
@@ -561,9 +510,57 @@ func (h HashAlg) Size() int {
 	return 0
 }
 
-////////////////
+//////////////
 //  SigAlg  //
-////////////////
+//////////////
+const (
+	// Must be in order according to Alg.Parse()
+	UnknownSignAlg SigAlg = iota + 1
+	ES224
+	ES256
+	ES384
+	ES512
+
+	Ed25519
+	Ed25519ph
+	Ed448
+
+	// // Not implemented:
+	// RS256
+	// RS384
+	// RS512
+)
+
+func (a Alg) SigAlg() SigAlg {
+	return SigAlg(a)
+}
+
+func (s SigAlg) FamAlg() FamAlg {
+	switch s {
+	default:
+		return UnknownFamAlg
+	case ES224, ES256, ES384, ES512, Ed25519, Ed25519ph, Ed448:
+		return EC
+		// // Not implemented:
+		// case RS256, RS384, RS512:
+		// 	return RSA
+	}
+}
+
+func (s SigAlg) MarshalJSON() ([]byte, error) {
+	return []byte(`"` + s.String() + `"`), nil
+}
+
+func (s SigAlg) Genus() GenAlg {
+	switch s {
+	default:
+		return UnknownGenAlg
+	case ES224, ES256, ES384, ES512:
+		return Ecdsa
+	case Ed25519, Ed25519ph, Ed448:
+		return Eddsa
+	}
+}
 
 // String makes the enum to string.  (enum.toString)
 func (s SigAlg) String() string {
@@ -691,7 +688,7 @@ func (a Alg) Curve() (c Crv) {
 		c = P384
 	case ES512:
 		c = P521
-	case Ed25519:
+	case Ed25519, Ed25519ph:
 		c = Curve25519
 	case Ed448:
 		c = Curve448

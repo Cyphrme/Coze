@@ -54,7 +54,7 @@ func MarshalPretty(i any) ([]byte, error) {
 	return bytes.TrimRight(buffer.Bytes(), "\n"), nil
 }
 
-// Hash is a convenience function for enum.Hash that returns B64.
+// Hash is a convenience function wrapping enum.Hash that returns B64.
 func Hash(alg enum.HashAlg, msg []byte) (digest B64) {
 	return B64(enum.Hash(alg, msg))
 }
