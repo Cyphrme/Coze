@@ -368,14 +368,21 @@ func (se *SEAlg) Parse(s string) {
 }
 
 func (h SEAlg) Curve() Crv {
-	a := Alg(h)
-	c := a.Curve()
-	return c
+	return Alg(h).Curve()
+}
+
+func (h SEAlg) Genus() GenAlg {
+	return Alg(h).Genus()
+}
+
+func (h SEAlg) Family() FamAlg {
+	return Alg(h).Family()
 }
 
 // Hash returns respective hashing algorithm if specified.
 func (a SEAlg) Hash() HashAlg {
-	return a.SigAlg().Hash() // Only SigAlgs support .Hash() at the moment.
+	// Only SigAlgs support .Hash() at the moment.
+	return a.SigAlg().Hash()
 }
 
 // XSize returns the byte size of `x`.  Returns 0 on error.
@@ -687,7 +694,7 @@ func (a Alg) Curve() (c Crv) {
 	case ES384:
 		c = P384
 	case ES512:
-		c = P521
+		c = P521 // The curve != the alg
 	case Ed25519, Ed25519ph:
 		c = Curve25519
 	case Ed448:

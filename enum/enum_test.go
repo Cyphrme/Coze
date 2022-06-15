@@ -15,8 +15,8 @@ func BenchmarkNSV(b *testing.B) {
 	var passCount = 0
 
 	msg := []byte("Test message.")
-	// TODO Ed25519
-	var algs = []SigAlg{ES224, ES256, ES384, ES512}
+
+	var algs = []SigAlg{ES224, ES256, ES384, ES512, Ed25519}
 
 	for j := 0; j < b.N; j++ {
 		for i := 0; i < len(algs); i++ {
@@ -24,7 +24,6 @@ func BenchmarkNSV(b *testing.B) {
 			if err != nil {
 				panic("Could not generate a new valid Crypto Key.")
 			}
-
 			sig, err := cryptoKey.SignMsg(msg)
 			if err != nil {
 				panic(err)

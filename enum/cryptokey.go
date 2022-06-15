@@ -4,7 +4,6 @@ import (
 	"crypto"
 	"crypto/ecdsa"
 	"crypto/ed25519"
-	"crypto/elliptic"
 	"crypto/rand"
 	"errors"
 	"fmt"
@@ -13,61 +12,40 @@ import (
 
 // CryptoKey is a generalization of a singing or encryption cryptographic key:
 // public, private, or a key pair.
-//
-// TODO think about not using pointers here and review usage in the package for
-// various cryptos.
 type CryptoKey struct {
 	Alg     SEAlg
-	Public  *crypto.PublicKey
-	Private *crypto.PrivateKey
+	Public  crypto.PublicKey
+	Private crypto.PrivateKey
 }
 
 // NewCryptoKey generates a new CryptoKey.
 func NewCryptoKey(alg SEAlg) (ck *CryptoKey, err error) {
-	var cryptoKey CryptoKey
+
+	var cryptoKey = new(CryptoKey)
 	cryptoKey.Alg = alg
 
-	var public crypto.PublicKey
-	var private crypto.PrivateKey
-
-	if SigAlg(alg) == Ed25519 || SigAlg(alg) == Ed25519ph {
-		var pub, pri []byte
-		pub, pri, err = ed25519.GenerateKey(rand.Reader)
-		if err != nil {
-			return nil, err
-		}
-		public = pub
-		private = pri
-
-	}
-
-	if alg.SigAlg().Genus() == Ecdsa {
-		var keyPair *ecdsa.PrivateKey
-		switch SigAlg(alg) {
-		case ES224:
-			keyPair, err = ecdsa.GenerateKey(elliptic.P224(), rand.Reader)
-		case ES256:
-			keyPair, err = ecdsa.GenerateKey(elliptic.P256(), rand.Reader)
-		case ES384:
-			keyPair, err = ecdsa.GenerateKey(elliptic.P384(), rand.Reader)
-		case ES512: // ES512/P521. The curve != the alg.
-			keyPair, err = ecdsa.GenerateKey(elliptic.P521(), rand.Reader)
-		default:
-			return nil, errors.New("coze.enum.NewCryptoKey: Unknown Alg")
-		}
-
+	switch SigAlg(alg) {
+	case Ed25519, Ed25519ph:
+		// The Go Private key is the seed || public key
+		cryptoKey.Public, cryptoKey.Private, err = ed25519.GenerateKey(rand.Reader)
 		if err != nil {
 			return nil, err
 		}
 
-		// TODO private should probably not be a pointer here.
-		public = keyPair.PublicKey
-		private = keyPair
-	}
+		return cryptoKey, nil
 
-	cryptoKey.Public = &public
-	cryptoKey.Private = &private
-	return &cryptoKey, nil
+	case ES224, ES256, ES384, ES512:
+		keyPair, err := ecdsa.GenerateKey(alg.Curve().EllipticCurve(), rand.Reader)
+		if err != nil {
+			return nil, err
+		}
+
+		cryptoKey.Public = keyPair.PublicKey
+		cryptoKey.Private = keyPair
+		return cryptoKey, nil
+	default:
+		return nil, errors.New("coze.enum.NewCryptoKey: Unknown Alg")
+	}
 }
 
 // Sign signs a precalculated digest.  On error, returns zero bytes. Digest's
@@ -82,35 +60,24 @@ func (c CryptoKey) Sign(digest []byte) (sig []byte, err error) {
 		return nil, errors.New("coze.enum.SignDigest: Unknown Alg")
 	case ES224, ES256, ES384, ES512:
 
-		priv := *c.Private
-		v, ok := priv.(ecdsa.PrivateKey)
-		if !ok { // check to see if inner type is a pointer.
-			var vv *ecdsa.PrivateKey
-			vv, ok = priv.(*ecdsa.PrivateKey)
-			v = *vv
-		}
+		v, ok := c.Private.(*ecdsa.PrivateKey)
 		if !ok {
-			return nil, errors.New("Not a valid ecdsa private key.")
+			return nil, errors.New("Not a valid ECDSA private key.")
 		}
 
 		// Note: ECDSA Sig is always R || S of a fixed size with left padding.  For
 		// example, ES256 should always have a 64 byte signature.
-		r, s, err := ecdsa.Sign(rand.Reader, &v, digest)
+		r, s, err := ecdsa.Sign(rand.Reader, v, digest)
 		if err != nil {
 			return nil, err
 		}
 
 		return PadCon(r, s, c.Alg.SigAlg().SigSize()), nil
+
 	case Ed25519, Ed25519ph:
-		priv := *c.Private
-		v, ok := priv.(ed25519.PrivateKey)
-		if !ok { // check to see if inner type is a pointer.
-			var vv *ed25519.PrivateKey
-			vv, ok = priv.(*ed25519.PrivateKey)
-			v = *vv
-		}
+		v, ok := c.Private.(ed25519.PrivateKey)
 		if !ok {
-			return nil, errors.New("Not a valid eddsa private key")
+			return nil, errors.New("Not a valid EdDSA private key")
 		}
 
 		return ed25519.Sign(v, digest), nil
@@ -129,20 +96,17 @@ func (c CryptoKey) Verify(digest, sig []byte) (valid bool) {
 		return false
 	case ES224, ES256, ES384, ES512:
 		var size = c.Alg.SigAlg().SigSize() / 2
-
 		r := big.NewInt(0).SetBytes(sig[:size])
 		s := big.NewInt(0).SetBytes(sig[size:])
 
-		pub := *c.Public
-		v, ok := pub.(ecdsa.PublicKey)
+		v, ok := c.Public.(ecdsa.PublicKey)
 		if !ok {
 			return false
 		}
 
 		return ecdsa.Verify(&v, digest, r, s)
 	case Ed25519, Ed25519ph:
-		pub := *c.Public
-		v, ok := pub.(ed25519.PublicKey)
+		v, ok := c.Public.(ed25519.PublicKey)
 		if !ok {
 			return false
 		}
