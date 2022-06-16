@@ -4,16 +4,17 @@ package coze
 import (
 	"bytes"
 	"encoding/json"
+	"math/big"
 
-	"github.com/cyphrme/coze/enum"
+	"golang.org/x/crypto/sha3"
 )
 
 // Pay contains the standard fields in a signed Coze object.
 type Pay struct {
-	Alg enum.SEAlg `json:"alg,omitempty"` // e.g. "ES256"
-	Iat int64      `json:"iat,omitempty"` // e.g. 1623132000
-	Tmb B64        `json:"tmb,omitempty"` // e.g. "cLj8vsYtMBwYkzoFVZHBZo6SNL8wSdCIjCKAwXNuhOk"
-	Typ string     `json:"typ,omitempty"` // e.g. "cyphr.me/msg/create"
+	Alg SEAlg  `json:"alg,omitempty"` // e.g. "ES256"
+	Iat int64  `json:"iat,omitempty"` // e.g. 1623132000
+	Tmb B64    `json:"tmb,omitempty"` // e.g. "cLj8vsYtMBwYkzoFVZHBZo6SNL8wSdCIjCKAwXNuhOk"
+	Typ string `json:"typ,omitempty"` // e.g. "cyphr.me/msg/create"
 }
 
 // CozeMarshaler is a UTF-8 marshaler for Go structs.  Go's `json.Marshal`
@@ -54,7 +55,71 @@ func MarshalPretty(i any) ([]byte, error) {
 	return bytes.TrimRight(buffer.Bytes(), "\n"), nil
 }
 
-// Hash is a convenience function wrapping enum.Hash that returns B64.
-func Hash(alg enum.HashAlg, msg []byte) (digest B64) {
-	return B64(enum.Hash(alg, msg))
+// Hash hashes msg and returns the digest or a set size. Returns nil on error.
+//
+// This function was written because it doesn't exist in the standard library.
+// If in the future there is a standard lib function, use that and deprecate
+// this.
+//
+// Shake128 returns 32 bytes. Shake256 returns 64 bytes.
+func Hash(alg HashAlg, msg []byte) (digest B64) {
+	if alg == Shake128 {
+		h := make([]byte, 32)
+		sha3.ShakeSum128(h, msg)
+		return h
+	}
+
+	if alg == Shake256 {
+		h := make([]byte, 64)
+		sha3.ShakeSum256(h, msg)
+		return h
+	}
+
+	hash := alg.goHash()
+	if hash == nil {
+		return nil
+	}
+	_, err := hash.Write(msg)
+	if err != nil {
+		return nil
+	}
+
+	digest = hash.Sum(nil)
+	return
+}
+
+// PadCon creates a big-endian byte slice with given size that is the left
+// padded concatenation  of two input integers.  From Go's packages, X, Y, R,
+// and S  are type big.Int that can vary in size. Before encoding to fixed sized
+// string (both base64 and Hex encode into fixed size strings), left padding of
+// bytes is needed.  Parameter `size` must be even.
+//
+// NOTE: EdDSA is little-endian while ECDSA is big-endian.  EdDSA should not be
+// used with this function.
+//
+// For ECDSA, Coze's `x` is left padded concatenation of X || Y.  For example,
+// ES256's `x` is always 64 bytes.
+//
+// For ECDSA `sig` is always R || S of a fixed size with left padding.  For
+// example, ES256 must have a 64 byte signature. [0,0, 1 .... || 0,0,1 ...].
+//
+// Note: ES512's signature size is 132 bytes (and not 128, 131, or 130.25),
+// because R and S are each respectively rounded up and padded to 528 and for a
+// total signature size of 1056 bits.
+// See https://datatracker.ietf.org/doc/html/rfc4754#section-7
+func PadCon(r, s *big.Int, size int) (sig B64) {
+	if !(size%2 == 0) {
+		panic("size must be even.")
+	}
+
+	sig = make([]byte, size)
+	half := size / 2
+
+	rb := r.Bytes()
+	copy(sig[half-len(rb):], rb)
+
+	sb := s.Bytes()
+	copy(sig[half+(half-(len(sb))):], sb)
+
+	return sig
 }

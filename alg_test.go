@@ -1,52 +1,10 @@
-package enum
+package coze
 
 import (
 	"fmt"
-	"testing"
 )
 
 // Signing and verifying tests are done in package Coze.
-
-// BenchmarkNSV (New, Sign, Verify) will generate a new Crypto Key, sign a
-// message with that key. verify the signature, and return the results.  It will
-// also test verify digest.
-// `go test -bench=.`
-func BenchmarkNSV(b *testing.B) {
-	var passCount = 0
-
-	msg := []byte("Test message.")
-
-	var algs = []SigAlg{ES224, ES256, ES384, ES512, Ed25519}
-
-	for j := 0; j < b.N; j++ {
-		for i := 0; i < len(algs); i++ {
-			cryptoKey, err := NewCryptoKey(SEAlg(algs[i]))
-			if err != nil {
-				panic("Could not generate a new valid Crypto Key.")
-			}
-			sig, err := cryptoKey.SignMsg(msg)
-			if err != nil {
-				panic(err)
-			}
-
-			valid := cryptoKey.VerifyMsg(msg, sig)
-			if !valid {
-				panic("The signature was invalid")
-			}
-
-			// Test VerifyDigest
-			msgDigest := Hash(SigAlg(algs[i]).Hash(), msg)
-			valid = cryptoKey.Verify(msgDigest, sig)
-			if !valid {
-				panic("The signature was invalid")
-			}
-
-			passCount++
-		}
-	}
-
-	fmt.Printf("TestCryptoKeyNSV Pass Count: %+v \n", passCount)
-}
 
 func ExampleHashAlg_print() {
 	h := Sha256
@@ -71,10 +29,10 @@ func ExampleAlg_jsonMarshal() {
 }
 
 func ExampleHashAlg_jsonMarshal() {
-	type zstruct = struct {
+	type testStruct = struct {
 		H HashAlg `json:"hashAlg"`
 	}
-	z := zstruct{H: Sha256}
+	z := testStruct{H: Sha256}
 
 	jm, err := Marshal(z)
 	if err != nil {

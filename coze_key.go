@@ -2,18 +2,14 @@ package coze
 
 import (
 	"bytes"
-	"crypto"
 	"crypto/ecdsa"
 	"crypto/ed25519"
-	"crypto/elliptic"
 	"crypto/rand"
 	"encoding/json"
 	"errors"
 	"fmt"
 	"math/big"
 	"time"
-
-	"github.com/cyphrme/coze/enum"
 )
 
 // CozeKeyArrayCanon is the canonical form of a Coze Key in array form.
@@ -25,37 +21,27 @@ type CozeKeyCanon struct {
 	X   B64    `json:"x"`
 }
 
-// CozeKey is a Coze key. See `README.md` for details.
+// CozeKey is a Coze key. See `README.md` for details. Fields must be in order
+// for correct JSON marshaling.
 //
-// Fields must be in order for correct JSON marshaling.
-//
-// Required Fields
-//	- `alg` - Specific key algorithm. E.g. "ES256" or "Ed25519".
-//
-// Recommended and Optional Fields:
-//	- `kid` - Human readable label and must not be used programmatically. E.g. "My Coze key".
-//	- `iat` - Unix time of when the key was created. E.g. 1626069600.
-//	- `tmb` - Key's thumbprint. E.g. "0148F4CD9093C9CBE3E8BF78D3E6C9B824F11DD2F29E2B1A630DD1CE1E176CDD".
-//	- `typ` - The key's type and may be used by applications to identify the key.  "coze/key".
-//
-// Key Fields
-//	- `d` - Private component.
-//	- `x` - Public component.
-//
-// Revoked.  Key revocation should be done through a Coze message using the
-// `rvk`` field in `pay` (See the Coze README).  The Coze key field `rvk` is
-// useful for storing a key's revocation state.
-//  - `rvk` - Unix time of key revocation. See docs on `rvk`. E.g. 1626069601.
-//
+// Standard Coze Key Fields
+// - `alg` - Specific key algorithm. E.g. "ES256" or "Ed25519".
+// - `d`   - Private component.
+// - `iat` - Unix time of when the key was created. E.g. 1626069600.
+// - `kid` - Human readable, non-programmatic label. E.g. "My Coze key".
+// - `rvk` - Unix time of key revocation. See docs on `rvk`. E.g. 1626069601.
+// - `tmb` - Key thumbprint. E.g. "cLj8vsYtMBwYkzoFVZHBZo6SNL8wSdCIjCKAwXNuhOk".
+// - `typ` - Application label for key.  "coze/key".
+// - `x`   - Public component.
 type CozeKey struct {
-	Alg enum.SEAlg `json:"alg"`
-	D   B64        `json:"d,omitempty"`
-	Iat int64      `json:"iat,omitempty"`
-	Kid string     `json:"kid,omitempty"`
-	Rvk int64      `json:"rvk,omitempty"`
-	Tmb B64        `json:"tmb,omitempty"`
-	Typ string     `json:"typ,omitempty"`
-	X   B64        `json:"x,omitempty"`
+	Alg SEAlg  `json:"alg,omitempty"`
+	D   B64    `json:"d,omitempty"`
+	Iat int64  `json:"iat,omitempty"`
+	Kid string `json:"kid,omitempty"`
+	Rvk int64  `json:"rvk,omitempty"`
+	Tmb B64    `json:"tmb,omitempty"`
+	Typ string `json:"typ,omitempty"`
+	X   B64    `json:"x,omitempty"`
 }
 
 // String returns the stringified Coze key.
@@ -68,22 +54,15 @@ func (c *CozeKey) String() string {
 }
 
 // NewKey generates a new Coze Key.
-func NewKey(alg enum.SEAlg) (c *CozeKey, err error) {
+func NewKey(alg SEAlg) (c *CozeKey, err error) {
 	c = new(CozeKey)
 	c.Alg = alg
 
-	if c.Alg.SigAlg().Genus() == enum.Ecdsa {
-		eck := new(ecdsa.PrivateKey)
-		switch enum.SigAlg(alg) {
-		case enum.ES224:
-			eck, err = ecdsa.GenerateKey(elliptic.P224(), rand.Reader)
-		case enum.ES256:
-			eck, err = ecdsa.GenerateKey(elliptic.P256(), rand.Reader)
-		case enum.ES384:
-			eck, err = ecdsa.GenerateKey(elliptic.P384(), rand.Reader)
-		case enum.ES512:
-			eck, err = ecdsa.GenerateKey(elliptic.P521(), rand.Reader)
-		}
+	switch c.Alg.SigAlg() {
+	default:
+		return nil, errors.New("coze.NewKey: unsupported alg: " + alg.String())
+	case ES224, ES256, ES384, ES512:
+		eck, err := ecdsa.GenerateKey(c.Alg.Curve().EllipticCurve(), rand.Reader)
 
 		if err != nil {
 			return nil, err
@@ -91,18 +70,17 @@ func NewKey(alg enum.SEAlg) (c *CozeKey, err error) {
 
 		d := make([]byte, alg.DSize())
 		c.D = eck.D.FillBytes(d) // Left pads bytes
-		c.X = enum.PadCon(eck.X, eck.Y, alg.XSize())
+		c.X = PadCon(eck.X, eck.Y, alg.XSize())
 
-	} else if c.Alg == enum.SEAlg(enum.Ed25519) {
-		var pub, pri []byte
-		pub, pri, err = ed25519.GenerateKey(rand.Reader)
+	case Ed25519:
+		pub, pri, err := ed25519.GenerateKey(rand.Reader)
 		if err != nil {
 			return nil, err
 		}
-		c.D = pri
-		c.X = pub
-	} else {
-		return nil, errors.New("coze.NewKey:unsupported alg")
+		// ed25519.GenerateKey returns "private key" that is the seed || publicKey.
+		// Remove public key for 32 byte "seed", which is used as the private key.
+		c.D = []byte(pri[:32])
+		c.X = B64(pub)
 	}
 
 	c.Iat = time.Now().Unix()
@@ -110,7 +88,6 @@ func NewKey(alg enum.SEAlg) (c *CozeKey, err error) {
 	if err != nil {
 		return nil, err
 	}
-
 	return c, nil
 }
 
@@ -140,30 +117,47 @@ func Thumbprint(c *CozeKey) (tmb B64, err error) {
 // Sign uses a private Coze key to sign a digest.
 func (c *CozeKey) Sign(digest B64) (sig B64, err error) {
 	if len(c.D) == 0 {
-		return nil, errors.New("coze Sign: private key `d` is not set.")
+		return nil, errors.New("Sign: private key `d` is not set.")
 	}
 
-	if c.Alg.SigAlg() == enum.Ed25519 {
-		// TODO Coze signs hashed messages and "pure" Ed signs messages.  Ed's
-		// pre-hash and the post-hash methods are different and produce different
-		// TODO https://github.com/golang/go/issues/31804#issuecomment-1103824216
+	switch c.Alg.SigAlg().Genus() {
+	default:
+		return nil, errors.New("Sign: unsupported alg: " + c.Alg.String())
+	case Ecdsa:
+		prk := ecdsa.PrivateKey{
+			PublicKey: *cozeKeyToPubEcdsa(c),
+			D:         new(big.Int).SetBytes(c.D),
+		}
+		// Note: ECDSA Sig is always R || S of a fixed size with left padding.  For
+		// example, ES256 should always have a 64 byte signature.
+		r, s, err := ecdsa.Sign(rand.Reader, &prk, digest)
+		if err != nil {
+			return nil, err
+		}
 
-		// TODO Go's ed25519 package currently does not currently support verifying with a digest.
-		// https://pkg.go.dev/crypto/ed25519#Verify
-		return nil, errors.New("Ed25519 is currently unsupported")
-	}
+		return PadCon(r, s, c.Alg.SigAlg().SigSize()), nil
 
-	ck, err := c.ToCryptoKey()
-	if err != nil {
-		return nil, err
+	case Eddsa:
+		pk := ed25519.NewKeyFromSeed(c.D)
+		// Alternatively, concat d with x
+		// b := make([]coze.B64, 64)
+		// d := append(b, ck.D, ck.X)
+		return ed25519.Sign(pk, digest), nil
 	}
-	// Cryptokey handles all error checking.
-	sig, err = ck.Sign(digest)
-	if err != nil {
-		return nil, err
-	}
+}
 
-	return sig, nil
+// cozeKeyToPubEcdsa converts a public Coze Key to ecdsa.PublicKey.
+func cozeKeyToPubEcdsa(ck *CozeKey) (key *ecdsa.PublicKey) {
+	half := ck.Alg.XSize() / 2
+	x := new(big.Int).SetBytes(ck.X[:half])
+	y := new(big.Int).SetBytes(ck.X[half:])
+
+	a := ecdsa.PublicKey{
+		Curve: ck.Alg.Curve().EllipticCurve(),
+		X:     x,
+		Y:     y,
+	}
+	return &a
 }
 
 // SignCy signs Cy.Pay and populates `sig`.  Canon is optional.
@@ -191,15 +185,21 @@ func (c *CozeKey) SignCy(cy *Cy, canon any) (err error) {
 	return
 }
 
-// Verify uses a public coze key to verify a digest.
-//
+// Verify uses a public Coze key to verify a digest.
 func (c *CozeKey) Verify(digest, sig B64) (valid bool) {
-	ck, err := c.ToCryptoKey()
-	if err != nil {
+	switch c.Alg.SigAlg() {
+	default:
 		return false
-	}
+	case ES224, ES256, ES384, ES512:
+		var size = c.Alg.SigAlg().SigSize() / 2
+		r := big.NewInt(0).SetBytes(sig[:size])
+		s := big.NewInt(0).SetBytes(sig[size:])
 
-	return ck.Verify(digest, sig)
+		puk := cozeKeyToPubEcdsa(c)
+		return ecdsa.Verify(puk, digest, r, s)
+	case Ed25519, Ed25519ph:
+		return ed25519.Verify(ed25519.PublicKey(c.X), digest, sig)
+	}
 }
 
 // Verify cryptographically verifies `coze` with given `sig`.  Canon is optional.
@@ -235,19 +235,17 @@ func (c *CozeKey) Valid() (valid bool) {
 	if c.D == nil || len(c.D) == 0 {
 		return false
 	}
-	// Random message
-	msg := []byte("a0HwToVezVCBrucf3RiBW4xDWSnap1GZTvNfkI7q77k")
-	digest := Hash(c.Alg.Hash(), msg)
 
+	digest := Hash(c.Alg.Hash(), []byte("7AtyaCHO2BAG06z0W1tOQlZFWbhxGgqej4k9-HWP3DE-zshRbrE-69DIfgY704_FDYez7h_rEI1WQVKhv5Hd5Q"))
 	sig, err := c.Sign(digest)
 	if err != nil {
 		return false
 	}
-	valid = c.Verify(digest, sig)
 
-	return valid
+	return c.Verify(digest, sig)
 }
 
+// TODO: This needs to allow thumbs only keys.
 // Correct checks for the correct construction of a Coze key.  Correct may
 // return "true" on cryptographically invalid public keys.  Use function
 // "Verify" for public keys with signed message.  Correct is useful for public
@@ -261,13 +259,9 @@ func (c *CozeKey) Valid() (valid bool) {
 // 4. If containing d, generates and verifies a signature, thus
 //    verifying the key, by calling Valid()
 func Correct(ck CozeKey) (bool, error) {
-	var xLen = enum.SEAlg(ck.Alg).XSize()
+	var xLen = SEAlg(ck.Alg).XSize()
 	if xLen == 0 {
 		return false, errors.New("coze.Correct: unknown alg")
-	}
-
-	if len(ck.X) != xLen {
-		return false, fmt.Errorf("coze.Correct: x is incorrect length: %d for alg %s", len(ck.X), ck.Alg)
 	}
 
 	// Compare existing tmb
@@ -296,76 +290,4 @@ func (ck *CozeKey) IsPrivate() bool {
 		return true
 	}
 	return false
-}
-
-// ToCryptoKey takes a Coze Key and returns a crypto key.  Organizationally,
-// this function would be better in the enum package but that would result in an
-// import cycle.
-func (cozekey *CozeKey) ToCryptoKey() (ck *enum.CryptoKey, err error) {
-	//fmt.Printf("\n Ck Private: %+v \n", cozekey)
-	if cozekey == nil {
-		return nil, errors.New("coze: nil Coze Key")
-	}
-	if len(cozekey.X) == 0 {
-		return nil, errors.New("coze: invalid CozeKey")
-	}
-
-	switch cozekey.Alg.SigAlg().Genus() {
-	default:
-		return nil, errors.New("unsupported alg")
-	case enum.Ecdsa:
-		ck, err = ecDSACozeKeyToCryptoKey(cozekey)
-		return
-	case enum.Eddsa:
-		ck, err = edDSACozeKeyToCryptoKey(cozekey)
-		return
-	}
-}
-
-func edDSACozeKeyToCryptoKey(ck *CozeKey) (key *enum.CryptoKey, err error) {
-	// TODO support Ed25519
-	return nil, nil
-}
-
-// ecdsaCozeKeyToCryptoKey take a Coze Key (public or private) and returns a
-// CryptoKey pair.  Organizationally, this function would be better in the enum
-// package but that would result in an import cycle.
-func ecDSACozeKeyToCryptoKey(ck *CozeKey) (key *enum.CryptoKey, err error) {
-	if ck.Alg.SigAlg().Genus() != enum.Ecdsa {
-		return nil, errors.New("coze: unsupported alg for ecdsaCozeKeyToCryptoKey.")
-	}
-
-	key = new(enum.CryptoKey)
-	key.Private = new(crypto.PrivateKey)
-	key.Public = new(crypto.PublicKey)
-
-	key.Alg = ck.Alg
-	curve := ck.Alg.Curve().EllipticCurve()
-
-	half := ck.Alg.XSize() / 2
-	x := new(big.Int).SetBytes(ck.X[:half])
-	y := new(big.Int).SetBytes(ck.X[half:])
-
-	ec := ecdsa.PublicKey{
-		Curve: curve,
-		X:     x,
-		Y:     y,
-	}
-
-	pub := crypto.PublicKey(ec) // set ecdsa.PublicKey to crypto.PublicKey
-	key.Public = &pub
-
-	if len(ck.D) == 0 {
-		return key, err
-	}
-
-	d := new(big.Int).SetBytes(ck.D)
-	var private crypto.PrivateKey
-	private = ecdsa.PrivateKey{
-		PublicKey: ec,
-		D:         d,
-	}
-	key.Private = &private
-
-	return key, err
 }

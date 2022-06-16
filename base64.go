@@ -52,6 +52,15 @@ func (t B64) GoString() string {
 	return fmt.Sprintf("%X", []byte(t))
 }
 
+// Decode decodes a base64 string to B64.
+func Decode(b64 string) (B64, error) {
+	b, err := base64.URLEncoding.WithPadding(base64.NoPadding).DecodeString(b64)
+	if err != nil {
+		return nil, err
+	}
+	return b, nil
+}
+
 // MustDecode decodes a base64 string to B64.  Will panic on error.
 func MustDecode(b64 string) B64 {
 	b, err := base64.URLEncoding.WithPadding(base64.NoPadding).DecodeString(b64)

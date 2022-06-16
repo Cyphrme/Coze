@@ -1,4 +1,16 @@
-// Package enum is a declarative abstraction for cryptographic functions
+package coze
+
+import (
+	"crypto/elliptic"
+	"crypto/sha256"
+	"crypto/sha512"
+	"hash"
+	"strings"
+
+	"golang.org/x/crypto/sha3"
+)
+
+// Alg is a declarative abstraction for cryptographic functions
 // for Coze in Go.
 //
 // See the main Coze README.
@@ -39,7 +51,7 @@
 //  --- SHAKE128
 //  --- SHAKE256
 //
-// Potentially supporting:
+// Potential Future Support:
 //  - RSA
 //  -- RSASSA-PKCS1-v1_5
 //  --- RS256
@@ -50,23 +62,10 @@
 // "SE" (singing, encryption) is the super type of signing and encryption and
 // excludes hashing.
 //
-// The integer value of the enum will change in the future. Use the string name
-// for algos when storing information.
+// The integer value of the "enum" will change in the future. Use the string
+// name for algos when storing information.
 //
-// See the main Coze README for unsupported things.
-package enum
-
-import (
-	"crypto/elliptic"
-	"crypto/sha256"
-	"crypto/sha512"
-	"hash"
-	"strings"
-
-	"golang.org/x/crypto/sha3"
-)
-
-// Cryptographic Algorithm types.
+// See the main Coze README for Coze supported and unsupported things.
 type Alg int    // Alg is for all cryptographic algorithms.  All levels included.
 type GenAlg int // Algorithm genus.    Level 1.
 type FamAlg int // Algorithm family    Level 2.
@@ -362,7 +361,6 @@ func (h SEAlg) MarshalJSON() ([]byte, error) {
 	return []byte(s), nil
 }
 
-// String makes the enum to string.  (enum.toString)
 func (se *SEAlg) Parse(s string) {
 	*se = (SEAlg)(*Parse(s))
 }
@@ -445,7 +443,6 @@ const (
 	Shake256
 )
 
-// String makes the enum to string.  (enum.toString)
 func (h HashAlg) String() string {
 	return getString(int(h))
 }
@@ -461,7 +458,6 @@ func (h HashAlg) MarshalJSON() ([]byte, error) {
 	return []byte(s), nil
 }
 
-// String makes the enum to string.  (enum.toString)
 func (h *HashAlg) Parse(s string) {
 	*h = (HashAlg)(*Parse(s))
 }
@@ -569,7 +565,6 @@ func (s SigAlg) Genus() GenAlg {
 	}
 }
 
-// String makes the enum to string.  (enum.toString)
 func (s SigAlg) String() string {
 	return getString(int(s))
 }
@@ -659,7 +654,6 @@ func ParseKeyUse(s string) KeyUse {
 	return *u
 }
 
-// String makes the enum to string.  (enum.toString)
 func (u KeyUse) String() string {
 	return []string{
 		"UnknownKeyUse",
@@ -719,7 +713,6 @@ func (c Crv) MarshalJSON() ([]byte, error) {
 	return []byte(`"` + c.String() + `"`), nil
 }
 
-// Parse converts the enum to string.
 func (c *Crv) Parse(s string) {
 	switch s {
 	case "P-224":

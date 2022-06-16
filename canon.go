@@ -4,8 +4,6 @@ import (
 	"bytes"
 	"encoding/json"
 	"fmt"
-
-	"github.com/cyphrme/coze/enum"
 )
 
 // Canon returns the current canon from raw JSON.
@@ -62,7 +60,7 @@ func Canonical(input []byte, canon any) (b []byte, err error) {
 // CanonHash accepts []byte and optional canon and returns digest.
 //
 // If input is already in canonical form, Hash() may also be called instead.
-func CanonHash(input []byte, canon any, hash enum.HashAlg) (digest B64, err error) {
+func CanonHash(input []byte, canon any, hash HashAlg) (digest B64, err error) {
 	input, err = Canonical(input, canon)
 	if err != nil {
 		return nil, err

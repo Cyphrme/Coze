@@ -4,8 +4,6 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
-
-	"github.com/cyphrme/coze/enum"
 )
 
 // Cy is for signed Coze objects (cozies).  See the Coze docs (README.md) for
@@ -96,7 +94,7 @@ func (cy *Cy) Meta() (err error) {
 }
 
 // GenCyd generates and returns `cyd`.
-func GenCyd(hash enum.HashAlg, cad B64, sig B64) (cyd B64) {
+func GenCyd(hash HashAlg, cad B64, sig B64) (cyd B64) {
 	var cadSig = []byte(fmt.Sprintf(`{"cad":"%s","sig":"%s"}`, cad, sig))
 	return Hash(hash, cadSig)
 }
