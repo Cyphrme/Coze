@@ -25,10 +25,10 @@
 - Various bug fixes.
 
 ## Additional Explicit design decisions:
-- Coze follows the underlying algorithm's endianness.  For ECDSA, it's big
-  endian.  For EdDSA, it's little endian.  
+- Coze follows the underlying algorithm's endianness.  ECDSA is big
+  endian and EdDSA is little endian.  
 
-## Still on TODO:
+## To do:
 	Constant time Decode and MustDecode method for private keys. 
 
 # Other thoughts:

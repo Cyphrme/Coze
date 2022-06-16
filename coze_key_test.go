@@ -45,6 +45,7 @@ var Golden_Pay = `{
  }`
 
 var Golden_Cad = "LSgWE4vEfyxJZUTFaRaB2JdEclORdZcm4UVH9D8vVto"
+var Golden_Cyd = "d0ygwQCGzuxqgUq1KsuAtJ8IBu0mkgAcKpUJzuX075M"
 var Golden_Sig = "ywctP6lEQ_HcYLhgpoecqhFrqNpBSyNPuAPOV94SThuztJek7x7H9mXFD0xTrlmQPg_WC7jwg70nzNoGn70JyA"
 
 var Golden_Cy = `{
@@ -134,9 +135,25 @@ func ExampleCozeKey_Sign() {
 		fmt.Println(err)
 	}
 
-	valid := Golden_Key.Verify(cad, sig)
+	fmt.Printf("%v\n", Golden_Key.Verify(cad, sig))
+	// Output: true
+}
 
-	fmt.Printf("%v\n", valid)
+// ExampleCozeKey_Sign_empty shows signing an empty Coze is valid:
+//
+// {"pay":{},"sig":"9iesKUSV7L1-xz5yd3A94vCkKLmdOAnrcPXTU3_qeKSuk4RMG7Qz0KyubpATy0XA_fXrcdaxJTvXg6saaQQcVQ"}
+//
+// Where `alg`` and `key` are already implicitly known by the application.
+func ExampleCozeKey_Sign_empty() {
+	input := "{}"
+	dig := Hash(Golden_Key.Alg.Hash(), []byte(input))
+
+	sig, err := Golden_Key.Sign(dig)
+	if err != nil {
+		fmt.Println(err)
+	}
+
+	fmt.Printf("%v\n", Golden_Key.Verify(dig, sig))
 	// Output: true
 }
 

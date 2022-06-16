@@ -24,11 +24,11 @@ type CozeMarshaler interface {
 }
 
 // Marshal is a UTF-8 friendly marshaler.  Go's json.Marshal is not UTF-8
-// friendly because it replaces the valid UTF-8 and JSON characters "&". "<",
-// ">" with the "slash u" unicode escaped forms (e.g. \u0026).  It preemptively
-// escapes for HTML friendliness.  Where JSON may include these characters,
-// json.Marshal should not be used. Playground of Go breaking a book title:
-// https://play.golang.org/p/o2hiX0c62oN
+// friendly because it replaces the valid JSON and valid UTF-8 characters "&".
+// "<", ">" with the "slash u" unicode escaped forms (e.g. \u0026).  It
+// preemptively escapes for HTML friendliness.  Where JSON may include these
+// characters, json.Marshal should not be used. Playground of Go breaking a book
+// title: https://play.golang.org/p/o2hiX0c62oN
 func Marshal(i any) ([]byte, error) {
 	buffer := &bytes.Buffer{}
 	encoder := json.NewEncoder(buffer)
@@ -89,37 +89,33 @@ func Hash(alg HashAlg, msg []byte) (digest B64) {
 }
 
 // PadCon creates a big-endian byte slice with given size that is the left
-// padded concatenation  of two input integers.  From Go's packages, X, Y, R,
-// and S  are type big.Int that can vary in size. Before encoding to fixed sized
-// string (both base64 and Hex encode into fixed size strings), left padding of
-// bytes is needed.  Parameter `size` must be even.
+// padded concatenation of two input integers.  Parameter `size` must be even.
+// From Go's packages, X, Y, R, and S are type big.Int of varying size. Before
+// encoding to fixed sized string, left padding of bytes is needed.
 //
 // NOTE: EdDSA is little-endian while ECDSA is big-endian.  EdDSA should not be
 // used with this function.
 //
-// For ECDSA, Coze's `x` is left padded concatenation of X || Y.  For example,
-// ES256's `x` is always 64 bytes.
-//
-// For ECDSA `sig` is always R || S of a fixed size with left padding.  For
-// example, ES256 must have a 64 byte signature. [0,0, 1 .... || 0,0,1 ...].
+// For ECDSA, Coze's `x` and `sig` is left padded concatenation of X || Y and R
+// || S respectively.
 //
 // Note: ES512's signature size is 132 bytes (and not 128, 131, or 130.25),
 // because R and S are each respectively rounded up and padded to 528 and for a
 // total signature size of 1056 bits.
 // See https://datatracker.ietf.org/doc/html/rfc4754#section-7
-func PadCon(r, s *big.Int, size int) (sig B64) {
+func PadCon(r, s *big.Int, size int) (out B64) {
 	if !(size%2 == 0) {
 		panic("size must be even.")
 	}
 
-	sig = make([]byte, size)
+	out = make([]byte, size)
 	half := size / 2
 
 	rb := r.Bytes()
-	copy(sig[half-len(rb):], rb)
+	copy(out[half-len(rb):], rb)
 
 	sb := s.Bytes()
-	copy(sig[half+(half-(len(sb))):], sb)
+	copy(out[half+(half-(len(sb))):], sb)
 
-	return sig
+	return out
 }

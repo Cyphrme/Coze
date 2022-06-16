@@ -201,7 +201,7 @@ func (a *Alg) Parse(s string) {
 		*a = Alg(Ed25519ph)
 	case "Ed448":
 		*a = Alg(Ed448)
-	//	// Not implemented:
+	//	Placeholder for future.
 	// case "RS256":
 	// 	*a = Alg(RS256)
 	// case "RS384":
@@ -248,7 +248,7 @@ func getString(i int) (s string) {
 		"Ed25519",
 		"Ed25519ph",
 		"Ed448",
-		"RS256", // TODO support RSA. (Placeholders for future.)
+		"RS256", // Placeholder for future.
 		"RS384",
 		"RS512",
 		"UnknownEncAlg",

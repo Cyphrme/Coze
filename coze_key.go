@@ -53,7 +53,7 @@ func (c *CozeKey) String() string {
 	return string(b)
 }
 
-// NewKey generates a new Coze Key.
+// NewKey generates a new Coze key.
 func NewKey(alg SEAlg) (c *CozeKey, err error) {
 	c = new(CozeKey)
 	c.Alg = alg
@@ -63,7 +63,6 @@ func NewKey(alg SEAlg) (c *CozeKey, err error) {
 		return nil, errors.New("coze.NewKey: unsupported alg: " + alg.String())
 	case ES224, ES256, ES384, ES512:
 		eck, err := ecdsa.GenerateKey(c.Alg.Curve().EllipticCurve(), rand.Reader)
-
 		if err != nil {
 			return nil, err
 		}
@@ -71,7 +70,6 @@ func NewKey(alg SEAlg) (c *CozeKey, err error) {
 		d := make([]byte, alg.DSize())
 		c.D = eck.D.FillBytes(d) // Left pads bytes
 		c.X = PadCon(eck.X, eck.Y, alg.XSize())
-
 	case Ed25519:
 		pub, pri, err := ed25519.GenerateKey(rand.Reader)
 		if err != nil {
@@ -93,25 +91,18 @@ func NewKey(alg SEAlg) (c *CozeKey, err error) {
 
 // Thumbprint generates and sets the Coze key thumbprint (`tmb`).
 func (c *CozeKey) Thumbprint() (err error) {
-	tmb, err := Thumbprint(c)
-	if err != nil {
-		return err
-	}
-	c.Tmb = tmb
+	c.Tmb, err = Thumbprint(c)
 	return
 }
 
-// Thumbprint generates Coze key thumbprint `tmb` which is the digest of canon
-// [alg, x]
+// Thumbprint generates `tmb` which is the digest of canon [alg, x]
 func Thumbprint(c *CozeKey) (tmb B64, err error) {
 	b, err := Marshal(c)
 	if err != nil {
 		return nil, err
 	}
 
-	tmb, err = CanonHash(b, &CozeKeyCanon{}, c.Alg.Hash())
-
-	return tmb, err
+	return CanonHash(b, &CozeKeyCanon{}, c.Alg.Hash())
 }
 
 // Sign uses a private Coze key to sign a digest.
@@ -134,33 +125,33 @@ func (c *CozeKey) Sign(digest B64) (sig B64, err error) {
 		if err != nil {
 			return nil, err
 		}
-
 		return PadCon(r, s, c.Alg.SigAlg().SigSize()), nil
-
 	case Eddsa:
 		pk := ed25519.NewKeyFromSeed(c.D)
 		// Alternatively, concat d with x
 		// b := make([]coze.B64, 64)
-		// d := append(b, ck.D, ck.X)
+		// d := append(b, c.D, c.X)
 		return ed25519.Sign(pk, digest), nil
 	}
 }
 
 // cozeKeyToPubEcdsa converts a public Coze Key to ecdsa.PublicKey.
-func cozeKeyToPubEcdsa(ck *CozeKey) (key *ecdsa.PublicKey) {
-	half := ck.Alg.XSize() / 2
-	x := new(big.Int).SetBytes(ck.X[:half])
-	y := new(big.Int).SetBytes(ck.X[half:])
+func cozeKeyToPubEcdsa(c *CozeKey) (key *ecdsa.PublicKey) {
+	half := c.Alg.XSize() / 2
+	x := new(big.Int).SetBytes(c.X[:half])
+	y := new(big.Int).SetBytes(c.X[half:])
 
 	a := ecdsa.PublicKey{
-		Curve: ck.Alg.Curve().EllipticCurve(),
+		Curve: c.Alg.Curve().EllipticCurve(),
 		X:     x,
 		Y:     y,
 	}
 	return &a
 }
 
-// SignCy signs Cy.Pay and populates `sig`.  Canon is optional.
+// SignCy signs Cy.Pay and populates `sig` and verifies the cy and key fields
+// `alg` and `tmb` match.  If trying to sign without `alg` and/or `tmb`, use
+// Verify instead.  Canon is optional.
 func (c *CozeKey) SignCy(cy *Cy, canon any) (err error) {
 	// Get Coze standard fields
 	h := new(Pay)
@@ -168,8 +159,11 @@ func (c *CozeKey) SignCy(cy *Cy, canon any) (err error) {
 	if err != nil {
 		return err
 	}
-	if !bytes.Equal(h.Tmb, c.Tmb) {
-		return errors.New("coze: key tmb and cy tmb do not match")
+	if c.Alg != h.Alg {
+		return errors.New(fmt.Sprintf("SignCy: key alg \"%s\" and cy alg \"%s\" do not match", c.Alg, h.Alg))
+	}
+	if !bytes.Equal(c.Tmb, h.Tmb) {
+		return errors.New(fmt.Sprintf("SignCy: key tmb \"%s\" and cy tmb  \"%s\" do not match", c.Tmb, h.Tmb))
 	}
 
 	b, err := Canonical(cy.Pay, canon) // compactify
@@ -182,7 +176,7 @@ func (c *CozeKey) SignCy(cy *Cy, canon any) (err error) {
 		return err
 	}
 	cy.Sig = sig
-	return
+	return nil
 }
 
 // Verify uses a public Coze key to verify a digest.
@@ -194,16 +188,16 @@ func (c *CozeKey) Verify(digest, sig B64) (valid bool) {
 		var size = c.Alg.SigAlg().SigSize() / 2
 		r := big.NewInt(0).SetBytes(sig[:size])
 		s := big.NewInt(0).SetBytes(sig[size:])
-
-		puk := cozeKeyToPubEcdsa(c)
-		return ecdsa.Verify(puk, digest, r, s)
+		return ecdsa.Verify(cozeKeyToPubEcdsa(c), digest, r, s)
 	case Ed25519, Ed25519ph:
 		return ed25519.Verify(ed25519.PublicKey(c.X), digest, sig)
 	}
 }
 
-// Verify cryptographically verifies `coze` with given `sig`.  Canon is optional.
-func (ck *CozeKey) VerifyCy(cy *Cy) (bool, error) {
+// VerifyCy cryptographically verifies `pay` with given `sig` and verifies the
+// `pay` and `key` fields `alg` and `tmb` match.  If trying to verify without
+// `alg` and/or `tmb`, use Verify instead.
+func (c *CozeKey) VerifyCy(cy *Cy) (bool, error) {
 	if cy.Sig == nil {
 		return false, errors.New("coze: sig is nil")
 	}
@@ -213,8 +207,12 @@ func (ck *CozeKey) VerifyCy(cy *Cy) (bool, error) {
 	if err != nil {
 		return false, err
 	}
-	if !bytes.Equal(h.Tmb, ck.Tmb) {
-		return false, errors.New("coze: key tmb and cy tmb do not match")
+	if c.Alg != h.Alg {
+		return false, errors.New(fmt.Sprintf("VerifyCy: key alg \"%s\" and cy alg \"%s\" do not match", c.Alg, h.Alg))
+	}
+
+	if !bytes.Equal(c.Tmb, h.Tmb) {
+		return false, errors.New(fmt.Sprintf("VerifyCy: key tmb \"%s\" and cy tmb  \"%s\" do not match", c.Tmb, h.Tmb))
 	}
 
 	b, err := Canonical(cy.Pay, nil)
@@ -222,11 +220,11 @@ func (ck *CozeKey) VerifyCy(cy *Cy) (bool, error) {
 		return false, err
 	}
 
-	return ck.Verify(Hash(ck.Alg.Hash(), b), cy.Sig), nil
+	return c.Verify(Hash(c.Alg.Hash(), b), cy.Sig), nil
 }
 
-// Valid validates a private Coze Key by signing a message and verifying a valid
-// signature.
+// Valid cryptographically validates a private Coze Key by signing a message and
+// verifying the resulting signature.
 //
 // Valid always returns false on public keys.  Use function "Verify" for public
 // keys with signed message and "Correct" for public keys without signed
@@ -245,11 +243,10 @@ func (c *CozeKey) Valid() (valid bool) {
 	return c.Verify(digest, sig)
 }
 
-// TODO: This needs to allow thumbs only keys.
-// Correct checks for the correct construction of a Coze key.  Correct may
+// Correct checks for the correct construction of a Coze key.  Key must have alg and tmb xCorrect may
 // return "true" on cryptographically invalid public keys.  Use function
 // "Verify" for public keys with signed message.  Correct is useful for public
-// keys without signed messages.
+// keys without signed messages, and thumb only keys.
 //
 // Correct:
 //
@@ -258,36 +255,31 @@ func (c *CozeKey) Valid() (valid bool) {
 // 3. Recalculates `tmb` and if incorrect throws an error.
 // 4. If containing d, generates and verifies a signature, thus
 //    verifying the key, by calling Valid()
-func Correct(ck CozeKey) (bool, error) {
-	var xLen = SEAlg(ck.Alg).XSize()
-	if xLen == 0 {
-		return false, errors.New("coze.Correct: unknown alg")
+func Correct(c CozeKey) (bool, error) {
+	if len(c.X) == 0 {
+		// Thumb only key
+		if len(c.Tmb) != SEAlg(c.Alg).Hash().Size() {
+			return false, errors.New("Correct: incorrect tmb size")
+		}
+	} else {
+		if len(c.X) != SEAlg(c.Alg).XSize() {
+			return false, errors.New("coze.Correct: incorrect x size")
+		}
+
+		// If thumb is set, make sure it's correct.
+		if len(c.Tmb) != 0 {
+			// Compare existing tmb
+			oldTmb := c.Tmb
+			c.Thumbprint()
+			if bytes.Equal(oldTmb, c.Tmb) {
+				return false, fmt.Errorf("coze.Correct: incorrect given tmb. Current: %X, Calculated: %X", oldTmb, c.Tmb)
+			}
+		}
 	}
 
-	// Compare existing tmb
-	oldTmb := ck.Tmb
-	ck.Thumbprint()
-	if bytes.Equal(oldTmb, ck.Tmb) {
-		return false, fmt.Errorf("coze.Correct: given tmb is incorrect. Current: %X, Correct: %X", oldTmb, ck.Tmb)
-	}
-
-	// No keys from the future allowed.
-	if ck.Iat > time.Now().Unix() {
-		return false, errors.New("coze.Correct: keys cannot have iat greater than present time")
-	}
-
-	if ck.IsPrivate() {
-		return ck.Valid(), nil
+	if len(c.D) > 0 { // If private
+		return c.Valid(), nil
 	}
 
 	return true, nil
-}
-
-// IsPrivate reports if a Coze key should be considered private.  Any key with
-// any value non-zero for `d` is considered private.
-func (ck *CozeKey) IsPrivate() bool {
-	if len(ck.D) > 0 {
-		return true
-	}
-	return false
 }
