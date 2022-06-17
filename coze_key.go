@@ -230,7 +230,7 @@ func (c *CozeKey) VerifyCy(cy *Cy) (bool, error) {
 // keys with signed message and "Correct" for public keys without signed
 // messages.
 func (c *CozeKey) Valid() (valid bool) {
-	if c.D == nil || len(c.D) == 0 {
+	if len(c.D) == 0 {
 		return false
 	}
 
@@ -262,13 +262,13 @@ func Correct(c CozeKey) (bool, error) {
 			return false, errors.New("Correct: incorrect tmb size")
 		}
 	} else {
+		// x is given
 		if len(c.X) != SEAlg(c.Alg).XSize() {
 			return false, errors.New("coze.Correct: incorrect x size")
 		}
 
-		// If thumb is set, make sure it's correct.
+		// If tmb is set, recompute and compare.
 		if len(c.Tmb) != 0 {
-			// Compare existing tmb
 			oldTmb := c.Tmb
 			c.Thumbprint()
 			if bytes.Equal(oldTmb, c.Tmb) {

@@ -222,6 +222,7 @@ func ExampleNewKey_valid() {
 
 func Example_genKeys() {
 	algs := []SigAlg{
+		SigAlg(SHA224), // Invalid alg
 		ES224,
 		ES256,
 		ES384,
@@ -233,6 +234,7 @@ func Example_genKeys() {
 		cozeKey, err := NewKey(SEAlg(alg))
 		if err != nil {
 			fmt.Println(err, cozeKey)
+			continue
 		}
 
 		if cozeKey.Valid() != true {
@@ -241,6 +243,7 @@ func Example_genKeys() {
 	}
 	fmt.Println("Done")
 	// Output:
+	// coze.NewKey: unsupported alg: SHA-224 null
 	// Done
 }
 

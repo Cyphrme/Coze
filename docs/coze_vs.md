@@ -81,7 +81,7 @@ UTF8(eyJhbGciOiJSUzI1NiJ9.eyJpc3MiOiJqb2UiLA0KICJleHAiOjEzMDA4MTkzODAsDQogImh0dH
 	- Coze uses the generalized "Canonical Hash" (CH) to thumbprint any JSON
   object or binary blob, including keys and messages.  
 - Instead of "claims" inside of "payload" which is separate from head, Coze puts
-  everything in head. 
+  everything in pay. 
 
 
 

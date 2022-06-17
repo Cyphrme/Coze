@@ -8,7 +8,7 @@ can be (much) smaller than JWTs if base64 encoded.
 For example, when compactified the following is 298 characters.  
 ```json
 {
-"head": {
+"pay": {
  "alg": "ES256",
  "iat": 1623132000,
  "msg": "Coze Rocks",
@@ -31,7 +31,7 @@ Coze would be smaller if base64 was used.  The following is 235 characters.
 
 ```json
 {
-"head": {
+"pay": {
  "alg": "ES256",
  "iat": 1623132000,
  "msg": "Coze Rocks",

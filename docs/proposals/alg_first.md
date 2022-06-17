@@ -4,8 +4,8 @@
 *Coze wasn't designed for long messages*, but this proposal considers solutions
 accommodating efficient processing of long messages.
 
-In order to hash `head`, `alg` must be parsed before hashing.  As soon as `alg`
-is known hashing `head` can begin.  It's beneficial to have `alg`, and sometimes
+In order to hash `pay`, `alg` must be parsed before hashing.  As soon as `alg`
+is known hashing `pay` can begin.  It's beneficial to have `alg`, and sometimes
 the standard fields ["iat", "tmb", "typ"] as soon as possible for long messages.
 For short messages this isn't really relevant.  
 
@@ -33,12 +33,12 @@ correct sorting.
 3. "!" or "space" characters prepended to Coze standard fields. e.g. " alg".  No
    repeat.
 4. "" an alias for `alg`. 
-5. Repeat sorted first `alg` in `head`, (e.g. " alg" and "alg") 
+5. Repeat sorted first `alg` in `pay`, (e.g. " alg" and "alg") 
 6. Repeat `alg` in `coze`. (`alg` in `coze` alone isn't considered a viable option
    since it wouldn't be signed)
 7. Use "pay" for payload. 
 	a. pay in `coze` 
-	b. pay in `head`
+	b. pay in `pay`
 8. Use `"~"` for payload.  (Last ASCII character)
 
 
@@ -63,7 +63,7 @@ correct sorting.
 ## Example Solution (tilda encapsulated payload):
 
 ```json
- "head": {
+ "pay": {
   "alg": "ES256",
   "iat": 1623132000,
   "tmb": "0148F4CD9093C9CBE3E8BF78D3E6C9B824F11DD2F29E2B1A630DD1CE1E176CDD",

@@ -7,7 +7,7 @@ import (
 // Signing and verifying tests are done in package Coze.
 
 func ExampleHashAlg_print() {
-	h := Sha256
+	h := SHA256
 	fmt.Println(h)
 	// Output: SHA-256
 }
@@ -32,7 +32,7 @@ func ExampleHashAlg_jsonMarshal() {
 	type testStruct = struct {
 		H HashAlg `json:"hashAlg"`
 	}
-	z := testStruct{H: Sha256}
+	z := testStruct{H: SHA256}
 
 	jm, err := Marshal(z)
 	if err != nil {
@@ -80,8 +80,8 @@ func ExampleHashAlg_Parse() {
 func ExampleAlg_Params() {
 	algs := []Alg{
 		Alg(ES224), Alg(ES256), Alg(ES384), Alg(ES512), Alg(Ed25519), Alg(Ed25519ph),
-		Alg(Sha224), Alg(Sha256), Alg(Sha384), Alg(Sha512),
-		Alg(Sha3224), Alg(Sha3256), Alg(Sha3384), Alg(Sha3512),
+		Alg(SHA224), Alg(SHA256), Alg(SHA384), Alg(SHA512),
+		Alg(SHA3224), Alg(SHA3256), Alg(SHA3384), Alg(SHA3512),
 		Alg(Shake128), Alg(Shake256),
 	}
 	fmt.Println(algs)

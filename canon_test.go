@@ -19,14 +19,14 @@ func ExampleCanon() {
 // ExampleCanonHash. See also Example_genCad
 func ExampleCanonHash() {
 	canon := []string{"alg", "iat", "msg", "tmb", "typ"}
-	cad, err := CanonHash([]byte(Golden_Pay), canon, Sha256)
+	cad, err := CanonHash([]byte(Golden_Pay), canon, SHA256)
 	if err != nil {
 		fmt.Println(err)
 	}
 	fmt.Println(cad.String())
 
 	// Without canon
-	cad, err = CanonHash([]byte(Golden_Pay), nil, Sha256)
+	cad, err = CanonHash([]byte(Golden_Pay), nil, SHA256)
 	if err != nil {
 		fmt.Println(err)
 	}

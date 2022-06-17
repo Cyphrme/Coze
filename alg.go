@@ -213,21 +213,21 @@ func (a *Alg) Parse(s string) {
 	case "UnknownHashAlg":
 		*a = Alg(UnknownHashAlg)
 	case "SHA-224":
-		*a = Alg(Sha224)
+		*a = Alg(SHA224)
 	case "SHA-256":
-		*a = Alg(Sha256)
+		*a = Alg(SHA256)
 	case "SHA-384":
-		*a = Alg(Sha384)
+		*a = Alg(SHA384)
 	case "SHA-512":
-		*a = Alg(Sha512)
+		*a = Alg(SHA512)
 	case "SHA3-224":
-		*a = Alg(Sha3224)
+		*a = Alg(SHA3224)
 	case "SHA3-256":
-		*a = Alg(Sha3256)
+		*a = Alg(SHA3256)
 	case "SHA3-384":
-		*a = Alg(Sha3384)
+		*a = Alg(SHA3384)
 	case "SHA3-512":
-		*a = Alg(Sha3512)
+		*a = Alg(SHA3512)
 	case "SHAKE128":
 		*a = Alg(Shake128)
 	case "SHAKE256":
@@ -285,9 +285,9 @@ func (a Alg) Genus() GenAlg {
 		return Ecdsa
 	case Alg(Ed25519), Alg(Ed25519ph), Alg(Ed448):
 		return Eddsa
-	case Alg(Sha224), Alg(Sha256), Alg(Sha384), Alg(Sha512):
+	case Alg(SHA224), Alg(SHA256), Alg(SHA384), Alg(SHA512):
 		return SHA2
-	case Alg(Sha3224), Alg(Sha3256), Alg(Sha3384), Alg(Sha3512), Alg(Shake128), Alg(Shake256):
+	case Alg(SHA3224), Alg(SHA3256), Alg(SHA3384), Alg(SHA3512), Alg(Shake128), Alg(Shake256):
 		return SHA3
 	}
 }
@@ -299,7 +299,7 @@ func (a Alg) Family() (f FamAlg) {
 		f = UnknownFamAlg
 	case Alg(ES224), Alg(ES256), Alg(ES384), Alg(ES512), Alg(Ed25519), Alg(Ed25519ph), Alg(Ed448):
 		f = EC
-	case Alg(Sha224), Alg(Sha256), Alg(Sha384), Alg(Sha512), Alg(Sha3224), Alg(Sha3256), Alg(Sha3384), Alg(Sha3512), Alg(Shake128), Alg(Shake256):
+	case Alg(SHA224), Alg(SHA256), Alg(SHA384), Alg(SHA512), Alg(SHA3224), Alg(SHA3256), Alg(SHA3384), Alg(SHA3512), Alg(Shake128), Alg(Shake256):
 		f = SHA
 	}
 	return
@@ -431,14 +431,14 @@ const (
 const (
 	// HashAlg is after Alg, SigAlg, and EncAlg.
 	UnknownHashAlg HashAlg = iota + 13
-	Sha224                 // SHA-2
-	Sha256
-	Sha384
-	Sha512
-	Sha3224 // SHA-3
-	Sha3256
-	Sha3384
-	Sha3512
+	SHA224                 // SHA-2
+	SHA256
+	SHA384
+	SHA512
+	SHA3224 // SHA-3
+	SHA3256
+	SHA3384
+	SHA3512
 	Shake128 // Shake
 	Shake256
 )
@@ -471,21 +471,21 @@ func ParseHashAlg(s string) HashAlg {
 // SHAKE does not satisfy Go's hash.Hash and uses sha3.SkakeHash.
 func (ha *HashAlg) goHash() (h hash.Hash) {
 	switch *ha {
-	case Sha224:
+	case SHA224:
 		h = sha256.New224() // There is no 224 package.  224 is in the 256 package.
-	case Sha256:
+	case SHA256:
 		h = sha256.New()
-	case Sha384:
+	case SHA384:
 		h = sha512.New384() // There is no 384 package.  384 is in the 512 package.
-	case Sha512:
+	case SHA512:
 		h = sha512.New()
-	case Sha3224:
+	case SHA3224:
 		h = sha3.New224()
-	case Sha3256:
+	case SHA3256:
 		h = sha3.New256()
-	case Sha3384:
+	case SHA3384:
 		h = sha3.New384()
-	case Sha3512:
+	case SHA3512:
 		h = sha3.New512()
 	default:
 		return nil
@@ -501,13 +501,13 @@ func (ha *HashAlg) goHash() (h hash.Hash) {
 // resistance and a capacity of 512, although it has arbitrary output size.
 func (h HashAlg) Size() int {
 	switch h {
-	case Sha224, Sha3224:
+	case SHA224, SHA3224:
 		return 28
-	case Sha256, Sha3256, Shake128:
+	case SHA256, SHA3256, Shake128:
 		return 32
-	case Sha384, Sha3384:
+	case SHA384, SHA3384:
 		return 48
-	case Sha512, Sha3512, Shake256:
+	case SHA512, SHA3512, Shake256:
 		return 64
 	}
 	return 0
@@ -574,13 +574,13 @@ func (s SigAlg) Hash() HashAlg {
 	var h HashAlg
 	switch s {
 	case ES224:
-		h = Sha224
+		h = SHA224
 	case ES256:
-		h = Sha256
+		h = SHA256
 	case ES384:
-		h = Sha384
+		h = SHA384
 	case ES512, Ed25519, Ed25519ph:
-		h = Sha512
+		h = SHA512
 	}
 	return h
 }

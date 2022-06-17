@@ -43,7 +43,6 @@ type Cy struct {
 
 // String implements fmt.Stringer because otherwise `pay` prints as bytes.
 func (cy *Cy) String() string {
-
 	b, err := MarshalPretty(cy)
 	if err != nil {
 		fmt.Println(err)
