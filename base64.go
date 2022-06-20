@@ -12,9 +12,6 @@ import (
 //
 // When converting integers or other types, `nil` in B64 is "" and the zero is
 // encoded as "AA".
-//
-// To unencode from string, use the base64 package:
-// base64.URLEncoding.WithPadding(base64.NoPadding).DecodeString(b64String)
 type B64 []byte
 
 // UnmarshalJSON implements JSON.UnmarshalJSON.  It is a custom unmarshaler for
@@ -22,12 +19,10 @@ type B64 []byte
 func (t *B64) UnmarshalJSON(b []byte) error {
 	// JSON.Unmarshal gives b encapsulated in quote characters. Quotes characters
 	// are invalid base64 and must be stripped.
-	trimmed := strings.Trim(string(b), "\"")
-	s, err := base64.URLEncoding.WithPadding(base64.NoPadding).DecodeString(trimmed)
+	s, err := base64.URLEncoding.WithPadding(base64.NoPadding).DecodeString(strings.Trim(string(b), "\""))
 	if err != nil {
 		return err
 	}
-
 	*t = B64(s)
 	return nil
 }
@@ -39,17 +34,14 @@ func (t B64) MarshalJSON() ([]byte, error) {
 	return []byte(fmt.Sprintf("\"%v\"", t)), nil
 }
 
-// String implements fmt.Stringer. Use `%s`, `%v`, `%+v` to get this form.
+// String implements fmt.Stringer. Use with `%s`, `%v`, `%+v`.
 func (t B64) String() string {
 	return base64.URLEncoding.WithPadding(base64.NoPadding).EncodeToString([]byte(t))
-
 }
 
-// GoString implements fmt.GoString. Use `%#v` to get this form (not %s or %+v).
+// GoString implements fmt.GoStringer. Use with `%#v` (not %s or %+v).
 func (t B64) GoString() string {
-	// Base256 representation
-	// return fmt.Sprintf("%s", []byte(t))
-	return fmt.Sprintf("%X", []byte(t))
+	return base64.URLEncoding.WithPadding(base64.NoPadding).EncodeToString([]byte(t))
 }
 
 // Decode decodes a base64 string to B64.

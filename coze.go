@@ -63,6 +63,7 @@ func MarshalPretty(i any) ([]byte, error) {
 //
 // Shake128 returns 32 bytes. Shake256 returns 64 bytes.
 func Hash(alg HashAlg, msg []byte) (digest B64) {
+	// TODO what to do on invalid hash
 	if alg == Shake128 {
 		h := make([]byte, 32)
 		sha3.ShakeSum128(h, msg)
@@ -88,7 +89,7 @@ func Hash(alg HashAlg, msg []byte) (digest B64) {
 	return
 }
 
-// PadCon creates a big-endian byte slice with given size that is the left
+// PadInts creates a big-endian byte slice with given size that is the left
 // padded concatenation of two input integers.  Parameter `size` must be even.
 // From Go's packages, X, Y, R, and S are type big.Int of varying size. Before
 // encoding to fixed sized string, left padding of bytes is needed.
@@ -103,7 +104,7 @@ func Hash(alg HashAlg, msg []byte) (digest B64) {
 // because R and S are each respectively rounded up and padded to 528 and for a
 // total signature size of 1056 bits.
 // See https://datatracker.ietf.org/doc/html/rfc4754#section-7
-func PadCon(r, s *big.Int, size int) (out B64) {
+func PadInts(r, s *big.Int, size int) (out B64) {
 	if !(size%2 == 0) {
 		panic("size must be even.")
 	}

@@ -35,7 +35,6 @@ func ExampleCanonHash() {
 	// Output:
 	// aC2YKfNvovfnZOw_RVxSEW6NeaUq41DZXX0oeaOboRg
 	// LSgWE4vEfyxJZUTFaRaB2JdEclORdZcm4UVH9D8vVto
-
 }
 
 // ExampleCanonical.

@@ -41,8 +41,8 @@ type Cy struct {
 	Parsed Pay `json:"-"`
 }
 
-// String implements fmt.Stringer because otherwise `pay` prints as bytes.
-func (cy *Cy) String() string {
+// String implements fmt.Stringer.  Without this method `pay` prints as bytes.
+func (cy Cy) String() string {
 	b, err := MarshalPretty(cy)
 	if err != nil {
 		fmt.Println(err)
@@ -64,10 +64,10 @@ var CydCanon = []string{"cad", "sig"}
 // verification.
 func (cy *Cy) Meta() (err error) {
 	if cy.Pay == nil {
-		return errors.New("coze: cy.Pay is nil")
+		return errors.New("Meta: cy.Pay is nil")
 	}
 	if cy.Sig == nil {
-		return errors.New("coze: sig is nil")
+		return errors.New("Meta: sig is nil")
 	}
 
 	// Set Parsed from Pay.

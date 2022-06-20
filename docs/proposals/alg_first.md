@@ -1,3 +1,6 @@
+# This is deprecated by changes made to Canon.  Canon no longer has to be in Unicode order.  
+The "tilda encapsulated payload" is still relevant for other situations. 
+
 # "Alg First" 
 ## Problem Concerning Long Messages
 

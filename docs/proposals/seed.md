@@ -1,12 +1,9 @@
 # Seed
 
-Although we have no plan in implementing seeds, this documents is our thoughts on how we
-would.  
-
-Ed25519's naming differences in implementations highlights the possible future need.  
-
-
-
+Although we have no plan in implementing seeds, this documents is our thoughts
+on how we would.  Ed25519's naming differences in implementations, (see
+https://github.com/Cyphrme/ed25519_applet#naming-differences-in-implementations)
+highlights the possible future need.  
 
 
 # (Bad) Option 1: New CozeKey field
@@ -27,5 +24,5 @@ With just seed:
 And with just private d:
 
 ```
-"d":"seed:"
+"d":"private d"
 ```

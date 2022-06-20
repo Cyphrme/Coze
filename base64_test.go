@@ -51,3 +51,17 @@ func ExampleB64_unmarshalJSON() {
 	fmt.Printf("%s", b)
 	// Output: {"Bar":"AP8"}
 }
+
+func ExampleDecode() {
+	b, err := Decode(Golden_Tmb)
+	if err != nil {
+		fmt.Println(err)
+	}
+	fmt.Println(b)
+	// Output: cLj8vsYtMBwYkzoFVZHBZo6SNL8wSdCIjCKAwXNuhOk
+}
+
+func ExampleMustDecode() {
+	fmt.Println(MustDecode(Golden_Tmb))
+	// Output: cLj8vsYtMBwYkzoFVZHBZo6SNL8wSdCIjCKAwXNuhOk
+}

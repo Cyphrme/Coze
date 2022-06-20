@@ -25,9 +25,11 @@ A comparable JWT is smaller at 280 characters.
 eyJhbGciOiJFUzI1NiIsInR5cCI6IkpXVCJ9.eyJtc2ciOiJDb3plIFJvY2tzIiwiaWF0IjoxNjI3NTE4MDAwLCJ0bWIiOiJyYkxYM1NzV0xXQkpvSXFNUENOVUZ1VURScFZVX28tMFNERms4WWxURXU4IiwidHlwIjoiY3lwaHIubWUvbXNnL2NyZWF0ZSJ9.7uLr31zS5_I-UeJWj4Olrufu9C7sr2-2DB4dDyKY4yf3g6Jr30JSLS3wfyMEWUbW1OVAzsB1wYhaWbUz0VWtGA
 ```
 
+Although 19 more characters or about 6% larger isn't bad, we'd like Coze to
+simply be better.  
 
-
-Coze would be smaller if base64 was used.  The following is 235 characters.  
+Coze would be smaller if base64 was used.  The following is 235 characters, 45
+characters and 16% smaller than a comparable JWT.    
 
 ```json
 {

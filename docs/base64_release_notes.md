@@ -1,5 +1,3 @@
-
-
 # Coze Release Notes
 ## Major changes
 
@@ -33,4 +31,5 @@
 
 # Other thoughts:
 - We may end up making a "core" Coze with decently trusted and widely adopted
-algorithms, and an "extended" Coze with less commonly implemented algorithms.  
+algorithms, and an "extended"/"x" Coze with less commonly implemented
+algorithms.  

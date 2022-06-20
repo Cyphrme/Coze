@@ -10,12 +10,14 @@ import (
 	"golang.org/x/crypto/sha3"
 )
 
-// Alg is a declarative abstraction for cryptographic functions
-// for Coze in Go.
+// Alg is a declarative abstraction for cryptographic functions for Coze.See the
+// main Coze README.
 //
-// See the main Coze README.
+// The integer value of the "enum" will change in the future. Use the string
+// name for algos when storing information.
 //
-// Hierarchy for signing and hashing cryptographic functions.  Naming is inspired by taxonomic rank.
+// Hierarchy for signing and hashing cryptographic functions.  Naming is
+// inspired by taxonomic rank.
 //
 //  - Level 0 species - "SpcAlg"  (e.g.: ES256) (species)
 //  - Level 1 genus   - "GenAlg"  (e.g.: ECDSA) (genus)
@@ -61,9 +63,6 @@ import (
 //
 // "SE" (singing, encryption) is the super type of signing and encryption and
 // excludes hashing.
-//
-// The integer value of the "enum" will change in the future. Use the string
-// name for algos when storing information.
 //
 // See the main Coze README for Coze supported and unsupported things.
 type Alg int    // Alg is for all cryptographic algorithms.  All levels included.

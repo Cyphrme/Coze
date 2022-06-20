@@ -5,6 +5,26 @@ import (
 	"fmt"
 )
 
+func ExampleCy_String() {
+	cy := new(Cy)
+	err := json.Unmarshal([]byte(Golden_Cy), cy)
+	if err != nil {
+		fmt.Println(err)
+	}
+	fmt.Println(cy)
+	// Output:
+	// {
+	//     "pay": {
+	//         "msg": "Coze Rocks",
+	//         "alg": "ES256",
+	//         "iat": 1627518000,
+	//         "tmb": "cLj8vsYtMBwYkzoFVZHBZo6SNL8wSdCIjCKAwXNuhOk",
+	//         "typ": "cyphr.me/msg"
+	//     },
+	//     "sig": "ywctP6lEQ_HcYLhgpoecqhFrqNpBSyNPuAPOV94SThuztJek7x7H9mXFD0xTrlmQPg_WC7jwg70nzNoGn70JyA"
+	// }
+}
+
 func ExampleCy_Meta() {
 	cy := new(Cy)
 	err := json.Unmarshal([]byte(Golden_Cy), cy)

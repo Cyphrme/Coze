@@ -11,9 +11,9 @@ reasons why Coze was needed.
 # Why not "x"?
 
 ## signify (OpenBSD):
+ - Not JSON.  
  - No browser implementations. 
  - No algorithm agility.  
- - Not JSON.  
  - No real plan to expand its use.  
 
 

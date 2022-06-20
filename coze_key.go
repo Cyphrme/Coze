@@ -44,15 +44,6 @@ type CozeKey struct {
 	X   B64    `json:"x,omitempty"`
 }
 
-// String returns the stringified Coze key.
-func (c *CozeKey) String() string {
-	b, err := Marshal(c)
-	if err != nil {
-		return ""
-	}
-	return string(b)
-}
-
 // NewKey generates a new Coze key.
 func NewKey(alg SEAlg) (c *CozeKey, err error) {
 	c = new(CozeKey)
@@ -60,7 +51,7 @@ func NewKey(alg SEAlg) (c *CozeKey, err error) {
 
 	switch c.Alg.SigAlg() {
 	default:
-		return nil, errors.New("coze.NewKey: unsupported alg: " + alg.String())
+		return nil, errors.New("NewKey: unsupported alg: " + alg.String())
 	case ES224, ES256, ES384, ES512:
 		eck, err := ecdsa.GenerateKey(c.Alg.Curve().EllipticCurve(), rand.Reader)
 		if err != nil {
@@ -69,7 +60,7 @@ func NewKey(alg SEAlg) (c *CozeKey, err error) {
 
 		d := make([]byte, alg.DSize())
 		c.D = eck.D.FillBytes(d) // Left pads bytes
-		c.X = PadCon(eck.X, eck.Y, alg.XSize())
+		c.X = PadInts(eck.X, eck.Y, alg.XSize())
 	case Ed25519:
 		pub, pri, err := ed25519.GenerateKey(rand.Reader)
 		if err != nil {
@@ -89,7 +80,7 @@ func NewKey(alg SEAlg) (c *CozeKey, err error) {
 	return c, nil
 }
 
-// Thumbprint generates and sets the Coze key thumbprint (`tmb`).
+// Thumbprint generates and sets the Coze key thumbprint (`tmb`) from `x` and `alg``.
 func (c *CozeKey) Thumbprint() (err error) {
 	c.Tmb, err = Thumbprint(c)
 	return
@@ -116,16 +107,16 @@ func (c *CozeKey) Sign(digest B64) (sig B64, err error) {
 		return nil, errors.New("Sign: unsupported alg: " + c.Alg.String())
 	case Ecdsa:
 		prk := ecdsa.PrivateKey{
-			PublicKey: *cozeKeyToPubEcdsa(c),
+			// ecdsa.Sign only needs PublicKey.Curve, not it's value.
+			PublicKey: ecdsa.PublicKey{Curve: c.Alg.Curve().EllipticCurve()},
 			D:         new(big.Int).SetBytes(c.D),
 		}
-		// Note: ECDSA Sig is always R || S of a fixed size with left padding.  For
-		// example, ES256 should always have a 64 byte signature.
 		r, s, err := ecdsa.Sign(rand.Reader, &prk, digest)
 		if err != nil {
 			return nil, err
 		}
-		return PadCon(r, s, c.Alg.SigAlg().SigSize()), nil
+		// ECDSA Sig is R || S rounded up to byte left padded.
+		return PadInts(r, s, c.Alg.SigAlg().SigSize()), nil
 	case Eddsa:
 		pk := ed25519.NewKeyFromSeed(c.D)
 		// Alternatively, concat d with x
@@ -135,7 +126,7 @@ func (c *CozeKey) Sign(digest B64) (sig B64, err error) {
 	}
 }
 
-// cozeKeyToPubEcdsa converts a public Coze Key to ecdsa.PublicKey.
+// cozeKeyToPubEcdsa converts a Coze Key to ecdsa.PublicKey.
 func cozeKeyToPubEcdsa(c *CozeKey) (key *ecdsa.PublicKey) {
 	half := c.Alg.XSize() / 2
 	x := new(big.Int).SetBytes(c.X[:half])
@@ -181,6 +172,10 @@ func (c *CozeKey) SignCy(cy *Cy, canon any) (err error) {
 
 // Verify uses a public Coze key to verify a digest.
 func (c *CozeKey) Verify(digest, sig B64) (valid bool) {
+	if len(c.X) == 0 {
+		return false
+	}
+
 	switch c.Alg.SigAlg() {
 	default:
 		return false
@@ -243,43 +238,98 @@ func (c *CozeKey) Valid() (valid bool) {
 	return c.Verify(digest, sig)
 }
 
-// Correct checks for the correct construction of a Coze key.  Key must have alg and tmb xCorrect may
-// return "true" on cryptographically invalid public keys.  Use function
-// "Verify" for public keys with signed message.  Correct is useful for public
-// keys without signed messages, and thumb only keys.
+// Correct checks for the correct construction of a Coze key.  Correct is useful
+// for sanity checking public keys without signed messages, sanity checking tmb
+// only keys, and validating private keys.
+//
+//
+// Key must have `alg` and any, but at
+// least one, of `tmb`, `x`, and `d`. Correct may return "true" on
+// cryptographically invalid public keys.  See also function "Verify" for
+// verifying public keys when a signed message is available.
 //
 // Correct:
 //
-// 1. Ensures required fields exist.
-// 2. Checks the length of x.
-// 3. Recalculates `tmb` and if incorrect throws an error.
-// 4. If containing d, generates and verifies a signature, thus
-//    verifying the key, by calling Valid()
-func Correct(c CozeKey) (bool, error) {
-	if len(c.X) == 0 {
-		// Thumb only key
-		if len(c.Tmb) != SEAlg(c.Alg).Hash().Size() {
-			return false, errors.New("Correct: incorrect tmb size")
-		}
-	} else {
-		// x is given
-		if len(c.X) != SEAlg(c.Alg).XSize() {
-			return false, errors.New("coze.Correct: incorrect x size")
-		}
+// 1. Checks the length of x against alg.
+// 2. If x and tmb are present, verifies correct `tmb`.
+// 3. If d is present, verifies correct tmb and x if present, and generates and
+// verifies a signature, thus verifying the key
+func (c *CozeKey) Correct() (bool, error) {
+	if c.Alg == 0 {
+		return false, errors.New("Correct: Alg must be set")
+	}
 
+	if len(c.Tmb) == 0 && len(c.X) == 0 && len(c.D) == 0 {
+		return false, errors.New("Correct: At least one of [x, tmb, d] must be set")
+	}
+
+	// tmb only key
+	if len(c.X) == 0 && len(c.D) == 0 {
+		if len(c.Tmb) != SEAlg(c.Alg).Hash().Size() {
+			return false, fmt.Errorf("Correct: incorrect tmb size: %d", len(c.Tmb))
+		}
+		return true, nil
+	}
+
+	//  d is not set
+	if len(c.D) == 0 {
+		if len(c.X) != 0 && len(c.X) != SEAlg(c.Alg).XSize() {
+			return false, fmt.Errorf("Correct: incorrect x size: %d", len(c.X))
+		}
 		// If tmb is set, recompute and compare.
 		if len(c.Tmb) != 0 {
-			oldTmb := c.Tmb
-			c.Thumbprint()
-			if bytes.Equal(oldTmb, c.Tmb) {
-				return false, fmt.Errorf("coze.Correct: incorrect given tmb. Current: %X, Calculated: %X", oldTmb, c.Tmb)
+			tmb, err := Thumbprint(c)
+			if err != nil {
+				return false, err
+			}
+			if !bytes.Equal(c.Tmb, tmb) {
+				return false, fmt.Errorf("Correct: incorrect given tmb. Current: %s, Calculated: %s", c.Tmb, tmb)
 			}
 		}
+		return true, nil
 	}
 
-	if len(c.D) > 0 { // If private
-		return c.Valid(), nil
+	// If d and (x and/or tmb) is given, recompute from d and compare:
+	x := c.recalcX()
+	if len(c.X) != 0 && !bytes.Equal(c.X, x) {
+		return false, fmt.Errorf("Correct: incorrect X. Current: %s, Calculated: %s", c.X, x)
 	}
+	var ck = CozeKey{Alg: c.Alg, X: x}
+	// If tmb is set, recompute and compare with existing.
+	if len(c.Tmb) != 0 {
+		tmb, err := Thumbprint(&ck)
+		if err != nil {
+			return false, err
+		}
+		if !bytes.Equal(c.Tmb, tmb) {
+			return false, fmt.Errorf("Correct: incorrect given tmb. Current: %s, Calculated: %s", c.Tmb, tmb)
+		}
+	}
+	ck.D = c.D
+	return ck.Valid(), nil
+}
 
-	return true, nil
+// recalcX recalculates x from d.  Algorithms are constant-time.
+// https://cs.opensource.google/go/go/+/refs/tags/go1.18.3:src/crypto/elliptic/elliptic.go;l=455;drc=7f9494c277a471f6f47f4af3036285c0b1419816
+func (c *CozeKey) recalcX() (x B64) {
+	switch c.Alg.SigAlg() {
+	default:
+		return nil
+	case ES224, ES256, ES384, ES512:
+		pukx, puky := c.Alg.Curve().EllipticCurve().ScalarBaseMult(c.D)
+		x = PadInts(pukx, puky, c.Alg.XSize())
+	case Ed25519, Ed25519ph:
+		prk := ed25519.NewKeyFromSeed(c.D)
+		x = []byte(prk[:32])
+	}
+	return x
+}
+
+// String returns the stringified Coze key.
+func (c CozeKey) String() string {
+	b, err := Marshal(c)
+	if err != nil {
+		fmt.Println(err)
+	}
+	return string(b)
 }

@@ -27,7 +27,7 @@ const Golden_Key_String = `{
 }`
 
 // The very last byte in D was changed from 80, to 81, making it invalid.
-var Golden_Bad_Key = &CozeKey{
+var Golden_Bad_Key = CozeKey{
 	Alg: SEAlg(ES256),
 	Kid: "Zami's Majuscule Key.",
 	Iat: 1623132000,
@@ -44,6 +44,7 @@ var Golden_Pay = `{
 	"typ": "cyphr.me/msg"
  }`
 
+var Golden_Tmb = "cLj8vsYtMBwYkzoFVZHBZo6SNL8wSdCIjCKAwXNuhOk"
 var Golden_Cad = "LSgWE4vEfyxJZUTFaRaB2JdEclORdZcm4UVH9D8vVto"
 var Golden_Cyd = "d0ygwQCGzuxqgUq1KsuAtJ8IBu0mkgAcKpUJzuX075M"
 var Golden_Sig = "ywctP6lEQ_HcYLhgpoecqhFrqNpBSyNPuAPOV94SThuztJek7x7H9mXFD0xTrlmQPg_WC7jwg70nzNoGn70JyA"
@@ -85,13 +86,13 @@ func ExampleCozeKey_String() {
 
 //ExampleCozeKey_jsonUnmarshal tests unmarshalling a Coze key.
 func ExampleCozeKey_jsonUnmarshal() {
-	cozekey := new(CozeKey)
-	err := json.Unmarshal([]byte(Golden_Key_String), cozekey)
+	cozeKey := new(CozeKey)
+	err := json.Unmarshal([]byte(Golden_Key_String), cozeKey)
 	if err != nil {
 		fmt.Println(err)
 	}
 
-	fmt.Printf("%+v\n", cozekey)
+	fmt.Printf("%+v\n", cozeKey)
 	// Output:
 	//{"alg":"ES256","d":"bNstg4_H3m3SlROufwRSEgibLrBuRq9114OvdapcpVA","iat":1623132000,"kid":"Zami's Majuscule Key.","tmb":"cLj8vsYtMBwYkzoFVZHBZo6SNL8wSdCIjCKAwXNuhOk","x":"2nTOaFVm2QLxmUO_SjgyscVHBtvHEfo2rq65MvgNRjORojq39Haq9rXNxvXxwba_Xj0F5vZibJR3isBdOWbo5g"}
 }
@@ -108,9 +109,10 @@ func ExampleCozeKey_jsonMarshal() {
 }
 
 func ExampleCozeKey_Thumbprint() {
-	Golden_Key.Tmb = []byte{} // set it to nil to ensure recalculation.
-	Golden_Key.Thumbprint()
-	h := Golden_Key.Tmb
+	var gk2 = Golden_Key // Make a copy
+	gk2.Tmb = []byte{}   // set it to nil to ensure recalculation.
+	gk2.Thumbprint()
+	h := gk2.Tmb
 	fmt.Println(h)
 	// Output:
 	// cLj8vsYtMBwYkzoFVZHBZo6SNL8wSdCIjCKAwXNuhOk
@@ -220,9 +222,9 @@ func ExampleNewKey_valid() {
 	// true
 }
 
-func Example_genKeys() {
+func ExampleNewKey() {
 	algs := []SigAlg{
-		SigAlg(SHA224), // Invalid alg
+		SigAlg(SHA256), // Invalid alg
 		ES224,
 		ES256,
 		ES384,
@@ -233,18 +235,127 @@ func Example_genKeys() {
 	for _, alg := range algs {
 		cozeKey, err := NewKey(SEAlg(alg))
 		if err != nil {
-			fmt.Println(err, cozeKey)
+			fmt.Println(err)
 			continue
 		}
 
 		if cozeKey.Valid() != true {
-			fmt.Println("signature was not verified.  Alg: ", alg)
+			fmt.Printf("signature was not verified.  Alg: %s\n", alg)
 		}
 	}
 	fmt.Println("Done")
 	// Output:
-	// coze.NewKey: unsupported alg: SHA-224 null
+	// NewKey: unsupported alg: SHA-256
 	// Done
+}
+
+func ExampleCorrect() {
+	var gk2 = Golden_Key // Make a copy
+	fmt.Println(&gk2)
+
+	// Key with with [alg,d,tmb,x]
+	v, err := gk2.Correct()
+	if err != nil {
+		fmt.Println(err)
+	}
+	fmt.Println(v)
+
+	// A key with [alg,tmb,d]
+	gk2.X = []byte{}
+	gk2.D = Golden_Key.D
+	v, err = gk2.Correct()
+	if err != nil {
+		fmt.Println(err)
+	}
+	fmt.Println(v)
+
+	// A key with [alg,d]
+	gk2.Tmb = []byte{}
+	v, err = gk2.Correct()
+	if err != nil {
+		fmt.Println(err)
+	}
+	fmt.Println(v)
+
+	// A key with [alg,x,d]
+	gk2.X = Golden_Key.X
+	v, err = gk2.Correct()
+	if err != nil {
+		fmt.Println(err)
+	}
+	fmt.Println(v)
+
+	// A key with [alg,x,tmb]
+	gk2.D = []byte{}
+	gk2.Tmb = Golden_Key.Tmb
+	v, err = gk2.Correct()
+	if err != nil {
+		fmt.Println(err)
+	}
+	fmt.Println(v)
+
+	// Key with [alg,tmb]
+	gk2.X = []byte{}
+
+	v, err = gk2.Correct()
+	if err != nil {
+		fmt.Println(err)
+	}
+	fmt.Println(v)
+
+	// Output:
+	// {"alg":"ES256","d":"bNstg4_H3m3SlROufwRSEgibLrBuRq9114OvdapcpVA","iat":1623132000,"kid":"Zami's Majuscule Key.","tmb":"cLj8vsYtMBwYkzoFVZHBZo6SNL8wSdCIjCKAwXNuhOk","x":"2nTOaFVm2QLxmUO_SjgyscVHBtvHEfo2rq65MvgNRjORojq39Haq9rXNxvXxwba_Xj0F5vZibJR3isBdOWbo5g"}
+	// true
+	// true
+	// true
+	// true
+	// true
+	// true
+}
+
+func ExampleCorrect_bad() {
+	var gk2 = Golden_Bad_Key // Make a copy
+	fmt.Println(gk2)
+
+	// Key with with [alg,d,tmb,x] (false)
+	v, _ := gk2.Correct()
+	fmt.Println(v)
+
+	// A key with [alg,tmb,d] (false)
+	gk2.X = []byte{}
+	v, _ = gk2.Correct()
+	fmt.Println(v)
+
+	// Key with [alg,d].  This combination is permitted to be false for some algs.
+	// For alg ES it returns true since d is a random integer.
+	gk2.Tmb = []byte{}
+	v, _ = gk2.Correct()
+	fmt.Println(v)
+
+	// A key with [alg,x,d]. (false)
+	gk2.X = Golden_Bad_Key.X
+	v, _ = gk2.Correct()
+	fmt.Println(v)
+
+	// A key with [alg,x,tmb] (true)
+	gk2.D = []byte{}
+	gk2.Tmb = Golden_Bad_Key.Tmb
+	v, _ = gk2.Correct()
+	fmt.Println(v)
+
+	// Key with [alg,tmb] (true)
+	gk2.X = []byte{}
+	v, _ = gk2.Correct()
+	fmt.Println(v)
+
+	// Output:
+	// {"alg":"ES256","d":"bNstg4_H3m3SlROufwRSEgibLrBuRq9114OvdapcpVE","iat":1623132000,"kid":"Zami's Majuscule Key.","tmb":"cLj8vsYtMBwYkzoFVZHBZo6SNL8wSdCIjCKAwXNuhOk","x":"2nTOaFVm2QLxmUO_SjgyscVHBtvHEfo2rq65MvgNRjORojq39Haq9rXNxvXxwba_Xj0F5vZibJR3isBdOWbo5g"}
+	// false
+	// false
+	// true
+	// false
+	// true
+	// true
 }
 
 // BenchmarkNSV benchmarks several methods on a Coze Key. (NSV = New, Sign,
