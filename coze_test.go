@@ -5,6 +5,92 @@ import (
 	"fmt"
 )
 
+func ExampleCoze_String() {
+	cz := new(Coze)
+	err := json.Unmarshal([]byte(Golden_Coze), cz)
+	if err != nil {
+		fmt.Println(err)
+	}
+	fmt.Println(cz)
+	// Output:
+	// {"pay":{"msg":"Coze Rocks","alg":"ES256","iat":1627518000,"tmb":"cLj8vsYtMBwYkzoFVZHBZo6SNL8wSdCIjCKAwXNuhOk","typ":"cyphr.me/msg"},"sig":"ywctP6lEQ_HcYLhgpoecqhFrqNpBSyNPuAPOV94SThuztJek7x7H9mXFD0xTrlmQPg_WC7jwg70nzNoGn70JyA"}
+}
+
+func ExampleCy_Meta() {
+	cz := new(Coze)
+	err := json.Unmarshal([]byte(Golden_Coze), cz)
+	if err != nil {
+		fmt.Println(err)
+	}
+
+	err = cz.Meta()
+	if err != nil {
+		fmt.Println(err)
+	}
+
+	czb, err := Marshal(cz)
+	if err != nil {
+		fmt.Println(err)
+	}
+	fmt.Printf("%s\n", czb)
+
+	// Output:
+	//{"can":["msg","alg","iat","tmb","typ"],"cad":"LSgWE4vEfyxJZUTFaRaB2JdEclORdZcm4UVH9D8vVto","czd":"d0ygwQCGzuxqgUq1KsuAtJ8IBu0mkgAcKpUJzuX075M","pay":{"msg":"Coze Rocks","alg":"ES256","iat":1627518000,"tmb":"cLj8vsYtMBwYkzoFVZHBZo6SNL8wSdCIjCKAwXNuhOk","typ":"cyphr.me/msg"},"sig":"ywctP6lEQ_HcYLhgpoecqhFrqNpBSyNPuAPOV94SThuztJek7x7H9mXFD0xTrlmQPg_WC7jwg70nzNoGn70JyA"}
+}
+
+//ExampleCoze_jsonUnMarshal tests unmarshalling a coze.
+func ExampleCoze_jsonUnMarshal() {
+	cz := new(Coze)
+	err := json.Unmarshal([]byte(Golden_Coze), cz)
+	if err != nil {
+		fmt.Println(err)
+	}
+
+	// remarshal for comparison
+	b, err := Marshal(cz)
+	if err != nil {
+		fmt.Println(err)
+	}
+	fmt.Println(string(b))
+	// Output:
+	//{"pay":{"msg":"Coze Rocks","alg":"ES256","iat":1627518000,"tmb":"cLj8vsYtMBwYkzoFVZHBZo6SNL8wSdCIjCKAwXNuhOk","typ":"cyphr.me/msg"},"sig":"ywctP6lEQ_HcYLhgpoecqhFrqNpBSyNPuAPOV94SThuztJek7x7H9mXFD0xTrlmQPg_WC7jwg70nzNoGn70JyA"}
+}
+
+func ExampleCoze_jsonMarshal() {
+	cz := new(Coze)
+	err := json.Unmarshal([]byte(Golden_Coze), cz)
+	if err != nil {
+		fmt.Println(err)
+	}
+
+	b, err := Marshal(cz)
+	if err != nil {
+		fmt.Println(err)
+	}
+
+	fmt.Printf("%+s\n", b)
+	// Output:
+	//{"pay":{"msg":"Coze Rocks","alg":"ES256","iat":1627518000,"tmb":"cLj8vsYtMBwYkzoFVZHBZo6SNL8wSdCIjCKAwXNuhOk","typ":"cyphr.me/msg"},"sig":"ywctP6lEQ_HcYLhgpoecqhFrqNpBSyNPuAPOV94SThuztJek7x7H9mXFD0xTrlmQPg_WC7jwg70nzNoGn70JyA"}
+}
+
+func ExampleCoze_embed() {
+	type Outer struct {
+		Name string
+		Coze Coze
+	}
+	cz := new(Coze)
+	err := json.Unmarshal([]byte(Golden_Coze), cz)
+	if err != nil {
+		fmt.Println(err)
+	}
+
+	var o = Outer{Name: "Bob", Coze: *cz}
+
+	fmt.Printf("%+v", o)
+	// Output:
+	// {Name:Bob Coze:{"pay":{"msg":"Coze Rocks","alg":"ES256","iat":1627518000,"tmb":"cLj8vsYtMBwYkzoFVZHBZo6SNL8wSdCIjCKAwXNuhOk","typ":"cyphr.me/msg"},"sig":"ywctP6lEQ_HcYLhgpoecqhFrqNpBSyNPuAPOV94SThuztJek7x7H9mXFD0xTrlmQPg_WC7jwg70nzNoGn70JyA"}}
+}
+
 //ExamplePay_jsonUnmarshal tests unmarshalling a Pay.
 func ExamplePay_jsonUnmarshal() {
 	h := &Pay{}

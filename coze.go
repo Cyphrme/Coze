@@ -4,6 +4,8 @@ package coze
 import (
 	"bytes"
 	"encoding/json"
+	"errors"
+	"fmt"
 	"math/big"
 
 	"golang.org/x/crypto/sha3"
@@ -15,6 +17,92 @@ type Pay struct {
 	Iat int64  `json:"iat,omitempty"` // e.g. 1623132000
 	Tmb B64    `json:"tmb,omitempty"` // e.g. "cLj8vsYtMBwYkzoFVZHBZo6SNL8wSdCIjCKAwXNuhOk"
 	Typ string `json:"typ,omitempty"` // e.g. "cyphr.me/msg/create"
+}
+
+// Coze is for signed Coze objects (cozies).  See the Coze docs (README.md) for
+// more on the construction of `coze`.
+//
+// Struct fields appear in sorted order for JSON marshaling.
+//
+// Fields:
+//
+// Can: "Canon" Pay's fields in order of appearance.
+//
+// Cad: "Canonical Digest" Pay's compactified form digest.
+//
+// Czd: "Coze digest" with canon ["cad","sig"].
+//
+// Pay: Payload.
+//
+// Key: Key used to sign the message. Must be pointer, otherwise json.Marshal
+// (and by extension coze.Marshal) will not marshal on zero type. See
+// https://github.com/golang/go/issues/11939.
+//
+// Sig: signature over pay.
+//
+// Parsed: The parsed standard Coze pay fields ["alg","iat","tmb","typ"].
+// Populated by Coze functions like "Meta", and is ignored by
+// marshaling/unmarshaling.
+type Coze struct {
+	Can []string        `json:"can,omitempty"`
+	Cad B64             `json:"cad,omitempty"`
+	Czd B64             `json:"czd,omitempty"`
+	Pay json.RawMessage `json:"pay,omitempty"`
+	Key *CozeKey        `json:"key,omitempty"`
+	Sig B64             `json:"sig,omitempty"`
+
+	Parsed Pay `json:"-"`
+}
+
+// String implements fmt.Stringer.  Without this method `pay` prints as bytes.
+func (cz Coze) String() string {
+	b, err := Marshal(cz)
+	if err != nil {
+		fmt.Println(err)
+	}
+	return string(b)
+}
+
+// CzdCanon is the canon for a `czd`.
+var CzdCanon = []string{"cad", "sig"}
+
+// Meta recalculates meta, [can, cad, czd], for a given `coze`. Coze.Pay,
+// Coze.Pay.Alg, and Coze.Sig must be set.  Meta does no cryptographic
+// verification.
+func (cz *Coze) Meta() (err error) {
+	if cz.Pay == nil {
+		return errors.New("Meta: coze.Pay is nil")
+	}
+	if cz.Sig == nil {
+		return errors.New("Meta: sig is nil")
+	}
+
+	// Set Parsed from Pay.
+	err = json.Unmarshal(cz.Pay, &cz.Parsed)
+	if err != nil {
+		return err
+	}
+
+	c, err := Canon(cz.Pay)
+	if err != nil {
+		return err
+	}
+	cz.Can = c
+
+	canonical, err := Canonical(cz.Pay, nil)
+	if err != nil {
+		return err
+	}
+	cz.Cad = Hash(cz.Parsed.Alg.Hash(), canonical)
+	cz.Czd = GenCzd(cz.Parsed.Alg.Hash(), cz.Cad, cz.Sig)
+
+	return nil
+}
+
+// GenCzd generates and returns `czd`.
+func GenCzd(hash HashAlg, cad B64, sig B64) (czd B64) {
+	var cadSig = []byte(fmt.Sprintf(`{"cad":"%s","sig":"%s"}`, cad, sig))
+	return Hash(hash, cadSig)
 }
 
 // CozeMarshaler is a UTF-8 marshaler for Go structs.  Go's `json.Marshal`
@@ -119,4 +207,9 @@ func PadInts(r, s *big.Int, size int) (out B64) {
 	copy(out[half+(half-(len(sb))):], sb)
 
 	return out
+}
+
+type RevokePay struct {
+	Rvk int64 `json:"rvk,omitempty"`
+	Pay
 }

@@ -53,7 +53,7 @@ from `alg` and string length.
 
 For example, for alg: "ES256", "tmb" is 64 in Hex and 43 in base64.
 
-- The Hex `tmb`, `cad`, `cyd`, and `sig` are not directly encodable to base64
+- The Hex `tmb`, `cad`, `czd`, and `sig` are not directly encodable to base64
   since they would be computed with different encoding.  The base64 `tmb`
   would need to be digest of the base64 representation of Coze key.  
 

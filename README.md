@@ -133,11 +133,11 @@ documentation.  If a message is malformed the application must error.
 
 In the first example the `cad`  is `LSgWE4vEfyxJZUTFaRaB2JdEclORdZcm4UVH9D8vVto`.
 
-`cyd` is generated from the canonical form of `coze` with the canon
-["cad","sig"] which results in the JSON `{"cad":"...",sig:"..."}`. `cyd` refers
-to a particular signed message. `cyd`'s hash must align with `alg` in `pay`. 
+`czd` is generated from the canonical form of `coze` with the canon
+["cad","sig"] which results in the JSON `{"cad":"...",sig:"..."}`. `czd` refers
+to a particular signed message. `czd`'s hash must align with `alg` in `pay`. 
 
-In the first example, the `cyd` is `d0ygwQCGzuxqgUq1KsuAtJ8IBu0mkgAcKpUJzuX075M`.
+In the first example, the `czd` is `d0ygwQCGzuxqgUq1KsuAtJ8IBu0mkgAcKpUJzuX075M`.
 
 Applications may ignore `can` in `coze` and under typical use it is recommended
 that `can` be omitted.  
@@ -216,20 +216,20 @@ example, the JSON object `{"pay":{...},"sig":...}` doesn't need the labeled
 - `coze` JSON label for a Coze object.  E.g. `{"coze":{"pay":..., sig:...}}`
 - `can`  Canon for hashing over `pay`.  E.g. `["alg","iat","tmb","typ"]`
 - `cad`  Canon digest.  The digest of `pay`.  E.g.: `"24F11D..."`
-- `cyd`  Cy digest, the digest over `["cad","sig"]`. `cyd`'s hash must align
+- `czd`  Coze digest, the digest over `["cad","sig"]`. `czd`'s hash must align
   with `alg` in `pay`.  
 - `pay` Label for the pay object.  E.g. `"pay":{"alg":...}`
 - `sig`  Signature over the bytes of `cad`, and `sig` does not rehash `cad`
   before signing.  E.g. `"sig":"CC3AD6..."`
 
-Like `cad`, `cyd` is calculated from brace to brace, including the braces.  
+Like `cad`, `czd` is calculated from brace to brace, including the braces.  
 
-`cad` and `cyd` are recalculatable and are recommended to be omitted, although
+`cad` and `czd` are recalculatable and are recommended to be omitted, although
 they may be useful for reference.  
 
-## Example full `coze` with `pay`, `key`, `can`, `cad`, `cyd`, and `sig`.  
+## Example full `coze` with `pay`, `key`, `can`, `cad`, `czd`, and `sig`.  
 The following expands the first example and is largely redundant. `key` may be
-looked up based on `tmb`. `can`, `cad`, and `cyd` are recalculatable and
+looked up based on `tmb`. `can`, `cad`, and `czd` are recalculatable and
 generally should be omitted.  The label `coze` may be inferred. Because of these
 redundancies, it is suggested that simple Coze objects are used where possible.
 The following form may be useful when referring to specific parts.  
@@ -253,7 +253,7 @@ The following form may be useful when referring to specific parts.
 		},
 		"can": ["alg","iat","msg","tmb","typ"],
 		"cad": "LSgWE4vEfyxJZUTFaRaB2JdEclORdZcm4UVH9D8vVto",
-		"cyd": "d0ygwQCGzuxqgUq1KsuAtJ8IBu0mkgAcKpUJzuX075M",
+		"czd": "d0ygwQCGzuxqgUq1KsuAtJ8IBu0mkgAcKpUJzuX075M",
 		"sig": "ywctP6lEQ_HcYLhgpoecqhFrqNpBSyNPuAPOV94SThuztJek7x7H9mXFD0xTrlmQPg_WC7jwg70nzNoGn70JyA"
 	}
 }
@@ -343,9 +343,9 @@ For `tmb` canonical form, `typ` is ignored and a static canon is used. Like
 `typ` in `pay`,  `typ` in `key` may be used to specify custom application
 fields, e.g. "first_seen" or "account_id".  
 
-## `cyd` is the digest over `{"cad":"...","sig":"..."}`
-One may expect `cyd` to be the digest of `cad` || `sig`, or ever the
-digest of `coze`. Like `cad`, `cyd` is the digest of JSON with a defined canon
+## Coze digest `czd` is over `{"cad":"...","sig":"..."}`
+One may expect `czd` to be the digest of `cad` || `sig`, or ever the
+digest of `coze`. Like `cad`, `czd` is the digest of JSON with a defined canon
 `["cad","sig"]`.
 
 ## ECDSA `x` and `sig` Bytes
@@ -550,7 +550,7 @@ thumbprint.  Associating thumbprints to issuers is the design we recommend.
   'typ'.
 - `sub` - "Subject". Outside the scope of Coze, but consider denoting this with
   'typ'.
-- `jti` - "Token ID/JWT ID". Redundant by `cyd`, `cad`, or an application
+- `jti` - "Token ID/JWT ID". Redundant by `czd`, `cad`, or an application
   specified field.
 
 

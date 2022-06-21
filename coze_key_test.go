@@ -46,22 +46,21 @@ var Golden_Pay = `{
 
 var Golden_Tmb = "cLj8vsYtMBwYkzoFVZHBZo6SNL8wSdCIjCKAwXNuhOk"
 var Golden_Cad = "LSgWE4vEfyxJZUTFaRaB2JdEclORdZcm4UVH9D8vVto"
-var Golden_Cyd = "d0ygwQCGzuxqgUq1KsuAtJ8IBu0mkgAcKpUJzuX075M"
+var Golden_Czd = "d0ygwQCGzuxqgUq1KsuAtJ8IBu0mkgAcKpUJzuX075M"
 var Golden_Sig = "ywctP6lEQ_HcYLhgpoecqhFrqNpBSyNPuAPOV94SThuztJek7x7H9mXFD0xTrlmQPg_WC7jwg70nzNoGn70JyA"
 
-var Golden_Cy = `{
+var Golden_Coze = `{
 	"pay":` + Golden_Pay + `,
 	"sig": "` + Golden_Sig + `"
  }`
 
-var Golden_Coze = `{
-	"coze":` + Golden_Cy + `
+var Golden_CozeE = `{
+	"coze":` + Golden_Coze + `
 }`
 
-var Golden_Cy_W_Key = `{
+var Golden_Coze_W_Key = `{
 	"pay": ` + Golden_Pay + `,
-	"key": ` + Golden_Key_String + `
-	,
+	"key": ` + Golden_Key_String + `,
 	"sig": "` + Golden_Sig + `"
  }`
 
@@ -71,7 +70,6 @@ func Example_genCad() {
 	if err != nil {
 		fmt.Println(err)
 	}
-
 	fmt.Println(digest)
 	// Output:
 	// LSgWE4vEfyxJZUTFaRaB2JdEclORdZcm4UVH9D8vVto
@@ -91,7 +89,6 @@ func ExampleCozeKey_jsonUnmarshal() {
 	if err != nil {
 		fmt.Println(err)
 	}
-
 	fmt.Printf("%+v\n", cozeKey)
 	// Output:
 	//{"alg":"ES256","d":"bNstg4_H3m3SlROufwRSEgibLrBuRq9114OvdapcpVA","iat":1623132000,"kid":"Zami's Majuscule Key.","tmb":"cLj8vsYtMBwYkzoFVZHBZo6SNL8wSdCIjCKAwXNuhOk","x":"2nTOaFVm2QLxmUO_SjgyscVHBtvHEfo2rq65MvgNRjORojq39Haq9rXNxvXxwba_Xj0F5vZibJR3isBdOWbo5g"}
@@ -102,7 +99,6 @@ func ExampleCozeKey_jsonMarshal() {
 	if err != nil {
 		fmt.Println(err)
 	}
-
 	fmt.Printf("%s\n", string(b))
 	// Output:
 	//{"alg":"ES256","d":"bNstg4_H3m3SlROufwRSEgibLrBuRq9114OvdapcpVA","iat":1623132000,"kid":"Zami's Majuscule Key.","tmb":"cLj8vsYtMBwYkzoFVZHBZo6SNL8wSdCIjCKAwXNuhOk","x":"2nTOaFVm2QLxmUO_SjgyscVHBtvHEfo2rq65MvgNRjORojq39Haq9rXNxvXxwba_Xj0F5vZibJR3isBdOWbo5g"}
@@ -124,7 +120,6 @@ func ExampleThumbprint() {
 		fmt.Println(err)
 		return
 	}
-
 	fmt.Println(h)
 	// Output:
 	// cLj8vsYtMBwYkzoFVZHBZo6SNL8wSdCIjCKAwXNuhOk
@@ -136,7 +131,6 @@ func ExampleCozeKey_Sign() {
 	if err != nil {
 		fmt.Println(err)
 	}
-
 	fmt.Printf("%v\n", Golden_Key.Verify(cad, sig))
 	// Output: true
 }
@@ -159,16 +153,16 @@ func ExampleCozeKey_Sign_empty() {
 	// Output: true
 }
 
-func ExampleCozeKey_SignCy() {
-	cy := new(Cy)
-	cy.Pay = []byte(Golden_Pay)
+func ExampleCozeKey_SignCoze() {
+	cz := new(Coze)
+	cz.Pay = []byte(Golden_Pay)
 
-	err := Golden_Key.SignCy(cy, nil)
+	err := Golden_Key.SignCoze(cz, nil)
 	if err != nil {
 		fmt.Println(err)
 	}
 
-	v, err := Golden_Key.VerifyCy(cy)
+	v, err := Golden_Key.VerifyCoze(cz)
 	if err != nil {
 		fmt.Println(err)
 	}
@@ -184,14 +178,14 @@ func ExampleCozeKey_Verify() {
 	// Output: true
 }
 
-func ExampleCozeKey_VerifyCy() {
-	var cy = new(Cy)
-	err := json.Unmarshal([]byte(Golden_Cy), cy)
+func ExampleCozeKey_VerifyCoze() {
+	var cz = new(Coze)
+	err := json.Unmarshal([]byte(Golden_Coze), cz)
 	if err != nil {
 		fmt.Println(err)
 	}
 
-	v, err := Golden_Key.VerifyCy(cy)
+	v, err := Golden_Key.VerifyCoze(cz)
 	if err != nil {
 		fmt.Println(err)
 	}
@@ -200,7 +194,7 @@ func ExampleCozeKey_VerifyCy() {
 	// Output: true
 }
 
-//  Tests valid on a good coze key and a bad coze key
+//  Tests valid on a good Coze key and a bad Coze key
 func ExampleCozeKey_Valid() {
 	fmt.Println(Golden_Key.Valid())
 	fmt.Println(Golden_Bad_Key.Valid())
@@ -215,9 +209,7 @@ func ExampleNewKey_valid() {
 	if err != nil {
 		fmt.Println(err)
 	}
-
 	fmt.Println(ck.Valid())
-
 	// Output:
 	// true
 }
@@ -254,53 +246,34 @@ func ExampleCorrect() {
 	fmt.Println(&gk2)
 
 	// Key with with [alg,d,tmb,x]
-	v, err := gk2.Correct()
-	if err != nil {
-		fmt.Println(err)
-	}
+	v, _ := gk2.Correct()
 	fmt.Println(v)
 
 	// A key with [alg,tmb,d]
 	gk2.X = []byte{}
 	gk2.D = Golden_Key.D
-	v, err = gk2.Correct()
-	if err != nil {
-		fmt.Println(err)
-	}
+	v, _ = gk2.Correct()
 	fmt.Println(v)
 
 	// A key with [alg,d]
 	gk2.Tmb = []byte{}
-	v, err = gk2.Correct()
-	if err != nil {
-		fmt.Println(err)
-	}
+	v, _ = gk2.Correct()
 	fmt.Println(v)
 
 	// A key with [alg,x,d]
 	gk2.X = Golden_Key.X
-	v, err = gk2.Correct()
-	if err != nil {
-		fmt.Println(err)
-	}
+	v, _ = gk2.Correct()
 	fmt.Println(v)
 
 	// A key with [alg,x,tmb]
 	gk2.D = []byte{}
 	gk2.Tmb = Golden_Key.Tmb
-	v, err = gk2.Correct()
-	if err != nil {
-		fmt.Println(err)
-	}
+	v, _ = gk2.Correct()
 	fmt.Println(v)
 
 	// Key with [alg,tmb]
 	gk2.X = []byte{}
-
-	v, err = gk2.Correct()
-	if err != nil {
-		fmt.Println(err)
-	}
+	v, _ = gk2.Correct()
 	fmt.Println(v)
 
 	// Output:

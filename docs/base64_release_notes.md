@@ -21,6 +21,7 @@
 - All `pay` fields are optional.  An empty `pay` is valid.  
 - Removed redundant tests.
 - Various bug fixes.
+- Go Coze changes "Cy" struct to "Coze", removed the JSON encapsulator.
 
 ## Additional Explicit design decisions:
 - Coze follows the underlying algorithm's endianness.  ECDSA is big
