@@ -38,7 +38,7 @@ func ExampleCanonHash() {
 }
 
 // Example CanonHash for all hashing algos.
-func ExampleCanonHash_AllAlgs() {
+func ExampleCanonHash_permutations() {
 	canon := []string{"alg", "iat", "msg", "tmb", "typ"}
 	algs := []string{"SHA-224", "SHA-256", "SHA-384", "SHA-512", "SHA3-224", "SHA3-256", "SHA3-384", "SHA3-512", "SHAKE128", "SHAKE256"}
 	for _, alg := range algs {

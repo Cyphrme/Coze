@@ -247,7 +247,7 @@ func getString(i int) (s string) {
 		"Ed25519",
 		"Ed25519ph",
 		"Ed448",
-		"RS256", // Placeholder for future. // Should this be commented out as above?
+		"RS256", // Placeholder for future.
 		"RS384",
 		"RS512",
 		"UnknownEncAlg",
@@ -318,6 +318,7 @@ func (a Alg) Hash() HashAlg {
 /////////////////////////////////////////
 //  SEAlg (Signing or Encryption Alg)  //
 /////////////////////////////////////////
+
 const (
 	SEAlgUnknown SEAlg = iota
 )
@@ -614,6 +615,7 @@ func (s SigAlg) SigSize() int {
 ///////////////
 //  Key Use //
 //////////////
+
 const (
 	KeyUseUnknown KeyUse = iota
 	SigUse               // "Signing Use"
