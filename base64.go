@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-// Type B64 is a Coze addition to Go's base64.  B64 is useful for marshaling and
+// Type B64 is a Coze addition to Go's base64. B64 is useful for marshaling and
 // unmarshalling structs. B64's underlying type is []byte and is represented in
 // JSON as base64 URI truncated (b64ut).
 //
@@ -14,7 +14,7 @@ import (
 // encoded as "AA".
 type B64 []byte
 
-// UnmarshalJSON implements JSON.UnmarshalJSON.  It is a custom unmarshaler for
+// UnmarshalJSON implements JSON.UnmarshalJSON. It is a custom unmarshaler for
 // binary data in JSON, which should always be represented as Hex.
 func (t *B64) UnmarshalJSON(b []byte) error {
 	// JSON.Unmarshal gives b encapsulated in quote characters. Quotes characters
@@ -46,11 +46,7 @@ func (t B64) GoString() string {
 
 // Decode decodes a base64 string to B64.
 func Decode(b64 string) (B64, error) {
-	b, err := base64.URLEncoding.WithPadding(base64.NoPadding).DecodeString(b64)
-	if err != nil {
-		return nil, err
-	}
-	return b, nil
+	return base64.URLEncoding.WithPadding(base64.NoPadding).DecodeString(b64)
 }
 
 // MustDecode decodes a base64 string to B64.  Will panic on error.

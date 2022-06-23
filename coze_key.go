@@ -21,7 +21,7 @@ type CozeKeyCanon struct {
 	X   B64    `json:"x"`
 }
 
-// CozeKey is a Coze key. See `README.md` for details. Fields must be in order
+// CozeKey is a Coze Key. See `README.md` for details. Fields must be in order
 // for correct JSON marshaling.
 //
 // Standard Coze Key Fields
@@ -31,7 +31,7 @@ type CozeKeyCanon struct {
 // - `kid` - Human readable, non-programmatic label. E.g. "My Coze key".
 // - `rvk` - Unix time of key revocation. See docs on `rvk`. E.g. 1626069601.
 // - `tmb` - Key thumbprint. E.g. "cLj8vsYtMBwYkzoFVZHBZo6SNL8wSdCIjCKAwXNuhOk".
-// - `typ` - Application label for key.  "coze/key".
+// - `typ` - Application label for key. "coze/key".
 // - `x`   - Public component.
 type CozeKey struct {
 	Alg SEAlg  `json:"alg,omitempty"`
@@ -73,20 +73,16 @@ func NewKey(alg SEAlg) (c *CozeKey, err error) {
 	}
 
 	c.Iat = time.Now().Unix()
-	err = c.Thumbprint()
-	if err != nil {
-		return nil, err
-	}
-	return c, nil
+	return c, c.Thumbprint()
 }
 
-// Thumbprint generates and sets the Coze key thumbprint (`tmb`) from `x` and `alg``.
+// Thumbprint generates and sets the Coze key thumbprint (`tmb`) from `x` and `alg`.
 func (c *CozeKey) Thumbprint() (err error) {
 	c.Tmb, err = Thumbprint(c)
 	return
 }
 
-// Thumbprint generates `tmb` which is the digest of canon [alg, x]
+// Thumbprint generates `tmb` which is the digest of canon [alg, x].
 func Thumbprint(c *CozeKey) (tmb B64, err error) {
 	b, err := Marshal(c)
 	if err != nil {
@@ -126,7 +122,7 @@ func (c *CozeKey) Sign(digest B64) (sig B64, err error) {
 }
 
 // SignCoze verifies the coze.alg/coze.tmb and key.alg/key.tmb fields match,
-// signs coze.Pay, and populates coze.Sig.  Canon is optional.
+// signs coze.Pay, and populates coze.Sig. Canon is optional.
 func (c *CozeKey) SignCoze(cz *Coze, canon any) (err error) {
 	// Get Coze standard fields
 	h := new(Pay)
@@ -146,12 +142,8 @@ func (c *CozeKey) SignCoze(cz *Coze, canon any) (err error) {
 		return err
 	}
 
-	sig, err := c.Sign(Hash(c.Alg.Hash(), b))
-	if err != nil {
-		return err
-	}
-	cz.Sig = sig
-	return nil
+	cz.Sig, err = c.Sign(Hash(c.Alg.Hash(), b))
+	return
 }
 
 // Verify uses a public Coze key to verify a digest.
@@ -159,12 +151,11 @@ func (c *CozeKey) Verify(digest, sig B64) (valid bool) {
 	if len(c.X) == 0 {
 		return false
 	}
-
 	switch c.Alg.SigAlg() {
 	default:
 		return false
 	case ES224, ES256, ES384, ES512:
-		var size = c.Alg.SigAlg().SigSize() / 2
+		size := c.Alg.SigAlg().SigSize() / 2
 		r := big.NewInt(0).SetBytes(sig[:size])
 		s := big.NewInt(0).SetBytes(sig[size:])
 		return ecdsa.Verify(cozeKeyToPubEcdsa(c), digest, r, s)
@@ -174,11 +165,11 @@ func (c *CozeKey) Verify(digest, sig B64) (valid bool) {
 }
 
 // VerifyCoze cryptographically verifies `pay` with given `sig` and verifies the
-// `pay` and `key` fields `alg` and `tmb` match.  If trying to verify without
+// `pay` and `key` fields `alg` and `tmb` match. If trying to verify without
 // `alg` and/or `tmb`, use Verify instead.
 func (c *CozeKey) VerifyCoze(cz *Coze) (bool, error) {
 	if cz.Sig == nil {
-		return false, errors.New("coze: sig is nil")
+		return false, errors.New("VerifyCoze: sig is nil")
 	}
 
 	h := new(Pay)
@@ -189,7 +180,6 @@ func (c *CozeKey) VerifyCoze(cz *Coze) (bool, error) {
 	if c.Alg != h.Alg {
 		return false, errors.New(fmt.Sprintf("VerifyCoze: key alg \"%s\" and coze alg \"%s\" do not match", c.Alg, h.Alg))
 	}
-
 	if !bytes.Equal(c.Tmb, h.Tmb) {
 		return false, errors.New(fmt.Sprintf("VerifyCoze: key tmb \"%s\" and coze tmb  \"%s\" do not match", c.Tmb, h.Tmb))
 	}
@@ -218,7 +208,6 @@ func (c *CozeKey) Valid() (valid bool) {
 	if err != nil {
 		return false
 	}
-
 	return c.Verify(digest, sig)
 }
 
@@ -226,10 +215,10 @@ func (c *CozeKey) Valid() (valid bool) {
 // true on cryptographically invalid public keys.  Key must have `alg` and at
 // least one of `tmb`, `x`, and `d`. Using input information, if it is possible
 // to definitively know the given key is incorrect, Correct returns false, but
-// if it's plausible it's correct, Correct returns true. Correct answer the
+// if it's plausible it's correct, Correct returns true. Correct answers the
 // question: "Is the given Coze key reasonable using the information provided?".
 // Correct is useful for sanity checking public keys without signed messages,
-// sanity checking `tmb` only keys, and validating private keys.  Use function
+// sanity checking `tmb` only keys, and validating private keys. Use function
 // "Verify" instead for verifying public keys when a signed message is
 // available. Correct is considered an advanced function. Please understand it
 // thoroughly before use.
@@ -257,7 +246,7 @@ func (c *CozeKey) Correct() (bool, error) {
 		return true, nil
 	}
 
-	//  d is not set
+	// d is not set
 	if len(c.D) == 0 {
 		if len(c.X) != 0 && len(c.X) != SEAlg(c.Alg).XSize() {
 			return false, fmt.Errorf("Correct: incorrect x size: %d", len(c.X))
@@ -280,7 +269,7 @@ func (c *CozeKey) Correct() (bool, error) {
 	if len(c.X) != 0 && !bytes.Equal(c.X, x) {
 		return false, fmt.Errorf("Correct: incorrect X. Current: %s, Calculated: %s", c.X, x)
 	}
-	var ck = CozeKey{Alg: c.Alg, X: x}
+	ck := CozeKey{Alg: c.Alg, X: x}
 	// If tmb is set, recompute and compare with existing.
 	if len(c.Tmb) != 0 {
 		tmb, err := Thumbprint(&ck)
@@ -295,7 +284,7 @@ func (c *CozeKey) Correct() (bool, error) {
 	return ck.Valid(), nil
 }
 
-// recalcX recalculates x from d.  Algorithms are constant-time.
+// recalcX recalculates x from d. Algorithms are constant-time.
 // https://cs.opensource.google/go/go/+/refs/tags/go1.18.3:src/crypto/elliptic/elliptic.go;l=455;drc=7f9494c277a471f6f47f4af3036285c0b1419816
 func (c *CozeKey) recalcX() (x B64) {
 	switch c.Alg.SigAlg() {
@@ -305,31 +294,72 @@ func (c *CozeKey) recalcX() (x B64) {
 		pukx, puky := c.Alg.Curve().EllipticCurve().ScalarBaseMult(c.D)
 		x = PadInts(pukx, puky, c.Alg.XSize())
 	case Ed25519, Ed25519ph:
-		prk := ed25519.NewKeyFromSeed(c.D)
-		x = []byte(prk[:32])
+		x = []byte(ed25519.NewKeyFromSeed(c.D)[32:])
 	}
 	return x
 }
 
 // cozeKeyToPubEcdsa converts a Coze Key to ecdsa.PublicKey.
 func cozeKeyToPubEcdsa(c *CozeKey) (key *ecdsa.PublicKey) {
-	half := c.Alg.XSize() / 2
-	x := new(big.Int).SetBytes(c.X[:half])
-	y := new(big.Int).SetBytes(c.X[half:])
-
-	a := ecdsa.PublicKey{
+	size := c.Alg.XSize() / 2
+	return &ecdsa.PublicKey{
 		Curve: c.Alg.Curve().EllipticCurve(),
-		X:     x,
-		Y:     y,
+		X:     new(big.Int).SetBytes(c.X[:size]),
+		Y:     new(big.Int).SetBytes(c.X[size:]),
 	}
-	return &a
 }
 
 // String returns the stringified Coze key.
+// Errors are returned as a string.
 func (c CozeKey) String() string {
 	b, err := Marshal(c)
 	if err != nil {
 		fmt.Println(err)
 	}
 	return string(b)
+}
+
+// RevokePay contains the components necessary for revoking a Coze Key.
+type RevokePay struct {
+	Rvk int64  `json:"rvk"`           // Timestamp when key revoke occurred.
+	Msg string `json:"msg,omitempty"` // Optional message for why the key was revoked.
+	Pay
+}
+
+// Revoke will return a signed Revoke Coze for the given key, as well as setting
+// `rvk` on the Coze Key.
+func (c *CozeKey) Revoke(msg string) (coze Coze, err error) {
+	correct, err := c.Correct()
+	if err != nil {
+		return
+	}
+	if !correct {
+		return coze, errors.New("Revoke: Coze Key does not have the capabilities for revoke.")
+	}
+
+	p := new(RevokePay)
+	p.Alg = SEAlg(ES256)
+	p.Iat = time.Now().Unix()
+	p.Msg = msg
+	p.Rvk = c.Rvk
+	p.Tmb = c.Tmb
+	p.Typ = "cyphr.me/key/revoke"
+	coze.Pay, err = Marshal(p)
+	if err != nil {
+		return
+	}
+	err = c.SignCoze(&coze, nil)
+	if err != nil {
+		return coze, err
+	}
+	c.Rvk = time.Now().Unix()
+	return coze, nil
+}
+
+// IsRevoked will return whether or not the given Coze Key is a revoked key.
+func (c CozeKey) IsRevoked() bool {
+	if c.Rvk > 0 {
+		return true
+	}
+	return false
 }

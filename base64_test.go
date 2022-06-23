@@ -25,9 +25,12 @@ func ExampleB64_marshalJSON() {
 	if err != nil {
 		fmt.Println(err)
 	}
-	stringed := string(b)
-	fmt.Println(stringed)
-	// Output: "AP8"
+	// Both ways of calling the stringer method
+	fmt.Printf("%s\n", b)
+	fmt.Println(string(b))
+	// Output:
+	// "AP8"
+	// "AP8"
 }
 
 func ExampleB64_unmarshalJSON() {
@@ -35,10 +38,8 @@ func ExampleB64_unmarshalJSON() {
 		Bar B64
 	}
 
-	stringed := []byte(`{"Bar":"AP8"}`)
 	f := new(Foo)
-
-	err := json.Unmarshal(stringed, f)
+	err := json.Unmarshal([]byte(`{"Bar":"AP8"}`), f)
 	if err != nil {
 		fmt.Println(err)
 	}
@@ -48,8 +49,10 @@ func ExampleB64_unmarshalJSON() {
 		fmt.Println(err)
 	}
 
-	fmt.Printf("%s", b)
-	// Output: {"Bar":"AP8"}
+	fmt.Printf("%s\n%#v\n", b, B64(b))
+	// Output:
+	// {"Bar":"AP8"}
+	// eyJCYXIiOiJBUDgifQ
 }
 
 func ExampleDecode() {

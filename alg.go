@@ -10,21 +10,21 @@ import (
 	"golang.org/x/crypto/sha3"
 )
 
-// Alg is a declarative abstraction for cryptographic functions for Coze.See the
-// main Coze README.
+// Alg is a declarative abstraction for cryptographic functions for Coze.
+// For more on Alg, see the main Coze README.
 //
 // The integer value of the "enum" will change in the future. Use the string
 // name for algos when storing information.
 //
-// Hierarchy for signing and hashing cryptographic functions.  Naming is
+// Hierarchy for signing and hashing cryptographic functions. Naming is
 // inspired by taxonomic rank.
 //
 //  - Level 0 species - "SpcAlg"  (e.g.: ES256) (species)
 //  - Level 1 genus   - "GenAlg"  (e.g.: ECDSA) (genus)
 //  - Level 2 family  - "FamAlg"  (e.g.: EC)    (family)
 //
-// The value for a Coze `alg` is always specific (species) algorithm, e.g.
-// "ES256", and never any other rank, e.g. "ECDSA".  The type `Alg` in this
+// The value for a Coze `alg` is always a specific (species) algorithm, e.g.
+// "ES256", and never any other rank, e.g. "ECDSA". The type `Alg` in this
 // package may be any algorithm of any rank.
 //
 // Cryptographic Signature/Encryption/Hashing hierarchy
@@ -65,7 +65,7 @@ import (
 // excludes hashing.
 //
 // See the main Coze README for Coze supported and unsupported things.
-type Alg int    // Alg is for all cryptographic algorithms.  All levels included.
+type Alg int    // Alg is for all cryptographic algorithms. All levels included.
 type GenAlg int // Algorithm genus.    Level 1.
 type FamAlg int // Algorithm family    Level 2.
 
@@ -76,7 +76,7 @@ type EncAlg SEAlg // Encryption Algorithm
 type Crv int    // Curve type.  Used for EC curves.
 type KeyUse int // Key Use. 2021/05/19 Right now only "sig (Perhaps "enc" in the future)
 
-// SEAlg is the Signing or Encryption alg.  Super type of SigAlg and EncAlg and
+// SEAlg is the Signing or Encryption alg. Super type of SigAlg and EncAlg and
 // is itself not a specific algorithm and is not included in Alg.
 type SEAlg Alg
 
@@ -228,9 +228,9 @@ func (a *Alg) Parse(s string) {
 	case "SHA3-512":
 		*a = Alg(SHA3512)
 	case "SHAKE128":
-		*a = Alg(Shake128)
+		*a = Alg(SHAKE128)
 	case "SHAKE256":
-		*a = Alg(Shake256)
+		*a = Alg(SHAKE256)
 	}
 	return
 }
@@ -247,7 +247,7 @@ func getString(i int) (s string) {
 		"Ed25519",
 		"Ed25519ph",
 		"Ed448",
-		"RS256", // Placeholder for future.
+		"RS256", // Placeholder for future. // Should this be commented out as above?
 		"RS384",
 		"RS512",
 		"UnknownEncAlg",
@@ -286,25 +286,25 @@ func (a Alg) Genus() GenAlg {
 		return Eddsa
 	case Alg(SHA224), Alg(SHA256), Alg(SHA384), Alg(SHA512):
 		return SHA2
-	case Alg(SHA3224), Alg(SHA3256), Alg(SHA3384), Alg(SHA3512), Alg(Shake128), Alg(Shake256):
+	case Alg(SHA3224), Alg(SHA3256), Alg(SHA3384), Alg(SHA3512), Alg(SHAKE128), Alg(SHAKE256):
 		return SHA3
 	}
 }
 
-// Family is for 	EC,	SHA, and	RSA
+// Family is for EC, SHA, and RSA
 func (a Alg) Family() (f FamAlg) {
 	switch a {
 	default:
 		f = UnknownFamAlg
 	case Alg(ES224), Alg(ES256), Alg(ES384), Alg(ES512), Alg(Ed25519), Alg(Ed25519ph), Alg(Ed448):
 		f = EC
-	case Alg(SHA224), Alg(SHA256), Alg(SHA384), Alg(SHA512), Alg(SHA3224), Alg(SHA3256), Alg(SHA3384), Alg(SHA3512), Alg(Shake128), Alg(Shake256):
+	case Alg(SHA224), Alg(SHA256), Alg(SHA384), Alg(SHA512), Alg(SHA3224), Alg(SHA3256), Alg(SHA3384), Alg(SHA3512), Alg(SHAKE128), Alg(SHAKE256):
 		f = SHA
 	}
 	return
 }
 
-// Hash returns respective hashing algorithm if specified.  If alg is a hashing
+// Hash returns respective hashing algorithm if specified. If alg is a hashing
 // algorithm, it returns itself.
 func (a Alg) Hash() HashAlg {
 	// Return itself if Alg is a HashAlg
@@ -396,11 +396,13 @@ func (a SEAlg) XSize() int {
 		return 132 // X and Y are 66 bytes (Rounded up for P521)
 	case Ed25519, Ed25519ph:
 		return 32
+	case Ed448:
+		return 57
 	}
 	return 0
 }
 
-// DSize returns the byte size of `d`.  Returns 0 on error.
+// DSize returns the byte size of `d`. Returns 0 on error.
 func (a SEAlg) DSize() int {
 	switch SigAlg(a) {
 	case ES224:
@@ -409,6 +411,8 @@ func (a SEAlg) DSize() int {
 		return 32
 	case ES384:
 		return 48
+	case Ed448:
+		return 57
 	case ES512:
 		return 66 // Rounded up for P521
 	}
@@ -438,8 +442,8 @@ const (
 	SHA3256
 	SHA3384
 	SHA3512
-	Shake128 // Shake
-	Shake256
+	SHAKE128 // Shake
+	SHAKE256
 )
 
 func (h HashAlg) String() string {
@@ -471,11 +475,11 @@ func ParseHashAlg(s string) HashAlg {
 func (ha *HashAlg) goHash() (h hash.Hash) {
 	switch *ha {
 	case SHA224:
-		h = sha256.New224() // There is no 224 package.  224 is in the 256 package.
+		h = sha256.New224() // There is no 224 package. 224 is in the 256 package.
 	case SHA256:
 		h = sha256.New()
 	case SHA384:
-		h = sha512.New384() // There is no 384 package.  384 is in the 512 package.
+		h = sha512.New384() // There is no 384 package. 384 is in the 512 package.
 	case SHA512:
 		h = sha512.New()
 	case SHA3224:
@@ -502,11 +506,11 @@ func (h HashAlg) Size() int {
 	switch h {
 	case SHA224, SHA3224:
 		return 28
-	case SHA256, SHA3256, Shake128:
+	case SHA256, SHA3256, SHAKE128:
 		return 32
 	case SHA384, SHA3384:
 		return 48
-	case SHA512, SHA3512, Shake256:
+	case SHA512, SHA3512, SHAKE256:
 		return 64
 	}
 	return 0
@@ -580,6 +584,8 @@ func (s SigAlg) Hash() HashAlg {
 		h = SHA384
 	case ES512, Ed25519, Ed25519ph:
 		h = SHA512
+	case Ed448:
+		h = SHAKE256
 	}
 	return h
 }
@@ -598,7 +604,7 @@ func (s SigAlg) SigSize() int {
 	case Ed448:
 		return 114
 	case ES512:
-		// Curve P-521 uses 521 bits.  This is then padded up the the nearest
+		// Curve P-521 uses 521 bits. This is then padded up the the nearest
 		// byte (528) for R and S. 132 = (528*2)/8
 		return 132
 	}

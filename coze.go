@@ -55,6 +55,7 @@ type Coze struct {
 }
 
 // String implements fmt.Stringer.  Without this method `pay` prints as bytes.
+// Errors are returned as a string.
 func (cz Coze) String() string {
 	b, err := Marshal(cz)
 	if err != nil {
@@ -67,7 +68,7 @@ func (cz Coze) String() string {
 var CzdCanon = []string{"cad", "sig"}
 
 // Meta recalculates meta, [can, cad, czd], for a given `coze`. Coze.Pay,
-// Coze.Pay.Alg, and Coze.Sig must be set.  Meta does no cryptographic
+// Coze.Pay.Alg, and Coze.Sig must be set. Meta does no cryptographic
 // verification.
 func (cz *Coze) Meta() (err error) {
 	if cz.Pay == nil {
@@ -105,16 +106,16 @@ func GenCzd(hash HashAlg, cad B64, sig B64) (czd B64) {
 	return Hash(hash, cadSig)
 }
 
-// CozeMarshaler is a UTF-8 marshaler for Go structs.  Go's `json.Marshal`
-// removes the valid characters "&". "<", ">".  See note on Marshal.
+// CozeMarshaler is a UTF-8 marshaler for Go structs. Go's `json.Marshal`
+// removes the valid characters "&". "<", ">". See note on Marshal.
 type CozeMarshaler interface {
 	CozeMarshal() ([]byte, error)
 }
 
-// Marshal is a UTF-8 friendly marshaler.  Go's json.Marshal is not UTF-8
+// Marshal is a UTF-8 friendly marshaler. Go's json.Marshal is not UTF-8
 // friendly because it replaces the valid JSON and valid UTF-8 characters "&".
-// "<", ">" with the "slash u" unicode escaped forms (e.g. \u0026).  It
-// preemptively escapes for HTML friendliness.  Where JSON may include these
+// "<", ">" with the "slash u" unicode escaped forms (e.g. \u0026). It
+// preemptively escapes for HTML friendliness. Where JSON may include these
 // characters, json.Marshal should not be used. Playground of Go breaking a book
 // title: https://play.golang.org/p/o2hiX0c62oN
 func Marshal(i any) ([]byte, error) {
@@ -129,7 +130,7 @@ func Marshal(i any) ([]byte, error) {
 }
 
 // MarshalPretty is the pretty version of Marshal. It uses 4 spaces for each
-// level.  Spaces instead of tabs because some applications use 8 spaces per
+// level. Spaces instead of tabs because some applications use 8 spaces per
 // tab, which is excessive.
 func MarshalPretty(i any) ([]byte, error) {
 	buffer := &bytes.Buffer{}
@@ -149,16 +150,16 @@ func MarshalPretty(i any) ([]byte, error) {
 // If in the future there is a standard lib function, use that and deprecate
 // this.
 //
-// Shake128 returns 32 bytes. Shake256 returns 64 bytes.
+// SHAKE128 returns 32 bytes. SHAKE256 returns 64 bytes.
 func Hash(alg HashAlg, msg []byte) (digest B64) {
 	// TODO what to do on invalid hash
-	if alg == Shake128 {
+	if alg == SHAKE128 {
 		h := make([]byte, 32)
 		sha3.ShakeSum128(h, msg)
 		return h
 	}
 
-	if alg == Shake256 {
+	if alg == SHAKE256 {
 		h := make([]byte, 64)
 		sha3.ShakeSum256(h, msg)
 		return h
@@ -173,16 +174,15 @@ func Hash(alg HashAlg, msg []byte) (digest B64) {
 		return nil
 	}
 
-	digest = hash.Sum(nil)
-	return
+	return hash.Sum(nil)
 }
 
 // PadInts creates a big-endian byte slice with given size that is the left
-// padded concatenation of two input integers.  Parameter `size` must be even.
+// padded concatenation of two input integers. Parameter `size` must be even.
 // From Go's packages, X, Y, R, and S are type big.Int of varying size. Before
 // encoding to fixed sized string, left padding of bytes is needed.
 //
-// NOTE: EdDSA is little-endian while ECDSA is big-endian.  EdDSA should not be
+// NOTE: EdDSA is little-endian while ECDSA is big-endian. EdDSA should not be
 // used with this function.
 //
 // For ECDSA, Coze's `x` and `sig` is left padded concatenation of X || Y and R
@@ -207,9 +207,4 @@ func PadInts(r, s *big.Int, size int) (out B64) {
 	copy(out[half+(half-(len(sb))):], sb)
 
 	return out
-}
-
-type RevokePay struct {
-	Rvk int64 `json:"rvk,omitempty"`
-	Pay
 }
