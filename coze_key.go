@@ -338,7 +338,7 @@ func (c *CozeKey) Revoke(msg string) (coze Coze, err error) {
 	}
 
 	p := new(RevokePay)
-	p.Alg = SEAlg(ES256)
+	p.Alg = c.Alg
 	p.Iat = time.Now().Unix()
 	p.Msg = msg
 	p.Rvk = c.Rvk
