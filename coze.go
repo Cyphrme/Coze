@@ -66,7 +66,7 @@ func (cz Coze) String() string {
 // CzdCanon is the canon for a `czd`.
 var CzdCanon = []string{"cad", "sig"}
 
-// Meta recalculates meta, [can, cad, czd], for a given `coze`. Coze.Pay,
+// Meta recalculates [can, cad, czd], for a given `coze`. Coze.Pay,
 // Coze.Pay.Alg, and Coze.Sig must be set.  Meta does no cryptographic
 // verification.
 func (cz *Coze) Meta() (err error) {

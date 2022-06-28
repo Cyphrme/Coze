@@ -126,7 +126,8 @@ func (c *CozeKey) Sign(digest B64) (sig B64, err error) {
 }
 
 // SignCoze verifies the coze.alg/coze.tmb and key.alg/key.tmb fields match,
-// signs coze.Pay, and populates coze.Sig.  Canon is optional.
+// signs coze.Pay, and populates coze.Sig.  Canon is optional. Expects alg and
+// tmb fields to be populated.  If not needing those fields, use Sign().
 func (c *CozeKey) SignCoze(cz *Coze, canon any) (err error) {
 	// Get Coze standard fields
 	h := new(Pay)
@@ -203,11 +204,10 @@ func (c *CozeKey) VerifyCoze(cz *Coze) (bool, error) {
 }
 
 // Valid cryptographically validates a private Coze Key by signing a message and
-// verifying the resulting signature.
+// verifying the resulting signature with the given "x".
 //
 // Valid always returns false on public keys.  Use function "Verify" for public
-// keys with signed message and "Correct" for public keys without signed
-// messages.
+// keys with signed message.  See also function Correct.
 func (c *CozeKey) Valid() (valid bool) {
 	if len(c.D) == 0 {
 		return false

@@ -27,6 +27,7 @@ const Golden_Key_String = `{
 }`
 
 // The very last byte in D was changed from 80, to 81, making it invalid.
+// Base64 needs to be to "E", not B-D for it to be effective: bNstg4_H3m3SlROufwRSEgibLrBuRq9114OvdapcpVE
 var Golden_Bad_Key = CozeKey{
 	Alg: SEAlg(ES256),
 	Kid: "Zami's Majuscule Key.",
