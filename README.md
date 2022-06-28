@@ -211,7 +211,7 @@ example, the JSON object `{"pay":{...},"sig":...}` doesn't need the labeled
 `coze` if already implicitly known.
 
 
-## `coze` Reserved Names
+## `coze` Standard Fields
 
 - `coze` JSON label for a Coze object.  E.g. `{"coze":{"pay":..., sig:...}}`
 - `can`  Canon for hashing over `pay`.  E.g. `["alg","iat","tmb","typ"]`

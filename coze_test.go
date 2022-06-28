@@ -16,7 +16,7 @@ func ExampleCoze_String() {
 	// {"pay":{"msg":"Coze Rocks","alg":"ES256","iat":1627518000,"tmb":"cLj8vsYtMBwYkzoFVZHBZo6SNL8wSdCIjCKAwXNuhOk","typ":"cyphr.me/msg"},"sig":"ywctP6lEQ_HcYLhgpoecqhFrqNpBSyNPuAPOV94SThuztJek7x7H9mXFD0xTrlmQPg_WC7jwg70nzNoGn70JyA"}
 }
 
-func ExampleCy_Meta() {
+func ExampleCoze_Meta() {
 	cz := new(Coze)
 	err := json.Unmarshal([]byte(Golden_Coze), cz)
 	if err != nil {
@@ -87,7 +87,7 @@ func ExampleCoze_jsonMarshalPretty() {
 
 	fmt.Printf("%+s\n", b)
 	// Output:
-	// 	{
+	// {
 	//     "pay": {
 	//         "msg": "Coze Rocks",
 	//         "alg": "ES256",
@@ -99,6 +99,7 @@ func ExampleCoze_jsonMarshalPretty() {
 	// }
 }
 
+// ExampleCoze_embed demonstrates how to embed a coze into a struct.
 func ExampleCoze_embed() {
 	type Outer struct {
 		Name string

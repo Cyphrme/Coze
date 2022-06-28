@@ -44,6 +44,14 @@ func ExampleAlg_Parse() {
 	a := new(Alg)
 
 	algs := []string{
+		// SEAlgs
+		"ES224",
+		"ES256",
+		"ES384",
+		"ES512",
+		"Ed25519",
+		"Ed25519ph",
+		"Ed448",
 		// Hash algs
 		"SHA-224",
 		"SHA-256",
@@ -55,14 +63,6 @@ func ExampleAlg_Parse() {
 		"SHA3-512",
 		"SHAKE128",
 		"SHAKE256",
-		// SEAlgs
-		"ES224",
-		"ES256",
-		"ES384",
-		"ES512",
-		"Ed25519",
-		"Ed25519ph",
-		"Ed448",
 	}
 
 	for _, alg := range algs {
@@ -71,6 +71,13 @@ func ExampleAlg_Parse() {
 	}
 
 	// Output:
+	// ES224
+	// ES256
+	// ES384
+	// ES512
+	// Ed25519
+	// Ed25519ph
+	// Ed448
 	// SHA-224
 	// SHA-256
 	// SHA-384
@@ -81,13 +88,7 @@ func ExampleAlg_Parse() {
 	// SHA3-512
 	// SHAKE128
 	// SHAKE256
-	// ES224
-	// ES256
-	// ES384
-	// ES512
-	// Ed25519
-	// Ed25519ph
-	// Ed448
+
 }
 
 func ExampleCrv_Parse() {

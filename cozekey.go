@@ -319,8 +319,9 @@ func (c CozeKey) String() string {
 	return string(b)
 }
 
-// RevokePay contains the components necessary for revoking a Coze Key.
-type RevokePay struct {
+// RevokePay contains the components necessary for revoking a Coze Key.  It may
+// represent a coze or a Coze key.
+type Revoke struct {
 	Rvk int64  `json:"rvk"`           // Timestamp when key revoke occurred.
 	Msg string `json:"msg,omitempty"` // Optional message for why the key was revoked.
 	Pay
@@ -328,7 +329,7 @@ type RevokePay struct {
 
 // Revoke will return a signed Revoke Coze for the given key, as well as setting
 // `rvk` on the Coze Key.
-func (c *CozeKey) Revoke(msg string) (coze Coze, err error) {
+func (c *CozeKey) Revoke(msg string) (coze *Coze, err error) {
 	correct, err := c.Correct()
 	if err != nil {
 		return
@@ -337,20 +338,21 @@ func (c *CozeKey) Revoke(msg string) (coze Coze, err error) {
 		return coze, errors.New("Revoke: Coze Key does not have the capabilities for revoke.")
 	}
 
-	p := new(RevokePay)
+	p := new(Revoke)
 	p.Alg = c.Alg
 	p.Iat = time.Now().Unix()
 	p.Msg = msg
 	p.Rvk = c.Rvk
 	p.Tmb = c.Tmb
 	p.Typ = "cyphr.me/key/revoke"
+	coze = new(Coze)
 	coze.Pay, err = Marshal(p)
 	if err != nil {
 		return
 	}
-	err = c.SignCoze(&coze, nil)
+	err = c.SignCoze(coze, nil)
 	if err != nil {
-		return coze, err
+		return nil, err
 	}
 	c.Rvk = time.Now().Unix()
 	return coze, nil
@@ -358,6 +360,18 @@ func (c *CozeKey) Revoke(msg string) (coze Coze, err error) {
 
 // IsRevoked will return whether or not the given Coze Key is a revoked key.
 func (c CozeKey) IsRevoked() bool {
+	if c.Rvk > 0 {
+		return true
+	}
+	return false
+}
+
+// IsRevoked will return whether is the given coze.pay or Coze Key is revoked.
+// On error returns false.  May want to call correct or do other sanitization
+// before calling this function.
+func IsRevoked(topLevel json.RawMessage) bool {
+	c := new(Revoke)
+	json.Unmarshal(topLevel, c)
 	if c.Rvk > 0 {
 		return true
 	}

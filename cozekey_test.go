@@ -242,156 +242,68 @@ func ExampleNewKey() {
 	// Done
 }
 
-func ExampleCorrect() {
-	var gk2 = Golden_Key // Make a copy
-	fmt.Println(&gk2)
+func ExampleCozeKey_Correct() {
 
-	// Key with with [alg,d,tmb,x]
-	v, _ := gk2.Correct()
-	fmt.Println(v)
+	// First key is "bad", all other keys should pass every test.
+	var keys = []CozeKey{Golden_Bad_Key, Golden_Key}
 
-	// A key with [alg,tmb,d]
-	gk2.X = []byte{}
-	gk2.D = Golden_Key.D
-	v, _ = gk2.Correct()
-	fmt.Println(v)
-
-	// A key with [alg,d]
-	gk2.Tmb = []byte{}
-	v, _ = gk2.Correct()
-	fmt.Println(v)
-
-	// A key with [alg,x,d]
-	gk2.X = Golden_Key.X
-	v, _ = gk2.Correct()
-	fmt.Println(v)
-
-	// A key with [alg,x,tmb]
-	gk2.D = []byte{}
-	gk2.Tmb = Golden_Key.Tmb
-	v, _ = gk2.Correct()
-	fmt.Println(v)
-
-	// Key with [alg,tmb]
-	gk2.X = []byte{}
-	v, _ = gk2.Correct()
-	fmt.Println(v)
-
-	// Output:
-	// {"alg":"ES256","d":"bNstg4_H3m3SlROufwRSEgibLrBuRq9114OvdapcpVA","iat":1623132000,"kid":"Zami's Majuscule Key.","tmb":"cLj8vsYtMBwYkzoFVZHBZo6SNL8wSdCIjCKAwXNuhOk","x":"2nTOaFVm2QLxmUO_SjgyscVHBtvHEfo2rq65MvgNRjORojq39Haq9rXNxvXxwba_Xj0F5vZibJR3isBdOWbo5g"}
-	// true
-	// true
-	// true
-	// true
-	// true
-	// true
-}
-
-func ExampleCorrect_bad() {
-	var gk2 = Golden_Bad_Key // Make a copy
-	fmt.Println(gk2)
-
-	// Key with with [alg,d,tmb,x] (false)
-	v, _ := gk2.Correct()
-	fmt.Println(v)
-
-	// A key with [alg,tmb,d] (false)
-	gk2.X = []byte{}
-	v, _ = gk2.Correct()
-	fmt.Println(v)
-
-	// Key with [alg,d].  This combination is permitted to be false for some algs.
-	// For alg ES it returns true since d is a random integer.
-	gk2.Tmb = []byte{}
-	v, _ = gk2.Correct()
-	fmt.Println(v)
-
-	// A key with [alg,x,d]. (false)
-	gk2.X = Golden_Bad_Key.X
-	v, _ = gk2.Correct()
-	fmt.Println(v)
-
-	// A key with [alg,x,tmb] (true)
-	gk2.D = []byte{}
-	gk2.Tmb = Golden_Bad_Key.Tmb
-	v, _ = gk2.Correct()
-	fmt.Println(v)
-
-	// Key with [alg,tmb] (true)
-	gk2.X = []byte{}
-	v, _ = gk2.Correct()
-	fmt.Println(v)
-
-	// Output:
-	// {"alg":"ES256","d":"bNstg4_H3m3SlROufwRSEgibLrBuRq9114OvdapcpVE","iat":1623132000,"kid":"Zami's Majuscule Key.","tmb":"cLj8vsYtMBwYkzoFVZHBZo6SNL8wSdCIjCKAwXNuhOk","x":"2nTOaFVm2QLxmUO_SjgyscVHBtvHEfo2rq65MvgNRjORojq39Haq9rXNxvXxwba_Xj0F5vZibJR3isBdOWbo5g"}
-	// false
-	// false
-	// true
-	// false
-	// true
-	// true
-}
-
-func ExampleCorrect_permutations() {
+	// Test new keys
 	algs := []string{"ES224", "ES256", "ES384", "ES512", "Ed25519"}
 	for _, alg := range algs {
 		key, err := NewKey(ParseSEAlg(alg))
 		if err != nil {
 			fmt.Println(err)
 		}
-		if key == nil {
-			continue
-		}
-		gk2 := *key // Make copy
-		v := false
-		// Key with with [alg,d,tmb,x]
-		v, _ = gk2.Correct()
-		if !v {
-			fmt.Println(v)
-		}
-		// A key with [alg,tmb,d]
-		gk2.X = []byte{}
-		v, _ = gk2.Correct()
-		if !v {
-			fmt.Println(v)
-		}
-		// A key with [alg,d]
-		gk2.Tmb = []byte{}
-		v, _ = gk2.Correct()
-		if !v {
-			fmt.Println(v)
-		}
-		// A key with [alg,x,tmb]
-		gk2.X = key.X
-		gk2.Tmb = key.Tmb
-		gk2.D = []byte{}
-		gk2.Iat = 0
-		v, _ = gk2.Correct()
-		if !v {
-			fmt.Println(v)
-		}
-		// Key with [alg,tmb]
-		gk2.X = []byte{}
-		v, _ = gk2.Correct()
-		fmt.Printf("%s:%+v\n", alg, v)
+		keys = append(keys, *key)
 	}
 
+	for _, k := range keys {
+		var gk2 = k // Make a copy
+
+		// Key with with [alg,d,tmb,x]
+		p1, _ := gk2.Correct()
+
+		// A key with [alg,tmb,d]
+		gk2.X = []byte{}
+		p2, _ := gk2.Correct()
+
+		// Key with [alg,d].
+		gk2.Tmb = []byte{}
+		p3, _ := gk2.Correct()
+
+		// A key with [alg,x,d].
+		gk2.X = k.X
+		p4, _ := gk2.Correct()
+
+		// A key with [alg,x,tmb]
+		gk2.D = []byte{}
+		gk2.Tmb = k.Tmb
+		p5, _ := gk2.Correct()
+
+		// Key with [alg,tmb]
+		gk2.X = []byte{}
+		p6, _ := gk2.Correct()
+
+		fmt.Printf("%t, %t, %t, %t, %t, %t\n", p1, p2, p3, p4, p5, p6)
+	}
 	// Output:
-	// ES224:true
-	// ES256:true
-	// ES384:true
-	// ES512:true
-	// Ed25519:true
+	// false, false, true, false, true, true
+	// true, true, true, true, true, true
+	// true, true, true, true, true, true
+	// true, true, true, true, true, true
+	// true, true, true, true, true, true
+	// true, true, true, true, true, true
+	// true, true, true, true, true, true
 }
 
-func ExampleRevoke() {
+func ExampleCozeKey_Revoke() {
 	var gk2 = Golden_Key // Make a copy
 	fmt.Println(gk2.IsRevoked())
 	coze, err := gk2.Revoke("Posted my private key on github")
 	if err != nil {
 		fmt.Println(err)
 	}
-	v, err := gk2.VerifyCoze(&coze)
+	v, err := gk2.VerifyCoze(coze)
 	if err != nil {
 		fmt.Println(err)
 	}

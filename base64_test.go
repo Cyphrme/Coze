@@ -25,11 +25,9 @@ func ExampleB64_marshalJSON() {
 	if err != nil {
 		fmt.Println(err)
 	}
-	// Both ways of calling the stringer method
-	fmt.Printf("%s\n", b)
+
 	fmt.Println(string(b))
 	// Output:
-	// "AP8"
 	// "AP8"
 }
 
