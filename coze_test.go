@@ -73,6 +73,32 @@ func ExampleCoze_jsonMarshal() {
 	//{"pay":{"msg":"Coze Rocks","alg":"ES256","iat":1627518000,"tmb":"cLj8vsYtMBwYkzoFVZHBZo6SNL8wSdCIjCKAwXNuhOk","typ":"cyphr.me/msg"},"sig":"ywctP6lEQ_HcYLhgpoecqhFrqNpBSyNPuAPOV94SThuztJek7x7H9mXFD0xTrlmQPg_WC7jwg70nzNoGn70JyA"}
 }
 
+func ExampleCoze_jsonMarshalPretty() {
+	cz := new(Coze)
+	err := json.Unmarshal([]byte(Golden_Coze), cz)
+	if err != nil {
+		fmt.Println(err)
+	}
+
+	b, err := MarshalPretty(cz)
+	if err != nil {
+		fmt.Println(err)
+	}
+
+	fmt.Printf("%+s\n", b)
+	// Output:
+	// 	{
+	//     "pay": {
+	//         "msg": "Coze Rocks",
+	//         "alg": "ES256",
+	//         "iat": 1627518000,
+	//         "tmb": "cLj8vsYtMBwYkzoFVZHBZo6SNL8wSdCIjCKAwXNuhOk",
+	//         "typ": "cyphr.me/msg"
+	//     },
+	//     "sig": "ywctP6lEQ_HcYLhgpoecqhFrqNpBSyNPuAPOV94SThuztJek7x7H9mXFD0xTrlmQPg_WC7jwg70nzNoGn70JyA"
+	// }
+}
+
 func ExampleCoze_embed() {
 	type Outer struct {
 		Name string
@@ -84,9 +110,7 @@ func ExampleCoze_embed() {
 		fmt.Println(err)
 	}
 
-	var o = Outer{Name: "Bob", Coze: *cz}
-
-	fmt.Printf("%+v", o)
+	fmt.Printf("%+v", Outer{Name: "Bob", Coze: *cz})
 	// Output:
 	// {Name:Bob Coze:{"pay":{"msg":"Coze Rocks","alg":"ES256","iat":1627518000,"tmb":"cLj8vsYtMBwYkzoFVZHBZo6SNL8wSdCIjCKAwXNuhOk","typ":"cyphr.me/msg"},"sig":"ywctP6lEQ_HcYLhgpoecqhFrqNpBSyNPuAPOV94SThuztJek7x7H9mXFD0xTrlmQPg_WC7jwg70nzNoGn70JyA"}}
 }

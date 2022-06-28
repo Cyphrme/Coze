@@ -77,7 +77,7 @@ well as custom fields.  In the first example, `msg` is a custom field.
 	"d":"bNstg4_H3m3SlROufwRSEgibLrBuRq9114OvdapcpVA",
 	"tmb":"cLj8vsYtMBwYkzoFVZHBZo6SNL8wSdCIjCKAwXNuhOk",
 	"x":"2nTOaFVm2QLxmUO_SjgyscVHBtvHEfo2rq65MvgNRjORojq39Haq9rXNxvXxwba_Xj0F5vZibJR3isBdOWbo5g"
-}`
+}
 ```
 
 ## Coze Key Standard Fields
@@ -281,20 +281,21 @@ message has the field `rvk` with an integer value greater than `0`. The value of
 
 ## Example Self Revoke
 
-// TODO resign
 ```JSON
 {
-	"pay": {
-		"alg": "ES256",
-		"iat": 1623132000,
-		"msg": "Test revoke key.",
-		"rvk": 1623132000,
-		"tmb": "cLj8vsYtMBwYkzoFVZHBZo6SNL8wSdCIjCKAwXNuhOk",
-		"typ": "cyphr.me/key/revoke"
-	},
-	"sig": ""
+	"pay":{
+		"alg":"ES256",
+		"iat":1655924566,
+		"msg":"Posted my private key on github",
+		"rvk":1655924566,
+		"tmb":"cLj8vsYtMBwYkzoFVZHBZo6SNL8wSdCIjCKAwXNuhOk",
+		"typ":"cyphr.me/key/revoke"
+		},
+	"sig":"78Dp1YyArd19CMDDHFMUcLP3y876p1cpO6LTa94Pe8lKu8J3e2R93eK8EY3u2CaalJ6eV0O3b741atIDJ3uJgQ"
 }
 ```
+
+
 
 - `rvk` - Unix timestamp of when the key was revoked.  
 
@@ -384,19 +385,19 @@ We say "Co-zee" like a comfy cozy couch.  The English word Coze is pronounced
 
 ## What does "Coze" mean? 
 The English word "coze" means "a friendly talk; a chat." which is the perfect
-name of a messaging standard. 
+name of a messaging standard.
 
-Jared suggested Coze because it looks like JOSE or COSE but it's funnier. 
+Jared suggested Coze because it looks like JOSE or COSE but it's funnier.
 
 
 ## "Coze" vs "coze"?
 We use upper case "Coze" to refer to the specification, and "coze" to refer to
-coze messages and objects.  
+coze messages and objects.
 
 
 ## Why release pre-alpha on 2021/06/08?
 Coze was released on 2021/06/08 (1623132000) since it's 30 years and one day
-after the initial release of PGP 1.0.  
+after the initial release of PGP 1.0.
 
 
 ## Fields are Unicode sorted?
@@ -404,11 +405,11 @@ Yes.  Unicode is a superset of ASCII and UTF-8 shares sorting order with
 Unicode.  This results in broad, out of the box compatibility.
 
 UTF-16 (Javascript) has some code points out of order. For these systems, a
-small amount of additional logic is needed to correct the sort order.  
+small amount of additional logic is needed to correct the sort order.
 
 
 ## Zero case
-If `alg` and `tmb` are implicitly known, a zero case is legitimate.  The following is a valid coze:
+If `alg` and `tmb` are implicitly known, a zero case is legitimate. The following is a valid coze:
 
 ```json
 {

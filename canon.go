@@ -12,17 +12,14 @@ import (
 // fields.
 func Canon(raw json.RawMessage) (can []string, err error) {
 	var ms = MapSlice{}
-
 	err = json.Unmarshal(raw, &ms)
 	if err != nil {
 		return nil, err
 	}
 
 	keys := make([]string, len(ms))
-	i := 0
-	for _, v := range ms {
+	for i, v := range ms {
 		keys[i] = fmt.Sprintf("%v", v.Key)
-		i++
 	}
 	return keys, nil
 }

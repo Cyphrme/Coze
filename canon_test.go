@@ -37,6 +37,31 @@ func ExampleCanonHash() {
 	// LSgWE4vEfyxJZUTFaRaB2JdEclORdZcm4UVH9D8vVto
 }
 
+// Example CanonHash for all hashing algos.
+func ExampleCanonHash_permutations() {
+	canon := []string{"alg", "iat", "msg", "tmb", "typ"}
+	algs := []string{"SHA-224", "SHA-256", "SHA-384", "SHA-512", "SHA3-224", "SHA3-256", "SHA3-384", "SHA3-512", "SHAKE128", "SHAKE256"}
+	for _, alg := range algs {
+		cad, err := CanonHash([]byte(Golden_Pay), canon, ParseHashAlg(alg))
+		if err != nil {
+			fmt.Println(err)
+		}
+		fmt.Println(cad.String())
+	}
+
+	// Output:
+	// nrGQqKYvFKeVDFlOMIusP2A2AWn4DX-2XLNfJA
+	// aC2YKfNvovfnZOw_RVxSEW6NeaUq41DZXX0oeaOboRg
+	// KC5UHPxzNl567oONOphhWY6cHhuXoSiyOLiNGSmTIcvA8XDtWQf-fr4xNPCLfzCo
+	// oX2NMgJ_QRW9rf59N5VOSMILg6mzVHld5CqRaOatLCbRWVRh1Y6Rq4tRZGzZNvNKEM0qbYBlWk6y9BcnuRzczA
+	// GAYOBAxW2x7MvHVYpRLnjX3rUKcuhvDOCVVK3Q
+	// UfFl2lw4KHc2-0GX-mnqtfpScM1Qf7L_IaTGojR6_Go
+	// pVo43tSAG8apVs26QLOFG0Cbh3ScrbHd_VGjaFAIQtlCLiXcsgdmsGwOyXoK4zBz
+	// IA8Xv6tt32B49THtWOzN9AyKtnG5a0v93DSF4IShHsT6S2lWKQl1H2yuyMAYocVKBkMF5dp0miKB58NXROqAMg
+	// muWDwpDGlR-jwGPOQlj6A6B5FYA_U5nFq2KtwV8B-Uw
+	// QPfIPjKmLO4qLmiClA6GjYQKBO6MI2wBZUhi9uVTVr0WGP3LgOTQRup6l5Caxz6GtiUnNeQe6JMdVSvhdvLW-Q
+}
+
 // ExampleCanonical.
 func ExampleCanonical() {
 	var b []byte

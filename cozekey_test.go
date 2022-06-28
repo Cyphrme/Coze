@@ -332,6 +332,76 @@ func ExampleCorrect_bad() {
 	// true
 }
 
+func ExampleCorrect_permutations() {
+	algs := []string{"ES224", "ES256", "ES384", "ES512", "Ed25519"}
+	for _, alg := range algs {
+		key, err := NewKey(ParseSEAlg(alg))
+		if err != nil {
+			fmt.Println(err)
+		}
+		if key == nil {
+			continue
+		}
+		gk2 := *key // Make copy
+		v := false
+		// Key with with [alg,d,tmb,x]
+		v, _ = gk2.Correct()
+		if !v {
+			fmt.Println(v)
+		}
+		// A key with [alg,tmb,d]
+		gk2.X = []byte{}
+		v, _ = gk2.Correct()
+		if !v {
+			fmt.Println(v)
+		}
+		// A key with [alg,d]
+		gk2.Tmb = []byte{}
+		v, _ = gk2.Correct()
+		if !v {
+			fmt.Println(v)
+		}
+		// A key with [alg,x,tmb]
+		gk2.X = key.X
+		gk2.Tmb = key.Tmb
+		gk2.D = []byte{}
+		gk2.Iat = 0
+		v, _ = gk2.Correct()
+		if !v {
+			fmt.Println(v)
+		}
+		// Key with [alg,tmb]
+		gk2.X = []byte{}
+		v, _ = gk2.Correct()
+		fmt.Printf("%s:%+v\n", alg, v)
+	}
+
+	// Output:
+	// ES224:true
+	// ES256:true
+	// ES384:true
+	// ES512:true
+	// Ed25519:true
+}
+
+func ExampleRevoke() {
+	var gk2 = Golden_Key // Make a copy
+	fmt.Println(gk2.IsRevoked())
+	coze, err := gk2.Revoke("Posted my private key on github")
+	if err != nil {
+		fmt.Println(err)
+	}
+	v, err := gk2.VerifyCoze(&coze)
+	if err != nil {
+		fmt.Println(err)
+	}
+	fmt.Printf("%+v\n%+v\n", v, gk2.IsRevoked())
+	// Output:
+	// false
+	// true
+	// true
+}
+
 // BenchmarkNSV benchmarks several methods on a Coze Key. (NSV = New, Sign,
 // Verify) It generates a new Coze Key, sign a message, and verifies the
 // signature.

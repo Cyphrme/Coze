@@ -8,7 +8,7 @@ import (
 )
 
 // Taken from: https://github.com/golang/go/issues/27179#issuecomment-587528269,
-// https://github.com/ake-persson/mapslice-json.  Thanks ake-persson!
+// https://github.com/ake-persson/mapslice-json. Thanks ake-persson!
 
 // MapItem representation of one map item.
 type MapItem struct {
