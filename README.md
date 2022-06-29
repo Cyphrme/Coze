@@ -350,10 +350,9 @@ digest of `coze`. Like `cad`, `czd` is the digest of JSON with a defined canon
 `["cad","sig"]`.
 
 ## ECDSA `x` and `sig` Bytes
-For ECDSA `x` is the concatenated X and Y and `sig` is the concatenated, R and
- S.  Padding is needed For ES512 because P-521 is prime, and is rounded up to
-the nearest byte before padding.  
-
+For ECDSA , (X and Y) and (R and S) are concatenated for `x` and `sig`
+respectively.  Padding is needed for ES512 because P-521 is rounded up to the
+nearest byte before padding.  
 
 ## Javascript Vs Golang Crypto.
 Javascript's `SubtleCrypto.sign(algorithm, key, data)` always hashes a message

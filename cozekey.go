@@ -227,7 +227,7 @@ func (c *CozeKey) Valid() (valid bool) {
 //
 // 1. Checks the length of `x` and/or `tmb` against `alg`.
 // 2. If `x` and `tmb` are present, verifies correct `tmb`.
-// 3. If `d` is present, verifies correct `tmb` and x if present, and verifies
+// 3. If `d` is present, verifies correct `tmb` and `x` if present, and verifies
 // the key by verifying a generated signature.
 func (c *CozeKey) Correct() (bool, error) {
 	if c.Alg == 0 {
