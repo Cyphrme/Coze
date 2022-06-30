@@ -16,17 +16,17 @@ func ExampleCanon() {
 	// Output: [z a]
 }
 
-// ExampleCanonHash. See also Example_genCad
-func ExampleCanonHash() {
+// ExampleCanonicalHash. See also Example_genCad
+func ExampleCanonicalHash() {
 	canon := []string{"alg", "iat", "msg", "tmb", "typ"}
-	cad, err := CanonHash([]byte(Golden_Pay), canon, SHA256)
+	cad, err := CanonicalHash([]byte(Golden_Pay), canon, SHA256)
 	if err != nil {
 		fmt.Println(err)
 	}
 	fmt.Println(cad.String())
 
 	// Without canon
-	cad, err = CanonHash([]byte(Golden_Pay), nil, SHA256)
+	cad, err = CanonicalHash([]byte(Golden_Pay), nil, SHA256)
 	if err != nil {
 		fmt.Println(err)
 	}
@@ -37,12 +37,12 @@ func ExampleCanonHash() {
 	// LSgWE4vEfyxJZUTFaRaB2JdEclORdZcm4UVH9D8vVto
 }
 
-// Example CanonHash for all hashing algos.
-func ExampleCanonHash_permutations() {
+// Example CanonicalHash for all hashing algos.
+func ExampleCanonicalHash_permutations() {
 	canon := []string{"alg", "iat", "msg", "tmb", "typ"}
 	algs := []string{"SHA-224", "SHA-256", "SHA-384", "SHA-512", "SHA3-224", "SHA3-256", "SHA3-384", "SHA3-512", "SHAKE128", "SHAKE256"}
 	for _, alg := range algs {
-		cad, err := CanonHash([]byte(Golden_Pay), canon, ParseHashAlg(alg))
+		cad, err := CanonicalHash([]byte(Golden_Pay), canon, ParseHashAlg(alg))
 		if err != nil {
 			fmt.Println(err)
 		}

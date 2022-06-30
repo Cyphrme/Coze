@@ -54,10 +54,10 @@ func Canonical(input []byte, canon any) (b []byte, err error) {
 	return Marshal(canon)
 }
 
-// CanonHash accepts []byte and optional canon and returns digest.
+// CanonicalHash accepts []byte and optional canon and returns digest.
 //
 // If input is already in canonical form, Hash() may also be called instead.
-func CanonHash(input []byte, canon any, hash HashAlg) (digest B64, err error) {
+func CanonicalHash(input []byte, canon any, hash HashAlg) (digest B64, err error) {
 	input, err = Canonical(input, canon)
 	if err != nil {
 		return nil, err

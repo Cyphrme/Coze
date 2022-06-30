@@ -88,7 +88,7 @@ func Thumbprint(c *CozeKey) (tmb B64, err error) {
 	if err != nil {
 		return nil, err
 	}
-	return CanonHash(b, &CozeKeyCanon{}, c.Alg.Hash())
+	return CanonicalHash(b, &CozeKeyCanon{}, c.Alg.Hash())
 }
 
 // Sign uses a private Coze key to sign a digest.

@@ -65,9 +65,9 @@ var Golden_Coze_W_Key = `{
 	"sig": "` + Golden_Sig + `"
  }`
 
-// See also ExampleCanonHash
+// See also ExampleCanonicalHash
 func Example_genCad() {
-	digest, err := CanonHash([]byte(Golden_Pay), nil, ES256.Hash()) // compactify
+	digest, err := CanonicalHash([]byte(Golden_Pay), nil, ES256.Hash()) // compactify
 	if err != nil {
 		fmt.Println(err)
 	}
