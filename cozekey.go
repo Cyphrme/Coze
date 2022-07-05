@@ -121,29 +121,64 @@ func (c *CozeKey) Sign(digest B64) (sig B64, err error) {
 	}
 }
 
+// SignPay verifies the coze.alg/coze.tmb and key.alg/key.tmb fields match,
+// signs coze.Pay, and returns a new Coze with populated coze.Sig.  Expects alg
+// and tmb fields to be populated.  If not needing those fields, use Sign() or
+// SignRawCoze().  If needing a specific canon, use SignPayRaw.
+func (c *CozeKey) SignPay(pay *Pay) (coze *Coze, err error) {
+	if c.Alg != pay.Alg {
+		return nil, errors.New(fmt.Sprintf("SignPay: key alg \"%s\" and coze alg \"%s\" do not match", c.Alg, pay.Alg))
+	}
+	if !bytes.Equal(c.Tmb, pay.Tmb) {
+		return nil, errors.New(fmt.Sprintf("SignPay: key tmb \"%s\" and coze tmb  \"%s\" do not match", c.Tmb, pay.Tmb))
+	}
+
+	b, err := Marshal(pay)
+	if err != nil {
+		return nil, err
+	}
+
+	coze, err = pay.Coze()
+	if err != nil {
+		return nil, err
+	}
+
+	coze.Sig, err = c.Sign(Hash(c.Alg.Hash(), b))
+	return coze, err
+}
+
 // SignCoze verifies the coze.alg/coze.tmb and key.alg/key.tmb fields match,
 // signs coze.Pay, and populates coze.Sig.  Canon is optional. Expects alg and
-// tmb fields to be populated.  If not needing those fields, use Sign().
+// tmb fields to be populated.  If not needing those fields, use Sign() or SignRawCoze().
+func (c *CozeKey) SignPayRaw(pay json.RawMessage, canon any) (sig B64, err error) {
+	// Unmarshal the standard fields for checking.
+	std := new(Pay)
+	err = json.Unmarshal(pay, std)
+	if err != nil {
+		return nil, err
+	}
+
+	if c.Alg != std.Alg {
+		return nil, errors.New(fmt.Sprintf("SignPayRaw: key alg \"%s\" and coze alg \"%s\" do not match", c.Alg, std.Alg))
+	}
+	if !bytes.Equal(c.Tmb, std.Tmb) {
+		return nil, errors.New(fmt.Sprintf("SignPayRaw: key tmb \"%s\" and coze tmb  \"%s\" do not match", c.Tmb, std.Tmb))
+	}
+
+	b, err := Canonical(pay, canon)
+	if err != nil {
+		return nil, err
+	}
+
+	return c.Sign(Hash(c.Alg.Hash(), b))
+}
+
+// SignCoze verifies the coze.alg/coze.tmb and key.alg/key.tmb fields match,
+// signs coze.Pay, and populates coze.Sig.  Canon is optional. Expects alg and
+// tmb fields to be populated.  If not needing those fields, use Sign() or
+// SignRawCoze().
 func (c *CozeKey) SignCoze(cz *Coze, canon any) (err error) {
-	// Get Coze standard fields
-	h := new(Pay)
-	err = json.Unmarshal(cz.Pay, h)
-	if err != nil {
-		return err
-	}
-	if c.Alg != h.Alg {
-		return errors.New(fmt.Sprintf("SignCoze: key alg \"%s\" and coze alg \"%s\" do not match", c.Alg, h.Alg))
-	}
-	if !bytes.Equal(c.Tmb, h.Tmb) {
-		return errors.New(fmt.Sprintf("SignCoze: key tmb \"%s\" and coze tmb  \"%s\" do not match", c.Tmb, h.Tmb))
-	}
-
-	b, err := Canonical(cz.Pay, canon) // compactify
-	if err != nil {
-		return err
-	}
-
-	cz.Sig, err = c.Sign(Hash(c.Alg.Hash(), b))
+	cz.Sig, err = c.SignPayRaw(cz.Pay, canon)
 	return
 }
 
@@ -166,8 +201,8 @@ func (c *CozeKey) Verify(digest, sig B64) (valid bool) {
 }
 
 // VerifyCoze cryptographically verifies `pay` with given `sig` and verifies the
-// `pay` and `key` fields `alg` and `tmb` match. If trying to verify without
-// `alg` and/or `tmb`, use Verify instead.
+// `pay` and `key` fields `alg` and `tmb` match. Always returns false on error.
+// If trying to verify without `alg` and/or `tmb`, use Verify instead.
 func (c *CozeKey) VerifyCoze(cz *Coze) (bool, error) {
 	if cz.Sig == nil {
 		return false, errors.New("VerifyCoze: sig is nil")

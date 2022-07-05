@@ -5,6 +5,66 @@ import (
 	"fmt"
 )
 
+func ExamplePay_embedded() {
+	// Example custom struct.
+	type User struct {
+		DisplayName string
+		FirstName   string
+		LastName    string
+		Email       string `json:",omitempty"` // Example of non-required field.
+	}
+
+	user := User{
+		DisplayName: "Coze",
+		FirstName:   "Foo",
+		LastName:    "Bar",
+	}
+
+	// Example of converting a custom struct to a coze.
+	pay := Pay{
+		Alg:    Golden_Key.Alg,
+		Tmb:    Golden_Key.Tmb,
+		Struct: &user,
+	}
+
+	coze, err := Golden_Key.SignPay(&pay)
+	if err != nil {
+		fmt.Println(err)
+	}
+
+	v, err := Golden_Key.VerifyCoze(coze)
+	if err != nil {
+		fmt.Println(err)
+	}
+
+	// Set sig to nil for deterministic printout
+	coze.Sig = nil
+	fmt.Println(v)
+	fmt.Printf("%+v\n", coze)
+
+	// Output:
+	// true
+	// {"pay":{"alg":"ES256","tmb":"cLj8vsYtMBwYkzoFVZHBZo6SNL8wSdCIjCKAwXNuhOk","DisplayName":"Coze","FirstName":"Foo","LastName":"Bar"}}
+}
+
+// ExampleCoze_embed demonstrates how to embed a JSON `coze` into a third party
+// JSON structure.
+func ExampleCoze_embed() {
+	type Outer struct {
+		Name string
+		Coze Coze // Embed a Coze into a larger, application defined JSON structure.
+	}
+	cz := new(Coze)
+	err := json.Unmarshal([]byte(Golden_Coze), cz)
+	if err != nil {
+		fmt.Println(err)
+	}
+
+	fmt.Printf("%+v", Outer{Name: "Bob", Coze: *cz})
+	// Output:
+	// {Name:Bob Coze:{"pay":{"msg":"Coze Rocks","alg":"ES256","iat":1627518000,"tmb":"cLj8vsYtMBwYkzoFVZHBZo6SNL8wSdCIjCKAwXNuhOk","typ":"cyphr.me/msg"},"sig":"ywctP6lEQ_HcYLhgpoecqhFrqNpBSyNPuAPOV94SThuztJek7x7H9mXFD0xTrlmQPg_WC7jwg70nzNoGn70JyA"}}
+}
+
 func ExampleCoze_String() {
 	cz := new(Coze)
 	err := json.Unmarshal([]byte(Golden_Coze), cz)
@@ -97,23 +157,6 @@ func ExampleCoze_jsonMarshalPretty() {
 	//     },
 	//     "sig": "ywctP6lEQ_HcYLhgpoecqhFrqNpBSyNPuAPOV94SThuztJek7x7H9mXFD0xTrlmQPg_WC7jwg70nzNoGn70JyA"
 	// }
-}
-
-// ExampleCoze_embed demonstrates how to embed a coze into a struct.
-func ExampleCoze_embed() {
-	type Outer struct {
-		Name string
-		Coze Coze
-	}
-	cz := new(Coze)
-	err := json.Unmarshal([]byte(Golden_Coze), cz)
-	if err != nil {
-		fmt.Println(err)
-	}
-
-	fmt.Printf("%+v", Outer{Name: "Bob", Coze: *cz})
-	// Output:
-	// {Name:Bob Coze:{"pay":{"msg":"Coze Rocks","alg":"ES256","iat":1627518000,"tmb":"cLj8vsYtMBwYkzoFVZHBZo6SNL8wSdCIjCKAwXNuhOk","typ":"cyphr.me/msg"},"sig":"ywctP6lEQ_HcYLhgpoecqhFrqNpBSyNPuAPOV94SThuztJek7x7H9mXFD0xTrlmQPg_WC7jwg70nzNoGn70JyA"}}
 }
 
 //ExamplePay_jsonUnmarshal tests unmarshalling a Pay.

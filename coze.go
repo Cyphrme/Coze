@@ -11,12 +11,47 @@ import (
 	"golang.org/x/crypto/sha3"
 )
 
-// Pay contains the standard fields in a signed Coze object.
+// Pay contains the standard fields in a signed Coze object as well as a custom
+// struct given by other applications.
+//
+// Note: The custom Marshaler renders the JSON tags ineffective, however
+// they are present for the purpose of documenting the struct.
 type Pay struct {
 	Alg SEAlg  `json:"alg,omitempty"` // e.g. "ES256"
 	Iat int64  `json:"iat,omitempty"` // e.g. 1623132000
 	Tmb B64    `json:"tmb,omitempty"` // e.g. "cLj8vsYtMBwYkzoFVZHBZo6SNL8wSdCIjCKAwXNuhOk"
 	Typ string `json:"typ,omitempty"` // e.g. "cyphr.me/msg/create"
+
+	Struct interface{} `json:"-"` // Custom arbitrary struct given by application.
+}
+
+// Coze returns a new Coze with only Pay populated.
+func (u *Pay) Coze() (coz *Coze, err error) {
+	coz = new(Coze)
+	coz.Pay, err = Marshal(u)
+	return coz, err
+}
+
+// Marshal promotes the embedded field "Struct" to top level JSON. Solution
+// taken from Jonathan Hall
+// https://jhall.io/posts/go-json-tricks-embedded-marshaler
+func (p *Pay) MarshalJSON() ([]byte, error) {
+	type pay2 Pay // Break infinite Marshal loop
+
+	pay, err := Marshal((*pay2)(p))
+	if err != nil {
+		return nil, err
+	}
+	if p.Struct == nil {
+		return pay, nil
+	}
+
+	s, err := json.Marshal(p.Struct)
+	if err != nil {
+		return nil, err
+	}
+	s[0] = ','
+	return append(pay[:len(pay)-1], s...), nil
 }
 
 // Coze is for signed Coze objects (cozies).  See the Coze docs (README.md) for
@@ -41,8 +76,8 @@ type Pay struct {
 // Sig: signature over pay.
 //
 // Parsed: The parsed standard Coze pay fields ["alg","iat","tmb","typ"].
-// Populated by Coze functions like "Meta", and is ignored by
-// marshaling/unmarshaling.
+// Populated by Meta and is ignored by marshaling/unmarshaling.  Do not use
+// Parsed until after calling Meta().
 type Coze struct {
 	Can []string        `json:"can,omitempty"`
 	Cad B64             `json:"cad,omitempty"`
@@ -51,7 +86,7 @@ type Coze struct {
 	Key *CozeKey        `json:"key,omitempty"`
 	Sig B64             `json:"sig,omitempty"`
 
-	Parsed Pay `json:"-"`
+	Parsed *Pay `json:"-"` // Standard Coze fields derived from Pay.  Source of truth is Pay, not parsed. Do not use until after calling Meta().
 }
 
 // String implements fmt.Stringer.  Without this method `pay` prints as bytes.
@@ -144,7 +179,7 @@ func MarshalPretty(i any) ([]byte, error) {
 	return bytes.TrimRight(buffer.Bytes(), "\n"), nil
 }
 
-// Hash hashes msg and returns the digest or a set size. Returns nil on error.
+// Hash hashes msg and returns the digest or a set size. Returns nil on error or invalid HashAlg.
 //
 // This function was written because it doesn't exist in the standard library.
 // If in the future there is a standard lib function, use that and deprecate
@@ -152,7 +187,6 @@ func MarshalPretty(i any) ([]byte, error) {
 //
 // SHAKE128 returns 32 bytes. SHAKE256 returns 64 bytes.
 func Hash(alg HashAlg, msg []byte) (digest B64) {
-	// TODO what to do on invalid hash
 	if alg == SHAKE128 {
 		h := make([]byte, 32)
 		sha3.ShakeSum128(h, msg)
