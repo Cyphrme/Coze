@@ -31,8 +31,8 @@ type CozeKeyCanon struct {
 // - `kid` - Human readable, non-programmatic label. E.g. "My Coze key".
 // - `rvk` - Unix time of key revocation. See docs on `rvk`. E.g. 1626069601.
 // - `tmb` - Key thumbprint. E.g. "cLj8vsYtMBwYkzoFVZHBZo6SNL8wSdCIjCKAwXNuhOk".
-// - `typ` - Application label for key. "coze/key".
-// - `x`   - Public component.
+// - `typ` - Application label for key. E.g. "coze/key".
+// - `x`   - Public component. E.g.
 type CozeKey struct {
 	Alg SEAlg  `json:"alg,omitempty"`
 	D   B64    `json:"d,omitempty"`
@@ -42,6 +42,15 @@ type CozeKey struct {
 	Tmb B64    `json:"tmb,omitempty"`
 	Typ string `json:"typ,omitempty"`
 	X   B64    `json:"x,omitempty"`
+}
+
+// String implements Stringer. Returns empty on error.
+func (c CozeKey) String() string {
+	b, err := Marshal(c)
+	if err != nil {
+		return ""
+	}
+	return string(b)
 }
 
 // NewKey generates a new Coze key.
@@ -124,7 +133,7 @@ func (c *CozeKey) Sign(digest B64) (sig B64, err error) {
 // SignPay verifies the coze.alg/coze.tmb and key.alg/key.tmb fields match,
 // signs coze.Pay, and returns a new Coze with populated coze.Sig.  Expects alg
 // and tmb fields to be populated.  If not needing those fields, use Sign() or
-// SignRawCoze().  If needing a specific canon, use SignPayRaw.
+// SignRawCoze().  If needing a specific canon, use SignPayJSON.
 func (c *CozeKey) SignPay(pay *Pay) (coze *Coze, err error) {
 	if c.Alg != pay.Alg {
 		return nil, errors.New(fmt.Sprintf("SignPay: key alg \"%s\" and coze alg \"%s\" do not match", c.Alg, pay.Alg))
@@ -147,10 +156,10 @@ func (c *CozeKey) SignPay(pay *Pay) (coze *Coze, err error) {
 	return coze, err
 }
 
-// SignCoze verifies the coze.alg/coze.tmb and key.alg/key.tmb fields match,
+// SignPayJSON verifies the coze.alg/coze.tmb and key.alg/key.tmb fields match,
 // signs coze.Pay, and populates coze.Sig.  Canon is optional. Expects alg and
-// tmb fields to be populated.  If not needing those fields, use Sign() or SignRawCoze().
-func (c *CozeKey) SignPayRaw(pay json.RawMessage, canon any) (sig B64, err error) {
+// tmb fields to be populated.  If not needing those fields, use Sign().
+func (c *CozeKey) SignPayJSON(pay json.RawMessage, canon any) (sig B64, err error) {
 	// Unmarshal the standard fields for checking.
 	std := new(Pay)
 	err = json.Unmarshal(pay, std)
@@ -159,10 +168,10 @@ func (c *CozeKey) SignPayRaw(pay json.RawMessage, canon any) (sig B64, err error
 	}
 
 	if c.Alg != std.Alg {
-		return nil, errors.New(fmt.Sprintf("SignPayRaw: key alg \"%s\" and coze alg \"%s\" do not match", c.Alg, std.Alg))
+		return nil, errors.New(fmt.Sprintf("SignPayJSON: key alg \"%s\" and coze alg \"%s\" do not match", c.Alg, std.Alg))
 	}
 	if !bytes.Equal(c.Tmb, std.Tmb) {
-		return nil, errors.New(fmt.Sprintf("SignPayRaw: key tmb \"%s\" and coze tmb  \"%s\" do not match", c.Tmb, std.Tmb))
+		return nil, errors.New(fmt.Sprintf("SignPayJSON: key tmb \"%s\" and coze tmb  \"%s\" do not match", c.Tmb, std.Tmb))
 	}
 
 	b, err := Canonical(pay, canon)
@@ -178,7 +187,7 @@ func (c *CozeKey) SignPayRaw(pay json.RawMessage, canon any) (sig B64, err error
 // tmb fields to be populated.  If not needing those fields, use Sign() or
 // SignRawCoze().
 func (c *CozeKey) SignCoze(cz *Coze, canon any) (err error) {
-	cz.Sig, err = c.SignPayRaw(cz.Pay, canon)
+	cz.Sig, err = c.SignPayJSON(cz.Pay, canon)
 	return
 }
 
@@ -342,16 +351,6 @@ func cozeKeyToPubEcdsa(c *CozeKey) (key *ecdsa.PublicKey) {
 		X:     new(big.Int).SetBytes(c.X[:size]),
 		Y:     new(big.Int).SetBytes(c.X[size:]),
 	}
-}
-
-// String returns the stringified Coze key.
-// Errors are returned as a string.
-func (c CozeKey) String() string {
-	b, err := Marshal(c)
-	if err != nil {
-		fmt.Println(err)
-	}
-	return string(b)
 }
 
 // RevokePay contains the components necessary for revoking a Coze Key.  It may

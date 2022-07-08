@@ -75,9 +75,10 @@ func (p *Pay) MarshalJSON() ([]byte, error) {
 //
 // Sig: signature over pay.
 //
-// Parsed: The parsed standard Coze pay fields ["alg","iat","tmb","typ"].
-// Populated by Meta and is ignored by marshaling/unmarshaling.  Do not use
-// Parsed until after calling Meta().
+// Parsed: The parsed standard Coze pay fields ["alg","iat","tmb","typ"] from
+// Pay.  Parsed is populated by Meta() and is JSON ignored. The source of truth
+// is Pay, not Parsed; do not use Parsed until after calling Meta() which
+// populates Parsed from Pay.
 type Coze struct {
 	Can []string        `json:"can,omitempty"`
 	Cad B64             `json:"cad,omitempty"`
@@ -86,7 +87,7 @@ type Coze struct {
 	Key *CozeKey        `json:"key,omitempty"`
 	Sig B64             `json:"sig,omitempty"`
 
-	Parsed *Pay `json:"-"` // Standard Coze fields derived from Pay.  Source of truth is Pay, not parsed. Do not use until after calling Meta().
+	Parsed *Pay `json:"-"`
 }
 
 // String implements fmt.Stringer.  Without this method `pay` prints as bytes.
@@ -106,32 +107,42 @@ var CzdCanon = []string{"cad", "sig"}
 // Coze.Pay.Alg, and Coze.Sig must be set. Meta does no cryptographic
 // verification.
 func (cz *Coze) Meta() (err error) {
-	if cz.Pay == nil {
-		return errors.New("Meta: coze.Pay is nil")
-	}
-	if cz.Sig == nil {
-		return errors.New("Meta: sig is nil")
+	if cz.Pay == nil || cz.Sig == nil {
+		return errors.New("Meta: pay and/or sig is nil")
 	}
 
+	return cz.MetaWithAlg(0)
+}
+
+// MetaWithAlg is for contextual cozies that may be lacking `alg` in `pay`, but
+// `alg` in otherwise known.  Errors if pay.alg is set and doesn't match
+// parameter alg.  See notes on Meta()
+func (cz *Coze) MetaWithAlg(alg SEAlg) (err error) {
 	// Set Parsed from Pay.
 	err = json.Unmarshal(cz.Pay, &cz.Parsed)
 	if err != nil {
 		return err
 	}
 
-	c, err := Canon(cz.Pay)
-	if err != nil {
-		return err
+	if alg == 0 {
+		alg = cz.Parsed.Alg
 	}
-	cz.Can = c
+	if alg != cz.Parsed.Alg {
+		return fmt.Errorf("MetaWithAlg: input alg %s doesn't match pay.alg %s", alg, cz.Parsed.Alg)
+	}
 
+	// Use Canonical to Compactify pay
 	canonical, err := Canonical(cz.Pay, nil)
 	if err != nil {
 		return err
 	}
+	c, err := Canon(canonical)
+	if err != nil {
+		return err
+	}
+	cz.Can = c
 	cz.Cad = Hash(cz.Parsed.Alg.Hash(), canonical)
 	cz.Czd = GenCzd(cz.Parsed.Alg.Hash(), cz.Cad, cz.Sig)
-
 	return nil
 }
 

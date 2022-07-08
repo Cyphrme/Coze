@@ -519,8 +519,8 @@ new public key, systems storing keys can recalculate `tmb`, compare the given
 value, and error if values do not match. Alternatively, systems can verify a
 signed message with the key.
 
-For messages, `cad` or cryptographic verification may serve the function of
-checksums.  
+For messages, `cad`, `czd`, or cryptographic verification may serve the function
+of checksums.  
 
 
 ## Why is Coze's scope so limited?

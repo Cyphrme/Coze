@@ -154,6 +154,8 @@ func ExampleCozeKey_Sign_empty() {
 	// Output: true
 }
 
+// TODO test SignPay and SignPayJSON
+
 func ExampleCozeKey_SignCoze() {
 	cz := new(Coze)
 	cz.Pay = []byte(Golden_Pay)
