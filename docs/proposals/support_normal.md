@@ -1,4 +1,4 @@
-# Support Order
+# Support Normal
 
 Instead of forcing all cozies to be canonicalized with a unicode sorted canon,
 permit cozies to posses canon with any arbitrary order.  
@@ -32,3 +32,35 @@ are permitted after the order fields.
 
 # `typ`
 Field `typ` may denote a canon, order, or need.
+
+# Implementation
+```go
+type Normal []string
+
+type Canon Normal //(Rename Canon() to GetCanon())
+type Only Normal
+type Need Normal
+type Order Normal
+
+
+IsNormal(coze Coze, norm any)bool{
+	var ms = MapSlice{}
+	err = json.Unmarshal(raw, &ms)
+	if err != nil {
+		return nil, err
+	}
+
+	switch v := norm.(type) {
+		case Canon:
+
+		case Only:
+
+		case Need:
+
+		case Order:
+
+		default:
+		return false
+	}
+}
+```

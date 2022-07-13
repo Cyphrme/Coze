@@ -100,10 +100,12 @@ func Thumbprint(c *CozeKey) (tmb B64, err error) {
 	return CanonicalHash(b, &CozeKeyCanon{}, c.Alg.Hash())
 }
 
-// Sign uses a private Coze key to sign a digest.
+// Sign uses a private Coze key to sign a digest.  Sign() and Verify() do no
+// Coze validation, i.e. checking pay `alg` or `tmb` match with CozeKey.  Use
+// SignPay, SignCoze, SignPayJSON, and/or VerifyCoze if needing Coze validation.
 func (c *CozeKey) Sign(digest B64) (sig B64, err error) {
-	if len(c.D) == 0 {
-		return nil, errors.New("Sign: private key `d` is not set.")
+	if len(c.D) != c.Alg.DSize() {
+		return nil, fmt.Errorf("Sign: Invalid `d` length %d", len(c.D))
 	}
 
 	switch c.Alg.SigAlg().Genus() {
@@ -130,10 +132,10 @@ func (c *CozeKey) Sign(digest B64) (sig B64, err error) {
 	}
 }
 
-// SignPay verifies the coze.alg/coze.tmb and key.alg/key.tmb fields match,
-// signs coze.Pay, and returns a new Coze with populated coze.Sig.  Expects alg
-// and tmb fields to be populated.  If not needing those fields, use Sign() or
-// SignRawCoze().  If needing a specific canon, use SignPayJSON.
+// SignPay checks that coze.alg/coze.tmb and key.alg/key.tmb fields match, signs
+// coze.Pay, and returns a new Coze with populated coze.Sig.  Expects alg and
+// tmb fields to be populated.  If not needing those fields, use Sign().  If
+// needing a specific canon, use SignPayJSON.
 func (c *CozeKey) SignPay(pay *Pay) (coze *Coze, err error) {
 	if c.Alg != pay.Alg {
 		return nil, errors.New(fmt.Sprintf("SignPay: key alg \"%s\" and coze alg \"%s\" do not match", c.Alg, pay.Alg))
@@ -156,7 +158,7 @@ func (c *CozeKey) SignPay(pay *Pay) (coze *Coze, err error) {
 	return coze, err
 }
 
-// SignPayJSON verifies the coze.alg/coze.tmb and key.alg/key.tmb fields match,
+// SignPayJSON checks that coze.alg/coze.tmb and key.alg/key.tmb fields match,
 // signs coze.Pay, and populates coze.Sig.  Canon is optional. Expects alg and
 // tmb fields to be populated.  If not needing those fields, use Sign().
 func (c *CozeKey) SignPayJSON(pay json.RawMessage, canon any) (sig B64, err error) {
@@ -166,7 +168,6 @@ func (c *CozeKey) SignPayJSON(pay json.RawMessage, canon any) (sig B64, err erro
 	if err != nil {
 		return nil, err
 	}
-
 	if c.Alg != std.Alg {
 		return nil, errors.New(fmt.Sprintf("SignPayJSON: key alg \"%s\" and coze alg \"%s\" do not match", c.Alg, std.Alg))
 	}
@@ -182,18 +183,19 @@ func (c *CozeKey) SignPayJSON(pay json.RawMessage, canon any) (sig B64, err erro
 	return c.Sign(Hash(c.Alg.Hash(), b))
 }
 
-// SignCoze verifies the coze.alg/coze.tmb and key.alg/key.tmb fields match,
+// SignCoze checks that coze.alg/coze.tmb and key.alg/key.tmb fields match,
 // signs coze.Pay, and populates coze.Sig.  Canon is optional. Expects alg and
-// tmb fields to be populated.  If not needing those fields, use Sign() or
-// SignRawCoze().
+// tmb fields to be populated.  If not needing those fields, use Sign().
 func (c *CozeKey) SignCoze(cz *Coze, canon any) (err error) {
 	cz.Sig, err = c.SignPayJSON(cz.Pay, canon)
 	return
 }
 
-// Verify uses a public Coze key to verify a digest.
+// Verify uses a Coze key to verify a digest. Sign() and Verify() do no
+// Coze validation, i.e. checking pay `alg` or `tmb` match with CozeKey.  Use
+// SignPay, SignCoze, SignPayJSON, and/or VerifyCoze if needing Coze validation.
 func (c *CozeKey) Verify(digest, sig B64) (valid bool) {
-	if len(c.X) == 0 {
+	if len(c.X) != c.Alg.XSize() {
 		return false
 	}
 	switch c.Alg.SigAlg() {
@@ -209,14 +211,10 @@ func (c *CozeKey) Verify(digest, sig B64) (valid bool) {
 	}
 }
 
-// VerifyCoze cryptographically verifies `pay` with given `sig` and verifies the
-// `pay` and `key` fields `alg` and `tmb` match. Always returns false on error.
-// If trying to verify without `alg` and/or `tmb`, use Verify instead.
+// VerifyCoze cryptographically verifies `pay` with given `sig` and checks that
+// the `pay` and `key` fields `alg` and `tmb` match. Always returns false on
+// error. If trying to verify without `alg` and/or `tmb`, use Verify instead.
 func (c *CozeKey) VerifyCoze(cz *Coze) (bool, error) {
-	if cz.Sig == nil {
-		return false, errors.New("VerifyCoze: sig is nil")
-	}
-
 	h := new(Pay)
 	err := json.Unmarshal(cz.Pay, h)
 	if err != nil {
@@ -243,10 +241,6 @@ func (c *CozeKey) VerifyCoze(cz *Coze) (bool, error) {
 // Valid always returns false on public keys.  Use function "Verify" for public
 // keys with signed message.  See also function Correct.
 func (c *CozeKey) Valid() (valid bool) {
-	if len(c.D) == 0 {
-		return false
-	}
-
 	digest := Hash(c.Alg.Hash(), []byte("7AtyaCHO2BAG06z0W1tOQlZFWbhxGgqej4k9-HWP3DE-zshRbrE-69DIfgY704_FDYez7h_rEI1WQVKhv5Hd5Q"))
 	sig, err := c.Sign(digest)
 	if err != nil {
