@@ -12,8 +12,9 @@ import (
 
 // MapItem representation of one map item.
 type MapItem struct {
-	Key, Value any
-	index      uint64
+	Key   any
+	Value any
+	index uint64
 }
 
 // MapSlice of map items.
@@ -33,6 +34,15 @@ func nextIndex() uint64 {
 // MapItem as a string.
 func (mi MapItem) String() string {
 	return fmt.Sprintf("{%v %v}", mi.Key, mi.Value)
+}
+
+// MapItem key's as a string slice.
+func (mi MapSlice) Keys() []string {
+	s := make([]string, len(mi))
+	for i, k := range mi {
+		s[i] = fmt.Sprintf("%s", k.Key)
+	}
+	return s
 }
 
 // MarshalJSON for map slice.

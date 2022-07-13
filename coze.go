@@ -136,7 +136,7 @@ func (cz *Coze) MetaWithAlg(alg SEAlg) (err error) {
 	if err != nil {
 		return err
 	}
-	c, err := Canon(canonical)
+	c, err := GetCanon(canonical)
 	if err != nil {
 		return err
 	}

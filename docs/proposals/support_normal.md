@@ -64,29 +64,29 @@ Field `typ` may denote a canon, order, or need.
 ```go
 type Normal []string
 
-type Canon Normal //(Rename Canon() to GetCanon())
+type Canon Normal 
 type Only Normal
 type Need Normal
 type Order Normal
 type Option Normal
 
-IsNormal(coze Coze, norm any, opt optional)bool{
+func IsNormal(coze Coze, norm any, opt Option) bool {
 	var ms = MapSlice{}
-	err = json.Unmarshal(raw, &ms)
+	err := json.Unmarshal(coze.Pay, &ms)
 	if err != nil {
 		return nil, err
 	}
 
 	switch v := norm.(type) {
-		case Canon:
+	case Canon:
 
-		case Only:
+	case Only:
 
-		case Need:
+	case Need:
 
-		case Order:
+	case Order:
 
-		default:
+	default:
 		return false
 	}
 }
