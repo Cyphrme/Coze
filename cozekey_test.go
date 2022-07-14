@@ -63,6 +63,11 @@ var Golden_Coze_W_Key = `{
 	"sig": "` + Golden_Sig + `"
  }`
 
+// CustomStruct is for examples demonstrating Coze's use with custom structs.
+type CustomStruct struct {
+	Msg string `json:"msg,omitempty"`
+}
+
 // See also ExampleCanonicalHash
 func Example_genCad() {
 	digest, err := CanonicalHash([]byte(Golden_Pay), nil, ES256.Hash()) // compactify
@@ -148,11 +153,6 @@ func ExampleCozeKey_Sign_empty() {
 
 	fmt.Println(Golden_Key.Verify(dig, sig))
 	// Output: true
-}
-
-// CustomStruct is for examples demonstrating Coze's use with custom structs
-type CustomStruct struct {
-	Msg string `json:"msg,omitempty"`
 }
 
 // ExampleCozeKey_SignPay demonstrates converting a custom data structure into a

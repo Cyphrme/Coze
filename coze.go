@@ -17,14 +17,14 @@ import (
 //
 // Note: The custom MarshalJSON() renders the JSON tags on [Alg, Iat, Tmb, Typ]
 // ineffective, however they are present for documentation.  Field Struct will
-// be marshaled on not empty, tag `json:"-"` is meaningless.
+// be marshaled when not empty and custom marshaler ignores the tag `json:"-"`.
 type Pay struct {
 	Alg SEAlg  `json:"alg,omitempty"` // e.g. "ES256"
 	Iat int64  `json:"iat,omitempty"` // e.g. 1623132000
 	Tmb B64    `json:"tmb,omitempty"` // e.g. "cLj8vsYtMBwYkzoFVZHBZo6SNL8wSdCIjCKAwXNuhOk"
 	Typ string `json:"typ,omitempty"` // e.g. "cyphr.me/msg/create"
 
-	Struct interface{} `json:"-"` // Custom arbitrary struct given by application. Custom marshaler promotes given structure and tag `json:"-"` is meaningless.
+	Struct interface{} `json:"-"` // Custom arbitrary struct given by application. Custom marshaler promotes given structure and ignores tag `json:"-"`.
 }
 
 // Pay.Coze() returns a new Coze with only Pay populated.

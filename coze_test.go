@@ -81,8 +81,8 @@ func ExamplePay_jsonMarshalCustom() {
 		Struct: customStruct,
 	}
 
-	// May also call inputPay.MarshalJSON() instead.
-	s, err := json.Marshal(&inputPay)
+	// May also call inputPay.MarshalJSON() or Marshal(&inputPay) instead.
+	s, err := Marshal(&inputPay)
 	if err != nil {
 		fmt.Println(err)
 	}
@@ -90,6 +90,30 @@ func ExamplePay_jsonMarshalCustom() {
 
 	// Output:
 	// {"alg":"ES256","iat":1627518000,"tmb":"cLj8vsYtMBwYkzoFVZHBZo6SNL8wSdCIjCKAwXNuhOk","typ":"cyphr.me/msg","msg":"Coze Rocks"}
+}
+
+//ExamplePay_jsonUnMarshalCustom demonstrates "manually" unmarshalling Pay with
+//a custom structure.
+func ExamplePay_jsonUnMarshalCustom() {
+	s := []byte(`{"alg":"ES256","iat":1627518000,"tmb":"cLj8vsYtMBwYkzoFVZHBZo6SNL8wSdCIjCKAwXNuhOk","typ":"cyphr.me/msg","msg":"Coze Rocks"}`)
+
+	var pay Pay
+	err := json.Unmarshal(s, &pay)
+	if err != nil {
+		fmt.Println(err)
+	}
+	fmt.Println(pay)
+
+	var custom CustomStruct
+	err = json.Unmarshal(s, &custom)
+	if err != nil {
+		fmt.Println(err)
+	}
+	fmt.Println(custom)
+
+	// Output:
+	// {"alg":"ES256","iat":1627518000,"tmb":"cLj8vsYtMBwYkzoFVZHBZo6SNL8wSdCIjCKAwXNuhOk","typ":"cyphr.me/msg"}
+	// {Coze Rocks}
 }
 
 //ExamplePay_String_custom demonstrates fmt.Stringer on Pay with a custom
