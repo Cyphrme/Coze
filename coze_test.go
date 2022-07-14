@@ -47,6 +47,72 @@ func ExamplePay_embedded() {
 	// {"pay":{"alg":"ES256","tmb":"cLj8vsYtMBwYkzoFVZHBZo6SNL8wSdCIjCKAwXNuhOk","DisplayName":"Coze","FirstName":"Foo","LastName":"Bar"}}
 }
 
+//ExamplePay_jsonUnmarshal tests unmarshalling a Pay.
+func ExamplePay_jsonUnmarshal() {
+	h := &Pay{}
+
+	err := json.Unmarshal([]byte(Golden_Pay), h)
+	if err != nil {
+		fmt.Println(err)
+	}
+
+	out, err := Marshal(h)
+	if err != nil {
+		fmt.Println(err)
+	}
+
+	fmt.Printf("%s\n", out)
+	// Output:
+	// {"alg":"ES256","iat":1627518000,"tmb":"cLj8vsYtMBwYkzoFVZHBZo6SNL8wSdCIjCKAwXNuhOk","typ":"cyphr.me/msg"}
+}
+
+//ExamplePay_jsonMarshalCustom demonstrates marshalling Pay with a custom
+//structure.
+func ExamplePay_jsonMarshalCustom() {
+	var customStruct = CustomStruct{
+		Msg: "Coze Rocks",
+	}
+
+	inputPay := Pay{
+		Alg:    SEAlg(ES256),
+		Iat:    1627518000, // Static for demonstration.  Use time.Time.Unix().
+		Tmb:    MustDecode("cLj8vsYtMBwYkzoFVZHBZo6SNL8wSdCIjCKAwXNuhOk"),
+		Typ:    "cyphr.me/msg",
+		Struct: customStruct,
+	}
+
+	// May also call inputPay.MarshalJSON() instead.
+	s, err := json.Marshal(&inputPay)
+	if err != nil {
+		fmt.Println(err)
+	}
+	fmt.Println(string(s))
+
+	// Output:
+	// {"alg":"ES256","iat":1627518000,"tmb":"cLj8vsYtMBwYkzoFVZHBZo6SNL8wSdCIjCKAwXNuhOk","typ":"cyphr.me/msg","msg":"Coze Rocks"}
+}
+
+//ExamplePay_String_custom demonstrates fmt.Stringer on Pay with a custom
+//structure.
+func ExamplePay_String_custom() {
+	var customStruct = CustomStruct{
+		Msg: "Coze Rocks",
+	}
+
+	inputPay := Pay{
+		Alg:    SEAlg(ES256),
+		Iat:    1627518000, // Static for demonstration.  Use time.Time.Unix().
+		Tmb:    MustDecode("cLj8vsYtMBwYkzoFVZHBZo6SNL8wSdCIjCKAwXNuhOk"),
+		Typ:    "cyphr.me/msg",
+		Struct: customStruct,
+	}
+
+	fmt.Println(inputPay)
+
+	// Output:
+	// {"alg":"ES256","iat":1627518000,"tmb":"cLj8vsYtMBwYkzoFVZHBZo6SNL8wSdCIjCKAwXNuhOk","typ":"cyphr.me/msg","msg":"Coze Rocks"}
+}
+
 // ExampleCoze_embed demonstrates how to embed a JSON `coze` into a third party
 // JSON structure.
 func ExampleCoze_embed() {
@@ -193,29 +259,12 @@ func ExampleCoze_jsonMarshalPretty() {
 	// }
 }
 
-//ExamplePay_jsonUnmarshal tests unmarshalling a Pay.
-func ExamplePay_jsonUnmarshal() {
-	h := &Pay{}
-
-	err := json.Unmarshal([]byte(Golden_Pay), h)
-	if err != nil {
-		fmt.Println(err)
-	}
-
-	out, err := Marshal(h)
-	if err != nil {
-		fmt.Println(err)
-	}
-
-	fmt.Printf("%s\n", out)
-	// Output:
-	// {"alg":"ES256","iat":1627518000,"tmb":"cLj8vsYtMBwYkzoFVZHBZo6SNL8wSdCIjCKAwXNuhOk","typ":"cyphr.me/msg"}
-}
-
-// Example_jsonMarshalRaw demonstrates using nil for RawMessage.  RawMessage
-// should always be valid JSON as it is marshaled as is.
-func Example_jsonMarshalRaw() {
-	o := json.RawMessage([]byte(""))
+// Example_jsonRawMessageMarshal demonstrates using empty string, quote
+// characters with no other content, and nil for json.RawMessage.  When using
+// RawMessage, it should always be valid JSON or nil or otherwise it will result
+// in an error.
+func Example_jsonRawMessageMarshal() {
+	o := json.RawMessage([]byte("")) // empty string
 	anon := struct {
 		Obj *json.RawMessage `json:"obj,omitempty"`
 	}{
@@ -231,7 +280,7 @@ func Example_jsonMarshalRaw() {
 	}
 
 	// Correct usage with quotes characters.
-	quotes := []byte("\"\"")
+	quotes := []byte("\"\"") // string with two quote characters
 	anon.Obj = (*json.RawMessage)(&quotes)
 	b, err = Marshal(anon)
 	if err != nil {
@@ -239,19 +288,10 @@ func Example_jsonMarshalRaw() {
 	}
 	fmt.Printf("%s\n", b)
 
-	// Correct usage with with `nil`.
+	// Correct usage with with `nil`, which prints as the JSON "null".
 	o = nil
 	anon.Obj = &o
 	b, err = Marshal(anon)
-	if err != nil {
-		fmt.Println(err)
-	}
-	fmt.Printf("%s\n", b)
-
-	// Correct usage with with `nil`.
-	o = nil
-	anon.Obj = &o
-	b, err = json.Marshal(anon)
 	if err != nil {
 		fmt.Println(err)
 	}
@@ -260,6 +300,5 @@ func Example_jsonMarshalRaw() {
 	// Output:
 	// json: error calling MarshalJSON for type *json.RawMessage: unexpected end of JSON input
 	// {"obj":""}
-	// {"obj":null}
 	// {"obj":null}
 }

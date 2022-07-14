@@ -15,7 +15,7 @@ import (
 type B64 []byte
 
 // UnmarshalJSON implements JSON.UnmarshalJSON. It is a custom unmarshaler for
-// binary data in JSON, which should always be represented as Hex.
+// binary data in JSON, which should always be represented as b64ut.
 func (t *B64) UnmarshalJSON(b []byte) error {
 	// JSON.Unmarshal gives b encapsulated in quote characters. Quotes characters
 	// are invalid base64 and must be stripped.
@@ -27,8 +27,7 @@ func (t *B64) UnmarshalJSON(b []byte) error {
 	return nil
 }
 
-// MarshalJSON implements JSON.UnmarshalJSON. Converts bytes to Hex.  Error is
-// always nil.
+// MarshalJSON implements JSON.MarshalJSON. Error is always nil.
 func (t B64) MarshalJSON() ([]byte, error) {
 	// JSON expects stings to be wrapped with double quote character.
 	return []byte(fmt.Sprintf("\"%v\"", t)), nil

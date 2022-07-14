@@ -15,22 +15,32 @@ import (
 // third party applications.  This allows embedding third party structs into Pay
 // for creating custom cozies (see example ExampleCozeKey_SignPay).
 //
-// Note: The custom MarshalJSON() renders the JSON tags ineffective, however
-// they are present for documentation.
+// Note: The custom MarshalJSON() renders the JSON tags on [Alg, Iat, Tmb, Typ]
+// ineffective, however they are present for documentation.  Field Struct will
+// be marshaled on not empty, tag `json:"-"` is meaningless.
 type Pay struct {
 	Alg SEAlg  `json:"alg,omitempty"` // e.g. "ES256"
 	Iat int64  `json:"iat,omitempty"` // e.g. 1623132000
 	Tmb B64    `json:"tmb,omitempty"` // e.g. "cLj8vsYtMBwYkzoFVZHBZo6SNL8wSdCIjCKAwXNuhOk"
 	Typ string `json:"typ,omitempty"` // e.g. "cyphr.me/msg/create"
 
-	Struct interface{} `json:"-"` // Custom arbitrary struct given by application.
+	Struct interface{} `json:"-"` // Custom arbitrary struct given by application. Custom marshaler promotes given structure and tag `json:"-"` is meaningless.
 }
 
-// Coze returns a new Coze with only Pay populated.
-func (u *Pay) Coze() (coz *Coze, err error) {
-	coz = new(Coze)
-	coz.Pay, err = Marshal(u)
-	return coz, err
+// Pay.Coze() returns a new Coze with only Pay populated.
+func (p *Pay) Coze() (coze *Coze, err error) {
+	coze = new(Coze)
+	coze.Pay, err = Marshal(p)
+	return coze, err
+}
+
+// String implements fmt.Stringer.
+func (p Pay) String() string {
+	b, err := p.MarshalJSON()
+	if err != nil {
+		fmt.Println(err)
+	}
+	return string(b)
 }
 
 // Marshal promotes the embedded field "Struct" to top level JSON. Solution

@@ -6,8 +6,6 @@ import (
 	"testing"
 )
 
-var testDigest = []byte{112, 184, 252, 190, 198, 45, 48, 28, 24, 147, 58, 5, 85, 145, 193, 102, 142, 146, 52, 191, 48, 73, 208, 136, 140, 34, 128, 193, 115, 110, 132, 233}
-
 var Golden_Key = CozeKey{
 	Alg: SEAlg(ES256),
 	Kid: "Zami's Majuscule Key.",
@@ -107,7 +105,7 @@ func ExampleCozeKey_jsonMarshal() {
 
 func ExampleCozeKey_Thumbprint() {
 	var gk2 = Golden_Key // Make a copy
-	gk2.Tmb = []byte{}   // set it to nil to ensure recalculation.
+	gk2.Tmb = []byte{}   // Set to empty to ensure recalculation.
 	gk2.Thumbprint()
 	h := gk2.Tmb
 	fmt.Println(h)
@@ -140,27 +138,26 @@ func ExampleCozeKey_Sign() {
 //
 // {"pay":{},"sig":"9iesKUSV7L1-xz5yd3A94vCkKLmdOAnrcPXTU3_qeKSuk4RMG7Qz0KyubpATy0XA_fXrcdaxJTvXg6saaQQcVQ"}
 //
-// Where `alg`` and `key` are already implicitly known by the application.
+// Where `alg` and `key` are already implicitly known by the application.
 func ExampleCozeKey_Sign_empty() {
-	input := "{}"
-	dig := Hash(Golden_Key.Alg.Hash(), []byte(input))
-
+	dig := Hash(Golden_Key.Alg.Hash(), []byte("{}"))
 	sig, err := Golden_Key.Sign(dig)
 	if err != nil {
 		fmt.Println(err)
 	}
 
-	fmt.Printf("%v\n", Golden_Key.Verify(dig, sig))
+	fmt.Println(Golden_Key.Verify(dig, sig))
 	// Output: true
+}
+
+// CustomStruct is for examples demonstrating Coze's use with custom structs
+type CustomStruct struct {
+	Msg string `json:"msg,omitempty"`
 }
 
 // ExampleCozeKey_SignPay demonstrates converting a custom data structure into a
 // coze, signing it, and verifying the results.
 func ExampleCozeKey_SignPay() {
-	type CustomStruct struct {
-		Msg string `json:"msg,omitempty"`
-	}
-
 	var customStruct = CustomStruct{
 		Msg: "Coze Rocks",
 	}
@@ -273,7 +270,7 @@ func ExampleNewKey_valid() {
 
 func ExampleNewKey() {
 	algs := []SigAlg{
-		SigAlg(SHA256), // Invalid alg
+		SigAlg(SHA256), // Invalid signing alg, fails.
 		ES224,
 		ES256,
 		ES384,
@@ -289,7 +286,7 @@ func ExampleNewKey() {
 		}
 
 		if cozeKey.Valid() != true {
-			fmt.Printf("signature was not verified.  Alg: %s\n", alg)
+			fmt.Printf("Invalid signature for alg: %s\n", alg)
 		}
 	}
 	fmt.Println("Done")
@@ -299,11 +296,11 @@ func ExampleNewKey() {
 }
 
 func ExampleCozeKey_Correct() {
-
-	// First key is "bad", all other keys should pass every test.
+	// First key is "bad".  Note that some calls to Correct() pass depending on
+	// given fields.
 	var keys = []CozeKey{Golden_Bad_Key, Golden_Key}
 
-	// Test new keys
+	// Test new keys.  These keys should pass every test.
 	algs := []string{"ES224", "ES256", "ES384", "ES512", "Ed25519"}
 	for _, alg := range algs {
 		key, err := NewKey(ParseSEAlg(alg))
