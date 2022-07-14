@@ -11,11 +11,12 @@ import (
 	"golang.org/x/crypto/sha3"
 )
 
-// Pay contains the standard fields in a signed Coze object as well as a custom
-// struct given by other applications.
+// Pay contains the standard Coze pay fields as well as a custom struct given by
+// third party applications.  This allows embedding third party structs into Pay
+// for creating custom cozies (see example ExampleCozeKey_SignPay).
 //
-// Note: The custom Marshaler renders the JSON tags ineffective, however
-// they are present for the purpose of documenting the struct.
+// Note: The custom MarshalJSON() renders the JSON tags ineffective, however
+// they are present for documentation.
 type Pay struct {
 	Alg SEAlg  `json:"alg,omitempty"` // e.g. "ES256"
 	Iat int64  `json:"iat,omitempty"` // e.g. 1623132000
@@ -73,7 +74,7 @@ func (p *Pay) MarshalJSON() ([]byte, error) {
 // (and by extension coze.Marshal) will not marshal on zero type. See
 // https://github.com/golang/go/issues/11939.
 //
-// Sig: signature over pay.
+// Sig: Signature over pay.
 //
 // Parsed: The parsed standard Coze pay fields ["alg","iat","tmb","typ"] from
 // Pay.  Parsed is populated by Meta() and is JSON ignored. The source of truth

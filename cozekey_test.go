@@ -154,7 +154,61 @@ func ExampleCozeKey_Sign_empty() {
 	// Output: true
 }
 
-// TODO test SignPay and SignPayJSON
+// ExampleCozeKey_SignPay demonstrates converting a custom data structure into a
+// coze, signing it, and verifying the results.
+func ExampleCozeKey_SignPay() {
+	type CustomStruct struct {
+		Msg string `json:"msg,omitempty"`
+	}
+
+	var customStruct = CustomStruct{
+		Msg: "Coze Rocks",
+	}
+
+	pay := Pay{
+		Alg:    SEAlg(ES256),
+		Iat:    1627518000, // Static for demonstration.  Use time.Time.Unix().
+		Tmb:    MustDecode("cLj8vsYtMBwYkzoFVZHBZo6SNL8wSdCIjCKAwXNuhOk"),
+		Typ:    "cyphr.me/msg",
+		Struct: customStruct,
+	}
+
+	coze, err := Golden_Key.SignPay(&pay)
+	if err != nil {
+		fmt.Println(err)
+	}
+
+	v, err := Golden_Key.VerifyCoze(coze)
+	if err != nil {
+		fmt.Println(err)
+	}
+	fmt.Println(v)
+	fmt.Println(string(coze.Pay))
+
+	// Output:
+	// true
+	// {"alg":"ES256","iat":1627518000,"tmb":"cLj8vsYtMBwYkzoFVZHBZo6SNL8wSdCIjCKAwXNuhOk","typ":"cyphr.me/msg","msg":"Coze Rocks"}
+}
+
+func ExampleCozeKey_SignPayJSON() {
+	coze := new(Coze)
+	coze.Pay = []byte(Golden_Pay)
+
+	var err error
+	coze.Sig, err = Golden_Key.SignPayJSON(coze.Pay, nil)
+	if err != nil {
+		fmt.Println(err)
+	}
+
+	v, err := Golden_Key.VerifyCoze(coze)
+	if err != nil {
+		fmt.Println(err)
+	}
+	fmt.Println(v)
+
+	// Output:
+	// true
+}
 
 func ExampleCozeKey_SignCoze() {
 	cz := new(Coze)

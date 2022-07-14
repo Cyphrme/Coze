@@ -23,18 +23,20 @@ import (
 // order, and no extra fields permitted.
 //
 // `need` specifies fields that are required to be present, but does not specify
-// any order. Additional fields are permitted.
+// any order. Additional fields are permitted and `need` may be used with an
+// `option`.
 //
 // `order` requires specified fields in the given order and additional fields
-// are permitted after the order fields.
+// are permitted after the order fields.  An `order` may be used with an
+// `option`.
 //
 // `option` specifies permissable optional fields and may be used alone or used
-// with `need` or `order`. All fields not in `option` and the respective `need`
-// or `order` are invalid. If option is nil, all extra fields are valid.
+// with `need` or `order`. Extra fields are not allowed regardless if `option`
+// is used alone or with a `need` or `order`.
 //
 // ## Normal, Require, and Option
 //
-// `canon`, `only`, `need`, and `order` are a `require` in that they specify
+// `canon`, `only`, `need`, and `order` are valid `require` in that they specify
 // required fields.  An option is distinct in that option specifies optional
 // fields and precludes other optional fields.
 //
@@ -45,14 +47,14 @@ import (
 //        ┌─────┴────┐     ┌─────┴──────┐
 //        │ Require  │     │   Option   │
 //        └──────────┘     └────────────┘
-//
+// Normal Hierarchy
 // Normal
-// 	Requires:
+// 	Require
 // 		canon
 // 		only
 // 		need
 // 		order
-// 	Option:
+// 	Option
 // 		option
 //
 // Venn Diagram of Normal - Require "mixing" with Option
@@ -66,21 +68,23 @@ import (
 // └───────┴──────┴──────┘
 //
 type Normal []string
-
 type Canon Normal
 type Only Normal
 type Need Normal
 type Order Normal
 type Option Normal
 
-// IsNormal checks if a Coze is normalized.  Param opt may be nil.  If opt is
-// considered invalid for Canon and Only and if opt is set for either type
-// function returns false. If opt is not nil for Need or Order, no extra fields
-// are allowed outside of what's specified by norm plus opt.
+// IsNormal checks if a Coze is normalized.  See notes on Normal.  Param opt may
+// be nil.  If opt is considered invalid for Canon and Only and if opt is set
+// for either type function returns false. If opt is not nil for Need or Order,
+// no extra fields are allowed outside of what's specified by norm plus opt. If
+// opt is nil, all extra fields are valid.
+//
+// Note that parameter norm must be typed as Canon, Only, Need, Order, or
+// Option.  (TODO probably type norm as Normal.  There appears to be some Go
+// issues typing this)
 //
 // Repeated keys between opt and norm is allowed.
-//
-// TODO write Normalize()
 func IsNormal(pay json.RawMessage, norm any, opt Option) bool {
 	var ms = MapSlice{}
 	err := json.Unmarshal(pay, &ms)
@@ -120,7 +124,6 @@ func IsNormal(pay json.RawMessage, norm any, opt Option) bool {
 				return false
 			}
 		}
-
 	case Need:
 		keys := ms.Keys()
 		sort.Strings(keys)
@@ -144,8 +147,6 @@ func IsNormal(pay json.RawMessage, norm any, opt Option) bool {
 		if matches != len(v) {
 			return false
 		}
-
-		//fmt.Println(optMatches, matches, len(keys))
 		if opt != nil && optMatches+matches != len(keys) {
 			return false
 		}
