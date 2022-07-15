@@ -43,8 +43,8 @@ func (p Pay) String() string {
 	return string(b)
 }
 
-// Marshal promotes the embedded field "Struct" to top level JSON. Solution
-// taken from Jonathan Hall
+// MarshalJSON promotes the embedded field "Struct" to top level JSON. Solution
+//  from Jonathan Hall
 // https://jhall.io/posts/go-json-tricks-embedded-marshaler
 func (p *Pay) MarshalJSON() ([]byte, error) {
 	type pay2 Pay // Break infinite Marshal loop
@@ -63,6 +63,29 @@ func (p *Pay) MarshalJSON() ([]byte, error) {
 	}
 	s[0] = ','
 	return append(pay[:len(pay)-1], s...), nil
+}
+
+// UnmarshalJSON appropriately unmarshals both Pay and custom struct.
+func (p *Pay) UnmarshalJSON(b []byte) error {
+	type pay2 Pay // Break infinite unmarshal loop
+	p2 := new(pay2)
+	err := json.Unmarshal(b, p2)
+	if err != nil {
+		return err
+	}
+	// fmt.Printf("p2 before: %+v\n", p2)
+	if p.Struct != nil {
+		var str = p.Struct
+		err = json.Unmarshal(b, str)
+		if err != nil {
+			return err
+		}
+		p2.Struct = str
+	}
+
+	// fmt.Printf("p2 after: %+v\n", p2)
+	*p = *(*Pay)(p2)
+	return nil
 }
 
 // Coze is for signed Coze objects (cozies).  See the Coze docs (README.md) for

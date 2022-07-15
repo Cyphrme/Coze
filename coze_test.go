@@ -5,6 +5,36 @@ import (
 	"fmt"
 )
 
+// ExamplePay_jsonUnmarshalCustom demonstrates unmarshalling Pay with a custom
+// structure.
+func ExamplePay_jsonUnmarshalCustom() {
+	var customStruct = CustomStruct{
+		Msg: "Coze Rocks",
+	}
+
+	inputPay := Pay{
+		Alg:    SEAlg(ES256),
+		Iat:    1627518000, // Static for demonstration.  Use time.Time.Unix().
+		Tmb:    MustDecode("cLj8vsYtMBwYkzoFVZHBZo6SNL8wSdCIjCKAwXNuhOk"),
+		Typ:    "cyphr.me/msg",
+		Struct: customStruct,
+	}
+
+	var emptyCustomStruct CustomStruct
+	pay2 := new(Pay)
+	pay2.Struct = &emptyCustomStruct
+
+	err := json.Unmarshal([]byte(fmt.Sprint(inputPay)), &pay2)
+	if err != nil {
+		fmt.Printf("Unmarshal error: %s\n", err)
+	}
+
+	fmt.Println(pay2)
+
+	// Output:
+	// {"alg":"ES256","iat":1627518000,"tmb":"cLj8vsYtMBwYkzoFVZHBZo6SNL8wSdCIjCKAwXNuhOk","typ":"cyphr.me/msg","msg":"Coze Rocks"}
+}
+
 func ExamplePay_embedded() {
 	// Example custom struct.
 	type User struct {
