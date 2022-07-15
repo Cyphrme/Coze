@@ -5,36 +5,6 @@ import (
 	"fmt"
 )
 
-// ExamplePay_jsonUnmarshalCustom demonstrates unmarshalling Pay with a custom
-// structure.
-func ExamplePay_jsonUnmarshalCustom() {
-	var customStruct = CustomStruct{
-		Msg: "Coze Rocks",
-	}
-
-	inputPay := Pay{
-		Alg:    SEAlg(ES256),
-		Iat:    1627518000, // Static for demonstration.  Use time.Time.Unix().
-		Tmb:    MustDecode("cLj8vsYtMBwYkzoFVZHBZo6SNL8wSdCIjCKAwXNuhOk"),
-		Typ:    "cyphr.me/msg",
-		Struct: customStruct,
-	}
-
-	var emptyCustomStruct CustomStruct
-	pay2 := new(Pay)
-	pay2.Struct = &emptyCustomStruct
-
-	err := json.Unmarshal([]byte(fmt.Sprint(inputPay)), &pay2)
-	if err != nil {
-		fmt.Printf("Unmarshal error: %s\n", err)
-	}
-
-	fmt.Println(pay2)
-
-	// Output:
-	// {"alg":"ES256","iat":1627518000,"tmb":"cLj8vsYtMBwYkzoFVZHBZo6SNL8wSdCIjCKAwXNuhOk","typ":"cyphr.me/msg","msg":"Coze Rocks"}
-}
-
 func ExamplePay_embedded() {
 	// Example custom struct.
 	type User struct {
@@ -52,17 +22,17 @@ func ExamplePay_embedded() {
 
 	// Example of converting a custom struct to a coze.
 	pay := Pay{
-		Alg:    Golden_Key.Alg,
-		Tmb:    Golden_Key.Tmb,
+		Alg:    GoldenKey.Alg,
+		Tmb:    GoldenKey.Tmb,
 		Struct: &user,
 	}
 
-	coze, err := Golden_Key.SignPay(&pay)
+	coze, err := GoldenKey.SignPay(&pay)
 	if err != nil {
 		fmt.Println(err)
 	}
 
-	v, err := Golden_Key.VerifyCoze(coze)
+	v, err := GoldenKey.VerifyCoze(coze)
 	if err != nil {
 		fmt.Println(err)
 	}
@@ -77,11 +47,11 @@ func ExamplePay_embedded() {
 	// {"pay":{"alg":"ES256","tmb":"cLj8vsYtMBwYkzoFVZHBZo6SNL8wSdCIjCKAwXNuhOk","DisplayName":"Coze","FirstName":"Foo","LastName":"Bar"}}
 }
 
-//ExamplePay_jsonUnmarshal tests unmarshalling a Pay.
+// ExamplePay_jsonUnmarshal tests unmarshalling a Pay.
 func ExamplePay_jsonUnmarshal() {
 	h := &Pay{}
 
-	err := json.Unmarshal([]byte(Golden_Pay), h)
+	err := json.Unmarshal([]byte(GoldenPay), h)
 	if err != nil {
 		fmt.Println(err)
 	}
@@ -96,8 +66,8 @@ func ExamplePay_jsonUnmarshal() {
 	// {"alg":"ES256","iat":1627518000,"tmb":"cLj8vsYtMBwYkzoFVZHBZo6SNL8wSdCIjCKAwXNuhOk","typ":"cyphr.me/msg"}
 }
 
-//ExamplePay_jsonMarshalCustom demonstrates marshalling Pay with a custom
-//structure.
+// ExamplePay_jsonMarshalCustom demonstrates marshalling Pay with a custom
+// structure.
 func ExamplePay_jsonMarshalCustom() {
 	var customStruct = CustomStruct{
 		Msg: "Coze Rocks",
@@ -122,20 +92,18 @@ func ExamplePay_jsonMarshalCustom() {
 	// {"alg":"ES256","iat":1627518000,"tmb":"cLj8vsYtMBwYkzoFVZHBZo6SNL8wSdCIjCKAwXNuhOk","typ":"cyphr.me/msg","msg":"Coze Rocks"}
 }
 
-//ExamplePay_jsonUnMarshalCustom demonstrates "manually" unmarshalling Pay with
-//a custom structure.
-func ExamplePay_jsonUnMarshalCustom() {
-	s := []byte(`{"alg":"ES256","iat":1627518000,"tmb":"cLj8vsYtMBwYkzoFVZHBZo6SNL8wSdCIjCKAwXNuhOk","typ":"cyphr.me/msg","msg":"Coze Rocks"}`)
-
+// ExamplePay_jsonUnmarshalCustomManual demonstrates "manually" unmarshalling
+// Pay with a custom structure.
+func ExamplePay_jsonUnmarshalCustomManual() {
 	var pay Pay
-	err := json.Unmarshal(s, &pay)
+	err := json.Unmarshal([]byte(GoldenPay), &pay)
 	if err != nil {
 		fmt.Println(err)
 	}
 	fmt.Println(pay)
 
 	var custom CustomStruct
-	err = json.Unmarshal(s, &custom)
+	err = json.Unmarshal([]byte(GoldenPay), &custom)
 	if err != nil {
 		fmt.Println(err)
 	}
@@ -144,6 +112,25 @@ func ExamplePay_jsonUnMarshalCustom() {
 	// Output:
 	// {"alg":"ES256","iat":1627518000,"tmb":"cLj8vsYtMBwYkzoFVZHBZo6SNL8wSdCIjCKAwXNuhOk","typ":"cyphr.me/msg"}
 	// {Coze Rocks}
+}
+
+// ExamplePay_jsonUnmarshalCustom demonstrates unmarshalling Pay with a custom
+// structure.
+func ExamplePay_jsonUnmarshalCustom() {
+	pay := new(Pay)
+	var emptyCustomStruct CustomStruct
+	pay.Struct = &emptyCustomStruct
+	err := json.Unmarshal([]byte(GoldenPay), &pay)
+	if err != nil {
+		fmt.Printf("Unmarshal error: %s\n", err)
+	}
+
+	fmt.Println(pay)
+	fmt.Println(pay.Struct)
+
+	// Output:
+	// {"alg":"ES256","iat":1627518000,"tmb":"cLj8vsYtMBwYkzoFVZHBZo6SNL8wSdCIjCKAwXNuhOk","typ":"cyphr.me/msg","msg":"Coze Rocks"}
+	// &{Coze Rocks}
 }
 
 //ExamplePay_String_custom demonstrates fmt.Stringer on Pay with a custom
@@ -170,24 +157,26 @@ func ExamplePay_String_custom() {
 // ExampleCoze_embed demonstrates how to embed a JSON `coze` into a third party
 // JSON structure.
 func ExampleCoze_embed() {
-	type Outer struct {
-		Name string
-		Coze Coze // Embed a Coze into a larger, application defined JSON structure.
-	}
 	cz := new(Coze)
-	err := json.Unmarshal([]byte(Golden_Coze), cz)
+	err := json.Unmarshal([]byte(GoldenCoze), cz)
 	if err != nil {
 		fmt.Println(err)
 	}
 
-	fmt.Printf("%+v", Outer{Name: "Bob", Coze: *cz})
+	type Outer struct {
+		Name string `json:"name"`
+		Coze Coze   `json:"coze"` // Embed a Coze into a larger, application defined JSON structure.
+	}
+	b, _ := json.Marshal(Outer{Name: "Bob", Coze: *cz})
+
+	fmt.Printf("%s", b)
 	// Output:
-	// {Name:Bob Coze:{"pay":{"msg":"Coze Rocks","alg":"ES256","iat":1627518000,"tmb":"cLj8vsYtMBwYkzoFVZHBZo6SNL8wSdCIjCKAwXNuhOk","typ":"cyphr.me/msg"},"sig":"ywctP6lEQ_HcYLhgpoecqhFrqNpBSyNPuAPOV94SThuztJek7x7H9mXFD0xTrlmQPg_WC7jwg70nzNoGn70JyA"}}
+	// {"name":"Bob","coze":{"pay":{"msg":"Coze Rocks","alg":"ES256","iat":1627518000,"tmb":"cLj8vsYtMBwYkzoFVZHBZo6SNL8wSdCIjCKAwXNuhOk","typ":"cyphr.me/msg"},"sig":"ywctP6lEQ_HcYLhgpoecqhFrqNpBSyNPuAPOV94SThuztJek7x7H9mXFD0xTrlmQPg_WC7jwg70nzNoGn70JyA"}}
 }
 
 func ExampleCoze_String() {
 	cz := new(Coze)
-	err := json.Unmarshal([]byte(Golden_Coze), cz)
+	err := json.Unmarshal([]byte(GoldenCoze), cz)
 	if err != nil {
 		fmt.Println(err)
 	}
@@ -198,7 +187,7 @@ func ExampleCoze_String() {
 
 func ExampleCoze_Meta() {
 	cz := new(Coze)
-	err := json.Unmarshal([]byte(Golden_Coze), cz)
+	err := json.Unmarshal([]byte(GoldenCoze), cz)
 	if err != nil {
 		fmt.Println(err)
 	}
@@ -215,7 +204,7 @@ func ExampleCoze_Meta() {
 
 func ExampleCoze_MetaWithAlg() {
 	cz := new(Coze)
-	err := json.Unmarshal([]byte(Golden_Coze), cz)
+	err := json.Unmarshal([]byte(GoldenCoze), cz)
 	if err != nil {
 		fmt.Println(err)
 	}
@@ -255,7 +244,7 @@ func ExampleCoze_MetaWithAlg() {
 //ExampleCoze_jsonUnMarshal tests unmarshalling a coze.
 func ExampleCoze_jsonUnMarshal() {
 	cz := new(Coze)
-	err := json.Unmarshal([]byte(Golden_Coze), cz)
+	err := json.Unmarshal([]byte(GoldenCoze), cz)
 	if err != nil {
 		fmt.Println(err)
 	}
@@ -272,7 +261,7 @@ func ExampleCoze_jsonUnMarshal() {
 
 func ExampleCoze_jsonMarshal() {
 	cz := new(Coze)
-	err := json.Unmarshal([]byte(Golden_Coze), cz)
+	err := json.Unmarshal([]byte(GoldenCoze), cz)
 	if err != nil {
 		fmt.Println(err)
 	}
@@ -289,7 +278,7 @@ func ExampleCoze_jsonMarshal() {
 
 func ExampleCoze_jsonMarshalPretty() {
 	cz := new(Coze)
-	err := json.Unmarshal([]byte(Golden_Coze), cz)
+	err := json.Unmarshal([]byte(GoldenCoze), cz)
 	if err != nil {
 		fmt.Println(err)
 	}
@@ -332,6 +321,7 @@ func Example_jsonRawMessageMarshal() {
 	if err != nil {
 		fmt.Println(err)
 	}
+	fmt.Printf("%+v\n", b) // Should be empty because of error.
 
 	// Correct usage with quotes characters.
 	quotes := []byte("\"\"") // string with two quote characters
@@ -353,6 +343,7 @@ func Example_jsonRawMessageMarshal() {
 
 	// Output:
 	// json: error calling MarshalJSON for type *json.RawMessage: unexpected end of JSON input
+	// []
 	// {"obj":""}
 	// {"obj":null}
 }

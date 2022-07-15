@@ -30,7 +30,7 @@ any order. Additional fields are permitted.
 `order` requires specified fields in the given order and additional fields
 are permitted after the order fields.
 
-`option` specifies permissable optional fields and is used with a `need` or an
+`option` specifies permissible optional fields and is used with a `need` or an
 `order`. All fields not in `option` and the respective `need` or `order` are
 invalid. If option is nil, all extra fields are valid.  
 

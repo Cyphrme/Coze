@@ -19,14 +19,14 @@ func ExampleCanon() {
 // ExampleCanonicalHash. See also Example_genCad
 func ExampleCanonicalHash() {
 	canon := []string{"alg", "iat", "msg", "tmb", "typ"}
-	cad, err := CanonicalHash([]byte(Golden_Pay), canon, SHA256)
+	cad, err := CanonicalHash([]byte(GoldenPay), canon, SHA256)
 	if err != nil {
 		fmt.Println(err)
 	}
 	fmt.Println(cad.String())
 
 	// Without canon
-	cad, err = CanonicalHash([]byte(Golden_Pay), nil, SHA256)
+	cad, err = CanonicalHash([]byte(GoldenPay), nil, SHA256)
 	if err != nil {
 		fmt.Println(err)
 	}
@@ -42,7 +42,7 @@ func ExampleCanonicalHash_permutations() {
 	canon := []string{"alg", "iat", "msg", "tmb", "typ"}
 	algs := []string{"SHA-224", "SHA-256", "SHA-384", "SHA-512", "SHA3-224", "SHA3-256", "SHA3-384", "SHA3-512", "SHAKE128", "SHAKE256"}
 	for _, alg := range algs {
-		cad, err := CanonicalHash([]byte(Golden_Pay), canon, ParseHashAlg(alg))
+		cad, err := CanonicalHash([]byte(GoldenPay), canon, ParseHashAlg(alg))
 		if err != nil {
 			fmt.Println(err)
 		}
@@ -98,11 +98,9 @@ func ExampleCanonical() {
 	}
 	fmt.Printf("Input: []byte; Canon: struct => %s\n", b)
 
-	//////////////////
-	// []byte (out of order) with struct (in order) canon
-	//////////////////
-	byteJson := []byte(`{"c":"c", "a": "a"}`)
-	b, err = Canonical(byteJson, nil)
+	// []byte (out of order) with struct (in order) canon.
+	byteJSON := []byte(`{"c":"c", "a": "a"}`)
+	b, err = Canonical(byteJSON, nil)
 	if err != nil {
 		fmt.Println(err)
 	}
@@ -193,7 +191,7 @@ func ExampleIsNormal() {
 
 	// Order out of order, fail
 	order = []string{"a", "z"}
-	v = IsNormal(b, Order(need), nil)
+	v = IsNormal(b, Order(order), nil)
 	fmt.Println(v)
 
 	// Order extra field, pass

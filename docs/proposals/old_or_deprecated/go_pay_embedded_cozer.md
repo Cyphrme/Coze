@@ -1,4 +1,4 @@
-Decided against this design pattern in favor of embedding structs into Pay.
+# ⚠️ Decided against this design pattern in favor of embedding structs into Pay. ⚠️
 
 
 Problems with this design:
@@ -48,12 +48,12 @@ func ExampleCozeer_Coze() {
 		fmt.Println(err)
 	}
 
-	err = Golden_Key.SignCoze(c, nil)
+	err = GoldenKey.SignCoze(c, nil)
 	if err != nil {
 		fmt.Println(err)
 	}
 
-	v, err := Golden_Key.VerifyCoze(c)
+	v, err := GoldenKey.VerifyCoze(c)
 	if err != nil {
 		fmt.Println(err)
 	}

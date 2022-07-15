@@ -6,7 +6,7 @@ import (
 	"testing"
 )
 
-var Golden_Key = CozeKey{
+var GoldenKey = Key{
 	Alg: SEAlg(ES256),
 	Kid: "Zami's Majuscule Key.",
 	Iat: 1623132000,
@@ -15,7 +15,7 @@ var Golden_Key = CozeKey{
 	Tmb: []byte{112, 184, 252, 190, 198, 45, 48, 28, 24, 147, 58, 5, 85, 145, 193, 102, 142, 146, 52, 191, 48, 73, 208, 136, 140, 34, 128, 193, 115, 110, 132, 233},
 }
 
-const Golden_Key_String = `{
+const GoldenKeyString = `{
 	"alg":"ES256",
 	"iat":1623132000,
 	"kid":"Zami's Majuscule Key.",
@@ -26,7 +26,7 @@ const Golden_Key_String = `{
 
 // The very last byte in D was changed from 80, to 81, making it invalid.
 // Base64 needs to be to "E", not B-D for it to be effective: bNstg4_H3m3SlROufwRSEgibLrBuRq9114OvdapcpVE
-var Golden_Bad_Key = CozeKey{
+var GoldenKeyBad = Key{
 	Alg: SEAlg(ES256),
 	Kid: "Zami's Majuscule Key.",
 	Iat: 1623132000,
@@ -35,7 +35,7 @@ var Golden_Bad_Key = CozeKey{
 	Tmb: []byte{112, 184, 252, 190, 198, 45, 48, 28, 24, 147, 58, 5, 85, 145, 193, 102, 142, 146, 52, 191, 48, 73, 208, 136, 140, 34, 128, 193, 115, 110, 132, 233},
 }
 
-var Golden_Pay = `{
+var GoldenPay = `{
 	"msg": "Coze Rocks",
 	"alg": "ES256",
 	"iat": 1627518000,
@@ -43,63 +43,52 @@ var Golden_Pay = `{
 	"typ": "cyphr.me/msg"
  }`
 
-var Golden_Tmb = "cLj8vsYtMBwYkzoFVZHBZo6SNL8wSdCIjCKAwXNuhOk"
-var Golden_Cad = "LSgWE4vEfyxJZUTFaRaB2JdEclORdZcm4UVH9D8vVto"
-var Golden_Czd = "d0ygwQCGzuxqgUq1KsuAtJ8IBu0mkgAcKpUJzuX075M"
-var Golden_Sig = "ywctP6lEQ_HcYLhgpoecqhFrqNpBSyNPuAPOV94SThuztJek7x7H9mXFD0xTrlmQPg_WC7jwg70nzNoGn70JyA"
+var GoldenTmb = "cLj8vsYtMBwYkzoFVZHBZo6SNL8wSdCIjCKAwXNuhOk"
+var GoldenCad = "LSgWE4vEfyxJZUTFaRaB2JdEclORdZcm4UVH9D8vVto"
+var GoldenCzd = "d0ygwQCGzuxqgUq1KsuAtJ8IBu0mkgAcKpUJzuX075M"
+var GoldenSig = "ywctP6lEQ_HcYLhgpoecqhFrqNpBSyNPuAPOV94SThuztJek7x7H9mXFD0xTrlmQPg_WC7jwg70nzNoGn70JyA"
 
-var Golden_Coze = `{
-	"pay":` + Golden_Pay + `,
-	"sig": "` + Golden_Sig + `"
+var GoldenCoze = `{
+	"pay":` + GoldenPay + `,
+	"sig": "` + GoldenSig + `"
  }`
 
-var Golden_CozeE = `{
-	"coze":` + Golden_Coze + `
+// Encapsulated coze.
+var GoldenCozeE = `{
+	"coze":` + GoldenCoze + `
 }`
 
-var Golden_Coze_W_Key = `{
-	"pay": ` + Golden_Pay + `,
-	"key": ` + Golden_Key_String + `,
-	"sig": "` + Golden_Sig + `"
+var GoldenCozeWKey = `{
+	"pay": ` + GoldenPay + `,
+	"key": ` + GoldenKeyString + `,
+	"sig": "` + GoldenSig + `"
  }`
 
-// CustomStruct is for examples demonstrating Coze's use with custom structs.
+// CustomStruct is for examples demonstrating Pay/Coze with custom structs.
 type CustomStruct struct {
 	Msg string `json:"msg,omitempty"`
 }
 
-// See also ExampleCanonicalHash
-func Example_genCad() {
-	digest, err := CanonicalHash([]byte(Golden_Pay), nil, ES256.Hash()) // compactify
-	if err != nil {
-		fmt.Println(err)
-	}
-	fmt.Println(digest)
-	// Output:
-	// LSgWE4vEfyxJZUTFaRaB2JdEclORdZcm4UVH9D8vVto
-}
-
-func ExampleCozeKey_String() {
-	var gk2 = Golden_Key // Make a copy
-	fmt.Printf("%s\n", &gk2)
+func ExampleKey_String() {
+	fmt.Printf("%s\n", GoldenKey)
 	// Output:
 	// {"alg":"ES256","d":"bNstg4_H3m3SlROufwRSEgibLrBuRq9114OvdapcpVA","iat":1623132000,"kid":"Zami's Majuscule Key.","tmb":"cLj8vsYtMBwYkzoFVZHBZo6SNL8wSdCIjCKAwXNuhOk","x":"2nTOaFVm2QLxmUO_SjgyscVHBtvHEfo2rq65MvgNRjORojq39Haq9rXNxvXxwba_Xj0F5vZibJR3isBdOWbo5g"}
 }
 
-//ExampleCozeKey_jsonUnmarshal tests unmarshalling a Coze key.
-func ExampleCozeKey_jsonUnmarshal() {
-	cozeKey := new(CozeKey)
-	err := json.Unmarshal([]byte(Golden_Key_String), cozeKey)
+//ExampleKey_jsonUnmarshal tests unmarshalling a Coze key.
+func ExampleKey_jsonUnmarshal() {
+	Key := new(Key)
+	err := json.Unmarshal([]byte(GoldenKeyString), Key)
 	if err != nil {
 		fmt.Println(err)
 	}
-	fmt.Printf("%+v\n", cozeKey)
+	fmt.Printf("%+v\n", Key)
 	// Output:
 	//{"alg":"ES256","d":"bNstg4_H3m3SlROufwRSEgibLrBuRq9114OvdapcpVA","iat":1623132000,"kid":"Zami's Majuscule Key.","tmb":"cLj8vsYtMBwYkzoFVZHBZo6SNL8wSdCIjCKAwXNuhOk","x":"2nTOaFVm2QLxmUO_SjgyscVHBtvHEfo2rq65MvgNRjORojq39Haq9rXNxvXxwba_Xj0F5vZibJR3isBdOWbo5g"}
 }
 
-func ExampleCozeKey_jsonMarshal() {
-	b, err := Marshal(Golden_Key)
+func ExampleKey_jsonMarshal() {
+	b, err := Marshal(GoldenKey)
 	if err != nil {
 		fmt.Println(err)
 	}
@@ -108,9 +97,9 @@ func ExampleCozeKey_jsonMarshal() {
 	//{"alg":"ES256","d":"bNstg4_H3m3SlROufwRSEgibLrBuRq9114OvdapcpVA","iat":1623132000,"kid":"Zami's Majuscule Key.","tmb":"cLj8vsYtMBwYkzoFVZHBZo6SNL8wSdCIjCKAwXNuhOk","x":"2nTOaFVm2QLxmUO_SjgyscVHBtvHEfo2rq65MvgNRjORojq39Haq9rXNxvXxwba_Xj0F5vZibJR3isBdOWbo5g"}
 }
 
-func ExampleCozeKey_Thumbprint() {
-	var gk2 = Golden_Key // Make a copy
-	gk2.Tmb = []byte{}   // Set to empty to ensure recalculation.
+func ExampleKey_Thumbprint() {
+	var gk2 = GoldenKey // Make a copy
+	gk2.Tmb = []byte{}  // Set to empty to ensure recalculation.
 	gk2.Thumbprint()
 	h := gk2.Tmb
 	fmt.Println(h)
@@ -119,7 +108,7 @@ func ExampleCozeKey_Thumbprint() {
 }
 
 func ExampleThumbprint() {
-	h, err := Thumbprint(&Golden_Key)
+	h, err := Thumbprint(&GoldenKey)
 	if err != nil {
 		fmt.Println(err)
 		return
@@ -129,35 +118,35 @@ func ExampleThumbprint() {
 	// cLj8vsYtMBwYkzoFVZHBZo6SNL8wSdCIjCKAwXNuhOk
 }
 
-func ExampleCozeKey_Sign() {
-	cad := MustDecode(Golden_Cad)
-	sig, err := Golden_Key.Sign(cad)
+func ExampleKey_Sign() {
+	cad := MustDecode(GoldenCad)
+	sig, err := GoldenKey.Sign(cad)
 	if err != nil {
 		fmt.Println(err)
 	}
-	fmt.Printf("%v\n", Golden_Key.Verify(cad, sig))
+	fmt.Printf("%v\n", GoldenKey.Verify(cad, sig))
 	// Output: true
 }
 
-// ExampleCozeKey_Sign_empty shows signing an empty Coze is valid:
+// ExampleKey_Sign_empty shows signing an empty Coze is valid:
 //
 // {"pay":{},"sig":"9iesKUSV7L1-xz5yd3A94vCkKLmdOAnrcPXTU3_qeKSuk4RMG7Qz0KyubpATy0XA_fXrcdaxJTvXg6saaQQcVQ"}
 //
 // Where `alg` and `key` are already implicitly known by the application.
-func ExampleCozeKey_Sign_empty() {
-	dig := Hash(Golden_Key.Alg.Hash(), []byte("{}"))
-	sig, err := Golden_Key.Sign(dig)
+func ExampleKey_Sign_empty() {
+	dig := Hash(GoldenKey.Alg.Hash(), []byte("{}"))
+	sig, err := GoldenKey.Sign(dig)
 	if err != nil {
 		fmt.Println(err)
 	}
 
-	fmt.Println(Golden_Key.Verify(dig, sig))
+	fmt.Println(GoldenKey.Verify(dig, sig))
 	// Output: true
 }
 
-// ExampleCozeKey_SignPay demonstrates converting a custom data structure into a
+// ExampleKey_SignPay demonstrates converting a custom data structure into a
 // coze, signing it, and verifying the results.
-func ExampleCozeKey_SignPay() {
+func ExampleKey_SignPay() {
 	var customStruct = CustomStruct{
 		Msg: "Coze Rocks",
 	}
@@ -170,12 +159,12 @@ func ExampleCozeKey_SignPay() {
 		Struct: customStruct,
 	}
 
-	coze, err := Golden_Key.SignPay(&pay)
+	coze, err := GoldenKey.SignPay(&pay)
 	if err != nil {
 		fmt.Println(err)
 	}
 
-	v, err := Golden_Key.VerifyCoze(coze)
+	v, err := GoldenKey.VerifyCoze(coze)
 	if err != nil {
 		fmt.Println(err)
 	}
@@ -187,17 +176,17 @@ func ExampleCozeKey_SignPay() {
 	// {"alg":"ES256","iat":1627518000,"tmb":"cLj8vsYtMBwYkzoFVZHBZo6SNL8wSdCIjCKAwXNuhOk","typ":"cyphr.me/msg","msg":"Coze Rocks"}
 }
 
-func ExampleCozeKey_SignPayJSON() {
+func ExampleKey_SignPayJSON() {
 	coze := new(Coze)
-	coze.Pay = []byte(Golden_Pay)
+	coze.Pay = []byte(GoldenPay)
 
 	var err error
-	coze.Sig, err = Golden_Key.SignPayJSON(coze.Pay, nil)
+	coze.Sig, err = GoldenKey.SignPayJSON(coze.Pay, nil)
 	if err != nil {
 		fmt.Println(err)
 	}
 
-	v, err := Golden_Key.VerifyCoze(coze)
+	v, err := GoldenKey.VerifyCoze(coze)
 	if err != nil {
 		fmt.Println(err)
 	}
@@ -207,16 +196,16 @@ func ExampleCozeKey_SignPayJSON() {
 	// true
 }
 
-func ExampleCozeKey_SignCoze() {
+func ExampleKey_SignCoze() {
 	cz := new(Coze)
-	cz.Pay = []byte(Golden_Pay)
+	cz.Pay = []byte(GoldenPay)
 
-	err := Golden_Key.SignCoze(cz, nil)
+	err := GoldenKey.SignCoze(cz, nil)
 	if err != nil {
 		fmt.Println(err)
 	}
 
-	v, err := Golden_Key.VerifyCoze(cz)
+	v, err := GoldenKey.VerifyCoze(cz)
 	if err != nil {
 		fmt.Println(err)
 	}
@@ -226,20 +215,20 @@ func ExampleCozeKey_SignCoze() {
 	// true
 }
 
-func ExampleCozeKey_Verify() {
-	v := Golden_Key.Verify(MustDecode(Golden_Cad), MustDecode(Golden_Sig))
+func ExampleKey_Verify() {
+	v := GoldenKey.Verify(MustDecode(GoldenCad), MustDecode(GoldenSig))
 	fmt.Println(v)
 	// Output: true
 }
 
-func ExampleCozeKey_VerifyCoze() {
+func ExampleKey_VerifyCoze() {
 	var cz = new(Coze)
-	err := json.Unmarshal([]byte(Golden_Coze), cz)
+	err := json.Unmarshal([]byte(GoldenCoze), cz)
 	if err != nil {
 		fmt.Println(err)
 	}
 
-	v, err := Golden_Key.VerifyCoze(cz)
+	v, err := GoldenKey.VerifyCoze(cz)
 	if err != nil {
 		fmt.Println(err)
 	}
@@ -249,9 +238,9 @@ func ExampleCozeKey_VerifyCoze() {
 }
 
 //  Tests valid on a good Coze key and a bad Coze key
-func ExampleCozeKey_Valid() {
-	fmt.Println(Golden_Key.Valid())
-	fmt.Println(Golden_Bad_Key.Valid())
+func ExampleKey_Valid() {
+	fmt.Println(GoldenKey.Valid())
+	fmt.Println(GoldenKeyBad.Valid())
 
 	// Output:
 	// true
@@ -279,13 +268,13 @@ func ExampleNewKey() {
 	}
 
 	for _, alg := range algs {
-		cozeKey, err := NewKey(SEAlg(alg))
+		Key, err := NewKey(SEAlg(alg))
 		if err != nil {
 			fmt.Println(err)
 			continue
 		}
 
-		if cozeKey.Valid() != true {
+		if Key.Valid() != true {
 			fmt.Printf("Invalid signature for alg: %s\n", alg)
 		}
 	}
@@ -295,10 +284,10 @@ func ExampleNewKey() {
 	// Done
 }
 
-func ExampleCozeKey_Correct() {
-	// First key is "bad".  Note that some calls to Correct() pass depending on
-	// given fields.
-	var keys = []CozeKey{Golden_Bad_Key, Golden_Key}
+func ExampleKey_Correct() {
+	// Although the first key is invalid, note that some calls to Correct() pass
+	// depending on given fields.
+	var keys = []Key{GoldenKeyBad, GoldenKey}
 
 	// Test new keys.  These keys should pass every test.
 	algs := []string{"ES224", "ES256", "ES384", "ES512", "Ed25519"}
@@ -349,8 +338,19 @@ func ExampleCozeKey_Correct() {
 	// true, true, true, true, true, true
 }
 
-func ExampleCozeKey_Revoke() {
-	var gk2 = Golden_Key // Make a copy
+// See also ExampleCanonicalHash.
+func Example_genCad() {
+	digest, err := CanonicalHash([]byte(GoldenPay), nil, GoldenKey.Alg.Hash())
+	if err != nil {
+		fmt.Println(err)
+	}
+	fmt.Println(digest)
+	// Output:
+	// LSgWE4vEfyxJZUTFaRaB2JdEclORdZcm4UVH9D8vVto
+}
+
+func ExampleKey_Revoke() {
+	var gk2 = GoldenKey // Make a copy
 	fmt.Println(gk2.IsRevoked())
 	coze, err := gk2.Revoke("Posted my private key on github")
 	if err != nil {

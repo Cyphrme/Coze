@@ -11,9 +11,10 @@ import (
 	"golang.org/x/crypto/sha3"
 )
 
-// Pay contains the standard Coze pay fields as well as a custom struct given by
+// Pay contains the standard Coze pay fields as well as custom Struct given by
 // third party applications.  This allows embedding third party structs into Pay
-// for creating custom cozies (see example ExampleCozeKey_SignPay).
+// for creating custom cozies (see example ExampleKey_SignPay).  Struct must
+// be a pointer or will panic.
 //
 // Note: The custom MarshalJSON() renders the JSON tags on [Alg, Iat, Tmb, Typ]
 // ineffective, however they are present for documentation.  Field Struct will
@@ -24,7 +25,7 @@ type Pay struct {
 	Tmb B64    `json:"tmb,omitempty"` // e.g. "cLj8vsYtMBwYkzoFVZHBZo6SNL8wSdCIjCKAwXNuhOk"
 	Typ string `json:"typ,omitempty"` // e.g. "cyphr.me/msg/create"
 
-	Struct interface{} `json:"-"` // Custom arbitrary struct given by application. Custom marshaler promotes given structure and ignores tag `json:"-"`.
+	Struct any `json:"-"` // Custom arbitrary struct given by application. Custom marshaler promotes given structure and ignores tag `json:"-"`.
 }
 
 // Pay.Coze() returns a new Coze with only Pay populated.
@@ -65,7 +66,7 @@ func (p *Pay) MarshalJSON() ([]byte, error) {
 	return append(pay[:len(pay)-1], s...), nil
 }
 
-// UnmarshalJSON appropriately unmarshals both Pay and custom struct.
+// UnmarshalJSON unmarshals both Pay and if given custom Pay.Struct.
 func (p *Pay) UnmarshalJSON(b []byte) error {
 	type pay2 Pay // Break infinite unmarshal loop
 	p2 := new(pay2)
@@ -73,7 +74,6 @@ func (p *Pay) UnmarshalJSON(b []byte) error {
 	if err != nil {
 		return err
 	}
-	// fmt.Printf("p2 before: %+v\n", p2)
 	if p.Struct != nil {
 		var str = p.Struct
 		err = json.Unmarshal(b, str)
@@ -83,7 +83,6 @@ func (p *Pay) UnmarshalJSON(b []byte) error {
 		p2.Struct = str
 	}
 
-	// fmt.Printf("p2 after: %+v\n", p2)
 	*p = *(*Pay)(p2)
 	return nil
 }
@@ -118,7 +117,7 @@ type Coze struct {
 	Cad B64             `json:"cad,omitempty"`
 	Czd B64             `json:"czd,omitempty"`
 	Pay json.RawMessage `json:"pay,omitempty"`
-	Key *CozeKey        `json:"key,omitempty"`
+	Key *Key            `json:"key,omitempty"`
 	Sig B64             `json:"sig,omitempty"`
 
 	Parsed *Pay `json:"-"`
@@ -150,7 +149,7 @@ func (cz *Coze) Meta() (err error) {
 
 // MetaWithAlg is for contextual cozies that may be lacking `alg` in `pay`, but
 // `alg` in otherwise known.  Errors if pay.alg is set and doesn't match
-// parameter alg.  See notes on Meta()
+// parameter alg.  See notes on Meta().
 func (cz *Coze) MetaWithAlg(alg SEAlg) (err error) {
 	// Set Parsed from Pay.
 	err = json.Unmarshal(cz.Pay, &cz.Parsed)
@@ -182,13 +181,13 @@ func (cz *Coze) MetaWithAlg(alg SEAlg) (err error) {
 
 // GenCzd generates and returns `czd`.
 func GenCzd(hash HashAlg, cad B64, sig B64) (czd B64) {
-	var cadSig = []byte(fmt.Sprintf(`{"cad":"%s","sig":"%s"}`, cad, sig))
+	var cadSig = []byte(fmt.Sprintf(`{"cad":%q,"sig":%q}`, cad, sig))
 	return Hash(hash, cadSig)
 }
 
-// CozeMarshaler is a UTF-8 marshaler for Go structs. Go's `json.Marshal`
+// Marshaler is a UTF-8 marshaler for Go structs. Go's `json.Marshal`
 // removes the valid characters "&". "<", ">". See note on Marshal.
-type CozeMarshaler interface {
+type Marshaler interface {
 	CozeMarshal() ([]byte, error)
 }
 

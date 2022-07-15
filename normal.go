@@ -30,7 +30,7 @@ import (
 // are permitted after the order fields.  An `order` may be used with an
 // `option`.
 //
-// `option` specifies permissable optional fields and may be used alone or used
+// `option` specifies permissible optional fields and may be used alone or used
 // with `need` or `order`. Extra fields are not allowed regardless if `option`
 // is used alone or with a `need` or `order`.
 //
@@ -175,7 +175,7 @@ func IsNormal(pay json.RawMessage, norm any, opt Option) bool {
 		}
 	case Option:
 		if opt != nil {
-			v = append(v, opt...) //merge
+			v = append(v, opt...) // merge
 		}
 		sort.Strings(v)
 		keys := ms.Keys()

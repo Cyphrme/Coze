@@ -17,6 +17,22 @@ type MapItem struct {
 	index uint64
 }
 
+// MapItem as a string.
+func (mi MapItem) String() string {
+	return fmt.Sprintf("{%v %v}", mi.Key, mi.Value)
+}
+
+// UnmarshalJSON for map item.
+func (mi *MapItem) UnmarshalJSON(b []byte) error {
+	var v any
+	if err := json.Unmarshal(b, &v); err != nil {
+		return err
+	}
+	mi.Value = v
+	mi.index = nextIndex()
+	return nil
+}
+
 // MapSlice of map items.
 type MapSlice []MapItem
 
@@ -31,15 +47,10 @@ func nextIndex() uint64 {
 	return indexCounter
 }
 
-// MapItem as a string.
-func (mi MapItem) String() string {
-	return fmt.Sprintf("{%v %v}", mi.Key, mi.Value)
-}
-
 // MapItem key's as a string slice.
-func (mi MapSlice) Keys() []string {
-	s := make([]string, len(mi))
-	for i, k := range mi {
+func (ms MapSlice) Keys() []string {
+	s := make([]string, len(ms))
+	for i, k := range ms {
 		s[i] = fmt.Sprintf("%s", k.Key)
 	}
 	return s
@@ -74,16 +85,5 @@ func (ms *MapSlice) UnmarshalJSON(b []byte) error {
 		*ms = append(*ms, MapItem{Key: k, Value: v.Value, index: v.index})
 	}
 	sort.Sort(*ms)
-	return nil
-}
-
-// UnmarshalJSON for map item.
-func (mi *MapItem) UnmarshalJSON(b []byte) error {
-	var v any
-	if err := json.Unmarshal(b, &v); err != nil {
-		return err
-	}
-	mi.Value = v
-	mi.index = nextIndex()
 	return nil
 }

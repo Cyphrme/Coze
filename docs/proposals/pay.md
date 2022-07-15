@@ -1,1 +1,0 @@
-# Rename `head` to `pay`

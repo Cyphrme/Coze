@@ -54,7 +54,7 @@ func ExampleB64_unmarshalJSON() {
 }
 
 func ExampleDecode() {
-	b, err := Decode(Golden_Tmb)
+	b, err := Decode(GoldenTmb)
 	if err != nil {
 		fmt.Println(err)
 	}
@@ -63,6 +63,6 @@ func ExampleDecode() {
 }
 
 func ExampleMustDecode() {
-	fmt.Println(MustDecode(Golden_Tmb))
+	fmt.Println(MustDecode(GoldenTmb))
 	// Output: cLj8vsYtMBwYkzoFVZHBZo6SNL8wSdCIjCKAwXNuhOk
 }
