@@ -68,11 +68,14 @@ import (
 // └───────┴──────┴──────┘
 //
 type Normal []string
-type Canon Normal
-type Only Normal
-type Need Normal
-type Order Normal
-type Option Normal
+
+type (
+	Canon  Normal
+	Only   Normal
+	Need   Normal
+	Order  Normal
+	Option Normal
+)
 
 // IsNormal checks if a Coze is normalized.  See notes on Normal.  Param opt may
 // be nil.  If opt is considered invalid for Canon and Only and if opt is set
@@ -86,7 +89,7 @@ type Option Normal
 //
 // Repeated keys between opt and norm is allowed.
 func IsNormal(pay json.RawMessage, norm any, opt Option) bool {
-	var ms = MapSlice{}
+	ms := MapSlice{}
 	err := json.Unmarshal(pay, &ms)
 	if err != nil {
 		return false
@@ -200,7 +203,7 @@ func contains(s []string, search string) bool {
 // It returns only top level fields with no recursion or promotion of embedded
 // fields.
 func GetCanon(raw json.RawMessage) (can []string, err error) {
-	var ms = MapSlice{}
+	ms := MapSlice{}
 	err = json.Unmarshal(raw, &ms)
 	if err != nil {
 		return nil, err

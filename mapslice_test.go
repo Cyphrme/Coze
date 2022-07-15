@@ -71,7 +71,7 @@ func ExampleMapSlice_MarshalJSON() {
 }
 
 func ExampleMapSlice_UnmarshalJSON() {
-	var ms = MapSlice{}
+	ms := MapSlice{}
 
 	if err := json.Unmarshal([]byte(`{"abc":123,"def":456,"ghi":789}`), &ms); err != nil {
 		log.Fatal(err)

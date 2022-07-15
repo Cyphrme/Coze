@@ -75,7 +75,7 @@ func (p *Pay) UnmarshalJSON(b []byte) error {
 		return err
 	}
 	if p.Struct != nil {
-		var str = p.Struct
+		str := p.Struct
 		err = json.Unmarshal(b, str)
 		if err != nil {
 			return err
@@ -181,7 +181,7 @@ func (cz *Coze) MetaWithAlg(alg SEAlg) (err error) {
 
 // GenCzd generates and returns `czd`.
 func GenCzd(hash HashAlg, cad B64, sig B64) (czd B64) {
-	var cadSig = []byte(fmt.Sprintf(`{"cad":%q,"sig":%q}`, cad, sig))
+	cadSig := []byte(fmt.Sprintf(`{"cad":%q,"sig":%q}`, cad, sig))
 	return Hash(hash, cadSig)
 }
 

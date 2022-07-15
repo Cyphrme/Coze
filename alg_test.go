@@ -88,7 +88,6 @@ func ExampleAlg_Parse() {
 	// SHA3-512
 	// SHAKE128
 	// SHAKE256
-
 }
 
 func ExampleCrv_Parse() {

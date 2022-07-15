@@ -159,7 +159,6 @@ The canonical digest of a binary file is simply the digest of the
 file using the hash specified by `alg`. For example, an image
 ("Hello_World!.gif") may be referred to in a JSON object by its digest.
 
-// TODO resign
 ```JSON
 {
 	"alg":"SHA-256",
@@ -360,6 +359,8 @@ before signing while Go's ECDSA expects a digest to sign. This means that in
 Javascript messages must be passed for signing, while in Go only a digest is
 needed.  
 
+See docs/developement.md for the Go development guide.
+
 
 # Coze Verifier
 Cyphr.me has an online tool to sign and verify messages.  We hope in the near
@@ -449,7 +450,7 @@ below is the digest of an image. The coze includes other metadata.
 ```
 
 
-## Is Coze versioned?  
+## Is Coze versioned?
 Our hope is Coze stays simple and stable enough to preclude versioning.  `alg`
 refers to a specific set of parameters.  If a parameter needs changing, like the
 hashing algorithm, `alg` would reflect that change.  
@@ -554,12 +555,8 @@ thumbprint.  Associating thumbprints to issuers is the design we recommend.
   specified field.
 
 
-
-
-
 ## Who created Coze?
 Coze was created by Cyphr.me.  
-
 
 ## Discussion
 https://old.reddit.com/r/CozeJson

@@ -10,75 +10,76 @@ import (
 	"golang.org/x/crypto/sha3"
 )
 
-// Alg is a declarative abstraction for cryptographic functions for Coze.
-// For more on Alg, see the main Coze README.
-//
-// The integer value of the "enum" will change in the future. Use the string
-// name for algos when storing information.
-//
-// Hierarchy for signing and hashing cryptographic functions. Naming is
-// inspired by taxonomic rank.
-//
-//  - Level 0 species - "SpcAlg"  (e.g.: ES256) (species)
-//  - Level 1 genus   - "GenAlg"  (e.g.: ECDSA) (genus)
-//  - Level 2 family  - "FamAlg"  (e.g.: EC)    (family)
-//
-// The value for a Coze `alg` is always a specific (species) algorithm, e.g.
-// "ES256", and never any other rank, e.g. "ECDSA". The type `Alg` in this
-// package may be any algorithm of any rank.
-//
-// Cryptographic Signature/Encryption/Hashing hierarchy
-//
-//  - EC
-//  -- ECDSA
-//  --- ES224
-//  --- ES256
-//  --- ES384
-//  --- ES512
-//  -- EdDSA
-//  --- Ed25519
-//  --- Ed25519ph
-//  --- Ed448
-//  - SHA
-//  -- SHA-2
-//  --- SHA-224
-//  --- SHA-256
-//  --- SHA-384
-//  --- SHA-512
-//  -- SHA-3
-//  --- SHA3-224
-//  --- SHA3-256
-//  --- SHA3-384
-//  --- SHA3-512
-//  --- SHAKE128
-//  --- SHAKE256
-//
-// Potential Future Support:
-//  - RSA
-//  -- RSASSA-PKCS1-v1_5
-//  --- RS256
-//  - Lattice-Based signatures
-//  - Other future broad types...
-//  -- ECDH
-//
-// "SE" (singing, encryption) is the super type of signing and encryption and
-// excludes hashing.
-//
-// See the main Coze README for Coze supported and unsupported things.
-type Alg int    // Alg is for all cryptographic algorithms. All levels included.
-type GenAlg int // Algorithm genus.    Level 1.
-type FamAlg int // Algorithm family    Level 2.
+type (
+	// Alg is a declarative abstraction for cryptographic functions for Coze.
+	// For more on Alg, see the main Coze README.
+	//
+	// The integer value of the "enum" will change in the future. Use the string
+	// name for algos when storing information.
+	//
+	// Hierarchy for signing and hashing cryptographic functions. Naming is
+	// inspired by taxonomic rank.
+	//
+	//  - Level 0 species - "SpcAlg"  (e.g.: ES256) (species)
+	//  - Level 1 genus   - "GenAlg"  (e.g.: ECDSA) (genus)
+	//  - Level 2 family  - "FamAlg"  (e.g.: EC)    (family)
+	//
+	// The value for a Coze `alg` is always a specific (species) algorithm, e.g.
+	// "ES256", and never any other rank, e.g. "ECDSA". The type `Alg` in this
+	// package may be any algorithm of any rank.
+	//
+	// Cryptographic Signature/Encryption/Hashing hierarchy
+	//
+	//  - EC
+	//  -- ECDSA
+	//  --- ES224
+	//  --- ES256
+	//  --- ES384
+	//  --- ES512
+	//  -- EdDSA
+	//  --- Ed25519
+	//  --- Ed25519ph
+	//  --- Ed448
+	//  - SHA
+	//  -- SHA-2
+	//  --- SHA-224
+	//  --- SHA-256
+	//  --- SHA-384
+	//  --- SHA-512
+	//  -- SHA-3
+	//  --- SHA3-224
+	//  --- SHA3-256
+	//  --- SHA3-384
+	//  --- SHA3-512
+	//  --- SHAKE128
+	//  --- SHAKE256
+	//
+	// Potential Future Support:
+	//  - RSA
+	//  -- RSASSA-PKCS1-v1_5
+	//  --- RS256
+	//  - Lattice-Based signatures
+	//  - Other future broad types...
+	//  -- ECDH
+	//
+	// "SE" (singing, encryption) is the super type of signing and encryption and
+	// excludes hashing.
+	//
+	// See the main Coze README for Coze supported and unsupported things.
+	Alg int // Alg is for all cryptographic algorithms. All levels included.
 
-type HashAlg Alg  // Hashing Algorithm
-type SigAlg SEAlg // Signing Algorithm
-type EncAlg SEAlg // Encryption Algorithm
+	GenAlg  int   // Algorithm genus.    Level 1.
+	FamAlg  int   // Algorithm family    Level 2.
+	HashAlg Alg   // Hashing Algorithm
+	SigAlg  SEAlg // Signing Algorithm
+	EncAlg  SEAlg // Encryption Algorithm
+	Crv     int   // Curve type.  Used for EC curves.
+	KeyUse  int   // Key Use. Right now only "sig".
 
-type Crv int    // Curve type.  Used for EC curves.
-type KeyUse int // Key Use. 2021/05/19 Right now only "sig" (Perhaps "enc" in the future)
-
-// SEAlg is the Signing or Encryption alg. Super type of SigAlg and EncAlg and
-// is itself not a specific algorithm and is not included in Alg.
-type SEAlg Alg
+	// SEAlg is the Signing or Encryption alg. Super type of SigAlg and EncAlg and
+	// is itself not a specific algorithm and is not included in Alg.
+	SEAlg Alg
+)
 
 // Params reports all relevant values for an `alg`. If values are not applicable
 // for a particular `alg`, values may be populated with the Go zero value, e.g.

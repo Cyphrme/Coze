@@ -69,7 +69,7 @@ func ExamplePay_jsonUnmarshal() {
 // ExamplePay_jsonMarshalCustom demonstrates marshalling Pay with a custom
 // structure.
 func ExamplePay_jsonMarshalCustom() {
-	var customStruct = CustomStruct{
+	customStruct := CustomStruct{
 		Msg: "Coze Rocks",
 	}
 
@@ -133,10 +133,10 @@ func ExamplePay_jsonUnmarshalCustom() {
 	// &{Coze Rocks}
 }
 
-//ExamplePay_String_custom demonstrates fmt.Stringer on Pay with a custom
-//structure.
+// ExamplePay_String_custom demonstrates fmt.Stringer on Pay with a custom
+// structure.
 func ExamplePay_String_custom() {
-	var customStruct = CustomStruct{
+	customStruct := CustomStruct{
 		Msg: "Coze Rocks",
 	}
 
@@ -241,7 +241,7 @@ func ExampleCoze_MetaWithAlg() {
 	//{"can":["msg","alg","iat","tmb","typ"],"cad":"LSgWE4vEfyxJZUTFaRaB2JdEclORdZcm4UVH9D8vVto","czd":"d0ygwQCGzuxqgUq1KsuAtJ8IBu0mkgAcKpUJzuX075M","pay":{"msg":"Coze Rocks","alg":"ES256","iat":1627518000,"tmb":"cLj8vsYtMBwYkzoFVZHBZo6SNL8wSdCIjCKAwXNuhOk","typ":"cyphr.me/msg"},"sig":"ywctP6lEQ_HcYLhgpoecqhFrqNpBSyNPuAPOV94SThuztJek7x7H9mXFD0xTrlmQPg_WC7jwg70nzNoGn70JyA"}
 }
 
-//ExampleCoze_jsonUnMarshal tests unmarshalling a coze.
+// ExampleCoze_jsonUnMarshal tests unmarshalling a coze.
 func ExampleCoze_jsonUnMarshal() {
 	cz := new(Coze)
 	err := json.Unmarshal([]byte(GoldenCoze), cz)

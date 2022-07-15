@@ -10,12 +10,11 @@ import (
 // unmarshalling structs. B64's underlying type is []byte and is represented in
 // JSON as base64 URI truncated (b64ut).
 //
-// When converting integers or other types, `nil` in B64 is "" and the zero is
-// encoded as "AA".
+// When converting integers or other types to B64, `nil` is encoded as "" and
+// zero is encoded as "AA".
 type B64 []byte
 
-// UnmarshalJSON implements JSON.UnmarshalJSON. It is a custom unmarshaler for
-// binary data in JSON, which should always be represented as b64ut.
+// UnmarshalJSON implements JSON.UnmarshalJSON so B64 is encoded as b64ut.
 func (t *B64) UnmarshalJSON(b []byte) error {
 	// JSON.Unmarshal gives b encapsulated in quote characters. Quotes characters
 	// are invalid base64 and must be stripped.
@@ -27,7 +26,8 @@ func (t *B64) UnmarshalJSON(b []byte) error {
 	return nil
 }
 
-// MarshalJSON implements JSON.MarshalJSON. Error is always nil.
+// MarshalJSON implements JSON.MarshalJSON so B64 is decoded from b64ut. Error
+// is always nil.
 func (t B64) MarshalJSON() ([]byte, error) {
 	// JSON expects stings to be wrapped with double quote character.
 	return []byte(fmt.Sprintf("\"%v\"", t)), nil

@@ -43,10 +43,12 @@ var GoldenPay = `{
 	"typ": "cyphr.me/msg"
  }`
 
-var GoldenTmb = "cLj8vsYtMBwYkzoFVZHBZo6SNL8wSdCIjCKAwXNuhOk"
-var GoldenCad = "LSgWE4vEfyxJZUTFaRaB2JdEclORdZcm4UVH9D8vVto"
-var GoldenCzd = "d0ygwQCGzuxqgUq1KsuAtJ8IBu0mkgAcKpUJzuX075M"
-var GoldenSig = "ywctP6lEQ_HcYLhgpoecqhFrqNpBSyNPuAPOV94SThuztJek7x7H9mXFD0xTrlmQPg_WC7jwg70nzNoGn70JyA"
+var (
+	GoldenTmb = "cLj8vsYtMBwYkzoFVZHBZo6SNL8wSdCIjCKAwXNuhOk"
+	GoldenCad = "LSgWE4vEfyxJZUTFaRaB2JdEclORdZcm4UVH9D8vVto"
+	GoldenCzd = "d0ygwQCGzuxqgUq1KsuAtJ8IBu0mkgAcKpUJzuX075M"
+	GoldenSig = "ywctP6lEQ_HcYLhgpoecqhFrqNpBSyNPuAPOV94SThuztJek7x7H9mXFD0xTrlmQPg_WC7jwg70nzNoGn70JyA"
+)
 
 var GoldenCoze = `{
 	"pay":` + GoldenPay + `,
@@ -75,7 +77,7 @@ func ExampleKey_String() {
 	// {"alg":"ES256","d":"bNstg4_H3m3SlROufwRSEgibLrBuRq9114OvdapcpVA","iat":1623132000,"kid":"Zami's Majuscule Key.","tmb":"cLj8vsYtMBwYkzoFVZHBZo6SNL8wSdCIjCKAwXNuhOk","x":"2nTOaFVm2QLxmUO_SjgyscVHBtvHEfo2rq65MvgNRjORojq39Haq9rXNxvXxwba_Xj0F5vZibJR3isBdOWbo5g"}
 }
 
-//ExampleKey_jsonUnmarshal tests unmarshalling a Coze key.
+// ExampleKey_jsonUnmarshal tests unmarshalling a Coze key.
 func ExampleKey_jsonUnmarshal() {
 	Key := new(Key)
 	err := json.Unmarshal([]byte(GoldenKeyString), Key)
@@ -98,8 +100,8 @@ func ExampleKey_jsonMarshal() {
 }
 
 func ExampleKey_Thumbprint() {
-	var gk2 = GoldenKey // Make a copy
-	gk2.Tmb = []byte{}  // Set to empty to ensure recalculation.
+	gk2 := GoldenKey   // Make a copy.
+	gk2.Tmb = []byte{} // Set to empty to ensure recalculation.
 	gk2.Thumbprint()
 	h := gk2.Tmb
 	fmt.Println(h)
@@ -147,7 +149,7 @@ func ExampleKey_Sign_empty() {
 // ExampleKey_SignPay demonstrates converting a custom data structure into a
 // coze, signing it, and verifying the results.
 func ExampleKey_SignPay() {
-	var customStruct = CustomStruct{
+	customStruct := CustomStruct{
 		Msg: "Coze Rocks",
 	}
 
@@ -222,7 +224,7 @@ func ExampleKey_Verify() {
 }
 
 func ExampleKey_VerifyCoze() {
-	var cz = new(Coze)
+	cz := new(Coze)
 	err := json.Unmarshal([]byte(GoldenCoze), cz)
 	if err != nil {
 		fmt.Println(err)
@@ -287,7 +289,7 @@ func ExampleNewKey() {
 func ExampleKey_Correct() {
 	// Although the first key is invalid, note that some calls to Correct() pass
 	// depending on given fields.
-	var keys = []Key{GoldenKeyBad, GoldenKey}
+	keys := []Key{GoldenKeyBad, GoldenKey}
 
 	// Test new keys.  These keys should pass every test.
 	algs := []string{"ES224", "ES256", "ES384", "ES512", "Ed25519"}
@@ -300,7 +302,7 @@ func ExampleKey_Correct() {
 	}
 
 	for _, k := range keys {
-		var gk2 = k // Make a copy
+		gk2 := k // Make a copy
 
 		// Key with with [alg,d,tmb,x]
 		p1, _ := gk2.Correct()
@@ -350,7 +352,7 @@ func Example_genCad() {
 }
 
 func ExampleKey_Revoke() {
-	var gk2 = GoldenKey // Make a copy
+	gk2 := GoldenKey // Make a copy
 	fmt.Println(gk2.IsRevoked())
 	coze, err := gk2.Revoke("Posted my private key on github")
 	if err != nil {
@@ -373,7 +375,7 @@ func ExampleKey_Revoke() {
 // go test -bench=.
 // go test -bench=BenchmarkNSV -benchtime=30s
 func BenchmarkNSV(b *testing.B) {
-	var algs = []SigAlg{ES224, ES256, ES384, ES512, Ed25519}
+	algs := []SigAlg{ES224, ES256, ES384, ES512, Ed25519}
 	for j := 0; j < b.N; j++ {
 		for i := 0; i < len(algs); i++ {
 			ck, err := NewKey(SEAlg(algs[i]))
