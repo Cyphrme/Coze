@@ -1,4 +1,28 @@
+# Coze Vs "X" Disclaimer
+We have a lot of respect for the various projects in the space.  Many projects
+have noble goals and we're thankful they exists.  We also don't think it's cool
+to "take a dump" all over someone else's work when the authors have worked so
+hard to bring value, freely, to everyone.  
+
+We also think it's important to give specific reason why Coze's design is
+different from other projects.  In this document, we attempt to give specific
+reasons why Coze was needed.  
+
+# Why not "x"?
+
+## signify (OpenBSD):
+ - Not JSON.  
+ - No browser implementations. 
+ - No algorithm agility.  
+ - No real plan to expand its use.  
+
+
+
 # Coze vs JOSE
+
+We have a lot of respect for JOSE.  We think its goals are noble
+and we're glad it exists.  
+
 ## Why JOSE is awesome.
 - Has the goal of doing crypto in a somewhat human readable paradigm.
 - Has the goal of updating old standards that are hard to use and sometimes
@@ -7,30 +31,30 @@
 - JSON crypto keys, both public and private, have thumbprints, which is like a
   PGP fingerprint or Ethereum address. Thumbprints universally address specific
   keys. 
+- Permits algorithm agility.  
 
-## Why JOSE could be better.
-- JWT is not JSON (despite the name) and JWS is valid, but base64 encoded, JSON. 
+## How JOSE could be better.
+- JWT is not JSON (despite the name).  JWT is not JSON in both encoded and
+  decoded form.
 - The "unencoded" option is still encoded, and was added to the standard later.
   (RFC 7797)
-		- (Thumbprints were also added later.)
 - Thumbprints have no way to signify hash algorithm (as of 2021/05/04) and it
-  appears to be always assumed to be SHA-256.  Later, additional RFCs have
-  followed this implicit requirement.  For example RFC 8037 specifies that
-  Ed25519 and Ed448, neither of which use SHA-256, use SHA-256 for their
-  thumbprints. 
-- Because headers are always transmitted encoded and as base64, they increase in
+  appears to be always assumed to be SHA-256, even for ES384 and ES512.  Later,
+  additional RFCs have followed this implicit requirement.  For example RFC 8037
+  specifies that Ed25519 and Ed448, neither of which use SHA-256, use SHA-256
+  for their thumbprints. 
+- Payers are always transmitted encoded and as base64 and they increase in
   size.  For example,
   `"eyJhbGciOiJIUzI1NiIsImI2NCI6ZmFsc2UsImNyaXQiOlsiYjY0Il19"` is larger than
-  the unencoded representation `{"alg":"HS256","b64":false,"crit":["b64"]}`
-- Converts UTF-8 to b64ut and encodes that into ASCII bytes, and then then
-  hashes/signs those bytes. That's at least one extra conversion step we
-  consider unneeded.  
+  the unencoded representation `{"alg":"HS256","b64":false,"crit":["b64"]}`.
+- Converts UTF-8 to b64ut and encodes that into ASCII bytes, and then 
+  hashes/signs those bytes. That's at least one extra conversion.
 - JOSE's double encoding of some base64 values is inefficient.  
 - Protected headers.  For example, "alg" is required but doesn't always have to
   appear in the "protected" header.  This makes "protected"/"unprotected"
   headers less meaningful. 
 - Any string that re-encodes b64ut grows in size. normal JOSE objects, both the
-  compact (like JWT) and JSON forms grow in size. 
+  compact (like JWT) and JSON forms grow in size.
 
 
 JOSE:
@@ -57,7 +81,7 @@ UTF8(eyJhbGciOiJSUzI1NiJ9.eyJpc3MiOiJqb2UiLA0KICJleHAiOjEzMDA4MTkzODAsDQogImh0dH
 	- Coze uses the generalized "Canonical Hash" (CH) to thumbprint any JSON
   object or binary blob, including keys and messages.  
 - Instead of "claims" inside of "payload" which is separate from head, Coze puts
-  everything in head. 
+  everything in pay. 
 
 
 
@@ -139,7 +163,7 @@ as of 2021/05/13.
 
 
 
- ## Example JWK (Coze does not use JWK, this is just for comparison):
+## Reference Example JWK:
 ```json
 {
  "crv": "P-256",
@@ -153,9 +177,7 @@ as of 2021/05/13.
 
 
 
-
 ## Encoding Waste Example
-
 The example string, "Potatoes,"
 
 is 9 characters, and is encoded in UTF-8 as 9 bytes.  

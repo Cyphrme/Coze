@@ -8,7 +8,7 @@ can be (much) smaller than JWTs if base64 encoded.
 For example, when compactified the following is 298 characters.  
 ```json
 {
-"head": {
+"pay": {
  "alg": "ES256",
  "iat": 1623132000,
  "msg": "Coze Rocks",
@@ -25,13 +25,15 @@ A comparable JWT is smaller at 280 characters.
 eyJhbGciOiJFUzI1NiIsInR5cCI6IkpXVCJ9.eyJtc2ciOiJDb3plIFJvY2tzIiwiaWF0IjoxNjI3NTE4MDAwLCJ0bWIiOiJyYkxYM1NzV0xXQkpvSXFNUENOVUZ1VURScFZVX28tMFNERms4WWxURXU4IiwidHlwIjoiY3lwaHIubWUvbXNnL2NyZWF0ZSJ9.7uLr31zS5_I-UeJWj4Olrufu9C7sr2-2DB4dDyKY4yf3g6Jr30JSLS3wfyMEWUbW1OVAzsB1wYhaWbUz0VWtGA
 ```
 
+Although 19 more characters or about 6% larger isn't bad, we'd like Coze to
+simply be better.  
 
-
-Coze would be smaller if base64 was used.  The following is 235 characters.  
+Coze would be smaller if base64 was used.  The following is 235 characters, 45
+characters and 16% smaller than a comparable JWT.    
 
 ```json
 {
-"head": {
+"pay": {
  "alg": "ES256",
  "iat": 1623132000,
  "msg": "Coze Rocks",
@@ -51,7 +53,7 @@ from `alg` and string length.
 
 For example, for alg: "ES256", "tmb" is 64 in Hex and 43 in base64.
 
-- The Hex `tmb`, `cad`, `cyd`, and `sig` are not directly encodable to base64
+- The Hex `tmb`, `cad`, `czd`, and `sig` are not directly encodable to base64
   since they would be computed with different encoding.  The base64 `tmb`
   would need to be digest of the base64 representation of Coze key.  
 

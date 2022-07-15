@@ -1,16 +1,30 @@
-// Package enum is a declarative abstraction for cryptographic functions
-// for Coze in Go.
+package coze
+
+import (
+	"crypto/elliptic"
+	"crypto/sha256"
+	"crypto/sha512"
+	"hash"
+	"strings"
+
+	"golang.org/x/crypto/sha3"
+)
+
+// Alg is a declarative abstraction for cryptographic functions for Coze.
+// For more on Alg, see the main Coze README.
 //
-// See the main Coze README.
+// The integer value of the "enum" will change in the future. Use the string
+// name for algos when storing information.
 //
-// Hierarchy for signing and hashing cryptographic functions.  Naming is inspired by taxonomic rank.
+// Hierarchy for signing and hashing cryptographic functions. Naming is
+// inspired by taxonomic rank.
 //
 //  - Level 0 species - "SpcAlg"  (e.g.: ES256) (species)
 //  - Level 1 genus   - "GenAlg"  (e.g.: ECDSA) (genus)
 //  - Level 2 family  - "FamAlg"  (e.g.: EC)    (family)
 //
-// The value for a Coze `alg` is always specific (species) algorithm, e.g.
-// "ES256", and never any other rank, e.g. "ECDSA".  The type `Alg` in this
+// The value for a Coze `alg` is always a specific (species) algorithm, e.g.
+// "ES256", and never any other rank, e.g. "ECDSA". The type `Alg` in this
 // package may be any algorithm of any rank.
 //
 // Cryptographic Signature/Encryption/Hashing hierarchy
@@ -23,6 +37,7 @@
 //  --- ES512
 //  -- EdDSA
 //  --- Ed25519
+//  --- Ed25519ph
 //  --- Ed448
 //  - SHA
 //  -- SHA-2
@@ -38,7 +53,7 @@
 //  --- SHAKE128
 //  --- SHAKE256
 //
-// Potentially supporting:
+// Potential Future Support:
 //  - RSA
 //  -- RSASSA-PKCS1-v1_5
 //  --- RS256
@@ -46,27 +61,11 @@
 //  - Other future broad types...
 //  -- ECDH
 //
-// "SE" (singing, encryption) is the super type of signing and encryption.  SE
+// "SE" (singing, encryption) is the super type of signing and encryption and
 // excludes hashing.
 //
-// The integer value of the enum will change in the future. Use the string name
-// for algos when storing information.
-//
-// See the main Coze README for unsupported algs and things.
-package enum
-
-import (
-	"crypto/elliptic"
-	"crypto/sha256"
-	"crypto/sha512"
-	"hash"
-	"strings"
-
-	"golang.org/x/crypto/sha3"
-)
-
-// Cryptographic Algorithm types.
-type Alg int    // Alg is for all cryptographic algorithms.  All levels included.
+// See the main Coze README for Coze supported and unsupported things.
+type Alg int    // Alg is for all cryptographic algorithms. All levels included.
 type GenAlg int // Algorithm genus.    Level 1.
 type FamAlg int // Algorithm family    Level 2.
 
@@ -75,9 +74,9 @@ type SigAlg SEAlg // Signing Algorithm
 type EncAlg SEAlg // Encryption Algorithm
 
 type Crv int    // Curve type.  Used for EC curves.
-type KeyUse int // Key Use. 2021/05/19 Right now only "enc" or "sig"
+type KeyUse int // Key Use. 2021/05/19 Right now only "sig" (Perhaps "enc" in the future)
 
-// SEAlg is the Signing or Encryption alg.  Super type of SigAlg and EncAlg and
+// SEAlg is the Signing or Encryption alg. Super type of SigAlg and EncAlg and
 // is itself not a specific algorithm and is not included in Alg.
 type SEAlg Alg
 
@@ -89,11 +88,13 @@ type Params struct {
 	Name     string
 	Genus    GenAlg
 	Family   FamAlg
+	XSize    int     `json:"X.Size,omitempty"`
+	DSize    int     `json:"D.Size,omitempty"`
 	Hash     HashAlg `json:",omitempty"`
 	HashSize int     `json:"Hash.Size,omitempty"`
 	SigSize  int     `json:"Sig.Size,omitempty"`
 	Curve    Crv     `json:",omitempty"`
-	KeyUse   KeyUse  `json:",omitempty"`
+	KeyUse   KeyUse  `json:"Use,omitempty"`
 }
 
 // Params sets and returns a Params struct. See struct definition.
@@ -102,6 +103,8 @@ func (a Alg) Params() Params {
 	p.Name = a.String()
 	p.Genus = a.Genus()
 	p.Family = a.Family()
+	p.XSize = SEAlg(a).XSize()
+	p.DSize = SEAlg(a).DSize()
 	p.Hash = a.Hash()
 	p.HashSize = a.Hash().Size()
 	p.SigSize = a.SigAlg().SigSize()
@@ -111,7 +114,7 @@ func (a Alg) Params() Params {
 	return p
 }
 
-// GenAlg "Genus"
+// GenAlg "Genus".
 const (
 	UnknownGenAlg GenAlg = iota
 	Ecdsa
@@ -134,7 +137,7 @@ func (g GenAlg) MarshalJSON() ([]byte, error) {
 	return []byte(`"` + g.String() + `"`), nil
 }
 
-// FamAlg "Family"
+// FamAlg "Family".
 const (
 	UnknownFamAlg FamAlg = iota
 	EC
@@ -155,21 +158,18 @@ func (f FamAlg) MarshalJSON() ([]byte, error) {
 	return []byte(`"` + f.String() + `"`), nil
 }
 
-//////////////////////
-//       Alg        //
-//////////////////////
 const (
 	UnknownAlg Alg = iota
 )
 
-func (h *Alg) UnmarshalJSON(b []byte) error {
-	h.Parse(string(b))
+func (a *Alg) UnmarshalJSON(b []byte) error {
+	a.Parse(string(b))
 
 	return nil
 }
 
-func (h Alg) MarshalJSON() ([]byte, error) {
-	s := `"` + getString(int(h)) + `"`
+func (a Alg) MarshalJSON() ([]byte, error) {
+	s := `"` + getString(int(a)) + `"`
 	return []byte(s), nil
 }
 
@@ -180,7 +180,7 @@ func (a *Alg) Parse(s string) {
 	default:
 		*a = UnknownAlg
 	case "UnknownAlg":
-		*a = Alg(UnknownAlg)
+		*a = UnknownAlg
 	case "UnknownSigAlg":
 		*a = Alg(UnknownSignAlg)
 	case "ES224":
@@ -193,9 +193,11 @@ func (a *Alg) Parse(s string) {
 		*a = Alg(ES512)
 	case "Ed25519":
 		*a = Alg(Ed25519)
+	case "Ed25519ph":
+		*a = Alg(Ed25519ph)
 	case "Ed448":
 		*a = Alg(Ed448)
-	//	// Not implemented:
+	//	Placeholder for future.
 	// case "RS256":
 	// 	*a = Alg(RS256)
 	// case "RS384":
@@ -207,27 +209,26 @@ func (a *Alg) Parse(s string) {
 	case "UnknownHashAlg":
 		*a = Alg(UnknownHashAlg)
 	case "SHA-224":
-		*a = Alg(Sha224)
+		*a = Alg(SHA224)
 	case "SHA-256":
-		*a = Alg(Sha256)
+		*a = Alg(SHA256)
 	case "SHA-384":
-		*a = Alg(Sha384)
+		*a = Alg(SHA384)
 	case "SHA-512":
-		*a = Alg(Sha512)
+		*a = Alg(SHA512)
 	case "SHA3-224":
-		*a = Alg(Sha3224)
+		*a = Alg(SHA3224)
 	case "SHA3-256":
-		*a = Alg(Sha3256)
+		*a = Alg(SHA3256)
 	case "SHA3-384":
-		*a = Alg(Sha3384)
+		*a = Alg(SHA3384)
 	case "SHA3-512":
-		*a = Alg(Sha3512)
+		*a = Alg(SHA3512)
 	case "SHAKE128":
-		*a = Alg(Shake128)
+		*a = Alg(SHAKE128)
 	case "SHAKE256":
-		*a = Alg(Shake256)
+		*a = Alg(SHAKE256)
 	}
-	return
 }
 
 // getString must follow the same order as Alg's Parse.
@@ -240,8 +241,9 @@ func getString(i int) (s string) {
 		"ES384",
 		"ES512",
 		"Ed25519",
+		"Ed25519ph",
 		"Ed448",
-		"RS256", // TODO support RSA. (Placeholders for future.)
+		"RS256", // Placeholder for future.
 		"RS384",
 		"RS512",
 		"UnknownEncAlg",
@@ -259,8 +261,8 @@ func getString(i int) (s string) {
 	}[i]
 }
 
-func (s Alg) String() string {
-	return getString(int(s))
+func (a Alg) String() string {
+	return getString(int(a))
 }
 
 func Parse(s string) (a *Alg) {
@@ -269,38 +271,39 @@ func Parse(s string) (a *Alg) {
 	return a
 }
 
-// Genus is for ECDSA, EdDSA, SHA-2, SHA-3
+// Genus is for ECDSA, EdDSA, SHA-2, SHA-3.
 func (a Alg) Genus() GenAlg {
 	switch a {
 	default:
 		return UnknownGenAlg
 	case Alg(ES224), Alg(ES256), Alg(ES384), Alg(ES512):
 		return Ecdsa
-	case Alg(Ed25519), Alg(Ed448):
+	case Alg(Ed25519), Alg(Ed25519ph), Alg(Ed448):
 		return Eddsa
-	case Alg(Sha224), Alg(Sha256), Alg(Sha384), Alg(Sha512):
+	case Alg(SHA224), Alg(SHA256), Alg(SHA384), Alg(SHA512):
 		return SHA2
-	case Alg(Sha3224), Alg(Sha3256), Alg(Sha3384), Alg(Sha3512), Alg(Shake128), Alg(Shake256):
+	case Alg(SHA3224), Alg(SHA3256), Alg(SHA3384), Alg(SHA3512), Alg(SHAKE128), Alg(SHAKE256):
 		return SHA3
 	}
 }
 
-// Family is for 	EC,	SHA, and	RSA
+// Family is for EC, SHA, and RSA.
 func (a Alg) Family() (f FamAlg) {
 	switch a {
 	default:
 		f = UnknownFamAlg
-	case Alg(ES224), Alg(ES256), Alg(ES384), Alg(ES512), Alg(Ed25519), Alg(Ed448):
+	case Alg(ES224), Alg(ES256), Alg(ES384), Alg(ES512), Alg(Ed25519), Alg(Ed25519ph), Alg(Ed448):
 		f = EC
-	case Alg(Sha224), Alg(Sha256), Alg(Sha384), Alg(Sha512), Alg(Sha3224), Alg(Sha3256), Alg(Sha3384), Alg(Sha3512), Alg(Shake128), Alg(Shake256):
+	case Alg(SHA224), Alg(SHA256), Alg(SHA384), Alg(SHA512), Alg(SHA3224), Alg(SHA3256), Alg(SHA3384), Alg(SHA3512), Alg(SHAKE128), Alg(SHAKE256):
 		f = SHA
 	}
 	return
 }
 
-// Hash returns respective hashing algorithm if specified.  If alg is a hashing
+// Hash returns respective hashing algorithm if specified. If alg is a hashing
 // algorithm, it returns itself.
 func (a Alg) Hash() HashAlg {
+	// Return itself if Alg is a HashAlg
 	if a.Family() == SHA {
 		return HashAlg(a)
 	}
@@ -308,70 +311,210 @@ func (a Alg) Hash() HashAlg {
 	return SEAlg(a).Hash()
 }
 
-/////////////////////////////////////////
-//  SEAlg (Signing or Encryption Alg)  //
-/////////////////////////////////////////
+func (a Alg) SigAlg() SigAlg {
+	return SigAlg(a)
+}
+
 const (
 	SEAlgUnknown SEAlg = iota
 )
 
-func (s SEAlg) String() string {
-	return getString(int(s))
+func (se SEAlg) String() string {
+	return getString(int(se))
 }
 
 func ParseSEAlg(s string) SEAlg {
-	return (SEAlg)(*Parse(s))
+	return SEAlg(*Parse(s))
 }
 
-func (s SEAlg) SigAlg() (sa SigAlg) {
-	switch s {
-	case SEAlg(ES224):
-		sa = ES224
-	case SEAlg(ES256):
-		sa = ES256
-	case SEAlg(ES384):
-		sa = ES384
-	case SEAlg(ES512):
-		sa = ES512
-	case SEAlg(Ed25519):
-		sa = Ed25519
-	case SEAlg(Ed448):
-		sa = Ed448
+func (se SEAlg) SigAlg() SigAlg {
+	switch SigAlg(se) {
+	default:
+		return UnknownSignAlg
+	case ES224:
+		return ES224
+	case ES256:
+		return ES256
+	case ES384:
+		return ES384
+	case ES512:
+		return ES512
+	case Ed25519:
+		return Ed25519
+	case Ed25519ph:
+		return Ed25519ph
+	case Ed448:
+		return Ed448
 	}
-	return sa
 }
 
-func (h *SEAlg) UnmarshalJSON(b []byte) error {
-	h.Parse(string(b))
+func (se *SEAlg) UnmarshalJSON(b []byte) error {
+	se.Parse(string(b))
 	return nil
 }
 
-func (h SEAlg) MarshalJSON() ([]byte, error) {
-	s := `"` + h.String() + `"`
+func (se SEAlg) MarshalJSON() ([]byte, error) {
+	s := `"` + se.String() + `"`
 	return []byte(s), nil
 }
 
-// String makes the enum to string.  (enum.toString)
 func (se *SEAlg) Parse(s string) {
-	*se = (SEAlg)(*Parse(s))
+	*se = SEAlg(*Parse(s))
 }
 
-func (h SEAlg) Curve() Crv {
-	a := Alg(h)
-	c := a.Curve()
-	return c
+func (se SEAlg) Curve() Crv {
+	return Alg(se).Curve()
+}
+
+func (se SEAlg) Genus() GenAlg {
+	return Alg(se).Genus()
+}
+
+func (se SEAlg) Family() FamAlg {
+	return Alg(se).Family()
 }
 
 // Hash returns respective hashing algorithm if specified.
-func (a SEAlg) Hash() HashAlg {
-	return SigAlg(a).Hash() // Only SigAlgs are supported at the moment.
+func (se SEAlg) Hash() HashAlg {
+	// Only SigAlgs support .Hash() at the moment.
+	return se.SigAlg().Hash()
 }
 
-//////////////
-//  SigAlg  //
-//////////////
+// XSize returns the byte size of `x`.  Returns 0 on error.
+//
+//For ECDSA `x` is the concatenation of X and Y.
+func (se SEAlg) XSize() int {
+	switch SigAlg(se) {
+	default:
+		return 0
+	case ES224:
+		return 56
+	case ES256:
+		return 64
+	case ES384:
+		return 96
+	case ES512:
+		return 132 // X and Y are 66 bytes (Rounded up for P521)
+	case Ed25519, Ed25519ph:
+		return 32
+	case Ed448:
+		return 57
+	}
+}
+
+// DSize returns the byte size of `d`. Returns 0 on error.
+func (se SEAlg) DSize() int {
+	switch SigAlg(se) {
+	default:
+		return 0
+	case ES224:
+		return 28
+	case ES256, Ed25519, Ed25519ph:
+		return 32
+	case ES384:
+		return 48
+	case Ed448:
+		return 57
+	case ES512:
+		return 66 // Rounded up for P521
+	}
+}
+
 const (
-	// Must be in order according to Alg.Parse()
+	UnknownEncAlg EncAlg = iota + 10
+)
+
+////////////////
+//  HashAlg  //
+////////////////
+
+// HashAlg is a hashing algorithm. See also https://golang.org/pkg/crypto/Hash
+const (
+	// HashAlg is after Alg, SigAlg, and EncAlg.
+	UnknownHashAlg HashAlg = iota + 13
+	SHA224                 // SHA-2
+	SHA256
+	SHA384
+	SHA512
+	SHA3224 // SHA-3
+	SHA3256
+	SHA3384
+	SHA3512
+	SHAKE128 // Shake
+	SHAKE256
+)
+
+func (h HashAlg) String() string {
+	return getString(int(h))
+}
+
+func (h *HashAlg) UnmarshalJSON(b []byte) error {
+	h.Parse(string(b))
+
+	return nil
+}
+
+func (h HashAlg) MarshalJSON() ([]byte, error) {
+	s := `"` + getString(int(h)) + `"`
+	return []byte(s), nil
+}
+
+func (h *HashAlg) Parse(s string) {
+	*h = HashAlg(*Parse(s))
+}
+
+func ParseHashAlg(s string) HashAlg {
+	return HashAlg(*Parse(s))
+}
+
+// goHash returns a Go hash.Hash from the hashing algo.
+//
+// SHAKE does not satisfy Go's hash.Hash and uses sha3.SkakeHash.
+func (h *HashAlg) goHash() hash.Hash {
+	switch *h {
+	default:
+		return nil
+	case SHA224:
+		return sha256.New224() // There is no 224 package. 224 is in the 256 package.
+	case SHA256:
+		return sha256.New()
+	case SHA384:
+		return sha512.New384() // There is no 384 package. 384 is in the 512 package.
+	case SHA512:
+		return sha512.New()
+	case SHA3224:
+		return sha3.New224()
+	case SHA3256:
+		return sha3.New256()
+	case SHA3384:
+		return sha3.New384()
+	case SHA3512:
+		return sha3.New512()
+	}
+}
+
+// HashSize returns the digest size in bytes for the given hashing algorithm.
+//
+// SHAKE128 has 128 bits of pre-collision resistance and a capacity of 256,
+// although it has arbitrary output size. SHAKE256 has 256 bits of pre-collision
+// resistance and a capacity of 512, although it has arbitrary output size.
+func (h HashAlg) Size() int {
+	switch h {
+	default:
+		return 0
+	case SHA224, SHA3224:
+		return 28
+	case SHA256, SHA3256, SHAKE128:
+		return 32
+	case SHA384, SHA3384:
+		return 48
+	case SHA512, SHA3512, SHAKE256:
+		return 64
+	}
+}
+
+const (
+	// Must be in order according to Alg.Parse().
 	UnknownSignAlg SigAlg = iota + 1
 	ES224
 	ES256
@@ -379,23 +522,17 @@ const (
 	ES512
 
 	Ed25519
+	Ed25519ph
 	Ed448
 
-	// // Not implemented:
-	// RS256
-	// RS384
-	// RS512
+	// Not implemented [RS256, RS384, RS512].
 )
-
-func (a Alg) SigAlg() SigAlg {
-	return SigAlg(a)
-}
 
 func (s SigAlg) FamAlg() FamAlg {
 	switch s {
 	default:
 		return UnknownFamAlg
-	case ES224, ES256, ES384, ES512, Ed25519, Ed448:
+	case ES224, ES256, ES384, ES512, Ed25519, Ed25519ph, Ed448:
 		return EC
 		// // Not implemented:
 		// case RS256, RS384, RS512:
@@ -413,134 +550,31 @@ func (s SigAlg) Genus() GenAlg {
 		return UnknownGenAlg
 	case ES224, ES256, ES384, ES512:
 		return Ecdsa
-	case Ed25519, Ed448:
+	case Ed25519, Ed25519ph, Ed448:
 		return Eddsa
 	}
 }
 
-///////////////
-//  Enc Alg  //
-///////////////
-const (
-	UnknownEncAlg EncAlg = iota + 10
-)
-
-////////////////
-//  HashAlg  //
-////////////////
-
-// HashAlg's does not exist in JOSE currently.  We created this for ourselves.
-// See also https://golang.org/pkg/crypto/Hash
-const (
-	// HashAlg is after Alg, SigAlg, and EncAlg.
-	UnknownHashAlg HashAlg = iota + 12
-	Sha224                 // SHA-2
-	Sha256
-	Sha384
-	Sha512
-	Sha3224 // SHA-3
-	Sha3256
-	Sha3384
-	Sha3512
-	Shake128 // Shake
-	Shake256
-)
-
-// String makes the enum to string.  (enum.toString)
-func (h HashAlg) String() string {
-	return getString(int(h))
-}
-
-func (h *HashAlg) UnmarshalJSON(b []byte) error {
-	h.Parse(string(b))
-
-	return nil
-}
-
-func (h HashAlg) MarshalJSON() ([]byte, error) {
-	s := `"` + getString(int(h)) + `"`
-	return []byte(s), nil
-}
-
-// String makes the enum to string.  (enum.toString)
-func (h *HashAlg) Parse(s string) {
-	*h = (HashAlg)(*Parse(s))
-}
-
-func ParseHashAlg(s string) HashAlg {
-	return (HashAlg)(*Parse(s))
-}
-
-// goHash returns a Go hash.Hash from the hashing algo.
-//
-// SHAKE does not satisfy Go's hash.Hash (it uses sha3.SkakeHash)
-func (ha *HashAlg) goHash() (h hash.Hash) {
-	switch *ha {
-	case Sha224:
-		h = sha256.New224() // There is no 224 package.  224 is in the 256 package.
-	case Sha256:
-		h = sha256.New()
-	case Sha384:
-		h = sha512.New384() // There is no 384 package.  384 is in the 512 package.
-	case Sha512:
-		h = sha512.New()
-	case Sha3224:
-		h = sha3.New224()
-	case Sha3256:
-		h = sha3.New256()
-	case Sha3384:
-		h = sha3.New384()
-	case Sha3512:
-		h = sha3.New512()
-	default:
-		return nil
-	}
-
-	return h
-}
-
-// HashSize returns the digest size in bytes for the given hashing algorithm.
-//
-// SHAKE128 has 128 bits of pre-collision resistance and a capacity of 256,
-// although it has arbitrary output size. SHAKE256 has 256 bits of pre-collision
-// resistance and a capacity of 512, although it has arbitrary output size.
-func (h HashAlg) Size() int {
-	switch h {
-	case Sha224, Sha3224:
-		return 28
-	case Sha256, Sha3256, Shake128:
-		return 32
-	case Sha384, Sha3384:
-		return 48
-	case Sha512, Sha3512, Shake256:
-		return 64
-	}
-	return 0
-}
-
-////////////////
-//  SigAlg  //
-////////////////
-
-// String makes the enum to string.  (enum.toString)
 func (s SigAlg) String() string {
 	return getString(int(s))
 }
 
 // Hash returns respective hashing algorithm if specified.
 func (s SigAlg) Hash() HashAlg {
-	var h HashAlg
 	switch s {
+	default:
+		return 0
 	case ES224:
-		h = Sha224
+		return SHA224
 	case ES256:
-		h = Sha256
+		return SHA256
 	case ES384:
-		h = Sha384
-	case ES512, Ed25519:
-		h = Sha512
+		return SHA384
+	case ES512, Ed25519, Ed25519ph:
+		return SHA512
+	case Ed448:
+		return SHAKE256
 	}
-	return h
 }
 
 // SigSize returns the signature size for the given Crypto Algorithm.
@@ -548,25 +582,23 @@ func (s SigAlg) Hash() HashAlg {
 // Ed25519's SigSize is from RFC8032_5.1.6.6.
 func (s SigAlg) SigSize() int {
 	switch s {
+	default:
+		return 0
 	case ES224:
 		return 56
-	case ES256, Ed25519:
+	case ES256, Ed25519, Ed25519ph:
 		return 64
 	case ES384:
 		return 96
 	case Ed448:
 		return 114
 	case ES512:
-		// Curve P-521 uses 521 bits.  This is then padded up the the nearest
+		// Curve P-521 uses 521 bits. This is then padded up the the nearest
 		// byte (528) for R and S. 132 = (528*2)/8
 		return 132
 	}
-	return 0
 }
 
-///////////////
-//  Key Use //
-//////////////
 const (
 	KeyUseUnknown KeyUse = iota
 	SigUse               // "Signing Use"
@@ -596,14 +628,13 @@ func (a Alg) KeyUse() KeyUse {
 func (u *KeyUse) Parse(s string) {
 	s = strings.Trim(s, "\"")
 	switch s {
+	default:
+		*u = KeyUseUnknown
 	case "sig":
 		*u = SigUse
 	case "enc":
 		*u = EncUse
-	default:
-		*u = KeyUseUnknown
 	}
-	return
 }
 
 func ParseKeyUse(s string) KeyUse {
@@ -612,7 +643,6 @@ func ParseKeyUse(s string) KeyUse {
 	return *u
 }
 
-// String makes the enum to string.  (enum.toString)
 func (u KeyUse) String() string {
 	return []string{
 		"UnknownKeyUse",
@@ -620,10 +650,6 @@ func (u KeyUse) String() string {
 		"enc",
 	}[u]
 }
-
-///////////////////
-//  Crv (Curve)  //
-///////////////////
 
 const (
 	UnknownCrv Crv = iota
@@ -636,24 +662,23 @@ const (
 )
 
 // Curve returns the curve for the given alg, if it has one.
-func (a Alg) Curve() (c Crv) {
-	switch a {
+func (a Alg) Curve() Crv {
+	switch SigAlg(a) {
 	default:
-		c = UnknownCrv
-	case Alg(ES224):
-		c = P224
-	case Alg(ES256):
-		c = P256
-	case Alg(ES384):
-		c = P384
-	case Alg(ES512):
-		c = P521
-	case Alg(Ed25519):
-		c = Curve25519
-	case Alg(Ed448):
-		c = Curve448
+		return UnknownCrv
+	case ES224:
+		return P224
+	case ES256:
+		return P256
+	case ES384:
+		return P384
+	case ES512:
+		return P521 // The curve != the alg
+	case Ed25519, Ed25519ph:
+		return Curve25519
+	case Ed448:
+		return Curve448
 	}
-	return
 }
 
 func (c Crv) String() string {
@@ -672,9 +697,10 @@ func (c Crv) MarshalJSON() ([]byte, error) {
 	return []byte(`"` + c.String() + `"`), nil
 }
 
-// Parse converts the enum to string.
 func (c *Crv) Parse(s string) {
 	switch s {
+	default:
+		*c = UnknownCrv
 	case "P-224":
 		*c = P224
 	case "P-256":
@@ -687,11 +713,7 @@ func (c *Crv) Parse(s string) {
 		*c = Curve25519
 	case "Curve448":
 		*c = Curve448
-	default:
-		*c = UnknownCrv
 	}
-
-	return
 }
 
 // Curve returns Go's elliptic.Curve for the given crv.
