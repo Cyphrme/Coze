@@ -222,19 +222,12 @@ func ExampleCoze_MetaWithAlg() {
 	}
 	fmt.Printf("%s\n", cz)
 
-	// No alg given.
+	// No alg given.  Alg is parsed from pay.
 	err = cz.MetaWithAlg(0)
 	if err != nil {
 		fmt.Println(err)
 	}
 	fmt.Printf("%s\n", cz)
-
-	// No alg given. // TODO
-	// err = cz.MetaWithAlg(0)
-	// if err != nil {
-	// 	fmt.Println(err)
-	// }
-	// fmt.Printf("%s\n", cz)
 
 	// Output:
 	//{"can":["msg","alg","iat","tmb","typ"],"cad":"LSgWE4vEfyxJZUTFaRaB2JdEclORdZcm4UVH9D8vVto","czd":"d0ygwQCGzuxqgUq1KsuAtJ8IBu0mkgAcKpUJzuX075M","pay":{"msg":"Coze Rocks","alg":"ES256","iat":1627518000,"tmb":"cLj8vsYtMBwYkzoFVZHBZo6SNL8wSdCIjCKAwXNuhOk","typ":"cyphr.me/msg"},"sig":"ywctP6lEQ_HcYLhgpoecqhFrqNpBSyNPuAPOV94SThuztJek7x7H9mXFD0xTrlmQPg_WC7jwg70nzNoGn70JyA"}

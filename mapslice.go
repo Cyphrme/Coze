@@ -12,7 +12,7 @@ import (
 
 // MapItem representation of one map item.
 type MapItem struct {
-	Key   any
+	Key   string // Modified where Key from any to String since Coze/JSON only ever uses String as keys.
 	Value any
 	index uint64
 }
@@ -47,11 +47,29 @@ func nextIndex() uint64 {
 	return indexCounter
 }
 
-// MapItem key's as a string slice.
-func (ms MapSlice) Keys() []string {
+// Keys returns a MapSlice's Keys in a slice.
+func (ms MapSlice) Keys() []any {
+	s := make([]any, len(ms))
+	for i, k := range ms {
+		s[i] = k.Key
+	}
+	return s
+}
+
+// KeysString returns MapSlice's Keys as []string.
+func (ms MapSlice) KeysString() []string {
 	s := make([]string, len(ms))
 	for i, k := range ms {
 		s[i] = fmt.Sprintf("%s", k.Key)
+	}
+	return s
+}
+
+// Values returns a MapSlice's values in a slice.
+func (ms MapSlice) Values() []any {
+	s := make([]any, len(ms))
+	for i, k := range ms {
+		s[i] = k.Value
 	}
 	return s
 }

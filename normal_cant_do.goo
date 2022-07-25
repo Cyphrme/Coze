@@ -1,0 +1,117 @@
+// Can't do on typing
+
+
+// Can't do methods on generics:
+// func (n ~[]Normal) Type() string {
+// 	// switch any(n).(type) {
+// 	// default:
+// 	// 	return ""
+// 	// case Canon:
+// 	// 	return "canon"
+// 	// case Only:
+// 	// 	return "only"
+// 	// case Option:
+// 	// 	return "option"
+// 	// case Need:
+// 	// 	return "need"
+// 	// case Extra:
+// 	// 	return "extra"
+// 	// }
+// }
+
+
+
+
+
+
+// 	s, ok := norm[0].([]string)
+// 	if ok {
+// 		normLength = len(s)
+// 		fmt.Println("Type is normal", normLength)
+// 	} else {
+// 		fmt.Println("Type is not normal")
+// 	}
+
+// 	s, ok = norm[0].(Normal)
+// 	if ok {
+// 		normLength = len(s)
+// 		fmt.Println("2Type is normal", normLength)
+// 	} else {
+// 		fmt.Println("2Type is not normal")
+// 	}
+
+// 	switch v := norm[0].(type) {
+// 	case Canon, Only, Option, Need, Extra:
+// 		s, ok := v.([]string)
+
+// 		fmt.Println("Type check?", ok, s)
+// 	}
+
+
+
+
+func NormalMerge(norms ...any) any {
+	if len(norms) < 2 {
+		return norms
+	}
+
+	var out any    // [][]string
+	var merged any // []string
+	for i := 0; i < len(norms); i++ {
+
+		merged = norms[i]
+		if NormType(norms[i]) == NormType(norms[i+1]) {
+
+			v, ok := norms[i].([]string)
+			v2, ok2 := norms[i+1].([]string)
+
+			if !ok && !ok2 {
+				fmt.Println("Not okay")
+				return nil
+			}
+
+			merged = append(v, v2...)
+			continue
+		}
+		out = append(out, merged)
+	}
+
+	return out
+}
+
+
+func normalMerge(norms ...any) any {
+	if len(norms) < 2 {
+		return norms
+	}
+
+	var out any    // [][]string
+	var merged any // []string
+	for i := 0; i < len(norms); i++ {
+
+		merged = norms[i]
+		if NormType(norms[i]) == NormType(norms[i+1]) {
+
+			v, ok := norms[i].([]string)
+			v2, ok2 := norms[i+1].([]string)
+
+			if !ok && !ok2 {
+				fmt.Println("Not okay")
+				return nil
+			}
+
+			merged = append(v, v2...)
+			continue
+		}
+		out = append(out, merged)
+	}
+
+	return out
+}
+
+
+
+type Normal interface {
+	Normal() []string
+	// Type() string
+}

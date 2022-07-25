@@ -38,7 +38,8 @@ Play with Coze here: https://cyphr.me/coze_verifier
 Coze objects encapsulate a set of JSON name/value pairs.  Coze reserved names
 are short, unique, and unlikely to require namespacing by applications.
 Applications are permitted to use any name except reserved names. The Coze
-objects `pay`, `key`, and `coze` have respective reserved names.  
+objects `pay`, `key`, and `coze` have respective reserved names and all names
+must be unique.
 
 ![Coze Reserved Fields](docs/img/coze_reserved_fields.png)
 
@@ -104,7 +105,25 @@ hashing algorithm of `SHA-256`. See the thumbprint section for more.
 
 Encoded values use base64 with the URI safe alphabet and padding omitted.
 
-# Canon
+# `coze` Standard Fields
+
+- `coze` JSON label for a Coze object.  E.g. `{"coze":{"pay":..., sig:...}}`
+- `can`  Canon for hashing over `pay`.  E.g. `["alg","iat","tmb","typ"]`
+- `cad`  Canon digest.  The digest of `pay`.  E.g.: `"24F11D..."`
+- `czd`  Coze digest, the digest over `["cad","sig"]`. `czd`'s hash must align
+  with `alg` in `pay`.  
+- `pay` Label for the pay object.  E.g. `"pay":{"alg":...}`
+- `sig`  Signature over the bytes of `cad`, and `sig` does not rehash `cad`
+  before signing.  E.g. `"sig":"CC3AD6..."`
+
+Like `cad`, `czd` is calculated from brace to brace, including the braces.  
+
+`cad` and `czd` are recalculatable and are recommended to be omitted, although
+they may be useful for reference.  
+
+
+# Normal
+## Canon
 Coze JSON objects are canonicalized and hashed for creating digests, signing,
 and verification. 
 
@@ -155,7 +174,7 @@ Hashing results in the digest value of tmb: `cLj8vsYtMBwYkzoFVZHBZo6SNL8wSdCIjCK
 
 
 ### Canon for Binaries
-The canonical digest of a binary file is simply the digest of the
+The canonical digest, `cad`, of a binary file is simply the digest of the
 file using the hash specified by `alg`. For example, an image
 ("Hello_World!.gif") may be referred to in a JSON object by its digest.
 
@@ -163,29 +182,31 @@ file using the hash specified by `alg`. For example, an image
 {
 	"alg":"SHA-256",
 	"file_name":"Hello_World!.gif",
-	"image":"F4A7C3119905835B546D9EC13A84B9CFDD04D1DD31B82A18D44A7F2CDCBE29E4"
+	"image":"rVOyJ144KwIQ3V2YJdatKAo_3QWAY4CpGLCDdnKOvAw"
 }
 ```
 
-As a further example, including a file's digest in a signed message, denoted by
-`id`, may represent the authorization to upload a file to a user's account:
+As an application example, including a file's digest in a signed message,
+denoted by `id`, may represent the authorization to upload a file to a user's
+account:
 
-// TODO resign
 ```JSON
 {
 	"pay": {
 		"alg": "ES256",
-		"ext": "gif",
 		"file_name": "Hello_World!.gif",
-		"iat": 1623132000,
-		"id": "F4A7C3119905835B546D9EC13A84B9CFDD04D1DD31B82A18D44A7F2CDCBE29E4",
-		"tmb": "0148F4CD9093C9CBE3E8BF78D3E6C9B824F11DD2F29E2B1A630DD1CE1E176CDD",
+		"iat": 1657925839,
+		"id": "rVOyJ144KwIQ3V2YJdatKAo_3QWAY4CpGLCDdnKOvAw",
+		"tmb": "cLj8vsYtMBwYkzoFVZHBZo6SNL8wSdCIjCKAwXNuhOk",
 		"typ": "cyphr.me/file/create"
 	},
-	"sig": "C7687E818AFBC7E175AD273B51AE21F54D3DD8CF4752795E9CC357B1425B76A2E986AD77AD2801666C41313AC7CF7FBC634566C2AF4892CA69430C8538CD5BB6"
+	"sig": "rY7XYc9sGYZX0jsNnVhOYvJGb_I6Z-xq8gdbOBw8K-M1uAD4J3V33yyw-FJMrihMeJr60wWgeHRXCKWFHb_SgA"
 }
 ```
  
+
+
+
 
 # Wrapped Coze
 The JSON name `coze` is used to wrap Coze objects.  For example:
@@ -210,21 +231,7 @@ example, the JSON object `{"pay":{...},"sig":...}` doesn't need the labeled
 `coze` if already implicitly known.
 
 
-## `coze` Standard Fields
 
-- `coze` JSON label for a Coze object.  E.g. `{"coze":{"pay":..., sig:...}}`
-- `can`  Canon for hashing over `pay`.  E.g. `["alg","iat","tmb","typ"]`
-- `cad`  Canon digest.  The digest of `pay`.  E.g.: `"24F11D..."`
-- `czd`  Coze digest, the digest over `["cad","sig"]`. `czd`'s hash must align
-  with `alg` in `pay`.  
-- `pay` Label for the pay object.  E.g. `"pay":{"alg":...}`
-- `sig`  Signature over the bytes of `cad`, and `sig` does not rehash `cad`
-  before signing.  E.g. `"sig":"CC3AD6..."`
-
-Like `cad`, `czd` is calculated from brace to brace, including the braces.  
-
-`cad` and `czd` are recalculatable and are recommended to be omitted, although
-they may be useful for reference.  
 
 ## Example full `coze` with `pay`, `key`, `can`, `cad`, `czd`, and `sig`.  
 The following expands the first example and is largely redundant. `key` may be
@@ -326,10 +333,9 @@ Self revokes with future times must immediately be considered as revoked.
 - Hash.Size:256 
 
 # Coze Constraints
-- JSON objects must be valid.
-- JSON field names are always strings (which is standard JSON.)
+- JSON objects must be valid JSON and fields names must be unique.
+- JSON field names must be strings (which is standard JSON).
 - JSON field names and values are case sensitive.
-- UTF-8 encoded and Unicode sorted.  
 
 
 # Notes
@@ -554,6 +560,26 @@ thumbprint.  Associating thumbprints to issuers is the design we recommend.
 - `jti` - "Token ID/JWT ID". Redundant by `czd`, `cad`, or an application
   specified field.
 
+# Why are duplicate field names prohibited?
+Douglas Crockford's Java implementation of JSON errors on duplicate names. Other
+implementations use last-value-wins, and a few support duplicate keys. the
+[JSON RFC](https://datatracker.ietf.org/doc/html/rfc8259#section-4) states that implementations should not allow duplicate keys, notes
+the varying behavior of existing implementations, and states that when names are not
+unique, "the behavior of software that receives such an object is
+unpredictable."
+	 
+Coze explicitly requires that implementations disallow duplicate names.  
+
+Duplicate fields is a security
+issue.  If multiple fields were allowed, for example for alg, tmb, or rvk, this
+could be a source of bugs in implementations and surprising behavior to users.
+
+Coze already requires objects to represent a particular order and prohibiting duplicates isn't must more.  
+
+# JSON Name, Key, Field Name, Member Name?
+They're all synonyms.  A JSON name is a JSON key is a JSON field name is a JSON
+member name.  In this document we use "field name" to avoid confusion with Coze
+key.  The RFC prefers the terms name/member name, we prefer the term key
 
 ## Who created Coze?
 Coze was created by Cyphr.me.  

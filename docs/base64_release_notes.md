@@ -6,6 +6,10 @@
 	Ed25519's digest for `cad` is SHA-512.  
 	- Waiting on Go for `Ed25519ph` support. 
 - Coze now uses base64 and not Hex.
+- Normal
+	- Normal is allowed to be variadic.  Normal is the generalization of Canon.  
+	- The following are valid Normals:  [Canon, Only, Option, Need, Extra]
+	- For Go, using Generics on Normal
 - ECDSA x and y have been consolidated to x. 
 	- All future designs will serialize all private components to `d`, and all
 	public components to `x`. 
@@ -23,6 +27,24 @@
 - Various bug fixes.
 - Go Coze changes "Cy" struct to "Coze", removed the JSON encapsulator. Added an
   example to show Coze embedded in another struct.  
+- Explicitly disallow duplicate JSON field names in Coze.  
+	- Many JSON implementations, including Douglas Crockford's Java
+	implementation, error on duplicate keys, some JSON implementations use
+	last-value-wins, while others support duplicate keys.  Coze removes this
+	ambiguity and requires that implementations fail on duplicate keys.  
+
+	
+	
+	Supporting duplicate key normalization is out of scope for Coze.  
+
+
+
+	- When breaking this rule, Implementations may use last-value-wins OR error,
+	with last-value-wins being prefer.  
+	- For order, first time field appears wins.
+	- For value, last-value-wins.
+	- Existing JSON payload need to 
+	- The JSON RFC expresses 
 
 ## Additional Explicit design decisions:
 - Coze follows the underlying algorithm's endianness.  ECDSA is big
