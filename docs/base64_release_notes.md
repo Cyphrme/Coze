@@ -32,19 +32,9 @@
 	implementation, error on duplicate keys, some JSON implementations use
 	last-value-wins, while others support duplicate keys.  Coze removes this
 	ambiguity and requires that implementations fail on duplicate keys.  
-
-	
-	
-	Supporting duplicate key normalization is out of scope for Coze.  
-
-
-
-	- When breaking this rule, Implementations may use last-value-wins OR error,
-	with last-value-wins being prefer.  
-	- For order, first time field appears wins.
-	- For value, last-value-wins.
-	- Existing JSON payload need to 
-	- The JSON RFC expresses 
+	- Duplicate fields is a security issue.  If multiple fields were allowed, for
+	example for alg, tmb, or rvk, this could be a source of bugs in
+	implementations and surprising behavior to users.
 
 ## Additional Explicit design decisions:
 - Coze follows the underlying algorithm's endianness.  ECDSA is big

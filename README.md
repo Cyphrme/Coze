@@ -561,25 +561,38 @@ thumbprint.  Associating thumbprints to issuers is the design we recommend.
   specified field.
 
 # Why are duplicate field names prohibited?
-Douglas Crockford's Java implementation of JSON errors on duplicate names. Other
-implementations use last-value-wins, and a few support duplicate keys. the
-[JSON RFC](https://datatracker.ietf.org/doc/html/rfc8259#section-4) states that implementations should not allow duplicate keys, notes
-the varying behavior of existing implementations, and states that when names are not
-unique, "the behavior of software that receives such an object is
-unpredictable."
-	 
-Coze explicitly requires that implementations disallow duplicate names.  
+Coze explicitly requires that implementations disallow duplicate JSON names in
+`coze`, `pay`, and `key`.  Douglas Crockford's Java implementation of JSON
+errors on duplicate names. Other implementations use last-value-wins, and a few
+support duplicate keys.  The [JSON
+RFC](https://datatracker.ietf.org/doc/html/rfc8259#section-4) states that
+implementations should not allow duplicate keys, notes the varying behavior of
+existing implementations, and states that when names are not unique, "the
+behavior of software that receives such an object is unpredictable."  
 
-Duplicate fields is a security
-issue.  If multiple fields were allowed, for example for alg, tmb, or rvk, this
-could be a source of bugs in implementations and surprising behavior to users.
+Duplicate fields is a security issue.  If multiple fields were allowed, for
+example for `alg`, `tmb`, or `rvk`, this could be a source of bugs in
+implementations and surprising behavior to users. See the article, "[An
+Exploration of JSON Interoperability
+Vulnerabilities](https://bishopfox.com/blog/json-interoperability-vulnerabilities)"
 
-Coze already requires objects to represent a particular order and prohibiting duplicates isn't must more.  
+Javascript objects and Go structs already require unique names.  Since Coze
+normalization requires implementations support ordered objects, and prohibiting
+duplicates isn't much more complexity.  
 
 # JSON Name, Key, Field Name, Member Name?
 They're all synonyms.  A JSON name is a JSON key is a JSON field name is a JSON
 member name.  In this document we use "field name" to avoid confusion with Coze
 key.  The RFC prefers the terms name/member name, we prefer the term key
+
+## JSON?
+- (2017, Bray)     https://datatracker.ietf.org/doc/html/rfc8259
+- (2014, Bray)     https://datatracker.ietf.org/doc/html/rfc7159
+- (2013, Bray)     https://datatracker.ietf.org/doc/html/rfc7158
+- (2006 Crockford) https://datatracker.ietf.org/doc/html/rfc4627
+
+See also I-JSON
+ - (2015, Bray)    https://datatracker.ietf.org/doc/html/rfc7493
 
 ## Who created Coze?
 Coze was created by Cyphr.me.  

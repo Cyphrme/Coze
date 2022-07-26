@@ -197,6 +197,11 @@ type Marshaler interface {
 // preemptively escapes for HTML friendliness. Where JSON may include these
 // characters, json.Marshal should not be used. Playground of Go breaking a book
 // title: https://play.golang.org/p/o2hiX0c62oN
+//
+// See Tailscale's JSON serilizer:
+// https://pkg.go.dev/github.com/go-json-experiment/json
+//
+// If goccy/go-json ever supported deduplication, we'd prefer that most likely.
 func Marshal(i any) ([]byte, error) {
 	buffer := &bytes.Buffer{}
 	encoder := json.NewEncoder(buffer)
