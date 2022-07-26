@@ -7,33 +7,13 @@ import (
 	"sort"
 )
 
-// Taken from: https://github.com/golang/go/issues/27179#issuecomment-587528269,
-// https://github.com/ake-persson/mapslice-json. Thanks ake-persson!
-
-// MapItem representation of one map item.
-type MapItem struct {
-	Key   string // Modified where Key from any to String since Coze/JSON only ever uses String as keys.
-	Value any
-	index uint64
-}
-
-// MapItem as a string.
-func (mi MapItem) String() string {
-	return fmt.Sprintf("{%v %v}", mi.Key, mi.Value)
-}
-
-// UnmarshalJSON for map item.
-func (mi *MapItem) UnmarshalJSON(b []byte) error {
-	var v any
-	if err := json.Unmarshal(b, &v); err != nil {
-		return err
-	}
-	mi.Value = v
-	mi.index = nextIndex()
-	return nil
-}
-
 // MapSlice of map items.
+//
+// MapSlice and MapItem was originally taken from:
+// https://github.com/golang/go/issues/27179#issuecomment-587528269,
+// https://github.com/ake-persson/mapslice-json. Thanks ake-persson!  This has
+// been modified from ake-persson/mapslice-json to support only things that JSON
+// or Coze needs, chiefly, Key is now type string instead of type any.
 type MapSlice []MapItem
 
 func (ms MapSlice) Len() int           { return len(ms) }
@@ -103,5 +83,28 @@ func (ms *MapSlice) UnmarshalJSON(b []byte) error {
 		*ms = append(*ms, MapItem{Key: k, Value: v.Value, index: v.index})
 	}
 	sort.Sort(*ms)
+	return nil
+}
+
+// MapItem representation of one map item.
+type MapItem struct {
+	Key   string
+	Value any
+	index uint64
+}
+
+// MapItem as a string.
+func (mi MapItem) String() string {
+	return fmt.Sprintf("{%v %v}", mi.Key, mi.Value)
+}
+
+// UnmarshalJSON for map item.
+func (mi *MapItem) UnmarshalJSON(b []byte) error {
+	var v any
+	if err := json.Unmarshal(b, &v); err != nil {
+		return err
+	}
+	mi.Value = v
+	mi.index = nextIndex()
 	return nil
 }
