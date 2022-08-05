@@ -33,20 +33,15 @@ Play with Coze here: https://cyphr.me/coze_verifier
 3. Small in scope.
 4. Cryptographic agility.
 
-
 ### Coze Names
 Coze objects encapsulate a set of JSON name/value pairs.  Coze reserved names
 are short, unique, and unlikely to require namespacing by applications.
 Applications are permitted to use any name except reserved names. The Coze
 objects `pay`, `key`, and `coze` have respective reserved names and all names
-must be unique.
+must be unique.  Objects are case sensitive and must be valid JSON with unique
+fields names.
 
-Binary values are encoded with URI safe base64 with padding omitted (b64ut).
-
-Coze requires that:
-- JSON objects must be valid JSON with unique fields names.
-- JSON field names must be strings (which is standard JSON).
-- JSON field names and values are case sensitive.
+Binary values are encoded as RFC 4648 base64 (URI with padding omitted).
 
 ![Coze Reserved Fields](docs/img/coze_reserved_fields.png)
 
@@ -149,13 +144,14 @@ We recommend against needlessly wrapping implicit Coze objects with `coze`. For
 example, the JSON object `{"pay":{...},"sig":...}` doesn't need the labeled
 `coze` if already implicitly known.
 
-#### Example "full" `coze`  
-The following, containing `pay`, `key`, `can`, `cad`, `czd`, and `sig`, expands
-the first example and is largely redundant. `key` may be looked up based on
-`tmb`. `can`, `cad`, and `czd` are recalculatable and generally should be
-omitted.  The label `coze` may be inferred.
+#### Example verbose `coze`  
+The following coze containing `pay`, `key`, `can`, `cad`, `czd`, and `sig`
+expands the first example and contains generally redundant fields. `key` may be
+looked using `tmb`, `can`, `cad`, and `czd` are recalculatable, and the label
+`coze` may be inferred.  These names should generally be omitted unless needed
+by applications. 
 
-The following tautological coze:  
+The tautological coze
 
 ```JSON
 {
@@ -182,7 +178,7 @@ The following tautological coze:
 }
 ```
 
-Simplifies to:
+simplifies to:
 
 ```JSON
 {
@@ -198,7 +194,7 @@ Simplifies to:
 ```
 
 ## Normal
-TODO fix this secion
+TODO fix this section
 ### Canon
 Coze JSON objects are canonicalized and hashed for creating digests, signing,
 and verification. 
