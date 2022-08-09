@@ -2,6 +2,55 @@ package coze
 
 import "fmt"
 
+func ExampleCanon_Append() {
+	fmt.Printf("%v\n", Append(Canon{"a", "b"}, Canon{"c", "d"}))
+
+	// Output:
+	// [a b c d]
+}
+
+func ExampleNormaler_Len() {
+	fmt.Printf("%d %d %d %d %d %d\n",
+		Canon{"a", "b"}.Len(),
+		Only{"a", "b"}.Len(),
+		Option{"a", "b"}.Len(),
+		Need{"a", "b"}.Len(),
+		Extra{"a", "b"}.Len(),
+		Normaler(Canon{"a", "b"}).Len(),
+	)
+
+	// Output:
+	// 2 2 2 2 2 2
+}
+
+func ExampleMerge() {
+	fmt.Printf("%v\n", Merge(Canon{"a", "b"}, Canon{"c", "d"}, Canon{"e", "f"}))
+
+	// When merging with Normals of different type, all type need to be the same
+	// type.  The following casts Only as a Canon.
+	m := Merge(Canon{"a", "b"}, Canon{"c", "d"}, Canon{"e", "f"}, Canon(Only{"g", "h"}))
+	fmt.Printf("%+v", m)
+
+	// Output:
+	// [a b c d e f]
+	// [a b c d e f g h]
+}
+
+func ExampleType() {
+	fmt.Println(Type(Canon{}))
+	fmt.Println(Type(Only{}))
+	fmt.Println(Type(Option{}))
+	fmt.Println(Type(Need{}))
+	fmt.Println(Type(Extra{}))
+
+	// Output:
+	// canon
+	// only
+	// option
+	// need
+	// extra
+}
+
 var az = []byte(`{"a":"a","z":"z"}`)
 var ayz = []byte(`{"a":"a","y":"y","z":"z"}`)
 var v bool

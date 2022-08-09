@@ -1,10 +1,10 @@
 package coze
 
 import (
-	"bytes"
 	"encoding/json"
 	"fmt"
 
+	"github.com/cyphrme/coze"
 	"golang.org/x/exp/slices"
 )
 
@@ -152,7 +152,7 @@ func Merge[T ~[]Normal](norms ...T) any {
 func IsNormal(pay json.RawMessage, norm ...Normaler) bool {
 	// fmt.Printf("IsNormal pay: %s, norm: %+v\n", pay, norm)
 
-	ms := MapSlice{}
+	ms := coze.MapSlice{}
 	err := json.Unmarshal(pay, &ms)
 	if err != nil {
 		fmt.Println("Error:", err)
@@ -174,7 +174,7 @@ func IsNormal(pay json.RawMessage, norm ...Normaler) bool {
 //    fields until first record of next Normal.
 //  norms - The Normal chain, the full slice of normals.
 //
-func isNormal(r MapSlice, rSkip int, nSkip int, extraFlag bool, norms ...Normaler) bool {
+func isNormal(r coze.MapSlice, rSkip int, nSkip int, extraFlag bool, norms ...Normaler) bool {
 	if nSkip >= len(norms) {
 		return true
 	}
@@ -281,64 +281,4 @@ func isNormal(r MapSlice, rSkip int, nSkip int, extraFlag bool, norms ...Normale
 
 	//fmt.Printf("rSkip %d, nSkip %d, passedRecs: %d\n", rSkip+passedRecs, nSkip+1, passedRecs)
 	return isNormal(r, rSkip+passedRecs, nSkip+1, false, norms...)
-}
-
-// Canon returns the current canon from raw JSON.
-//
-// It returns only top level fields with no recursion or promotion of embedded
-// fields.
-func GetCanon(raw json.RawMessage) (can []string, err error) {
-	ms := MapSlice{}
-	err = json.Unmarshal(raw, &ms)
-	if err != nil {
-		return nil, err
-	}
-
-	keys := make([]string, len(ms))
-	for i, v := range ms {
-		keys[i] = fmt.Sprintf("%v", v.Key)
-	}
-	return keys, nil
-}
-
-// Canonical returns the canonical form. Input canon may be nil. If canon is
-// nil, JSON is only compactified.
-//
-// Interface "canon" may be any valid type for json.Unmarshal, including
-// `[]string`, `struct``, and `nil`.  If canon is nil, json.Unmarshal will place
-// the input into a UTF-8 ordered map.
-//
-// If "canon" is a struct the struct must be properly ordered. Go's JSON package
-// orders struct fields according to their struct position.
-//
-// In the Go version of Coze, the canonical form of a struct is (currently)
-// achieved by unmarshalling and remarshaling.
-func Canonical(input []byte, canon any) (b []byte, err error) {
-	if canon == nil { // only compactify
-		var b bytes.Buffer
-		err = json.Compact(&b, input)
-		if err != nil {
-			return nil, err
-		}
-		return b.Bytes(), nil
-	}
-
-	// Unmarshal the given bytes into the given canonical format.
-	err = json.Unmarshal(input, &canon)
-	if err != nil {
-		return nil, err
-	}
-	return Marshal(canon)
-}
-
-// CanonicalHash accepts []byte and optional canon and returns digest.
-//
-// If input is already in canonical form, Hash() may also be called instead.
-func CanonicalHash(input []byte, canon any, hash HashAlg) (digest B64, err error) {
-	input, err = Canonical(input, canon)
-	if err != nil {
-		return nil, err
-	}
-
-	return Hash(hash, input), nil
 }
