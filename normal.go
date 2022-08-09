@@ -9,9 +9,9 @@ import (
 )
 
 // Normal - A normal is an arrays of fields specifying the normalization of
-// payload and Normals may be chained to represent various combinations of
+// payload. Normals may be chained to represent various combinations of
 // normalization.  Normals are implemented in Go as []string.  There are five
-// types of normals.
+// types of normals plus a nil normal.
 //
 //  canon       (can)
 //  only        (ony)
@@ -20,58 +20,38 @@ import (
 //  extra       (ext)
 //  (nil)
 //
-// An nil normal is valid and matches all payloads.
+// Canon requires specified fields in the given order and prohibits extra fields.
 //
-// Canon requires specified fields in the given order and no extra fields
-// permitted.
+// Only requires specified fields in any order and prohibits extra fields.
 //
-// Only specifies fields that are required to be present, does not specify any
-// order, and no extra fields permitted.
+// Option permits specified fields in any order and prohibits extra fields.
 //
-// Option permits the presence of the given fields and excludes the presence of
-// extra fields.  Option does not specify order, but order may be given by
-// chaining options together.
+// Need requires specified fields in any order and permits extra fields.
 //
-// Need specifies fields that are required to be present, but does not specify
-// any order and does not exclude the presence of other fields.
+// Extra denotes extra fields are permitted in a location in the normal
+// chain.
 //
-// Extra specifies extra fields are permitted in it's location in the normal
-// chain.  An extra containing fields has no addition meaning over an empty
-// Extra.
-//
+// A nil normal is valid and matches all payloads.
 //
 // Normal Chaining
 //
 // Normals may be chained:
 //
-// Canon, Only, Option, and Extra have meaning when chained
-// Need's position in a has no chain meaning.  Needs position in a chain is irrelevant.
-//
-// Repeated keys between (Canon or Option or Only) and (Need) is allowed.
-//
-// If opt is considered invalid for Canon and Only and if opt is set
-// for either type function returns false. If opt is not nil for Need or Order,
-// no extra fields are allowed outside of what's specified by norm plus opt. If
-// opt is nil, all extra fields are valid.
-//
-// Note that parameter norm must be typed as Canon, Only, Need, Order, or
-// Option.  (TODO probably type norm as Normal.  There appears to be some Go
-// issues typing this)
-//
-// Canon, Only, Option and Extra have meaning when chained.  Need has no meaning
-// when chained, and may appear anywhere in the chain without changing the
-// meaning of the Normal chain.
-//
-// Any names in Extra are ignored since they are equivalent to an empty Extra.
+// - A Need in a chain is equivalent to a [Need, Extra].
+// - Option order may be given by chaining options together.
+// - An Extra containing fields has no addition meaning over an empty
+// Extra.
 //
 //
+// Repeated keys are allowed among normals, but Coze itself prohibits duplicate
+// object keys.
 //
-// Interesting Combinations:
+//
+// Notable Combinations:
 // - A an empty Canon or Only ("[]") matches only an a empty (i.e. `{}`) payload.
-// - An Empty Need or Option does nothing. // TODO?
+// - An empty Need or Option does nothing. // TODO?
 // - If need can appear before or after another normal, call IsNormal twice: a IsNormal(r, Need{a}), IsNormal(r, Canon{"b","c"}})
 //
-
 //
 //            ┌────────────────┐
 //            │     Normal     │
@@ -81,7 +61,6 @@ import (
 //      │ Exclusive │    │ Permissive   │
 //      └───────────┘    └──────────────┘
 // Normal Hierarchy
-// Normal
 // 	Exclusive
 // 		canon
 // 		only
@@ -137,26 +116,6 @@ func (n Extra) Normal() []Normal {
 	return n
 }
 
-// func (c *Canon) Append(norms []Normal) {
-// 	*c = append(*c, norms...)
-// }
-// func (o *Only) Append(norms []Normal) {
-// 	*o = append(*o, norms...)
-// }
-// func (n *Need) Append(norms []Normal) {
-// 	*n = append(*n, norms...)
-// }
-// func (o *Option) Append(norms []Normal) {
-// 	*o = append(*o, norms...)
-// }
-// func (e *Extra) Append(norms []Normal) {
-// 	*e = append(*e, norms...)
-// }
-
-func Append(n, m []Normal) []Normal {
-	return append(n, m...)
-}
-
 // Type returns the type for a given Normaler including a case for []Normal.
 func Type(norm Normaler) string {
 	switch norm.(type) {
@@ -175,6 +134,10 @@ func Type(norm Normaler) string {
 	}
 }
 
+func Append(n, m []Normal) []Normal {
+	return append(n, m...)
+}
+
 // Merge merges the given normals.
 func Merge[T ~[]Normal](norms ...T) any {
 	n := norms[0]
@@ -184,48 +147,8 @@ func Merge[T ~[]Normal](norms ...T) any {
 	return n
 }
 
-// // Union merges adjacent normals of the same type.
-// func Union(skip int, norms ...Normaler) any {
-// 	fmt.Printf("Union norms: %v\n", norms)
-// 	if len(norms) < 2 || skip == len(norms) {
-// 		return norms
-// 	}
-
-// 	normType := Type(norms[skip])
-// 	mergeTo := 0
-
-// 	// Get repeated normals
-// 	for i := skip + 1; i < len(norms); i++ {
-// 		fmt.Printf("Type: %s\n", Type(norms[i]))
-// 		if normType == Type(norms[i]) {
-// 			mergeTo = i
-// 			continue
-// 		}
-// 		break
-// 	}
-
-// 	var n []Normal
-// 	//Finally, merge repeated normals
-// 	if mergeTo > 0 {
-// 		toMerge := norms[skip+1 : mergeTo+1]
-// 		for _, v := range toMerge {
-// 			for _, y := range v {
-// 				n = append(n, Normal(y))
-// 			}
-// 		}
-
-// 		fmt.Printf("mergeTo: %d, ToMerge: %v, n: %v\n", mergeTo, toMerge, n)
-// 		norms[skip] = append(norms[skip], n...)
-
-// 		fmt.Printf("Before Delete: %v, skip %d, mergeto %d \n", norms, skip, mergeTo)
-// 		norms = slices.Delete(norms, skip+1, mergeTo+1)
-// 		fmt.Printf("After Delete: %v\n", norms)
-// 	}
-// 	return norms
-// }
-
-// IsNormal checks if a Coze is normalized.  See notes on Normal.  Parameters may
-// be nil.
+// IsNormal checks if a Coze is normalized.  See notes on Normal.  Parameters
+// may be nil.
 func IsNormal(pay json.RawMessage, norm ...Normaler) bool {
 	// fmt.Printf("IsNormal pay: %s, norm: %+v\n", pay, norm)
 
@@ -239,24 +162,16 @@ func IsNormal(pay json.RawMessage, norm ...Normaler) bool {
 	return isNormal(ms, 0, 0, false, norm...)
 }
 
-// When `canon`, `only`, and `option` are succeeded by another norm, look ony at
-// the next x number of records and ignore all other preceding.
-//
-// When `canon`, `only`, and `option` are preceded by another norm, matching starts at the first record.
-// the next x number of records and ignore all other preceding.
-//
-// Norms touching adjacent types of the same type are merged.
-
 // isNormal checks if datastructure conforms to the given normal chain. See docs
 // on IsNormal.
 //
 // Params:
 //  r          (Records) The fields being checked if conforming to normal chain.
-//  rSkip      Record pointer - First field that has not yet beet checked.
+//  rSkip      Record pointer - First field that has not yet been checked.
 //  nSkip      Normal pointer - First Normal that has not been processed.
 //  extraFlag  When Extra has been evoked. Is disabled when Norm is not an
 //    Extra, and enabled when Norm is an Extra.  When chained, allows any
-//    fields until next Normal.
+//    fields until first record of next Normal.
 //  norms - The Normal chain, the full slice of normals.
 //
 func isNormal(r MapSlice, rSkip int, nSkip int, extraFlag bool, norms ...Normaler) bool {
@@ -264,61 +179,49 @@ func isNormal(r MapSlice, rSkip int, nSkip int, extraFlag bool, norms ...Normale
 		return true
 	}
 	norm := norms[nSkip]
-
-	if extraFlag { // Progress pointer to first match.
-		switch v := norm.(type) {
-		case Canon:
-			for i := rSkip; i < len(r); i++ {
-				if v[0] == Normal(r[i].Key) {
-					rSkip = i
-					break
-				}
-			}
-		case Option, Only, Need:
-			keys := r[rSkip:].KeysString()
-			n := v.Normal()
-			for i, key := range keys {
-				if !slices.Contains(n, Normal(key)) {
-					continue
-				}
-				rSkip = rSkip + i
+	if extraFlag { // Progress record pointer to first match.
+		n := norm.Normal()
+		keys := r[rSkip:].KeysString()
+		var i int
+		for i = 0; i < len(keys); i++ {
+			if slices.Contains(n, Normal(keys[i])) {
+				rSkip = i + rSkip
 				break
 			}
 		}
+
+		// TODO this might be written better:
+		if i+1 >= len(r) { // If option is missing after an extra, return true.
+			if Type(norm) == "option" {
+				return true
+			}
+		}
+
 	}
 
-	// fmt.Printf("isNormal{r: %s, rSkip %d, nSkip %d, GoType/Type: %T/%s norm: %v, norm.Len(): %d, norms len: %d, norms: %v}\n", r, rSkip, nSkip, norm, Type(norm), norm, norm.Len(), len(norms), norms)
-
 	switch norm.(type) {
-	case nil: // Nil normal matches everything.
-		return isNormal(r, rSkip, nSkip+1, false, norms...)
-	case Canon, Only:
-		// []Norm cannot be is greater than the number of remaining records, false.
-		// (Prevent out of bounds later on)
-		if norm.Len() > len(r)-rSkip {
-			return false
-		}
-	case Need:
-		// An empty Need progresses norm pointer and nothing else.
-		if norm.Len() == 0 {
+	case nil, Need:
+		// Nil or an empty Need progresses norm pointer and nothing else.
+		if norm == nil || norm.Len() == 0 {
 			return isNormal(r, rSkip, nSkip+1, false, norms...)
 		}
-	case Extra: // Extra flag.
+	case Extra: // Extra flag.  In this function, from here out, Extra is ignored.
 		return isNormal(r, rSkip, nSkip+1, true, norms...)
-	}
-
-	switch norm.(type) {
-	case Canon, Only, Option: // last norm does not allow extra records
+	case Canon, Only, Option:
+		// Last norm does not allow extra records
 		if nSkip+1 == len(norms) && norm.Len() < len(r)-rSkip {
 			return false
 		}
 	}
 
+	//fmt.Printf("isNormal{r: %s, rSkip %d, nSkip %d, GoType/Type: %T/%s norm: %v, norm.Len(): %d, norms len: %d, norms: %v}\n", r, rSkip, nSkip, norm, Type(norm), norm, norm.Len(), len(norms), norms)
+
 	passedRecs := 0
 	switch v := norm.(type) {
-	default:
-		return false
 	case Canon:
+		if norm.Len() > len(r)-rSkip {
+			return false
+		}
 		for i, n := range v {
 			if n != Normal(r[rSkip+i].Key) {
 				return false
@@ -326,6 +229,9 @@ func isNormal(r MapSlice, rSkip int, nSkip int, extraFlag bool, norms ...Normale
 			passedRecs++
 		}
 	case Only:
+		if norm.Len() > len(r)-rSkip {
+			return false
+		}
 		keys := r[rSkip : v.Len()+rSkip].KeysString()
 		slices.Sort(keys)
 		slices.Sort(v)
@@ -340,13 +246,15 @@ func isNormal(r MapSlice, rSkip int, nSkip int, extraFlag bool, norms ...Normale
 		for i, n := range keys {
 			if !slices.Contains(v, Normal(n)) {
 				if nSkip+1 == len(norms) { // last norm
-					// Option does not allow extra on last norm.
+					// Extras are not allowed after Option.
 					return false
 				}
-				// Progress record pointer to position of first non-match for passing to next norm.
+				// Progress record pointer to position of first non-match for passing to
+				// next norm.
 				passedRecs = i
 				break
 			}
+			passedRecs++
 		}
 	case Need:
 		i := 0
@@ -365,9 +273,10 @@ func isNormal(r MapSlice, rSkip int, nSkip int, extraFlag bool, norms ...Normale
 		if passedRecs != v.Len() {
 			return false
 		}
+
 		// Progress record pointer up the last match of Need, and turn on extraFlag
 		// to progress record pointer to first match of next Normal.
-		isNormal(r, rSkip+i, nSkip+1, true, norms...)
+		return isNormal(r, rSkip+i, nSkip+1, true, norms...)
 	}
 
 	//fmt.Printf("rSkip %d, nSkip %d, passedRecs: %d\n", rSkip+passedRecs, nSkip+1, passedRecs)
