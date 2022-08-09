@@ -566,6 +566,18 @@ They're all synonyms.  A JSON name is a JSON key is a JSON field name is a JSON
 member name.  In this document we use "field name" to avoid confusion with Coze
 key.  The RFC prefers the terms name/member name, we prefer the term key
 
+
+#### Cryptographic Agility?
+The moral is the need for cryptographic agility. It’s not enough to implement a
+single standard; it’s vital that our systems be able to easily swap in new
+algorithms when required. We’ve learned the hard way how algorithms can get so
+entrenched in systems that it can take many years to update them: in the
+transition from DES to AES, and the transition from MD4 and MD5 to SHA, SHA-1,
+and then SHA-3.
+
+- https://www.schneier.com/blog/archives/2022/08/nists-post-quantum-cryptography-standards.html
+
+
 #### JSON?
 - (2017, Bray)      https://datatracker.ietf.org/doc/html/rfc8259
 - (2014, Bray)      https://datatracker.ietf.org/doc/html/rfc7159

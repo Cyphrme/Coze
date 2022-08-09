@@ -2,7 +2,6 @@ package coze
 
 import (
 	"fmt"
-	"testing"
 )
 
 func ExampleCanon() {
@@ -154,8 +153,8 @@ func ExampleMerge() {
 // 	// [a b c d e f]
 // }
 
-//func ExampleIsNormal() {
-func TestIsNormal(t *testing.T) {
+func ExampleIsNormal() {
+	//func TestIsNormal(t *testing.T) {
 	az := []byte(`{"a":"a","z":"z"}`)
 	ayz := []byte(`{"a":"a","y":"y","z":"z"}`)
 	_ = ayz
@@ -310,7 +309,7 @@ func TestIsNormal(t *testing.T) {
 	v = IsNormal(ayz, Option{"a"}, Canon{"y", "z"})
 	fmt.Println(v)
 
-	// Option empty with records, false. // TODO
+	// Option empty with records, false.
 	v = IsNormal(az, Option{})
 	fmt.Println(v)
 
@@ -348,7 +347,7 @@ func TestIsNormal(t *testing.T) {
 	fmt.Println(v)
 
 	// Need with option present, true.
-	v = IsNormal(ayz, Need{"a", "z"}, Option{"y"})
+	v = IsNormal(ayz, Need{"a", "y"}, Option{"z"})
 	fmt.Println(v)
 
 	// Need missing field, false.
@@ -375,24 +374,27 @@ func TestIsNormal(t *testing.T) {
 	// true
 	// true
 	// true
-	// false
 	// true
 	// true
 	// true
-	// false
-	// true
-	// false
 	// true
 	// true
 	// false
-	// true
+	// false
+	// false
+	// false
+	// false
+	// false
+	// false
 	// false
 	//
 	// Only
 	// true
 	// true
-	// false
 	// true
+	// true
+	// false
+	// false
 	//
 	// Option
 	// true
@@ -401,16 +403,20 @@ func TestIsNormal(t *testing.T) {
 	// true
 	// true
 	// true
-	// true
+	// false
+	// false
+	// false
 	//
 	// Need
 	// true
 	// true
+	// true
+	// true
+	// true
+	// true
 	// false
-	// true
-	// true
-	// true
-	// true
+	// false
+	// false
 }
 
 func ExampleType() {

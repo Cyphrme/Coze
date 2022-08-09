@@ -252,8 +252,8 @@ func IsNormal(pay json.RawMessage, norm ...Normaler) bool {
 //
 // Params:
 //  r          (Records) The fields being checked if conforming to normal chain.
-//  rSkip      Record Pointer - First field that has not yet beet checked.
-//  nSkip      Normal Pointer - First Normal that has not been processed.
+//  rSkip      Record pointer - First field that has not yet beet checked.
+//  nSkip      Normal pointer - First Normal that has not been processed.
 //  extraFlag  When Extra has been evoked. Is disabled when Norm is not an
 //    Extra, and enabled when Norm is an Extra.  When chained, allows any
 //    fields until next Normal.
@@ -264,28 +264,8 @@ func isNormal(r MapSlice, rSkip int, nSkip int, extraFlag bool, norms ...Normale
 		return true
 	}
 	norm := norms[nSkip]
-	switch norm.(type) {
-	case nil: // Nil normal matches everything.
-		return isNormal(r, rSkip, nSkip+1, false, norms...)
-	case Canon, Only:
-		// []Norm cannot be is greater than the number of remaining records, false.
-		// (Prevent out of bounds later on)
-		if norm.Len() > len(r)-rSkip {
-			return false
-		}
-	case Option, Need:
-		// An empty Option or Need progresses norm pointer and nothing else.
-		if norm.Len() == 0 {
-			return isNormal(r, rSkip, nSkip+1, false, norms...)
-		}
-	case Extra: // Extra flag.
-		return isNormal(r, rSkip, nSkip+1, true, norms...)
-	}
 
-	//fmt.Printf("isNormal{r: %s, rSkip %d, nSkip %d, GoType/Type: %T/%s norm: %v, norm.Len(): %d, norms len: %d, norms: %v}\n", r, rSkip, nSkip, norm, Type(norm), norm, norm.Len(), len(norms), norms)
-
-	// Progress pointer to first match for Canon/Only/Option
-	if extraFlag {
+	if extraFlag { // Progress pointer to first match.
 		switch v := norm.(type) {
 		case Canon:
 			for i := rSkip; i < len(r); i++ {
@@ -305,6 +285,26 @@ func isNormal(r MapSlice, rSkip int, nSkip int, extraFlag bool, norms ...Normale
 				break
 			}
 		}
+	}
+
+	// fmt.Printf("isNormal{r: %s, rSkip %d, nSkip %d, GoType/Type: %T/%s norm: %v, norm.Len(): %d, norms len: %d, norms: %v}\n", r, rSkip, nSkip, norm, Type(norm), norm, norm.Len(), len(norms), norms)
+
+	switch norm.(type) {
+	case nil: // Nil normal matches everything.
+		return isNormal(r, rSkip, nSkip+1, false, norms...)
+	case Canon, Only:
+		// []Norm cannot be is greater than the number of remaining records, false.
+		// (Prevent out of bounds later on)
+		if norm.Len() > len(r)-rSkip {
+			return false
+		}
+	case Need:
+		// An empty Need progresses norm pointer and nothing else.
+		if norm.Len() == 0 {
+			return isNormal(r, rSkip, nSkip+1, false, norms...)
+		}
+	case Extra: // Extra flag.
+		return isNormal(r, rSkip, nSkip+1, true, norms...)
 	}
 
 	switch norm.(type) {
@@ -336,26 +336,16 @@ func isNormal(r MapSlice, rSkip int, nSkip int, extraFlag bool, norms ...Normale
 			passedRecs++
 		}
 	case Option:
-		if nSkip+1 == len(norms) { // last norm
-			min := min(norm.Len(), len(r))
-			keys := r[rSkip : rSkip+min-1].KeysString()
-			slices.Sort(keys)
-			slices.Sort(v)
-			// If keys contains any extra key and last norm, return false.
-			for _, n := range keys {
-				if !slices.Contains(v, Normal(n)) { // TODO sort and contains should be used together
+		keys := r[rSkip:].KeysString()
+		for i, n := range keys {
+			if !slices.Contains(v, Normal(n)) {
+				if nSkip+1 == len(norms) { // last norm
+					// Option does not allow extra on last norm.
 					return false
 				}
-				passedRecs++
-			}
-		} else {
-			// Progress record pointer to position of first non-match.
-			keys := r[rSkip:].KeysString()
-			for i, n := range keys {
-				if !slices.Contains(v, Normal(n)) {
-					passedRecs = i
-					break
-				}
+				// Progress record pointer to position of first non-match for passing to next norm.
+				passedRecs = i
+				break
 			}
 		}
 	case Need:
@@ -375,20 +365,13 @@ func isNormal(r MapSlice, rSkip int, nSkip int, extraFlag bool, norms ...Normale
 		if passedRecs != v.Len() {
 			return false
 		}
-		// Progress record pointer up the last match of Need, and turn on extraFlag to
-		// progress record pointer to first match of next Normal.
+		// Progress record pointer up the last match of Need, and turn on extraFlag
+		// to progress record pointer to first match of next Normal.
 		isNormal(r, rSkip+i, nSkip+1, true, norms...)
 	}
 
 	//fmt.Printf("rSkip %d, nSkip %d, passedRecs: %d\n", rSkip+passedRecs, nSkip+1, passedRecs)
 	return isNormal(r, rSkip+passedRecs, nSkip+1, false, norms...)
-}
-
-func min(a, b int) int {
-	if a < b {
-		return a
-	}
-	return b
 }
 
 // Canon returns the current canon from raw JSON.
