@@ -202,7 +202,7 @@ func ExampleKey_SignCoze() {
 	cz := new(Coze)
 	cz.Pay = []byte(GoldenPay)
 
-	err := GoldenKey.SignCoze(cz, nil)
+	err := GoldenKey.SignCoze(cz)
 	if err != nil {
 		fmt.Println(err)
 	}

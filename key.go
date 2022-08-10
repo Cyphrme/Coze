@@ -190,8 +190,8 @@ func (c *Key) SignPayJSON(pay json.RawMessage, canon any) (sig B64, err error) {
 // SignCoze checks that coze.alg/coze.tmb and key.alg/key.tmb fields match,
 // signs coze.Pay, and populates coze.Sig.  Canon is optional. Expects alg and
 // tmb fields to be populated.  If not needing those fields, use Sign().
-func (c *Key) SignCoze(cz *Coze, canon any) (err error) {
-	cz.Sig, err = c.SignPayJSON(cz.Pay, canon)
+func (c *Key) SignCoze(cz *Coze) (err error) {
+	cz.Sig, err = c.SignPayJSON(cz.Pay, nil)
 	return
 }
 
@@ -382,7 +382,7 @@ func (c *Key) Revoke(msg string) (coze *Coze, err error) {
 	if err != nil {
 		return
 	}
-	err = c.SignCoze(coze, nil)
+	err = c.SignCoze(coze)
 	if err != nil {
 		return nil, err
 	}
