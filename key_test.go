@@ -183,7 +183,7 @@ func ExampleKey_SignPayJSON() {
 	coze.Pay = []byte(GoldenPay)
 
 	var err error
-	coze.Sig, err = GoldenKey.SignPayJSON(coze.Pay, nil)
+	coze.Sig, err = GoldenKey.SignPayJSON(coze.Pay)
 	if err != nil {
 		fmt.Println(err)
 	}

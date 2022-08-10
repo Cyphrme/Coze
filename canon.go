@@ -10,7 +10,7 @@ import (
 //
 // It returns only top level fields with no recursion or promotion of embedded
 // fields.
-func GetCanon(raw json.RawMessage) (can []string, err error) {
+func Canon(raw json.RawMessage) (can []string, err error) {
 	ms := MapSlice{}
 	err = json.Unmarshal(raw, &ms)
 	if err != nil {
@@ -24,8 +24,8 @@ func GetCanon(raw json.RawMessage) (can []string, err error) {
 	return keys, nil
 }
 
-// Canonical returns the canonical form. Input canon may be nil. If canon is
-// nil, JSON is only compactified.
+// Canonical returns the canonical form. Input canon is optional and may be nil.
+// If canon is nil, input JSON is only compactified.
 //
 // Interface "canon" may be any valid type for json.Unmarshal, including
 // `[]string`, `struct``, and `nil`.  If canon is nil, json.Unmarshal will place
@@ -61,6 +61,7 @@ func CanonicalHash(input []byte, canon any, hash HashAlg) (digest B64, err error
 	return Hash(hash, input), nil
 }
 
+// Compact compactifies JSON.
 func compact(msg json.RawMessage) ([]byte, error) {
 	var b bytes.Buffer
 	err := json.Compact(&b, msg)

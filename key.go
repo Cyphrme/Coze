@@ -12,8 +12,8 @@ import (
 	"time"
 )
 
-// KeyArrayCanon is the canonical form of a Coze Key in array form.
-var KeyArrayCanon = []string{"alg", "x"}
+// KeyCanonSlice is the canonical form of a Coze Key in slice form.
+var KeyCanonSlice = []string{"alg", "x"}
 
 // KeyCanon is the canonical form of a Coze Key in struct form.
 type KeyCanon struct {
@@ -104,9 +104,11 @@ func Thumbprint(c *Key) (tmb B64, err error) {
 	return CanonicalHash(b, &KeyCanon{}, c.Alg.Hash())
 }
 
-// Sign uses a private Coze key to sign a digest.  Sign() and Verify() do no
-// Coze validation, i.e. checking pay `alg` or `tmb` match with Key.  Use
-// SignPay, SignCoze, SignPayJSON, and/or VerifyCoze if needing Coze validation.
+// Sign uses a private Coze key to sign a digest.
+//
+// Sign() and Verify() do not check if the Coze is correct, such as checking
+// pay.alg and pay.tmb matches with Key.  Use SignPay, SignCoze, SignPayJSON,
+// and/or VerifyCoze if needing Coze validation.
 func (c *Key) Sign(digest B64) (sig B64, err error) {
 	if len(c.D) != c.Alg.DSize() {
 		return nil, fmt.Errorf("Sign: Invalid `d` length %d", len(c.D))
@@ -137,9 +139,8 @@ func (c *Key) Sign(digest B64) (sig B64, err error) {
 }
 
 // SignPay checks that coze.alg/coze.tmb and key.alg/key.tmb fields match, signs
-// coze.Pay, and returns a new Coze with populated coze.Sig.  Expects alg and
-// tmb fields to be populated.  If not needing those fields, use Sign().  If
-// needing a specific canon, use SignPayJSON.
+// coze.Pay, and returns a new Coze with coze.Sig populated.  Expects pay.alg
+// and pay.tmb fields to be populated.  If not needing those fields, use Sign().
 func (c *Key) SignPay(pay *Pay) (coze *Coze, err error) {
 	if c.Alg != pay.Alg {
 		return nil, fmt.Errorf("SignPay: key alg \"%s\" and coze alg \"%s\" do not match", c.Alg, pay.Alg)
@@ -163,9 +164,9 @@ func (c *Key) SignPay(pay *Pay) (coze *Coze, err error) {
 }
 
 // SignPayJSON checks that coze.alg/coze.tmb and key.alg/key.tmb fields match,
-// signs coze.Pay, and populates coze.Sig.  Canon is optional. Expects alg and
-// tmb fields to be populated.  If not needing those fields, use Sign().
-func (c *Key) SignPayJSON(pay json.RawMessage, canon any) (sig B64, err error) {
+// signs coze.Pay, and populates coze.Sig.  Expects pay.alg and pay.tmb fields
+// to be populated.  If not needing those fields, use Sign().
+func (c *Key) SignPayJSON(pay json.RawMessage) (sig B64, err error) {
 	// Unmarshal the standard fields for checking.
 	std := new(Pay)
 	err = json.Unmarshal(pay, std)
@@ -179,7 +180,7 @@ func (c *Key) SignPayJSON(pay json.RawMessage, canon any) (sig B64, err error) {
 		return nil, fmt.Errorf("SignPayJSON: key tmb \"%s\" and coze tmb  \"%s\" do not match", c.Tmb, std.Tmb)
 	}
 
-	b, err := Canonical(pay, canon)
+	b, err := compact(pay)
 	if err != nil {
 		return nil, err
 	}
@@ -188,16 +189,18 @@ func (c *Key) SignPayJSON(pay json.RawMessage, canon any) (sig B64, err error) {
 }
 
 // SignCoze checks that coze.alg/coze.tmb and key.alg/key.tmb fields match,
-// signs coze.Pay, and populates coze.Sig.  Canon is optional. Expects alg and
-// tmb fields to be populated.  If not needing those fields, use Sign().
+// signs coze.Pay, and populates coze.Sig.  Expects pay.alg and pay.tmb fields
+// to be populated.  If not needing those fields, use Sign().
 func (c *Key) SignCoze(cz *Coze) (err error) {
-	cz.Sig, err = c.SignPayJSON(cz.Pay, nil)
+	cz.Sig, err = c.SignPayJSON(cz.Pay)
 	return
 }
 
-// Verify uses a Coze key to verify a digest. Sign() and Verify() do no
-// Coze validation, i.e. checking pay `alg` or `tmb` match with Key.  Use
-// SignPay, SignCoze, SignPayJSON, and/or VerifyCoze if needing Coze validation.
+// Verify uses a Coze key to verify a digest.
+//
+// Sign() and Verify() do not check if the Coze is correct, such as checking
+// pay.alg and pay.tmb matches with Key.  Use SignPay, SignCoze, SignPayJSON,
+// and/or VerifyCoze if needing Coze validation.
 func (c *Key) Verify(digest, sig B64) (valid bool) {
 	if len(c.X) != c.Alg.XSize() {
 		return false
@@ -231,7 +234,7 @@ func (c *Key) VerifyCoze(cz *Coze) (bool, error) {
 		return false, fmt.Errorf("VerifyCoze: key tmb \"%s\" and coze tmb  \"%s\" do not match", c.Tmb, h.Tmb)
 	}
 
-	b, err := Canonical(cz.Pay, nil)
+	b, err := compact(cz.Pay)
 	if err != nil {
 		return false, err
 	}

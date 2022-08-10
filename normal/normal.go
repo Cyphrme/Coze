@@ -8,7 +8,7 @@ import (
 	"golang.org/x/exp/slices"
 )
 
-// Normal - A normal is an arrays of fields specifying the normalization of
+// Normal - A normal is an arrays of fields specifying the normalization of a
 // payload. Normals may be chained to represent various combinations of
 // normalization.  Normals are implemented in Go as []string.  There are five
 // types of normals plus a nil normal.
@@ -49,7 +49,7 @@ import (
 //
 // Notable Combinations:
 // - A an empty Canon or Only ("[]") matches only an a empty (i.e. `{}`) payload.
-// - An empty Need or Option does nothing. // TODO?
+// - An empty Need or Option does nothing.
 // - If need can appear before or after another normal, call IsNormal twice: a IsNormal(r, Need{a}), IsNormal(r, Canon{"b","c"}})
 //
 //
@@ -134,6 +134,7 @@ func Type(norm Normaler) string {
 	}
 }
 
+// TODO make append generic
 func Append(n, m []Normal) []Normal {
 	return append(n, m...)
 }
@@ -165,6 +166,8 @@ func IsNormal(pay json.RawMessage, norm ...Normaler) bool {
 // isNormal checks if datastructure conforms to the given normal chain. See docs
 // on IsNormal.
 //
+// TODO consider pointers for r and norms.
+//
 // Params:
 //  r          (Records) The fields being checked if conforming to normal chain.
 //  rSkip      Record pointer - First field that has not yet been checked.
@@ -179,6 +182,7 @@ func isNormal(r coze.MapSlice, rSkip int, nSkip int, extraFlag bool, norms ...No
 		return true
 	}
 	norm := norms[nSkip]
+
 	if extraFlag { // Progress record pointer to first match.
 		n := norm.Normal()
 		keys := r[rSkip:].KeysString()
@@ -189,14 +193,12 @@ func isNormal(r coze.MapSlice, rSkip int, nSkip int, extraFlag bool, norms ...No
 				break
 			}
 		}
-
 		// TODO this might be written better:
 		if i+1 >= len(r) { // If option is missing after an extra, return true.
 			if Type(norm) == "option" {
 				return true
 			}
 		}
-
 	}
 
 	switch norm.(type) {
@@ -273,7 +275,6 @@ func isNormal(r coze.MapSlice, rSkip int, nSkip int, extraFlag bool, norms ...No
 		if passedRecs != v.Len() {
 			return false
 		}
-
 		// Progress record pointer up the last match of Need, and turn on extraFlag
 		// to progress record pointer to first match of next Normal.
 		return isNormal(r, rSkip+i, nSkip+1, true, norms...)

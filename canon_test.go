@@ -7,7 +7,7 @@ import (
 func ExampleCanon() {
 	b := []byte(`{"z":"z", "a":"a"}`)
 
-	can, err := GetCanon(b)
+	can, err := Canon(b)
 	if err != nil {
 		fmt.Println(err)
 	}

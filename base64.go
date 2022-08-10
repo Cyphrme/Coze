@@ -29,7 +29,7 @@ func (t *B64) UnmarshalJSON(b []byte) error {
 // MarshalJSON implements JSON.MarshalJSON so B64 is decoded from b64ut. Error
 // is always nil.
 func (t B64) MarshalJSON() ([]byte, error) {
-	// JSON expects stings to be wrapped with double quote character.
+	// JSON expects strings to be wrapped with double quote character.
 	return []byte(fmt.Sprintf("\"%v\"", t)), nil
 }
 

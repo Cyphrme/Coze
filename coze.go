@@ -156,25 +156,22 @@ func (cz *Coze) MetaWithAlg(alg SEAlg) (err error) {
 	if err != nil {
 		return err
 	}
-
 	if alg == 0 {
 		alg = cz.Parsed.Alg
 	}
 	if alg != cz.Parsed.Alg {
 		return fmt.Errorf("MetaWithAlg: input alg %s doesn't match pay.alg %s", alg, cz.Parsed.Alg)
 	}
-
-	// Use Canonical to Compactify pay
-	canonical, err := Canonical(cz.Pay, nil)
+	b, err := compact(cz.Pay)
 	if err != nil {
 		return err
 	}
-	c, err := GetCanon(canonical)
+	c, err := Canon(b)
 	if err != nil {
 		return err
 	}
 	cz.Can = c
-	cz.Cad = Hash(cz.Parsed.Alg.Hash(), canonical)
+	cz.Cad = Hash(cz.Parsed.Alg.Hash(), b)
 	cz.Czd = GenCzd(cz.Parsed.Alg.Hash(), cz.Cad, cz.Sig)
 	return nil
 }
@@ -202,6 +199,8 @@ type Marshaler interface {
 // https://pkg.go.dev/github.com/go-json-experiment/json
 //
 // If goccy/go-json ever supported deduplication, we'd prefer that most likely.
+//
+// TODO deduplication.
 func Marshal(i any) ([]byte, error) {
 	buffer := &bytes.Buffer{}
 	encoder := json.NewEncoder(buffer)
