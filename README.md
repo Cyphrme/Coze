@@ -140,9 +140,9 @@ The JSON name `coze` is used to wrap Coze objects.  For example:
 }
 ```
 
-We recommend against needlessly wrapping implicit Coze objects with `coze`. For
-example, the JSON object `{"pay":{...},"sig":...}` doesn't need the labeled
-`coze` if already implicitly known.
+It is recommend to not needlessly wrap Coze objects with `coze`. For example,
+the JSON object `{"pay":{...},"sig":...}` doesn't need the labeled `coze` if
+implicitly known.
 
 #### Example verbose `coze`  
 The following coze containing `pay`, `key`, `can`, `cad`, `czd`, and `sig`
@@ -284,15 +284,15 @@ message has the field `rvk` with an integer value greater than `0`. The value of
 
 ```JSON
 {
-	"pay":{
-		"alg":"ES256",
-		"iat":1655924566,
-		"msg":"Posted my private key on github",
-		"rvk":1655924566,
-		"tmb":"cLj8vsYtMBwYkzoFVZHBZo6SNL8wSdCIjCKAwXNuhOk",
-		"typ":"cyphr.me/key/revoke"
-		},
-	"sig":"78Dp1YyArd19CMDDHFMUcLP3y876p1cpO6LTa94Pe8lKu8J3e2R93eK8EY3u2CaalJ6eV0O3b741atIDJ3uJgQ"
+	"pay": {
+		"alg": "ES256",
+		"iat": 1655924566,
+		"msg": "Posted my private key on github",
+		"rvk": 1655924566,
+		"tmb": "cLj8vsYtMBwYkzoFVZHBZo6SNL8wSdCIjCKAwXNuhOk",
+		"typ": "cyphr.me/key/revoke"
+	},
+	"sig": "y3wpVXpBeaJNnUn8Q_3j9WOZH4gey78naDrP14TEToio0tloGP-6mNrXGQdWsvMvVYgg09EoxJYC9mE4PEuMXg"
 }
 ```
 
