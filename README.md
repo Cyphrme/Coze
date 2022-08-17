@@ -340,16 +340,8 @@ The sections above are defined as "Core Coze".  Further expansions on Coze may
 be included in "Coze Standard".  Further draft, proposals, and extended
 algorithm support are planned in "Coze Experimental".
 
-See `normal.go` for an example of a Coze Standard feature not included in Core Coze.  
-
-# Further Notes on Canon and Normalization
-Applications may find it useful to have messages in a specific normalized form.
-Core Coze has canonicalization features that may be used, or for more expressive
-capabilities, see Normal in Coze Standard.  
-
-Canon may be implicitly known by applications, implicitly derived by "typ", or
-explicitly specified by `can`. Applications may specify canon expectations in
-API documentation.  If a message is malformed, applications must error. 
+See `normal.go` for an example of a Coze Standard feature not included in Core
+Coze.  
 
 
 # FAQ
@@ -461,6 +453,15 @@ label `"pay"` may then be inferred, `{...}`.  `{...}` is better than
 Verifying a coze already requires hashing `pay`.  Parsing `alg` from `pay` is a
 small additional cost.  
 
+
+#### Can my application use Canon/Canonicalization?
+Applications may find it useful to have messages in a specific normalized form.
+Core Coze has canonicalization features that may be used, or for more expressive
+capabilities, see Normal in Coze Standard.  
+
+Canon may be implicitly known by applications, implicitly derived by "typ", or
+explicitly specified by `can`. Applications may specify canon expectations in
+API documentation.  If a message is malformed, applications must error. 
 
 #### I need to keep my JSON separate from Coze.  
 We suggest encapsulating your JSON in "~", the last ASCII character.  We've
