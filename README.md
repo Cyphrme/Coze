@@ -93,7 +93,7 @@ application defined programmatic functions.  In the first example,
 - `kid` - "Key identifier", Human readable, non-programmatic label.  E.g. `"kid":"My Cyphr.me Key"`. 
 - `tmb` - Thumbprint.  E.g. `"cLj8vs..."`
 - `x`   - Public component.  E.g. `"2nTOaF..."`.
-- `typ` - "Type", denotes additional application information.  E.g. `"cyphr.me/msg"`
+- `typ` - "Type", Additional application information.  E.g. `"cyphr.me/msg"`
 - `rvk` - "Revoke", time of key revocation.  See the `rvk` section.  E.g. `1655924566`
 
 Note that the private component `d` is not included in `tmb` generation.   Also
