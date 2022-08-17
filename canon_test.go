@@ -9,7 +9,7 @@ func ExampleCanon() {
 
 	can, err := Canon(b)
 	if err != nil {
-		fmt.Println(err)
+		panic(err)
 	}
 
 	fmt.Println(can)
@@ -21,14 +21,14 @@ func ExampleCanonicalHash() {
 	canon := []string{"alg", "iat", "msg", "tmb", "typ"}
 	cad, err := CanonicalHash([]byte(GoldenPay), canon, SHA256)
 	if err != nil {
-		fmt.Println(err)
+		panic(err)
 	}
 	fmt.Println(cad.String())
 
 	// Without canon
 	cad, err = CanonicalHash([]byte(GoldenPay), nil, SHA256)
 	if err != nil {
-		fmt.Println(err)
+		panic(err)
 	}
 	fmt.Println(cad.String())
 
@@ -44,7 +44,7 @@ func ExampleCanonicalHash_permutations() {
 	for _, alg := range algs {
 		cad, err := CanonicalHash([]byte(GoldenPay), canon, ParseHashAlg(alg))
 		if err != nil {
-			fmt.Println(err)
+			panic(err)
 		}
 		fmt.Println(cad.String())
 	}
@@ -77,12 +77,12 @@ func ExampleCanonical() {
 	// from output.
 	ca, err := Marshal(map[string]string{"c": "c", "a": "a"})
 	if err != nil {
-		fmt.Println(err)
+		panic(err)
 	}
 
 	b, err = Canonical(ca, nil)
 	if err != nil {
-		fmt.Println(err)
+		panic(err)
 	}
 	fmt.Printf("Input: []byte; Canon: nil    => %s\n", b)
 
@@ -90,11 +90,11 @@ func ExampleCanonical() {
 	// should be omitted from output.
 	ca, err = Marshal(map[string]string{"c": "c", "a": "a"})
 	if err != nil {
-		fmt.Println(err)
+		panic(err)
 	}
 	b, err = Canonical(ca, new(ABC))
 	if err != nil {
-		fmt.Println(err)
+		panic(err)
 	}
 	fmt.Printf("Input: []byte; Canon: struct => %s\n", b)
 
@@ -102,7 +102,7 @@ func ExampleCanonical() {
 	byteJSON := []byte(`{"c":"c", "a": "a"}`)
 	b, err = Canonical(byteJSON, nil)
 	if err != nil {
-		fmt.Println(err)
+		panic(err)
 	}
 	fmt.Printf("Input: []byte; Canon: nil    => %s\n", b)
 

@@ -6,7 +6,7 @@
 [Presentation](https://docs.google.com/presentation/d/1bVojfkDs7K9hRwjr8zMW-AoHv5yAZjKL9Z3Bicz5Too)
 
 # Coze 
-Coze is a cryptographic JSON messaging specification designed for human
+**Coze** is a cryptographic JSON messaging specification designed for human
 readability.
 
 Play with Coze here: https://cyphr.me/coze_verifier
@@ -33,30 +33,33 @@ Play with Coze here: https://cyphr.me/coze_verifier
 3. Small in scope.
 4. Cryptographic agility.
 
-### Coze Names
-Coze objects encapsulate a set of JSON name/value pairs.  Coze reserved names
-are short, unique, and unlikely to require namespacing by applications.
-Applications are permitted to use any name except reserved names. The Coze
-objects `pay`, `key`, and `coze` have respective reserved names and all names
-must be unique.  Objects are case sensitive and must be valid JSON with unique
-fields names.
-
-Binary values are encoded as RFC 4648 base64 (URI with padding omitted).
+### Coze Fields
+Coze objects encapsulate a set of JSON name/value fields.  Coze JSON objects are
+case sensitive, must be valid JSON, and must contain unique field names. Coze
+**reserved fields** must be used according to Coze.  Applications are permitted
+to use additional fields as desired.  All reserved fields are optional, but
+omitting standard fields may limit compatibility among Coze supporting
+applications.  Binary values are encoded as RFC 4648 base64 URI with padding
+omitted.  The Coze objects `pay`, `key`, and `coze` have respective reserved
+fields.
 
 ![Coze Reserved Fields](docs/img/coze_reserved_fields.png)
 
 ## Pay
-`pay` may contain the standard fields `alg`, `iat`, `tmb`, and `typ` as
-well as custom fields.  In the first example, `msg` is a custom field.
+`pay` may contain the standard fields `alg`, `iat`, `tmb`, and `typ` and
+additional fields.  In the first example, `msg` is additional.
 
 ### `pay` Reserved Names
-- `alg`  Specific signing algorithm.  E.g. `"ES256"`
-- `iat`  The time when the message was signed. E.g. `1623132000`
-- `tmb`  Thumbprint of the key used to sign the message.  E.g. `"0148F4..."`
-- `typ`  Type of `pay`.
+- `alg` - Specific cryptographic algorithm.  E.g. `"ES256"`
+- `iat` - The time when the message was signed. E.g. `1623132000`
+- `tmb` - Thumbprint of the key used to sign the message.  E.g. `"0148F4..."`
+- `typ` - Type of `pay`.
 
-The optional `typ` may denote additional information by applications, such as
-versioning or expected fields.  
+`typ`'s value may be used by applications as desired.  The value is recommended
+to denote API information such as versioning, expected fields, and/or other
+application defined programmatic functions.  In the first example,
+`"typ":"cyphr.me/msg"` denotes a `pay` with the fields
+`["msg","alg","iat","tmb","typ"]` as defined by a hypothetical application.  
 
 ## Coze Key
 ### Example Public Coze Key
@@ -82,48 +85,40 @@ versioning or expected fields.
 }
 ```
 
-### Coze Key Standard Fields
-Coze keys require `alg`, `iat`, `tmb`, and the public components according
-to `alg`.  
+### `key` Reserved Names
+- `key` - Key object.  E.g. `"key":{"alg":"ES256", ...}`
+- `alg` - Algorithm.  E.g. `"ES256"`
+- `d`   - Private component.  E.g. `"bNstg4..."`
+- `iat` - "Issued at", When the key was created.  E.g. `1623132000`
+- `kid` - "Key identifier", Human readable, non-programmatic label.  E.g. `"kid":"My Cyphr.me Key"`. 
+- `tmb` - Thumbprint.  E.g. `"cLj8vs..."`
+- `x`   - Public component.  E.g. `"2nTOaF..."`.
+- `typ` - "Type", denotes additional application information.  E.g. `"cyphr.me/msg"`
+- `rvk` - "Revoke", time of key revocation.  See the `rvk` section.  E.g. `1655924566`
 
-- `key`  (Object) Key object. E.g. `"key":{"alg":"ES256", ...}`
-- `alg`  (Algorithm) Signing algorithm.  E.g. `"ES256"`
-- `d`    (Private) Private component.  E.g. `"bNstg4..."`
-- `iat`  (Issued At) When the key was created. E.g. `1623132000`
-- `kid`  (Key Identifier) Human readable, non-programmatic label for the key.
-            E.g. `"kid":"My Cyphr.me Key"`. 
-- `tmb`  (Thumbprint) Key thumbprint.  E.g. `"cLj8vs..."`
-- `x`    (Public) .  E.g. `"2nTOaF..."`.
-- `typ`  (Optional) Optional type use to denote additional information by the service.  
-- `rvk`  (Optional) Time of key revocation.  See the `rvk` section.  
-
-Note that `kid` must not be used programmatically while`typ` may be used
-programmatically.
-
-Note that the private component `d` is not included in `tmb` generation.  
+Note that the private component `d` is not included in `tmb` generation.   Also
+note that `kid` must not be used programmatically while`typ` may be used
+programmatically. 
 
 
-## `coze` 
-The JSON name `coze`
+## `coze` Reserved Names
+- `coze` - JSON name for Coze objects.  E.g. `{"coze":{"pay":..., sig:...}}`
+- `can` - "Canon" of `pay`.  E.g. `["alg","iat","tmb","typ"]`
+- `cad` - "Canon digest", the digest of `pay`.  E.g.: `"LSgWE4v..."`
+- `czd` - "Coze digest", the digest over `["cad","sig"]`.  E.g. `d0ygwQ...`
+- `pay` - Label for the pay object.  E.g. `"pay":{"alg":...}`
+- `sig` - Signature over `cad`.  E.g. `"sig":"ywctP6..."`
 
-### `coze` Standard Fields
-- `coze` JSON label for a Coze object.  E.g. `{"coze":{"pay":..., sig:...}}`
-- `can`  Canon for hashing over `pay`.  E.g. `["alg","iat","tmb","typ"]`
-- `cad`  Canon digest.  The digest of `pay`.  E.g.: `"24F11D..."`
-- `czd`  Coze digest, the digest over `["cad","sig"]`. `czd`'s hash must align
-  with `alg` in `pay`.  
-- `pay` Label for the pay object.  E.g. `"pay":{"alg":...}`
-- `sig`  Signature over the bytes of `cad`, and `sig` does not rehash `cad`
-  before signing.  E.g. `"sig":"CC3AD6..."`
+`sig` is the signature of the bytes represented by `cad` and `cad` is not
+rehashed before signing. `czd`'s hashing algorithm must align with `alg` in
+`pay`.  `czd` refers to a particular signed message. Like `cad`, `czd` is
+calculated from brace to brace, including the braces. `cad` and `czd` are
+recalculatable and are recommended to be omitted, although they may be useful
+for reference.  
 
-Like `cad`, `czd` is calculated from brace to brace, including the braces.
-`czd` refers to a particular signed message.
 
-`cad` and `czd` are recalculatable and are recommended to be omitted, although
-they may be useful for reference.  
-
-## Wrapped Coze
-The JSON name `coze` is used to wrap Coze objects.  For example:
+## Coze Labels
+The JSON name `coze` may be used to wrap Coze objects.  For example:
 
 ```JSON
 {
@@ -140,16 +135,14 @@ The JSON name `coze` is used to wrap Coze objects.  For example:
 }
 ```
 
-It is recommend to not needlessly wrap Coze objects with `coze`. For example,
+It is recommend to not needlessly wrap Coze objects with labels. For example,
 the JSON object `{"pay":{...},"sig":...}` doesn't need the labeled `coze` if
-implicitly known.
+implicitly known by applications.
 
-#### Example verbose `coze`  
-The following coze containing `pay`, `key`, `can`, `cad`, `czd`, and `sig`
-expands the first example and contains generally redundant fields. `key` may be
-looked using `tmb`, `can`, `cad`, and `czd` are recalculatable, and the label
-`coze` may be inferred.  These names should generally be omitted unless needed
-by applications. 
+The following coze expands the first example by adding the labels `key`, `can`,
+`cad`, and `czd` that should generally be omitted unless needed by applications.
+`key` may be looked up by applications by using `tmb`, `can`, `cad`, and `czd`
+are recalculatable, and the label `coze` may be inferred.  
 
 The tautological coze
 
@@ -178,7 +171,7 @@ The tautological coze
 }
 ```
 
-simplifies to:
+simplifies to
 
 ```JSON
 {
@@ -194,58 +187,56 @@ simplifies to:
 ```
 
 ### Canon
-Specific Coze JSON objects are canonicalized and hashed for creating digests,
-signing, and verification.  
+A **canon** is a list of fields used for normalization, e.g. `["alg","x"]`.  Some
+Coze objects are canonicalized for creating digests, signing, verification, and
+reference. Using a canon, the **canonical form** of an object is generated by
+removing fields not appearing in the canon, ordering remaining field by
+appearance in the canon, and eliding unnecessary whitespace.
 
-A canon is a list of fields used for normalization, e.g.
-["alg","iat","tmb","typ"].  Using a canon, the canonical form of an object is
-generated by excluding extra fields, ordering by appearance, and eliding
-unnecessary whitespace.
-
-The canonical form generation steps for a JSON object:
- 0. Include only fields present in canon.
- 1. Order object fields by canon.
- 2. Serialize and remove insignificant whitespace.
+Generation steps for the canonical form:
+ 0. Omit fields not present in canon.
+ 1. Order fields by canon.
+ 2. Omit insignificant whitespace.
 
 The following Coze fields have predefined canons:  
-- `tmb`'s canon is ["alg","x"].
+- `tmb`'s canon is `["alg","x"]`.
 - `cad`'s canon is `pay`'s fields in order of appearance.
-- `czd`'s canon is ["cad","sig"].
+- `czd`'s canon is `["cad","sig"]`.
 
-The canonical digest of JSON objects is generated by hashing the canonical form
-using the hashing algorithm specified by `alg`.  For example,`"ES256"`'s hashing
-algorithm is `"SHA-256"`.
+A **canonical digest** is generated by hashing the canonical form using the
+hashing algorithm specified by `alg`.  For example,`"ES256"`'s hashing algorithm
+is `"SHA-256"`.
 
-The key thumbprint, `tmb`, is the canonical digest of `key` with the canon
-`["alg","x"]` using `key.alg`'s hashing algorithm.  The key's `alg` of `ES256`
-corresponds to the hashing algorithm `SHA-256`. The canonical form of the
-example key is:
+The key thumbprint, `tmb`, is the canonical digest of `key` using the canon
+`["alg","x"]` and hashing algorithm specified by `key.alg`.  For example, a key
+`alg` of `ES256` corresponds to the hashing algorithm `SHA-256`. The canonical
+form of the example key is:
 
 ```JSON
 {"alg":"ES256","x":"2nTOaFVm2QLxmUO_SjgyscVHBtvHEfo2rq65MvgNRjORojq39Haq9rXNxvXxwba_Xj0F5vZibJR3isBdOWbo5g"}
 ```
 
-Hashing this canonical form results in the digest of tmb:
+Hashing this canonical form results in the following digest, which is `tmb`:
 `cLj8vsYtMBwYkzoFVZHBZo6SNL8wSdCIjCKAwXNuhOk`. 
 
-`czd` is the canonical digest of `coze` with the canon ["cad","sig"], which
+`czd` is the canonical digest of `coze` with the canon `["cad","sig"]`, which
 results in the JSON `{"cad":"...",sig:"..."}`.  `czd`'s hash must align with
 `alg` in `pay`. 
 
 The canonical digest of 
  - `key` is `tmb`, 
  - `pay` is `cad`, 
- - [`cad`,`sig`] is `czd`.
+ - `["cad","sig"]` is `czd`.
 
-In the previous example, the following canonical digests are given:
+Using the first example, the following canonical digests are calculated:
 - `tmb` is `cLj8vsYtMBwYkzoFVZHBZo6SNL8wSdCIjCKAwXNuhOk`
 - `cad` is `LSgWE4vEfyxJZUTFaRaB2JdEclORdZcm4UVH9D8vVto`.
 - `czd` is `d0ygwQCGzuxqgUq1KsuAtJ8IBu0mkgAcKpUJzuX075M`.
 
 
 ### Coze and Binaries
-For binary files the canonical digest may simply be the digest of the file. The
-hashing algorithm and any other metadata may be denoted by an accompanying Coze.
+The canonical digest of binary files may simply be the digest of the file. The
+hashing algorithm and any other metadata may be denoted by an accompanying coze.
 For example, an image ("Hello_World!.gif") may be referred to in a JSON object
 by its digest. 
 
@@ -274,11 +265,12 @@ represent the authorization to upload a file to a user's account:
 }
 ```
 
-
 ## Revoke
-A Coze key is self-revoked by signing a self-revoke message.  A self-revoke
-message has the field `rvk` with an integer value greater than `0`. The value of
-`rvk` is a Unix timestamp.
+A Coze key may be revoked by signing a self-revoke coze.  A self-revoke coze has
+the field `rvk` with an integer value greater than `0`.  Any JSON compatible,
+non-zero integer value may be used for `rvk` to denote key revocation.  For
+example, the integer value "1" is suitable to denote revocation.  A Unix
+timestamp of the time of revocation is the suggested value for `rvk`.
 
 ### Example Self Revoke
 
@@ -299,12 +291,12 @@ message has the field `rvk` with an integer value greater than `0`. The value of
 - `rvk` - Unix timestamp of when the key was revoked.  
 
 Coze explicitly defines a self-revoke method so that third parties may revoke
-leaked keys. Systems storing Coze keys should mark key as revoked when given a
-self-revoke message.  Systems may use any non-zero value for `rvk` to denote key
-revocation and the integer value "1" is suitable to denote revocation.
+leaked keys. Systems storing Coze keys should provide an interface permitting a
+given Coze key to be mark as revoked by receiving a self-revoke message. 
+Self-revokes with future times must immediately be considered as revoked.  
 
 Key expiration policies, such as key rotation, are outside the scope of Coze.
-Self revokes with future times must immediately be considered as revoked.  
+
 
 ## Supported Algorithms 
 - ES224
@@ -315,9 +307,11 @@ Self revokes with future times must immediately be considered as revoked.
 - Ed25519ph (planned)
 
 ### `alg` parameters:
+`alg` is a single source of truth for Coze cryptographic operations.  Other
+parameters are derived from the value of `alg`. For example:  
 
 "alg":"ES256"
-- Genus: ESCDSA
+- Genus: ECDSA
 - Family: EC
 - Use: sig
 - Sig.Size: 512
@@ -327,8 +321,8 @@ Self revokes with future times must immediately be considered as revoked.
 
 
 ## Coze Verifier
-Cyphr.me has an online tool to sign and verify messages.  We hope in the near
-future to release an open source, stand alone version of the webpage.  
+Cyphr.me provides an online tool for signing and verify Coze messages and plans
+to release an open source, stand alone version of the webpage.  
 
 Play with Coze here: https://cyphr.me/coze_verifier.
 
@@ -336,8 +330,8 @@ Play with Coze here: https://cyphr.me/coze_verifier.
 
 
 ## Coze Implementations
- - [Go (This repo)](https://github.com/Cyphrme/coze)
- - [Javascript (Coze js)](https://github.com/Cyphrme/cozejs).
+ - [Go Coze (this repo)](https://github.com/Cyphrme/coze)
+ - [Coze js (Javascript)](https://github.com/Cyphrme/cozejs)
 
 
 
@@ -346,7 +340,7 @@ The sections above are defined as "Core Coze".  Further expansions on Coze may
 be included in "Coze Standard".  Further draft, proposals, and extended
 algorithm support are planned in "Coze Experimental".
 
-See `normal.go` for an example of a Coze Standard feature.
+See `normal.go` for an example of a Coze Standard feature not included in Core Coze.  
 
 # Further Notes on Canon and Normalization
 Applications may find it useful to have messages in a specific normalized form.

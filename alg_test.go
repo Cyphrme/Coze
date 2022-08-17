@@ -19,7 +19,7 @@ func ExampleAlg_jsonMarshal() {
 
 	jm, err := Marshal(zStruct{A: Alg(ES256)})
 	if err != nil {
-		fmt.Println(err)
+		panic(err)
 	}
 
 	fmt.Printf("%s\n", jm)
@@ -33,7 +33,7 @@ func ExampleHashAlg_jsonMarshal() {
 	z := testStruct{H: SHA256}
 	jm, err := Marshal(z)
 	if err != nil {
-		fmt.Println(err)
+		panic(err)
 	}
 
 	fmt.Printf("%+s\n", jm)

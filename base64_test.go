@@ -23,7 +23,7 @@ func ExampleB64_marshalJSON() {
 	h := B64([]byte{0, 255})
 	b, err := h.MarshalJSON()
 	if err != nil {
-		fmt.Println(err)
+		panic(err)
 	}
 
 	fmt.Println(string(b))
@@ -39,12 +39,12 @@ func ExampleB64_unmarshalJSON() {
 	f := new(Foo)
 	err := json.Unmarshal([]byte(`{"Bar":"AP8"}`), f)
 	if err != nil {
-		fmt.Println(err)
+		panic(err)
 	}
 
 	b, err := Marshal(f)
 	if err != nil {
-		fmt.Println(err)
+		panic(err)
 	}
 
 	fmt.Printf("%s\n%#v\n", b, B64(b))
@@ -56,7 +56,7 @@ func ExampleB64_unmarshalJSON() {
 func ExampleDecode() {
 	b, err := Decode(GoldenTmb)
 	if err != nil {
-		fmt.Println(err)
+		panic(err)
 	}
 	fmt.Println(b)
 	// Output: cLj8vsYtMBwYkzoFVZHBZo6SNL8wSdCIjCKAwXNuhOk

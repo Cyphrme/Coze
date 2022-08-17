@@ -2,7 +2,7 @@ package coze
 
 import "fmt"
 
-func ExampleCanon_Append() {
+func ExampleAppend_canon() {
 	fmt.Printf("%v\n", Append(Canon{"a", "b"}, Canon{"c", "d"}))
 
 	// Output:
@@ -368,5 +368,4 @@ func ExampleIsNormal_need() {
 	// false
 	// false
 	// false
-
 }

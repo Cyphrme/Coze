@@ -82,7 +82,7 @@ func ExampleKey_jsonUnmarshal() {
 	Key := new(Key)
 	err := json.Unmarshal([]byte(GoldenKeyString), Key)
 	if err != nil {
-		fmt.Println(err)
+		panic(err)
 	}
 	fmt.Printf("%+v\n", Key)
 	// Output:
@@ -92,7 +92,7 @@ func ExampleKey_jsonUnmarshal() {
 func ExampleKey_jsonMarshal() {
 	b, err := Marshal(GoldenKey)
 	if err != nil {
-		fmt.Println(err)
+		panic(err)
 	}
 	fmt.Printf("%s\n", string(b))
 	// Output:
@@ -112,8 +112,7 @@ func ExampleKey_Thumbprint() {
 func ExampleThumbprint() {
 	h, err := Thumbprint(&GoldenKey)
 	if err != nil {
-		fmt.Println(err)
-		return
+		panic(err)
 	}
 	fmt.Println(h)
 	// Output:
@@ -124,7 +123,7 @@ func ExampleKey_Sign() {
 	cad := MustDecode(GoldenCad)
 	sig, err := GoldenKey.Sign(cad)
 	if err != nil {
-		fmt.Println(err)
+		panic(err)
 	}
 	fmt.Printf("%v\n", GoldenKey.Verify(cad, sig))
 	// Output: true
@@ -139,7 +138,7 @@ func ExampleKey_Sign_empty() {
 	dig := Hash(GoldenKey.Alg.Hash(), []byte("{}"))
 	sig, err := GoldenKey.Sign(dig)
 	if err != nil {
-		fmt.Println(err)
+		panic(err)
 	}
 
 	fmt.Println(GoldenKey.Verify(dig, sig))
@@ -163,19 +162,17 @@ func ExampleKey_SignPay() {
 
 	coze, err := GoldenKey.SignPay(&pay)
 	if err != nil {
-		fmt.Println(err)
+		panic(err)
 	}
 
 	v, err := GoldenKey.VerifyCoze(coze)
 	if err != nil {
-		fmt.Println(err)
+		panic(err)
 	}
 	fmt.Println(v)
-	fmt.Println(string(coze.Pay))
 
 	// Output:
 	// true
-	// {"alg":"ES256","iat":1627518000,"tmb":"cLj8vsYtMBwYkzoFVZHBZo6SNL8wSdCIjCKAwXNuhOk","typ":"cyphr.me/msg","msg":"Coze Rocks"}
 }
 
 func ExampleKey_SignPayJSON() {
@@ -185,12 +182,12 @@ func ExampleKey_SignPayJSON() {
 	var err error
 	coze.Sig, err = GoldenKey.SignPayJSON(coze.Pay)
 	if err != nil {
-		fmt.Println(err)
+		panic(err)
 	}
 
 	v, err := GoldenKey.VerifyCoze(coze)
 	if err != nil {
-		fmt.Println(err)
+		panic(err)
 	}
 	fmt.Println(v)
 
@@ -204,12 +201,12 @@ func ExampleKey_SignCoze() {
 
 	err := GoldenKey.SignCoze(cz)
 	if err != nil {
-		fmt.Println(err)
+		panic(err)
 	}
 
 	v, err := GoldenKey.VerifyCoze(cz)
 	if err != nil {
-		fmt.Println(err)
+		panic(err)
 	}
 	fmt.Println(v)
 
@@ -227,12 +224,12 @@ func ExampleKey_VerifyCoze() {
 	cz := new(Coze)
 	err := json.Unmarshal([]byte(GoldenCoze), cz)
 	if err != nil {
-		fmt.Println(err)
+		panic(err)
 	}
 
 	v, err := GoldenKey.VerifyCoze(cz)
 	if err != nil {
-		fmt.Println(err)
+		panic(err)
 	}
 
 	fmt.Println(v)
@@ -252,7 +249,7 @@ func ExampleKey_Valid() {
 func ExampleNewKey_valid() {
 	ck, err := NewKey(SEAlg(ES256))
 	if err != nil {
-		fmt.Println(err)
+		panic(err)
 	}
 	fmt.Println(ck.Valid())
 	// Output:
@@ -261,7 +258,6 @@ func ExampleNewKey_valid() {
 
 func ExampleNewKey() {
 	algs := []SigAlg{
-		SigAlg(SHA256), // Invalid signing alg, fails.
 		ES224,
 		ES256,
 		ES384,
@@ -272,23 +268,33 @@ func ExampleNewKey() {
 	for _, alg := range algs {
 		Key, err := NewKey(SEAlg(alg))
 		if err != nil {
-			fmt.Println(err)
-			continue
+			panic(err)
 		}
-
-		if Key.Valid() != true {
-			fmt.Printf("Invalid signature for alg: %s\n", alg)
-		}
+		fmt.Printf("%s, %t\n", Key.Alg, Key.Valid())
 	}
-	fmt.Println("Done")
+
+	// Output:
+	// ES224, true
+	// ES256, true
+	// ES384, true
+	// ES512, true
+	// Ed25519, true
+}
+
+func ExampleNewKey_bad() {
+	_, err := NewKey(SEAlg(SHA256)) // Invalid signing alg, fails.
+	if err != nil {
+		fmt.Println(err)
+	}
+
 	// Output:
 	// NewKey: unsupported alg: SHA-256
-	// Done
 }
 
 func ExampleKey_Correct() {
-	// Although the first key is invalid, note that some calls to Correct() pass
-	// depending on given fields.
+	// Note that some calls to Correct() pass on **invalid** keys depending on
+	// given fields. Second static key is valid and all field combinations must
+	// pass Correct().
 	keys := []Key{GoldenKeyBad, GoldenKey}
 
 	// Test new keys.  These keys should pass every test.
@@ -296,7 +302,7 @@ func ExampleKey_Correct() {
 	for _, alg := range algs {
 		key, err := NewKey(ParseSEAlg(alg))
 		if err != nil {
-			fmt.Println(err)
+			panic(err)
 		}
 		keys = append(keys, *key)
 	}
@@ -330,6 +336,7 @@ func ExampleKey_Correct() {
 
 		fmt.Printf("%t, %t, %t, %t, %t, %t\n", p1, p2, p3, p4, p5, p6)
 	}
+
 	// Output:
 	// false, false, true, false, true, true
 	// true, true, true, true, true, true
@@ -344,7 +351,7 @@ func ExampleKey_Correct() {
 func Example_genCad() {
 	digest, err := CanonicalHash([]byte(GoldenPay), nil, GoldenKey.Alg.Hash())
 	if err != nil {
-		fmt.Println(err)
+		panic(err)
 	}
 	fmt.Println(digest)
 	// Output:
@@ -356,11 +363,11 @@ func ExampleKey_Revoke() {
 	fmt.Println(gk2.IsRevoked())
 	coze, err := gk2.Revoke("Posted my private key on github")
 	if err != nil {
-		fmt.Println(err)
+		panic(err)
 	}
 	v, err := gk2.VerifyCoze(coze)
 	if err != nil {
-		fmt.Println(err)
+		panic(err)
 	}
 	fmt.Printf("%+v\n%+v\n", v, gk2.IsRevoked())
 	// Output:

@@ -358,7 +358,7 @@ func KeyToPubEcdsa(c *Key) (key *ecdsa.PublicKey) {
 // represent a coze or a Coze key.
 type Revoke struct {
 	Rvk int64  `json:"rvk"`           // Timestamp when key revoke occurred.
-	Msg string `json:"msg,omitempty"` // Optional message for why the key was revoked.
+	Msg string `json:"msg,omitempty"` // Optional message describing why the key was revoked.
 	Pay
 }
 

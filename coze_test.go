@@ -29,12 +29,12 @@ func ExamplePay_embedded() {
 
 	coze, err := GoldenKey.SignPay(&pay)
 	if err != nil {
-		fmt.Println(err)
+		panic(err)
 	}
 
 	v, err := GoldenKey.VerifyCoze(coze)
 	if err != nil {
-		fmt.Println(err)
+		panic(err)
 	}
 
 	// Set sig to nil for deterministic printout
@@ -53,12 +53,12 @@ func ExamplePay_jsonUnmarshal() {
 
 	err := json.Unmarshal([]byte(GoldenPay), h)
 	if err != nil {
-		fmt.Println(err)
+		panic(err)
 	}
 
 	out, err := Marshal(h)
 	if err != nil {
-		fmt.Println(err)
+		panic(err)
 	}
 
 	fmt.Printf("%s\n", out)
@@ -84,7 +84,7 @@ func ExamplePay_jsonMarshalCustom() {
 	// May also call inputPay.MarshalJSON() or Marshal(&inputPay) instead.
 	s, err := Marshal(&inputPay)
 	if err != nil {
-		fmt.Println(err)
+		panic(err)
 	}
 	fmt.Println(string(s))
 
@@ -98,14 +98,14 @@ func ExamplePay_jsonUnmarshalCustomManual() {
 	var pay Pay
 	err := json.Unmarshal([]byte(GoldenPay), &pay)
 	if err != nil {
-		fmt.Println(err)
+		panic(err)
 	}
 	fmt.Println(pay)
 
 	var custom CustomStruct
 	err = json.Unmarshal([]byte(GoldenPay), &custom)
 	if err != nil {
-		fmt.Println(err)
+		panic(err)
 	}
 	fmt.Println(custom)
 
@@ -160,7 +160,7 @@ func ExampleCoze_embed() {
 	cz := new(Coze)
 	err := json.Unmarshal([]byte(GoldenCoze), cz)
 	if err != nil {
-		fmt.Println(err)
+		panic(err)
 	}
 
 	type Outer struct {
@@ -178,7 +178,7 @@ func ExampleCoze_String() {
 	cz := new(Coze)
 	err := json.Unmarshal([]byte(GoldenCoze), cz)
 	if err != nil {
-		fmt.Println(err)
+		panic(err)
 	}
 	fmt.Println(cz)
 	// Output:
@@ -189,13 +189,14 @@ func ExampleCoze_Meta() {
 	cz := new(Coze)
 	err := json.Unmarshal([]byte(GoldenCoze), cz)
 	if err != nil {
-		fmt.Println(err)
+		panic(err)
 	}
 
 	err = cz.Meta()
 	if err != nil {
-		fmt.Println(err)
+		panic(err)
 	}
+
 	fmt.Printf("%s\n", cz)
 
 	// Output:
@@ -206,7 +207,7 @@ func ExampleCoze_MetaWithAlg() {
 	cz := new(Coze)
 	err := json.Unmarshal([]byte(GoldenCoze), cz)
 	if err != nil {
-		fmt.Println(err)
+		panic(err)
 	}
 
 	// Test mismatch alg, which should error.
@@ -218,14 +219,14 @@ func ExampleCoze_MetaWithAlg() {
 	// Test with correct alg, no error.
 	err = cz.MetaWithAlg(SEAlg(ES256))
 	if err != nil {
-		fmt.Println(err)
+		panic(err)
 	}
 	fmt.Printf("%s\n", cz)
 
 	// No alg given.  Alg is parsed from pay.
 	err = cz.MetaWithAlg(0)
 	if err != nil {
-		fmt.Println(err)
+		panic(err)
 	}
 	fmt.Printf("%s\n", cz)
 
@@ -239,13 +240,13 @@ func ExampleCoze_jsonUnMarshal() {
 	cz := new(Coze)
 	err := json.Unmarshal([]byte(GoldenCoze), cz)
 	if err != nil {
-		fmt.Println(err)
+		panic(err)
 	}
 
 	// remarshal for comparison
 	b, err := Marshal(cz)
 	if err != nil {
-		fmt.Println(err)
+		panic(err)
 	}
 	fmt.Println(string(b))
 	// Output:
@@ -256,12 +257,12 @@ func ExampleCoze_jsonMarshal() {
 	cz := new(Coze)
 	err := json.Unmarshal([]byte(GoldenCoze), cz)
 	if err != nil {
-		fmt.Println(err)
+		panic(err)
 	}
 
 	b, err := Marshal(cz)
 	if err != nil {
-		fmt.Println(err)
+		panic(err)
 	}
 
 	fmt.Printf("%+s\n", b)
@@ -273,12 +274,12 @@ func ExampleCoze_jsonMarshalPretty() {
 	cz := new(Coze)
 	err := json.Unmarshal([]byte(GoldenCoze), cz)
 	if err != nil {
-		fmt.Println(err)
+		panic(err)
 	}
 
 	b, err := MarshalPretty(cz)
 	if err != nil {
-		fmt.Println(err)
+		panic(err)
 	}
 
 	fmt.Printf("%+s\n", b)
@@ -307,21 +308,21 @@ func Example_jsonRawMessageMarshal() {
 		Obj: &o,
 	}
 
-	// Pointer to empty string will fail Marshal since an empty string is not
-	// valid JSON. (If it were the value `""`, it would pass. )
 	// Incorrect usage with pointer to a zero value string.
-	b, err := Marshal(anon)
+	// Pointer to empty string will fail Marshal since an empty string is not
+	// valid JSON. (If it were the value `""` it would pass. )
+	b, err := Marshal(anon) // fails
 	if err != nil {
 		fmt.Println(err)
 	}
-	fmt.Printf("%+v\n", b) // Should be empty because of error.
+	fmt.Printf("%+v\n", b) // Empty because of error.
 
 	// Correct usage with quotes characters.
 	quotes := []byte("\"\"") // string with two quote characters
 	anon.Obj = (*json.RawMessage)(&quotes)
 	b, err = Marshal(anon)
 	if err != nil {
-		fmt.Println(err)
+		panic(err)
 	}
 	fmt.Printf("%s\n", b)
 
@@ -330,7 +331,7 @@ func Example_jsonRawMessageMarshal() {
 	anon.Obj = &o
 	b, err = Marshal(anon)
 	if err != nil {
-		fmt.Println(err)
+		panic(err)
 	}
 	fmt.Printf("%s\n", b)
 
