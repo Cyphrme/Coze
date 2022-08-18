@@ -31,7 +31,7 @@ and we're glad it exists.
 - JSON crypto keys, both public and private, have thumbprints, which is like a
   PGP fingerprint or Ethereum address. Thumbprints universally address specific
   keys. 
-- Permits algorithm agility.  
+- Permits algorithm agility.
 
 ## How JOSE could be better.
 - JWT is not JSON (despite the name).  JWT is not JSON in both encoded and

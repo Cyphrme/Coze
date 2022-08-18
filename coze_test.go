@@ -154,6 +154,24 @@ func ExamplePay_String_custom() {
 	// {"alg":"ES256","iat":1627518000,"tmb":"cLj8vsYtMBwYkzoFVZHBZo6SNL8wSdCIjCKAwXNuhOk","typ":"cyphr.me/msg","msg":"Coze Rocks"}
 }
 
+// Demonstrates the behavior of duplicates with Coze.
+func Example_jsonUnmarshal_duplicate() {
+
+	h := &Pay{}
+
+	msg := []byte(`{"alg":"ES256","alg":"ES384"}`)
+
+	err := json.Unmarshal(msg, h)
+	if err != nil {
+		panic(err)
+	}
+	fmt.Println(h)
+
+	// Output:
+	// {"alg":"ES256","iat":1627518000,"tmb":"cLj8vsYtMBwYkzoFVZHBZo6SNL8wSdCIjCKAwXNuhOk","typ":"cyphr.me/msg","msg":"Coze Rocks"}
+	// &{Coze Rocks}
+}
+
 // ExampleCoze_embed demonstrates how to embed a JSON `coze` into a third party
 // JSON structure.
 func ExampleCoze_embed() {
