@@ -267,10 +267,9 @@ represent the authorization to upload a file to a user's account:
 
 ## Revoke
 A Coze key may be revoked by signing a self-revoke coze.  A self-revoke coze has
-the field `rvk` with an integer value greater than `0`.  Any JSON compatible,
-non-zero integer value may be used for `rvk` to denote key revocation.  For
-example, the integer value "1" is suitable to denote revocation.  A Unix
-timestamp of the time of revocation is the suggested value for `rvk`.
+the field `rvk` with any value other than `0`.  For example, the integer value
+`1` is suitable to denote revocation.  A Unix timestamp of the time of
+revocation is the suggested value for `rvk`.
 
 ### Example Self Revoke
 
@@ -292,8 +291,10 @@ timestamp of the time of revocation is the suggested value for `rvk`.
 
 Coze explicitly defines a self-revoke method so that third parties may revoke
 leaked keys. Systems storing Coze keys should provide an interface permitting a
-given Coze key to be mark as revoked by receiving a self-revoke message. 
-Self-revokes with future times must immediately be considered as revoked.  
+given Coze key to be mark as revoked by receiving a self-revoke message.
+Self-revokes with future times must immediately be considered as revoked.  Coze
+suggests rvk to be a 32-bit unsigned integer with a maximum value of
+4,294,967,295.
 
 Key expiration policies, such as key rotation, are outside the scope of Coze.
 
