@@ -66,7 +66,7 @@ application defined programmatic functions.  In the first example,
 ```JSON
 {
 	"alg":"ES256",
-	"iat":1623132000,
+	"iat":1627518000,
 	"kid":"Zami's Majuscule Key.",
 	"tmb":"cLj8vsYtMBwYkzoFVZHBZo6SNL8wSdCIjCKAwXNuhOk",
 	"x":"2nTOaFVm2QLxmUO_SjgyscVHBtvHEfo2rq65MvgNRjORojq39Haq9rXNxvXxwba_Xj0F5vZibJR3isBdOWbo5g"
@@ -77,7 +77,7 @@ application defined programmatic functions.  In the first example,
 ```JSON
 {
 	"alg":"ES256",
-	"iat":1623132000,
+	"iat":1627518000,
 	"kid":"Zami's Majuscule Key.",
 	"d":"bNstg4_H3m3SlROufwRSEgibLrBuRq9114OvdapcpVA",
 	"tmb":"cLj8vsYtMBwYkzoFVZHBZo6SNL8wSdCIjCKAwXNuhOk",
@@ -158,7 +158,7 @@ The tautological coze
 		},
 		"key": {
 			"alg":"ES256",
-			"iat":1623132000,
+			"iat":1627518000,
 			"kid":"Zami's Majuscule Key.",
 			"tmb":"cLj8vsYtMBwYkzoFVZHBZo6SNL8wSdCIjCKAwXNuhOk",
 			"x":"2nTOaFVm2QLxmUO_SjgyscVHBtvHEfo2rq65MvgNRjORojq39Haq9rXNxvXxwba_Xj0F5vZibJR3isBdOWbo5g"
@@ -256,12 +256,12 @@ represent the authorization to upload a file to a user's account:
 	"pay": {
 		"alg": "ES256",
 		"file_name": "Hello_World!.gif",
-		"iat": 1657925839,
+		"iat": 1627518000,
 		"id": "rVOyJ144KwIQ3V2YJdatKAo_3QWAY4CpGLCDdnKOvAw",
 		"tmb": "cLj8vsYtMBwYkzoFVZHBZo6SNL8wSdCIjCKAwXNuhOk",
 		"typ": "cyphr.me/file/create"
 	},
-	"sig": "rY7XYc9sGYZX0jsNnVhOYvJGb_I6Z-xq8gdbOBw8K-M1uAD4J3V33yyw-FJMrihMeJr60wWgeHRXCKWFHb_SgA"
+	"sig": "kyhjObuf7c9eSrAY5r9j7CtVq9eNemp7IMdlajEMjOkM8L1Yv-YRqwcaQbth3nNYasV0H-K5x3IOaADz1CVJiQ"
 }
 ```
 
@@ -277,13 +277,13 @@ revocation is the suggested value for `rvk`.
 {
 	"pay": {
 		"alg": "ES256",
-		"iat": 1655924566,
+		"iat": 1627518000,
 		"msg": "Posted my private key on github",
-		"rvk": 1655924566,
+		"rvk": 1627518000,
 		"tmb": "cLj8vsYtMBwYkzoFVZHBZo6SNL8wSdCIjCKAwXNuhOk",
 		"typ": "cyphr.me/key/revoke"
 	},
-	"sig": "y3wpVXpBeaJNnUn8Q_3j9WOZH4gey78naDrP14TEToio0tloGP-6mNrXGQdWsvMvVYgg09EoxJYC9mE4PEuMXg"
+	"sig": "wJqheKPx5QRz4Xewntvr_1i9aoVhSAsIihzU7j6jgqf3HcQzLAl0dAAEZVOJ85enPyLAZnRYRQ62RHr_3xYBDQ"
 }
 ```
 
@@ -390,19 +390,17 @@ while the binary itself should be transported outside of the coze.
 For example,  the digest of an image may be included in a coze.  The field `id`
 below is the digest of an image. The coze includes other metadata.  
 
-// TODO fix this
 ```JSON
 {
  "pay": {
   "alg": "ES256",
   "ext": "png",
-  "iat": 1623132000,
-  "id": "D0AA358048454A7C564C42F8D066F0932A3985AAC3F71FF59A1BCD1372E58590",
-  "parent": "96087E8C42DABC25EA5E33FDD4EFED4289F31F4B4826114088527E1F9A735647",
-  "tmb": "0148F4CD9093C9CBE3E8BF78D3E6C9B824F11DD2F29E2B1A630DD1CE1E176CDD",
+  "iat": 1627518000,
+  "id": "u482klvQqr44ijrQ8SD46A0k7YhxJBVUeYtjtV6oEVw",
+  "tmb": "cLj8vsYtMBwYkzoFVZHBZo6SNL8wSdCIjCKAwXNuhOk",
   "typ": "cyphr.me/ac/image/create"
  },
- "sig": "3456AB9532BDC0D9551ECF4D7D109EFA810921C5EB65A3912FD9988A58B3D14066326C7739778D787690BD8A7B88864DFA229A550DC9F39F7FD2729B2F4ED981"
+ "sig": "UyzhGF3XVmFAP41hAUM2_OJClQxJtcniUq7aSor_0AYWLvabyRRbgZPTKAgBFyxIXsCU00-N9kpX4HZGAVbKwg"
 }
 ```
 
@@ -469,15 +467,15 @@ We suggest encapsulating your JSON in "~", the last ASCII character.  We've
 dubbed this a "tilde encapsulated payload". For example: 
 
 ```json
-{
+
   "alg": "ES256",
-  "iat": 1623132000,
+  "iat": 1627518000,
   "tmb": "cLj8vsYtMBwYkzoFVZHBZo6SNL8wSdCIjCKAwXNuhOk",
   "typ": "cyphr.me/msg/create",
   "~": {
    "msg": "tilde encapsulated payload"
   }
- }
+}
  ```
 
 #### `key.typ` vs `pay.typ`. 
