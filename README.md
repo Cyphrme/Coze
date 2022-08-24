@@ -23,7 +23,7 @@ Play with Coze here: https://cyphr.me/coze_verifier
 		"tmb": "cLj8vsYtMBwYkzoFVZHBZo6SNL8wSdCIjCKAwXNuhOk",
 		"typ": "cyphr.me/msg"
 	},
-	"sig": "ywctP6lEQ_HcYLhgpoecqhFrqNpBSyNPuAPOV94SThuztJek7x7H9mXFD0xTrlmQPg_WC7jwg70nzNoGn70JyA"
+	"sig": "Dmmv5PeyD3xs-9XcZu_DrpMXf2TL6BXPhP7ARI0xoHoGnus4nkS9aW4n6e1HVcoiOCHUsaDnDySylG5XAN13oQ"
 }
 ```
 
@@ -43,6 +43,7 @@ applications.  Binary values are encoded as RFC 4648 base64 URI with padding
 omitted.  The Coze objects `pay`, `key`, and `coze` have respective reserved
 fields.
 
+#### All Coze Reserved Field Names
 ![Coze Reserved Fields](docs/img/coze_reserved_fields.png)
 
 ## Pay
@@ -117,7 +118,7 @@ recalculatable and are recommended to be omitted, although they may be useful
 for reference.  
 
 
-## Coze Labels
+## Coze
 The JSON name `coze` may be used to wrap Coze objects.  For example:
 
 ```JSON
@@ -139,10 +140,10 @@ It is recommend to not needlessly wrap Coze objects with labels. For example,
 the JSON object `{"pay":{...},"sig":...}` doesn't need the labeled `coze` if
 implicitly known by applications.
 
-The following coze expands the first example by adding the labels `key`, `can`,
-`cad`, and `czd` that should generally be omitted unless needed by applications.
-`key` may be looked up by applications by using `tmb`, `can`, `cad`, and `czd`
-are recalculatable, and the label `coze` may be inferred.  
+The following adds `key`, `can`, `cad`, and `czd` that should generally be
+omitted unless needed by applications. `key` may be looked up by applications by
+using `tmb`, `can`, `cad`, and `czd` are recalculatable, and the label `coze`
+may be inferred.  
 
 The tautological coze
 
@@ -235,33 +236,33 @@ Using the first example, the following canonical digests are calculated:
 
 
 ### Coze and Binaries
-The canonical digest of binary files may simply be the digest of the file. The
+The canonical digest of a binary file may simply be the digest of the file. The
 hashing algorithm and any other metadata may be denoted by an accompanying coze.
-For example, an image ("Hello_World!.gif") may be referred to in a JSON object
-by its digest. 
+For example, an image ("coze_logo_icon_256.png") may be referred to by its
+digest. 
 
 ```JSON
 {
 	"alg":"SHA-256",
-	"file_name":"Hello_World!.gif",
-	"image":"rVOyJ144KwIQ3V2YJdatKAo_3QWAY4CpGLCDdnKOvAw"
+	"file_name":"coze_logo_icon_256.png",
+	"id":"oDBDAg4xplHQby6iQ2lZMS1Jz4Op0bNoD5LK3KxEUZo"
 }
 ```
 
-For example, including a file's digest in a signed message, denoted by `id`, may
-represent the authorization to upload a file to a user's account:
+For example, a file's digest, denoted here by `id`, may represent the
+authorization to upload a file to a user's account:
 
 ```JSON
 {
 	"pay": {
 		"alg": "ES256",
-		"file_name": "Hello_World!.gif",
+		"file_name": "coze_logo_icon_256.png",
+		"id": "oDBDAg4xplHQby6iQ2lZMS1Jz4Op0bNoD5LK3KxEUZo",
 		"iat": 1627518000,
-		"id": "rVOyJ144KwIQ3V2YJdatKAo_3QWAY4CpGLCDdnKOvAw",
 		"tmb": "cLj8vsYtMBwYkzoFVZHBZo6SNL8wSdCIjCKAwXNuhOk",
 		"typ": "cyphr.me/file/create"
 	},
-	"sig": "kyhjObuf7c9eSrAY5r9j7CtVq9eNemp7IMdlajEMjOkM8L1Yv-YRqwcaQbth3nNYasV0H-K5x3IOaADz1CVJiQ"
+	"sig": "TcpnA4wPV3QUl1XWNfbey5cLkO2qHXGxnfEOI0BSic3J__Tr5TPL1In2yBmL8ZWhvFMOS11o1fm802K20OpQyw"
 }
 ```
 
@@ -276,14 +277,14 @@ revocation is the suggested value for `rvk`.
 ```JSON
 {
 	"pay": {
-		"alg": "ES256",
+	"alg": "ES256",
 		"iat": 1627518000,
-		"msg": "Posted my private key on github",
+		"msg": "Posted my private key online",
 		"rvk": 1627518000,
 		"tmb": "cLj8vsYtMBwYkzoFVZHBZo6SNL8wSdCIjCKAwXNuhOk",
 		"typ": "cyphr.me/key/revoke"
 	},
-	"sig": "wJqheKPx5QRz4Xewntvr_1i9aoVhSAsIihzU7j6jgqf3HcQzLAl0dAAEZVOJ85enPyLAZnRYRQ62RHr_3xYBDQ"
+	"sig": "6PHU4HM6CLFe6JULchXKFtXrGD_fn_U26ef99tXfOlFRGATHFy_XRpfG6lQM3D0DfTnskPvA4jpVUqie6FuFuA"
 }
 ```
 
@@ -293,10 +294,11 @@ Coze explicitly defines a self-revoke method so that third parties may revoke
 leaked keys. Systems storing Coze keys should provide an interface permitting a
 given Coze key to be mark as revoked by receiving a self-revoke message.
 Self-revokes with future times must immediately be considered as revoked.  Coze
-suggests rvk to be a 32-bit unsigned integer with a maximum value of
-4,294,967,295.
+requires `rvk` to be an integer with a maximum value of 9,007,199,254,740,991
+(2^53 – 1), which is Javascript's `MAX_SAFE_INTEGER`.
 
-Key expiration policies, such as key rotation, are outside the scope of Coze.
+Key expiration policies, key rotation, and alternative revocation methods are
+outside the scope of Coze.
 
 
 ## Supported Algorithms 
@@ -354,16 +356,13 @@ messaging standard.
 
 Jared suggested Coze because it looks like JOSE or COSE but it's funnier.
 
-
 #### "Coze" vs "coze"?
 We use upper case "Coze" to refer to the specification, and "coze" to refer to
 coze messages and objects.
 
-
 #### Why release pre-alpha on 2021/06/08?
 Coze was released on 2021/06/08 (1623132000) since it's 30 years and one day
 after the initial release of PGP 1.0.
-
 
 #### Zero case
 If `alg` and `tmb` are implicitly known, a zero case is legitimate. The
@@ -376,70 +375,47 @@ following is a valid coze.
 }
 ```
 
-#### Unicode/UTF-8?
-Yes.  Unicode is a superset of ASCII and UTF-8 shares sorting order with
-Unicode.  This results in broad, out of the box compatibility. Not that UTF-16
-(Javascript) has some code points out of order. For these systems, a small
-amount of additional logic is needed to correct the sort order.
+#### Unicode/UTF-8/Ordering?
+Although JSON was designed in a Javascript (UTF-16) context, the latest JSON RFC
+requires UTF-8 encoding, since everyone was already using UTF-8.  Unicode is a
+superset of ASCII and UTF-8 shares sorting order with Unicode. This results in
+broad, out of the box compatibility. Object field order may be denoted by a
+canon,  chaining normal, or communicate ordering via other means.  
+
+Note that UTF-16 (Javascript) has some code points out of order. For these
+systems, a small amount of additional logic is needed to correct the sort order.
 
 #### Binary? Why not support binary payloads like JOSE?
 JSON isn't well designed for binary.  Coze uses digests which we feel is an
 acceptable compromise.  A binary file's digest is easily included in a coze,
-while the binary itself should be transported outside of the coze. 
+while the binary itself should be transported outside of the coze. See the
+binary example above.  There's nothing stopping an application from base64
+encoding a binary for transporting, although its not recommend.  
 
-For example,  the digest of an image may be included in a coze.  The field `id`
-below is the digest of an image. The coze includes other metadata.  
-
-```JSON
-{
- "pay": {
-  "alg": "ES256",
-  "ext": "png",
-  "iat": 1627518000,
-  "id": "u482klvQqr44ijrQ8SD46A0k7YhxJBVUeYtjtV6oEVw",
-  "tmb": "cLj8vsYtMBwYkzoFVZHBZo6SNL8wSdCIjCKAwXNuhOk",
-  "typ": "cyphr.me/ac/image/create"
- },
- "sig": "UyzhGF3XVmFAP41hAUM2_OJClQxJtcniUq7aSor_0AYWLvabyRRbgZPTKAgBFyxIXsCU00-N9kpX4HZGAVbKwg"
-}
-```
-
-This all said, there's nothing stopping an application from base64 encoding a
-binary and transporting it that way, although we'd recommend against it.  
+#### Why is Coze's scope so limited?
+Coze is intentionally scope limited.  It is easier to extend a limited standard
+than to fix a large standard. Coze can be extended and customized for individual
+applications. 
 
 #### Is Coze versioned?
-`alg` refers to a specific set of parameters for all operations.  If a parameter
-needs changing, like switching out a hashing algorithm, `alg` must reflect that
-change.  
+`alg` refers to a specific set of parameters for all operations.  If an
+operation needs a different parameter, like a different hashing algorithm, `alg`
+itself will be different.
 
 Our hope is "Coze Core" stays simple and stable enough to preclude versioning.
 Instead, Coze Core "versioning" will be accomplished by noting specific
-algorithm support.  
-
-Versioning by feature also permits Coze implementations to support a subset of
-features while remaining Coze compliant.  In this way libraries may remain
-spartan and avoid feature bloat.
-
-Further expansions on Coze may be included in "Coze Standard".  Further draft,
-proposals, and extended algorithm support are planned in "Coze Experimental".
-
+algorithm support.  Versioning by feature permits Coze implementations to
+support a subset of features while remaining Coze compliant.  In this way
+libraries may remain spartan and avoid feature bloat. Further expansions on Coze
+may be included in "Coze Standard".  Further draft, proposals, and extended
+algorithm support are planned in "Coze Experimental".
 
 #### How can my API do versioning?
 API versioning may be handled an application however desired.  A suggested way
 of incorporating API versioning in Coze is to use `typ`, e.g.
 `cyphr.me/v1/msg/create`, where v1 is the api version.
 
-
-#### Why `pay` and not `head`, `payload`, or `body`?
-`pay` is short and denotes inclusion of all fields that are cryptographically
-signed.  
-
-Excluding digests, Coze explicitly recommends against including binaries
-in JSON messages. A minor concern was that "payload"/"pay" may denote including
-arbitrary binary values.
-
-
-#### Why does `pay` have  cryptographic components?
+#### Why does `pay` have cryptographic components?
 Coze's `pay` includes all payload information, a design we've dubbed a "fat
 payload".  We consider single pass hashing critical for Coze's simple design.
 
@@ -452,40 +428,23 @@ label `"pay"` may then be inferred, `{...}`.  `{...}` is better than
 Verifying a coze already requires hashing `pay`.  Parsing `alg` from `pay` is a
 small additional cost.  
 
-
 #### Can my application use Canon/Canonicalization?
-Applications may find it useful to have messages in a specific normalized form.
-Core Coze has canonicalization features that may be used, or for more expressive
-capabilities, see Normal in Coze Standard.  
-
 Canon may be implicitly known by applications, implicitly derived by "typ", or
 explicitly specified by `can`. Applications may specify canon expectations in
 API documentation.  If a message is malformed, applications must error. 
 
-#### I need to keep my JSON separate from Coze.  
-We suggest encapsulating your JSON in "~", the last ASCII character.  We've
-dubbed this a "tilde encapsulated payload". For example: 
+Applications may find it useful to have messages in a specific normalized form.
+Core Coze has canonicalization features, or for more expressive capabilities,
+see Normal in Coze Standard.  
 
-```json
 
-  "alg": "ES256",
-  "iat": 1627518000,
-  "tmb": "cLj8vsYtMBwYkzoFVZHBZo6SNL8wSdCIjCKAwXNuhOk",
-  "typ": "cyphr.me/msg/create",
-  "~": {
-   "msg": "tilde encapsulated payload"
-  }
-}
- ```
 
 #### `key.typ` vs `pay.typ`. 
-For signed objects `typ` may be used to denote a canon.  For example, a `typ`
-with value `cyphr.me/create/msg` has a canon of ["alg", "iat", "msg", "tmb",
-"typ"], as defined by the service.  
-
-For `tmb` canonical form, `typ` is ignored and a static canon is used. Like
-`typ` in `pay`,  `typ` in `key` may be used to specify custom application
-fields, e.g. "first_seen" or "account_id".  
+For `pay`, `typ` may be used to denote a canon.  For example, a `typ` with value
+`cyphr.me/create/msg` has a canon of ["alg", "iat", "msg", "tmb", "typ"], as
+defined by the service.  For `key`'s canonical form, `typ` is ignored and a
+static canon is used. Like `typ` in `pay`, `typ` in `key` may be used to specify
+custom application fields, e.g. "first_seen" or "account_id". 
 
 #### ECDSA `x` and `sig` Bytes
 For ECDSA , (X and Y) and (R and S) are concatenated for `x` and `sig`
@@ -498,7 +457,7 @@ before signing while Go's ECDSA expects a digest to sign. This means that in
 Javascript messages must be passed for signing, while in Go only a digest is
 needed.  
 
-See docs/developement.md for the Go development guide.
+See `docs/developement.md` for the Go development guide.
 
 #### Why not PGP/OpenSSL/LibreSSL/libsodium/JOSE/COSE/etc...?
 We have a lot of respect for existing projects. They're great at what they do.
@@ -507,28 +466,33 @@ by many ideas and standards.
  
 See the `coze_vs..md` document for more. 
 
-
 #### Does Coze have checksums?
-For keys, the field `tmb` can the function of a checksum as it is the digest
-over `alg` and the key's public components (such as `x` and `y`).  When given a
-new public key, systems storing keys can recalculate `tmb`, compare the given
-value, and error if values do not match. Alternatively, systems can verify a
-signed message with the key.
-
-For messages, `cad`, `czd`, or cryptographic verification may serve the function
-of checksums.  
+For keys, `tmb`, and for messages, `cad` and `czd`, may be used as checksums.
+When given a new public key, systems storing keys may recalculate `tmb`, compare
+given values, and error on mismatch. Alternatively, systems may used
+cryptographic verification to serve the function of checksumming.
 
 #### Performance hacks?
 Coze is not optimized for long messages, but if early knowledge of Coze standard
 fields is critical for application performance, put the Coze standard fields
 first, e.g. `{"alg", "tmb", ...}`
 
+#### I need to keep my JSON separate from Coze.  
+If appending custom fields after the standard Coze fields isn't sufficient, we
+suggest encapsulating custom JSON in "~", the last ASCII character.  We've
+dubbed this a "tilde encapsulated payload". For example: 
 
-#### Why is Coze's scope so limited?
-Coze is intentionally scope limited.  It is easier to extend a limited standard
-than to fix a large standard. Coze can be extended and customized for individual
-applications. 
-
+```json
+{
+	"alg": "ES256",
+	"iat": 1627518000,
+	"tmb": "cLj8vsYtMBwYkzoFVZHBZo6SNL8wSdCIjCKAwXNuhOk",
+	"typ": "cyphr.me/msg/create",
+	"~": {
+		"msg": "tilde encapsulated payload"
+	}
+}
+```
 
 #### Where does the cryptography come from?
 Much of this comes from NIST FIPS (See https://csrc.nist.gov/publications/fips)
@@ -557,12 +521,13 @@ thumbprint.  Associating thumbprints to issuers is the design we recommend.
 #### Why are duplicate field names prohibited?
 Coze explicitly requires that implementations disallow duplicate JSON names in
 `coze`, `pay`, and `key`.  Douglas Crockford's Java implementation of JSON
-errors on duplicate names. Other implementations use last-value-wins, and a few
-support duplicate keys.  The [JSON
+errors on duplicate names. Other implementations use `last-value-wins`, and a
+few support duplicate keys.  The [JSON
 RFC](https://datatracker.ietf.org/doc/html/rfc8259#section-4) states that
-implementations should not allow duplicate keys, notes the varying behavior of
-existing implementations, and states that when names are not unique, "the
-behavior of software that receives such an object is unpredictable."  
+implementations **should not** allow duplicate keys, notes the varying behavior
+of existing implementations, and states that when names are not unique, "the
+behavior of software that receives such an object is unpredictable."  Also note
+that Javascript objects and Go structs already require unique names.
 
 Duplicate fields is a security issue.  If multiple fields were allowed, for
 example for `alg`, `tmb`, or `rvk`, this could be a source of bugs in
@@ -570,18 +535,13 @@ implementations and surprising behavior to users. See the article, "[An
 Exploration of JSON Interoperability
 Vulnerabilities](https://bishopfox.com/blog/json-interoperability-vulnerabilities)"
 
-Javascript objects and Go structs already require unique names.  Since Coze
-normalization requires implementations support ordered objects, and prohibiting
-duplicates isn't much more complexity.  
-
 #### JSON Name, Key, Field Name, Member Name?
 They're all synonyms.  A JSON name is a JSON key is a JSON field name is a JSON
 member name.  In this document we use "field name" to avoid confusion with Coze
-key.  The RFC prefers the terms name/member name, we prefer the term key
-
+key.
 
 #### Cryptographic Agility?
-The moral is the need for cryptographic agility. It’s not enough to implement a
+>The moral is the need for cryptographic agility. It’s not enough to implement a
 single standard; it’s vital that our systems be able to easily swap in new
 algorithms when required. We’ve learned the hard way how algorithms can get so
 entrenched in systems that it can take many years to update them: in the
@@ -603,8 +563,10 @@ See also I-JSON
 #### Who created Coze?
 Coze was created by Cyphr.me.  
 
-#### Discussion?
+#### Discussion?  Social Media?
 https://old.reddit.com/r/CozeJson
+
+https://twitter.com/CozeJSON
 
 PM zamicol for our telegram group.  
 
