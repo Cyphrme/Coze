@@ -3,6 +3,7 @@ package coze
 import (
 	"encoding/json"
 	"fmt"
+	"strings"
 )
 
 func ExamplePay_embedded() {
@@ -154,22 +155,51 @@ func ExamplePay_String_custom() {
 	// {"alg":"ES256","iat":1627518000,"tmb":"cLj8vsYtMBwYkzoFVZHBZo6SNL8wSdCIjCKAwXNuhOk","typ":"cyphr.me/msg","msg":"Coze Rocks"}
 }
 
-// Demonstrates the behavior of duplicates with Coze.
-func Example_jsonUnmarshal_duplicate() {
+func Example_dup() {
+	data := `{"a": "b", "a":true,"c":["field_3 string 1","field3 string2"], "d": {"e": 1, "e": 2}}`
+	err := checkDuplicate(json.NewDecoder(strings.NewReader(data)))
+	if err == ErrDuplicate {
+		fmt.Println("found a duplicate")
+	} else if err != nil {
+		panic(err)
+	}
 
+	// Recursive check
+	data = `{"a": "b", "c":"d", "d": {"e": 1, "e": 2}}`
+	err = checkDuplicate(json.NewDecoder(strings.NewReader(data)))
+	if err == ErrDuplicate {
+		fmt.Println("found a duplicate")
+	} else if err != nil {
+		panic(err)
+	}
+
+	data = `{"a": "b", "c":"d", "d": {"e": 1, "f": 2}}`
+	err = checkDuplicate(json.NewDecoder(strings.NewReader(data)))
+	if err == nil {
+		fmt.Println("no duplicate")
+	} else {
+		panic(err)
+	}
+
+	// Output:
+	// found a duplicate
+	// found a duplicate
+	// no duplicate
+}
+
+// Demonstrates the behavior of duplicates with Coze.  Duplicates must result in
+// error.
+func ExamplePay_jsonUnmarshal_duplicate() {
 	h := &Pay{}
-
 	msg := []byte(`{"alg":"ES256","alg":"ES384"}`)
 
 	err := json.Unmarshal(msg, h)
 	if err != nil {
-		panic(err)
+		fmt.Println(err)
 	}
-	fmt.Println(h)
 
 	// Output:
-	// {"alg":"ES256","iat":1627518000,"tmb":"cLj8vsYtMBwYkzoFVZHBZo6SNL8wSdCIjCKAwXNuhOk","typ":"cyphr.me/msg","msg":"Coze Rocks"}
-	// &{Coze Rocks}
+	// duplicate
 }
 
 // ExampleCoze_embed demonstrates how to embed a JSON `coze` into a third party
