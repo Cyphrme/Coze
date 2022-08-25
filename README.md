@@ -301,15 +301,7 @@ Key expiration policies, key rotation, and alternative revocation methods are
 outside the scope of Coze.
 
 
-## Supported Algorithms 
-- ES224
-- ES256
-- ES384
-- ES512
-- Ed25519 
-- Ed25519ph (planned)
-
-### `alg` parameters:
+## `alg` parameters:
 `alg` is a single source of truth for Coze cryptographic operations.  Other
 parameters are derived from the value of `alg`. For example:  
 
@@ -322,20 +314,22 @@ parameters are derived from the value of `alg`. For example:
 - Hash: SHA-256
 - Hash.Size:256 
 
+### Supported Algorithms 
+- ES224
+- ES256
+- ES384
+- ES512
+- Ed25519 
+- Ed25519ph (planned)
 
-## Coze Verifier
+
+# Coze Verifier
 Cyphr.me provides an online tool for signing and verify Coze messages and plans
 to release an open source, stand alone version of the webpage.  
 
 Play with Coze here: https://cyphr.me/coze_verifier.
 
 ![coze_verifier](docs/img/Hello_World!.gif)
-
-
-## Coze Implementations
- - [Go Coze (this repo)](https://github.com/Cyphrme/coze)
- - [Coze js (Javascript)](https://github.com/Cyphrme/cozejs)
-
 
 
 # Standard Coze
@@ -345,6 +339,12 @@ algorithm support are planned in "Coze Experimental".
 
 See `normal.go` for an example of a Coze Standard feature not included in Core
 Coze.  
+
+
+# Coze Implementations
+ - [Go Coze (this repo)](https://github.com/Cyphrme/coze)
+ - [Coze js (Javascript)](https://github.com/Cyphrme/cozejs)
+
 
 
 # FAQ
@@ -500,7 +500,7 @@ Much of this comes from NIST FIPS (See https://csrc.nist.gov/publications/fips)
 For example, FIPS PUB 186-3 defines P-224, P-256, P-384, and P-521.
 
 
-##### Unsupported Things?
+#### Unsupported Things?
 The following are out of scope or redundant.  
 
 - `ES192`, `P-192` - Not implemented anywhere and dropped from later FIPS.
@@ -518,27 +518,30 @@ thumbprint.  Associating thumbprints to issuers is the design we recommend.
 - `jti` - "Token ID/JWT ID". Redundant by `czd`, `cad`, or an application
   specified field.
 
+#### JSON Name, Key, Field Name, Member Name?
+They're all synonyms.  A JSON name is a JSON key is a JSON field name is a JSON
+member name.  In this document we use "field name" to avoid confusion with Coze
+key.
+
 #### Why are duplicate field names prohibited?
 Coze explicitly requires that implementations disallow duplicate JSON names in
-`coze`, `pay`, and `key`.  Douglas Crockford's Java implementation of JSON
-errors on duplicate names. Other implementations use `last-value-wins`, and a
-few support duplicate keys.  The [JSON
-RFC](https://datatracker.ietf.org/doc/html/rfc8259#section-4) states that
-implementations **should not** allow duplicate keys, notes the varying behavior
-of existing implementations, and states that when names are not unique, "the
-behavior of software that receives such an object is unpredictable."  Also note
-that Javascript objects and Go structs already require unique names.
+`coze`, `pay`, and `key`.  Existing JSON implementations have varying behavior.  
+Douglas Crockford, JSON's inventor, [tried to fix this but it was decided it
+was too late](https://esdiscuss.org/topic/json-duplicate-keys).  
+
+Douglas Crockford's Java JSON implementation errors on duplicate names.  Others
+use `last-value-wins`, support duplicate keys, or other non-standard behavior.
+The [JSON RFC](https://datatracker.ietf.org/doc/html/rfc8259#section-4) states
+that implementations **should not** allow duplicate keys, notes the varying
+behavior of existing implementations, and states that when names are not unique,
+"the behavior of software that receives such an object is unpredictable."  Also
+note that Javascript objects and Go structs already require unique names.
 
 Duplicate fields is a security issue.  If multiple fields were allowed, for
 example for `alg`, `tmb`, or `rvk`, this could be a source of bugs in
 implementations and surprising behavior to users. See the article, "[An
 Exploration of JSON Interoperability
 Vulnerabilities](https://bishopfox.com/blog/json-interoperability-vulnerabilities)"
-
-#### JSON Name, Key, Field Name, Member Name?
-They're all synonyms.  A JSON name is a JSON key is a JSON field name is a JSON
-member name.  In this document we use "field name" to avoid confusion with Coze
-key.
 
 #### Cryptographic Agility?
 >The moral is the need for cryptographic agility. It’s not enough to implement a
@@ -548,8 +551,15 @@ entrenched in systems that it can take many years to update them: in the
 transition from DES to AES, and the transition from MD4 and MD5 to SHA, SHA-1,
 and then SHA-3.
 
-- https://www.schneier.com/blog/archives/2022/08/nists-post-quantum-cryptography-standards.html
+-- [Bruce Schneier](https://www.schneier.com/blog/archives/2022/08/nists-post-quantum-cryptography-standards.html)
 
+System that are cryptographically agile must not be overly coupled to a single
+primitive.  Coze itself is cryptographically agile as its design is generalized
+and not overly coupled to any single primitive.  Coze enables other applications
+to be cryptographic agile by making cryptographic primitive switching easy. Note
+that using a single primitive is perfectly fine for cryptographic agility, but
+hard coding systems to use only one primitive is not.  Simultaneous support for
+multiple primitives is an additional, but secondary, perk.
 
 #### JSON?
 - (2017, Bray)      https://datatracker.ietf.org/doc/html/rfc8259
@@ -572,6 +582,10 @@ PM zamicol for our telegram group.
 
 
 #### Other Resources
+This README as a page: https://cyphrme.github.io/Coze/
+
+CozeJSON.com (which is currently pointed to the [Coze verifier](https://cyphr.me/coze_verifier))
+
 Coze Table links: 
 https://docs.google.com/document/d/15_1R7qwfCf-Y3rTamtYS_QXuoTSNrOwbIRopwmv4KOc
 
