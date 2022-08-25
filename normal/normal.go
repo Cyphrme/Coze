@@ -148,11 +148,10 @@ func Merge[T ~[]Normal](norms ...T) any {
 	return n
 }
 
-// IsNormal checks if a Coze is normalized.  See notes on Normal.  Parameters
-// may be nil.
+// IsNormal checks if a Coze is normalized according to the given normal chain.
+// Normals are interpreted as a chain that progress a record pointer based on
+// normal rules.  See notes on Normal.  Parameters may be nil.
 func IsNormal(pay json.RawMessage, norm ...Normaler) bool {
-	// fmt.Printf("IsNormal pay: %s, norm: %+v\n", pay, norm)
-
 	ms := coze.MapSlice{}
 	err := json.Unmarshal(pay, &ms)
 	if err != nil {
@@ -169,12 +168,12 @@ func IsNormal(pay json.RawMessage, norm ...Normaler) bool {
 // TODO consider pointers for r and norms.
 //
 // Params:
-//  r          (Records) The fields being checked if conforming to normal chain.
-//  rSkip      Record pointer - First field that has not yet been checked.
-//  nSkip      Normal pointer - First Normal that has not been processed.
-//  extraFlag  When Extra has been evoked. Is disabled when Norm is not an
-//    Extra, and enabled when Norm is an Extra.  When chained, allows any
-//    fields until first record of next Normal.
+//  r         - (Records) The fields being checked if conforming to normal chain.
+//  rSkip     - Record pointer - First field that has not yet been checked.
+//  nSkip     - Normal pointer - First Normal that has not been processed.
+//  extraFlag - Is set to false when Norm is not an Extra and set to true when
+//  Norm is an Extra.  When set to true, it moves the record pointer to the
+//  first field matching the following Normal.
 //  norms - The Normal chain, the full slice of normals.
 //
 func isNormal(r coze.MapSlice, rSkip int, nSkip int, extraFlag bool, norms ...Normaler) bool {
@@ -282,4 +281,50 @@ func isNormal(r coze.MapSlice, rSkip int, nSkip int, extraFlag bool, norms ...No
 
 	//fmt.Printf("rSkip %d, nSkip %d, passedRecs: %d\n", rSkip+passedRecs, nSkip+1, passedRecs)
 	return isNormal(r, rSkip+passedRecs, nSkip+1, false, norms...)
+}
+
+// IsNormalUnchained is a helper to run a slice of normals individually and not
+// as a chain.
+func IsNormalUnchained(pay json.RawMessage, norm ...Normaler) bool {
+	for _, n := range norm {
+		b := IsNormal(pay, n)
+		if b != true {
+			return false
+		}
+	}
+	return true
+}
+
+// IsNormalNeedOption is a helper for a special case.
+//
+// If a need's fields and an option's fields can be intermixed, the need is
+// checked first and matching fields subtracted from records.  Then the option
+// is called with the subset.
+//
+// Another (alternative) method that's not implemented in this function:
+// IsNormal may be called twice.  Once with the need(s), and a second time with
+// the option(s) concatenated with the need(s).  This is logically equivalent to
+// subtracting the need.
+func IsNormalNeedOption(pay json.RawMessage, need Need, option Option) bool {
+	ms := coze.MapSlice{}
+	err := json.Unmarshal(pay, &ms)
+	if err != nil {
+		fmt.Println("Error:", err)
+		return false
+	}
+
+	b := isNormal(ms, 0, 0, false, need)
+	if b == false {
+		return false
+	}
+
+	// TODO add function "delete" to map slice.
+	ms2 := coze.MapSlice{}
+	for _, mi := range ms {
+		if !slices.Contains(need, Normal(mi.Key)) {
+			ms2 = append(ms2, coze.MapItem{Key: mi.Key, Value: mi.Value})
+		}
+	}
+
+	return isNormal(ms2, 0, 0, false, option)
 }

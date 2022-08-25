@@ -369,3 +369,25 @@ func ExampleIsNormal_need() {
 	// false
 	// false
 }
+
+func ExampleIsNormalNeedOption() {
+
+	pay := []byte(`{
+		"alg": "ES256",
+		"iat": 1647357960,
+		"tmb": "L0SS81e5QKSUSu-17LTQsvwKpUhBxe6ZZIEnSRV73o8",
+		"typ": "cyphr.me/user/profile/update",
+		"id": "L0SS81e5QKSUSu-17LTQsvwKpUhBxe6ZZIEnSRV73o8",
+		"city": "Pueblo",
+		"country": "ISO 3166-2:US",
+		"display_name": "Mr. Dev",
+		"first_name": "Dev Test",
+		"last_name": "1"
+	 }`)
+
+	b := IsNormalNeedOption(pay, Need{"alg", "iat", "tmb", "typ", "id"}, Option{"display_name", "first_name", "last_name", "email", "address_1", "address_2", "phone_1", "phone_2", "city", "state", "zip", "country"})
+	fmt.Println(b)
+
+	// Output:
+	// true
+}
