@@ -100,6 +100,23 @@ func (cz *Coze) MetaWithAlg(alg SEAlg) (err error) {
 	return nil
 }
 
+// UnmarshalJSON unmarshals checks for duplicates and unmarshals `coze`.   See notes on Pay.UnmarshalJSON
+func (cz *Coze) UnmarshalJSON(b []byte) error {
+	err := checkDuplicate(json.NewDecoder(bytes.NewReader(b)))
+	if err != nil {
+		return err
+	}
+
+	type coze2 Coze // Break infinite unmarshal loop
+	cz2 := new(coze2)
+	err = json.Unmarshal(b, cz2)
+	if err != nil {
+		return err
+	}
+	*cz = *(*Coze)(cz2)
+	return nil
+}
+
 // GenCzd generates and returns `czd`.
 func GenCzd(hash HashAlg, cad B64, sig B64) (czd B64) {
 	cadSig := []byte(fmt.Sprintf(`{"cad":%q,"sig":%q}`, cad, sig))
@@ -273,8 +290,6 @@ type Marshaler interface {
 // https://pkg.go.dev/github.com/go-json-experiment/json
 //
 // If goccy/go-json ever supported deduplication, we'd prefer that most likely.
-//
-//
 func Marshal(i any) ([]byte, error) {
 	buffer := &bytes.Buffer{}
 	encoder := json.NewEncoder(buffer)

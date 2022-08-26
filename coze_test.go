@@ -187,11 +187,26 @@ func Example_dup() {
 	// no duplicate
 }
 
-// Demonstrates the behavior of duplicates with Coze.  Duplicates must result in
+// Example showing unmarshalling pay that has duplicate keys results in an
 // error.
-func ExamplePay_jsonUnmarshal_duplicate() {
+func ExamplePay_UnmarshalJSON_duplicate() {
 	h := &Pay{}
 	msg := []byte(`{"alg":"ES256","alg":"ES384"}`)
+
+	err := json.Unmarshal(msg, h)
+	if err != nil {
+		fmt.Println(err)
+	}
+
+	// Output:
+	// duplicate
+}
+
+// Example showing unmarshalling pay that has duplicate keys results in an
+// error.
+func ExampleCoze_UnmarshalJSON_duplicate() {
+	h := &Pay{}
+	msg := []byte(`{"pay":"ES256","pay":"ES384"}`)
 
 	err := json.Unmarshal(msg, h)
 	if err != nil {

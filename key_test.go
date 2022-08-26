@@ -293,8 +293,7 @@ func ExampleNewKey_bad() {
 
 func ExampleKey_Correct() {
 	// Note that some calls to Correct() pass on **invalid** keys depending on
-	// given fields. Second static key is valid and all field combinations must
-	// pass Correct().
+	// given fields. Second static key is valid so all field combinations pass.
 	keys := []Key{GoldenKeyBad, GoldenKey}
 
 	// Test new keys.  These keys should pass every test.
@@ -377,7 +376,7 @@ func ExampleKey_Revoke() {
 }
 
 // BenchmarkNSV benchmarks several methods on a Coze Key. (NSV = New, Sign,
-// Verify) It generates a new Coze Key, sign a message, and verifies the
+// Verify) It generates a new Coze Key, signs a message, and verifies the
 // signature.
 // go test -bench=.
 // go test -bench=BenchmarkNSV -benchtime=30s
