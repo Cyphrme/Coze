@@ -40,7 +40,7 @@ func (ms MapSlice) Keys() []any {
 func (ms MapSlice) KeysString() []string {
 	s := make([]string, len(ms))
 	for i, k := range ms {
-		s[i] = fmt.Sprintf("%s", k.Key)
+		s[i] = k.Key
 	}
 	return s
 }

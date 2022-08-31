@@ -296,7 +296,7 @@ func isNormal(r coze.MapSlice, rSkip int, nSkip int, extraFlag bool, norms ...No
 func IsNormalUnchained(pay json.RawMessage, norm ...Normaler) bool {
 	for _, n := range norm {
 		b := IsNormal(pay, n)
-		if b != true {
+		if !b {
 			return false
 		}
 	}
@@ -322,7 +322,7 @@ func IsNormalNeedOption(pay json.RawMessage, need Need, option Option) bool {
 	}
 
 	b := isNormal(ms, 0, 0, false, need)
-	if b == false {
+	if !b {
 		return false
 	}
 
