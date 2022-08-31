@@ -1,5 +1,7 @@
 # Go Development
 
+As always with Go, use `go test` and verify any changes. 
+
 
 ## gofumpt and go-critic for linting
 
@@ -21,6 +23,14 @@ golangci-lint run
 
 
 ## Visualizer
+
 ```
 gource -c 4 -s 1 -a 1
+```
+
+To record:
+
+
+```
+simplescreenrecorder
 ```

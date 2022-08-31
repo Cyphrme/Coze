@@ -51,9 +51,11 @@ func ExampleType() {
 	// extra
 }
 
-var az = []byte(`{"a":"a","z":"z"}`)
-var ayz = []byte(`{"a":"a","y":"y","z":"z"}`)
-var v bool
+var (
+	az  = []byte(`{"a":"a","z":"z"}`)
+	ayz = []byte(`{"a":"a","y":"y","z":"z"}`)
+	v   bool
+)
 
 func ExampleIsNormal_nil() {
 	fmt.Println("Nil")
@@ -200,7 +202,7 @@ func ExampleIsNormal_only() {
 	v = IsNormal(az, Only{"a", "y", "z"})
 	fmt.Println(v)
 
-	//Output:
+	// Output:
 	// Only
 	// true
 	// true
@@ -226,7 +228,7 @@ func ExampleIsNormal_option() {
 	fmt.Println(v)
 
 	// Three Options with last missing, true.
-	v = IsNormal(az, Option{"a"}, Option{"z"}, Option{"x"}) //TODO
+	v = IsNormal(az, Option{"a"}, Option{"z"}, Option{"x"}) // TODO
 	fmt.Println(v)
 
 	// Option with field missing and Extra, true.
@@ -277,7 +279,7 @@ func ExampleIsNormal_option() {
 	v = IsNormal(ayz, Need{"a"}, Option{"y"})
 	fmt.Println(v)
 
-	//Output:
+	// Output:
 	// Option
 	// true
 	// true
@@ -298,7 +300,6 @@ func ExampleIsNormal_option() {
 }
 
 func ExampleIsNormal_need() {
-
 	fmt.Println("\nNeed")
 
 	// Need empty with empty records, true.
@@ -371,7 +372,6 @@ func ExampleIsNormal_need() {
 }
 
 func ExampleIsNormalNeedOption() {
-
 	pay := []byte(`{
 		"alg": "ES256",
 		"iat": 1647357960,

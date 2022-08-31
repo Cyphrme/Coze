@@ -87,15 +87,19 @@ type Normaler interface {
 func (n Canon) Len() int {
 	return len(n)
 }
+
 func (n Only) Len() int {
 	return len(n)
 }
+
 func (n Need) Len() int {
 	return len(n)
 }
+
 func (n Option) Len() int {
 	return len(n)
 }
+
 func (n Extra) Len() int {
 	return len(n)
 }
@@ -103,15 +107,19 @@ func (n Extra) Len() int {
 func (n Canon) Normal() []Normal {
 	return n
 }
+
 func (n Only) Normal() []Normal {
 	return n
 }
+
 func (n Need) Normal() []Normal {
 	return n
 }
+
 func (n Option) Normal() []Normal {
 	return n
 }
+
 func (n Extra) Normal() []Normal {
 	return n
 }
@@ -215,7 +223,7 @@ func isNormal(r coze.MapSlice, rSkip int, nSkip int, extraFlag bool, norms ...No
 		}
 	}
 
-	//fmt.Printf("isNormal{r: %s, rSkip %d, nSkip %d, GoType/Type: %T/%s norm: %v, norm.Len(): %d, norms len: %d, norms: %v}\n", r, rSkip, nSkip, norm, Type(norm), norm, norm.Len(), len(norms), norms)
+	// fmt.Printf("isNormal{r: %s, rSkip %d, nSkip %d, GoType/Type: %T/%s norm: %v, norm.Len(): %d, norms len: %d, norms: %v}\n", r, rSkip, nSkip, norm, Type(norm), norm, norm.Len(), len(norms), norms)
 
 	passedRecs := 0
 	switch v := norm.(type) {
@@ -279,7 +287,7 @@ func isNormal(r coze.MapSlice, rSkip int, nSkip int, extraFlag bool, norms ...No
 		return isNormal(r, rSkip+i, nSkip+1, true, norms...)
 	}
 
-	//fmt.Printf("rSkip %d, nSkip %d, passedRecs: %d\n", rSkip+passedRecs, nSkip+1, passedRecs)
+	// fmt.Printf("rSkip %d, nSkip %d, passedRecs: %d\n", rSkip+passedRecs, nSkip+1, passedRecs)
 	return isNormal(r, rSkip+passedRecs, nSkip+1, false, norms...)
 }
 
