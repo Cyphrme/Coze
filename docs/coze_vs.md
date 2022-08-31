@@ -1,3 +1,6 @@
+# See the [presentation](https://docs.google.com/presentation/d/1bVojfkDs7K9hRwjr8zMW-AoHv5yAZjKL9Z3Bicz5Too)
+
+
 # Coze Vs "X" Disclaimer
 We have a lot of respect for the various projects in the space.  Many projects
 have noble goals and we're thankful they exists.  We also don't think it's cool
