@@ -384,4 +384,4 @@ func checkDuplicate(d *json.Decoder) error {
 	return nil
 }
 
-var ErrDuplicate = errors.New("duplicate")
+var ErrDuplicate = errors.New("JSON duplicate field name")
