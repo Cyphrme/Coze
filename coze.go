@@ -100,7 +100,8 @@ func (cz *Coze) MetaWithAlg(alg SEAlg) (err error) {
 	return nil
 }
 
-// UnmarshalJSON unmarshals checks for duplicates and unmarshals `coze`.   See notes on Pay.UnmarshalJSON
+// UnmarshalJSON unmarshals checks for duplicates and unmarshals `coze`.   See
+// notes on Pay.UnmarshalJSON
 func (cz *Coze) UnmarshalJSON(b []byte) error {
 	err := checkDuplicate(json.NewDecoder(bytes.NewReader(b)))
 	if err != nil {
@@ -206,6 +207,7 @@ func (p *Pay) MarshalJSON() ([]byte, error) {
 	if err != nil {
 		return nil, err
 	}
+	// Concatenate the two:
 	s[0] = ','
 	return append(pay[:len(pay)-1], s...), nil
 }
@@ -284,7 +286,8 @@ type Marshaler interface {
 // characters, json.Marshal should not be used. Playground of Go breaking a book
 // title: https://play.golang.org/p/o2hiX0c62oN
 //
-// Encoding is not concerned with duplicates but UnmarshalJSON on Pay is.  See Pay.
+// Marshaling will not sanitize for duplicates, unlike UnmarshalJSON, so a
+// correct struct with no duplicates must be given.
 //
 // See Tailscale's JSON serilizer:
 // https://pkg.go.dev/github.com/go-json-experiment/json

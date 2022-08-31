@@ -187,8 +187,8 @@ func Example_dup() {
 	// no duplicate
 }
 
-// Example showing unmarshalling pay that has duplicate keys results in an
-// error.
+// Example demonstrating that unmarshalling a `pay` that has duplicate field
+// names results in an error.
 func ExamplePay_UnmarshalJSON_duplicate() {
 	h := &Pay{}
 	msg := []byte(`{"alg":"ES256","alg":"ES384"}`)
@@ -202,8 +202,8 @@ func ExamplePay_UnmarshalJSON_duplicate() {
 	// duplicate
 }
 
-// Example showing unmarshalling pay that has duplicate keys results in an
-// error.
+// Example demonstrating that unmarshalling a `coze` that has duplicate field
+// names results in an error.
 func ExampleCoze_UnmarshalJSON_duplicate() {
 	h := &Pay{}
 	msg := []byte(`{"pay":"ES256","pay":"ES384"}`)

@@ -357,24 +357,6 @@ func Example_genCad() {
 	// LSgWE4vEfyxJZUTFaRaB2JdEclORdZcm4UVH9D8vVto
 }
 
-func ExampleKey_Revoke() {
-	gk2 := GoldenKey // Make a copy
-	fmt.Println(gk2.IsRevoked())
-	coze, err := gk2.Revoke("Posted my private key on github")
-	if err != nil {
-		panic(err)
-	}
-	v, err := gk2.VerifyCoze(coze)
-	if err != nil {
-		panic(err)
-	}
-	fmt.Printf("%+v\n%+v\n", v, gk2.IsRevoked())
-	// Output:
-	// false
-	// true
-	// true
-}
-
 // BenchmarkNSV benchmarks several methods on a Coze Key. (NSV = New, Sign,
 // Verify) It generates a new Coze Key, signs a message, and verifies the
 // signature.
