@@ -199,7 +199,7 @@ func ExamplePay_UnmarshalJSON_duplicate() {
 	}
 
 	// Output:
-	// duplicate
+	// JSON duplicate field name
 }
 
 // Example demonstrating that unmarshalling a `coze` that has duplicate field
@@ -214,7 +214,7 @@ func ExampleCoze_UnmarshalJSON_duplicate() {
 	}
 
 	// Output:
-	// duplicate
+	// JSON duplicate field name
 }
 
 // ExampleCoze_embed demonstrates how to embed a JSON `coze` into a third party
