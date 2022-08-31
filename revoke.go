@@ -15,13 +15,13 @@ type Revoke struct {
 	Pay
 }
 
-// revoke is used for marshaling and unmarshalling Revoke.  Since Pay is embedded
-// in Revoke, calling json.Marshal/json.Unmarshal will call
+// revoke is used for marshaling and unmarshalling Revoke.  Since Pay is
+// embedded in Revoke, calling json.Marshal/json.Unmarshal will call
 // Revoke.Pay.Marshal/Revoke.Pay.UnmarshalJSON, which does not include Rvk or
 // Msg. To fix this, for marshaling: Revoke's unique fields, `rvk` and `msg`,
 // are marshaled then Rvk.Pay is marshaled, and the two are concatenated. For
-// unmarshalling, Revoke's unique fields, `rvk` and `msg`, are unmarshalled then
-// Rvk.Pay is unmarshalled, and revoke is set.
+// unmarshalling, Revoke's unique fields, `rvk` and `msg`, are unmarshalled,
+// Rvk.Pay is unmarshalled, and then revoke is set with the unmarshalled values.
 //
 // For comparison, see the notes on `func (p *Pay) MarshalJSON()`.
 type revoke struct {
@@ -39,8 +39,6 @@ func (r Revoke) String() string {
 }
 
 // MarshalJSON marshals Revoke.
-//
-
 func (r *Revoke) MarshalJSON() ([]byte, error) {
 	r2 := new(revoke)
 	r2.Rvk = r.Rvk
@@ -61,11 +59,6 @@ func (r *Revoke) MarshalJSON() ([]byte, error) {
 }
 
 // UnmarshalJSON unmarshals a Revoke. See notes on revoke.
-//
-// Since Pay is embedded in Revoke, calling json.Marshal will call
-// Revoke.Pay.UnmarshalJSON, which does not include Rvk or Msg. To fix this,
-// Revoke's unique fields, `rvk` and `msg`, are unmarshalled then Rvk.Pay is
-// unmarshalled, and revoke is set.
 func (r *Revoke) UnmarshalJSON(b []byte) error {
 	r2 := new(revoke)
 
@@ -86,8 +79,8 @@ func (r *Revoke) UnmarshalJSON(b []byte) error {
 	return nil
 }
 
-// Revoke will return a signed revoke coze for the given key as well as marking
-// the key itself as revoked by setting `rvk` on the Coze Key.
+// Revoke will return a signed revoke coze for the given key as well as setting
+// `rvk` on the Coze key itself.
 //
 // The revoke coze may simply be discarded if not needed, e.g. `_, err :=
 // cozeKey.Revoke(nil)`
