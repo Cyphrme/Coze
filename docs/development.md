@@ -3,6 +3,21 @@
 As always with Go, use `go test` and verify any changes. 
 
 
+## Go mod
+We seem to have issues without using this command:
+
+```
+go get 
+```
+
+
+For a particular branch:
+
+```
+go get github.com/cyphrme/coze@base64
+```
+
+
 ## gofumpt and go-critic for linting
 
 ```sh
@@ -34,3 +49,6 @@ To record:
 ```
 simplescreenrecorder
 ```
+
+
+Wanted to say thank you again, ran `golangci-lint run` again today.
