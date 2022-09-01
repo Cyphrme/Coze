@@ -3,8 +3,8 @@ module github.com/cyphrme/coze
 go 1.18
 
 require (
-	golang.org/x/crypto v0.0.0-20220411220226-7b82a4e95df4
+	golang.org/x/crypto v0.0.0-20220829220503-c86fa9a7ed90
 	golang.org/x/exp v0.0.0-20220722155223-a9213eeb770e
 )
 
-require golang.org/x/sys v0.0.0-20211019181941-9d821ace8654 // indirect
+require golang.org/x/sys v0.0.0-20220829200755-d48e67d00261 // indirect
