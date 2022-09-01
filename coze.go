@@ -1,4 +1,3 @@
-// See `coze.md` for details.
 package coze
 
 import (
@@ -18,24 +17,18 @@ import (
 //
 // Fields:
 //
-// Can: "Canon" Pay's fields in order of appearance.
-//
-// Cad: "Canonical Digest" Pay's compactified form digest.
-//
-// Czd: "Coze digest" with canon ["cad","sig"].
-//
-// Pay: Payload.
-//
-// Key: Key used to sign the message. Must be pointer, otherwise json.Marshal
-// (and by extension coze.Marshal) will not marshal on zero type. See
-// https://github.com/golang/go/issues/11939.
-//
-// Sig: Signature over pay.
-//
-// Parsed: The parsed standard Coze pay fields ["alg","iat","tmb","typ"] from
-// Pay.  Parsed is populated by Meta() and is JSON ignored. The source of truth
-// is Pay, not Parsed; do not use Parsed until after calling Meta() which
-// populates Parsed from Pay.
+//  - Can: "Canon" Pay's fields in order of appearance.
+//  - Cad: "Canonical Digest" Pay's compactified form digest.
+//  - Czd: "Coze digest" with canon ["cad","sig"].
+//  - Pay: Payload.
+//  - Key: Key used to sign the message. Must be pointer, otherwise json.Marshal
+//    (and by extension coze.Marshal) will not marshal on zero type. See
+//    https://github.com/golang/go/issues/11939.
+//  - Sig: Signature over pay.
+//  - Parsed: The parsed standard Coze pay fields ["alg","iat","tmb","typ"] from
+//    Pay.  Parsed is populated by Meta() and is JSON ignored. The source of truth
+//    is Pay, not Parsed; do not use Parsed until after calling Meta() which
+//    populates Parsed from Pay.
 type Coze struct {
 	Can []string        `json:"can,omitempty"`
 	Cad B64             `json:"cad,omitempty"`
@@ -125,10 +118,6 @@ func GenCzd(hash HashAlg, cad B64, sig B64) (czd B64) {
 }
 
 // Hash hashes msg and returns the digest or a set size. Returns nil on error or invalid HashAlg.
-//
-// This function was written because it doesn't exist in the standard library.
-// If in the future there is a standard lib function, use that and deprecate
-// this.
 //
 // SHAKE128 returns 32 bytes. SHAKE256 returns 64 bytes.
 func Hash(alg HashAlg, msg []byte) (digest B64) {
@@ -286,13 +275,16 @@ type Marshaler interface {
 // characters, json.Marshal should not be used. Playground of Go breaking a book
 // title: https://play.golang.org/p/o2hiX0c62oN
 //
-// Marshaling will not sanitize for duplicates, unlike UnmarshalJSON, so a
-// correct struct with no duplicates must be given.
+// Marshaling will not sanitize for duplicates, unlike coze.UnmarshalJSON or
+// pay.UnmarshalJSON, so a correct struct with no duplicates must be given.
+// (Go structs already require unique fields).
 //
-// See Tailscale's JSON serilizer:
+// Other works:
+// Tailscale's JSON serilizer:
 // https://pkg.go.dev/github.com/go-json-experiment/json
 //
-// If goccy/go-json ever supported deduplication, we'd prefer that most likely.
+// Joe Tsai is also working on json "fixes" in a yet-to-be-publicly-released
+// "v2" json package.
 func Marshal(i any) ([]byte, error) {
 	buffer := &bytes.Buffer{}
 	encoder := json.NewEncoder(buffer)
@@ -304,9 +296,8 @@ func Marshal(i any) ([]byte, error) {
 	return bytes.TrimRight(buffer.Bytes(), "\n"), nil
 }
 
-// MarshalPretty is the pretty version of Marshal. It uses 4 spaces for each
-// level. Spaces instead of tabs because some applications use 8 spaces per
-// tab, which is excessive.
+// MarshalPretty uses 4 spaces for each level. Spaces are used instead of tabs
+// because some applications display tabs as 8 spaces, which is excessive.
 func MarshalPretty(i any) ([]byte, error) {
 	buffer := &bytes.Buffer{}
 	encoder := json.NewEncoder(buffer)

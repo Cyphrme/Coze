@@ -31,36 +31,28 @@ type (
 	// Cryptographic Signature/Encryption/Hashing hierarchy
 	//
 	//  - EC
-	//  -- ECDSA
-	//  --- ES224
-	//  --- ES256
-	//  --- ES384
-	//  --- ES512
-	//  -- EdDSA
-	//  --- Ed25519
-	//  --- Ed25519ph
-	//  --- Ed448
+	//    - ECDSA
+	//      - ES224
+	//      - ES256
+	//      - ES384
+	//      - ES512
+	//    - EdDSA
+	//      - Ed25519
+	//      - Ed25519ph
+	//      - Ed448
 	//  - SHA
-	//  -- SHA-2
-	//  --- SHA-224
-	//  --- SHA-256
-	//  --- SHA-384
-	//  --- SHA-512
-	//  -- SHA-3
-	//  --- SHA3-224
-	//  --- SHA3-256
-	//  --- SHA3-384
-	//  --- SHA3-512
-	//  --- SHAKE128
-	//  --- SHAKE256
-	//
-	// Potential Future Support:
-	//  - RSA
-	//  -- RSASSA-PKCS1-v1_5
-	//  --- RS256
-	//  - Lattice-Based signatures
-	//  - Other future broad types...
-	//  -- ECDH
+	//    - SHA-2
+	//      - SHA-224
+	//      - SHA-256
+	//      - SHA-384
+	//      - SHA-512
+	//    - SHA-3
+	//      - SHA3-224
+	//      - SHA3-256
+	//      - SHA3-384
+	//      - SHA3-512
+	//      - SHAKE128
+	//      - SHAKE256
 	//
 	// "SE" (singing, encryption) is the super type of signing and encryption and
 	// excludes hashing.

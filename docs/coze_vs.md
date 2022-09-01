@@ -89,17 +89,17 @@ UTF8(eyJhbGciOiJSUzI1NiJ9.eyJpc3MiOiJqb2UiLA0KICJleHAiOjEzMDA4MTkzODAsDQogImh0dH
 
 
 # Coze Key
-## How a Coze Key is different from a JWK
-A Coze Key is like a JOSE JWK, but it differs in a few significant ways. 
+## Coze key vs JWK
+A Coze key is like a JOSE JWK, but it differs in a few significant ways. 
  
  Coze requires:
-1. "iat" (issued at) is required for messages and keys. 
+1. "iat" (issued at) is suggested for messages and keys. 
 2. "tmb" may be included in the Coze key.  "tmb" is deterministic digest from
    the key's canonical form and uses the hashing algorithm specified by `alg`. 
   - For JOSE, ["Selection of Hash
     Function"](https://tools.ietf.org/html/rfc7638#section-3.4) isn't well
     defined.  Coze explicitly defines how this is done. 
-3. The Coze Key thumbprint canon is {"alg","x"}.  
+3. The Coze key thumbprint canon is {"alg","x"}.  
 4. "alg" (algorithm) is required and must refer to a specific cryptographic
   algorithm.  "alg" should be descriptive of any parameter information needed
   about the key's signing algorithm.  For example, for an ecdsa key, "alg"
@@ -138,7 +138,7 @@ A Coze Key is like a JOSE JWK, but it differs in a few significant ways.
 
  
  
-# Coze Key and Javascript's JWK implementation. 
+# Coze key and Javascript's JWK implementation. 
 Note on Javascript's Subtle.Crypto
  
 ## usages != use != key_opts  

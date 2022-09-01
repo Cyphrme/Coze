@@ -9,7 +9,7 @@
 **Coze** is a cryptographic JSON messaging specification designed for human
 readability.
 
-Play with Coze here: https://cyphr.me/coze_verifier
+[Try Coze out!](https://cyphr.me/coze_verifier)
 
 ![coze_verifier](docs/img/Hello_World!.gif)
 
@@ -102,22 +102,6 @@ note that `kid` must not be used programmatically while`typ` may be used
 programmatically. 
 
 
-## `coze` Reserved Names
-- `coze` - JSON name for Coze objects.  E.g. `{"coze":{"pay":..., sig:...}}`
-- `can` - "Canon" of `pay`.  E.g. `["alg","iat","tmb","typ"]`
-- `cad` - "Canon digest", the digest of `pay`.  E.g.: `"LSgWE4v..."`
-- `czd` - "Coze digest", the digest over `["cad","sig"]`.  E.g. `d0ygwQ...`
-- `pay` - Label for the pay object.  E.g. `"pay":{"alg":...}`
-- `sig` - Signature over `cad`.  E.g. `"sig":"ywctP6..."`
-
-`sig` is the signature of the bytes represented by `cad` and `cad` is not
-rehashed before signing. `czd`'s hashing algorithm must align with `alg` in
-`pay`.  `czd` refers to a particular signed message. Like `cad`, `czd` is
-calculated from brace to brace, including the braces. `cad` and `czd` are
-recalculatable and are recommended to be omitted, although they may be useful
-for reference.  
-
-
 ## Coze
 The JSON name `coze` may be used to wrap Coze objects.  For example:
 
@@ -136,14 +120,30 @@ The JSON name `coze` may be used to wrap Coze objects.  For example:
 }
 ```
 
-It is recommend to not needlessly wrap Coze objects with labels. For example,
-the JSON object `{"pay":{...},"sig":...}` doesn't need the labeled `coze` if
-implicitly known by applications.
+## `coze` Reserved Names
+- `coze` - JSON name for Coze objects.  E.g. `{"coze":{"pay":..., sig:...}}`
+- `can` - "Canon" of `pay`.  E.g. `["alg","iat","tmb","typ"]`
+- `cad` - "Canon digest", the digest of `pay`.  E.g.: `"LSgWE4v..."`
+- `czd` - "Coze digest", the digest over `["cad","sig"]`.  E.g. `d0ygwQ...`
+- `pay` - Label for the pay object.  E.g. `"pay":{"alg":...}`
+- `sig` - Signature over `cad`.  E.g. `"sig":"ywctP6..."`
 
-The following adds `key`, `can`, `cad`, and `czd` that should generally be
-omitted unless needed by applications. `key` may be looked up by applications by
-using `tmb`, `can`, `cad`, and `czd` are recalculatable, and the label `coze`
-may be inferred.  
+`sig` is the signature of the bytes represented by `cad` and `cad` is not
+rehashed before signing. `czd`'s hashing algorithm must align with `alg` in
+`pay`.  `czd` refers to a particular signed message. Like `cad`, `czd` is
+calculated from brace to brace, including the braces. `cad` and `czd` are
+recalculatable and are recommended to be omitted, although they may be useful
+for reference.  
+
+## Verbose `coze`
+Needlessly wrapping Coze objects or including unneeded labels is not
+recommended. For example, the JSON object `{"pay":{...},"sig":...}` doesn't need
+the labeled `coze` if implicitly known by applications.
+
+The following adds to the previous example the fields `key`, `can`, `cad`, and
+`czd` that should generally be omitted unless needed by applications. `key` may
+be looked up by applications by using `tmb`, `can`, `cad`, and `czd` are
+recalculatable, and the label `coze` may be inferred.  
 
 The tautological coze
 
@@ -560,7 +560,7 @@ and not overly coupled to any single primitive.  Coze enables other applications
 to be cryptographic agile by making cryptographic primitive switching easy. Note
 that using a single primitive is perfectly fine for cryptographic agility, but
 hard coding systems to use only one primitive is not.  Simultaneous support for
-multiple primitives is an additional, but secondary, perk.
+multiple primitives is a secondary perk.
 
 #### JSON?
 - (2017, Bray)      https://datatracker.ietf.org/doc/html/rfc8259
@@ -572,18 +572,18 @@ See also I-JSON
  - (2015, Bray)     https://datatracker.ietf.org/doc/html/rfc7493
 
 #### Who created Coze?
-Coze was created by Cyphr.me.  
+Coze was created by [Cyphr.me](Cyphr.me).  
 
 #### Discussion?  Social Media?
-https://old.reddit.com/r/CozeJson
-
-https://twitter.com/CozeJSON
-
-PM zamicol for our telegram group.  
+ - https://old.reddit.com/r/CozeJson
+ - https://twitter.com/CozeJSON
+ - PM zamicol for our telegram group.  
 
 
 #### Other Resources
 This README as a page: https://cyphrme.github.io/Coze/
+
+[go.pkg.dev](https://pkg.go.dev/github.com/cyphrme/coze#section-readme)
 
 CozeJSON.com (which is currently pointed to the [Coze verifier](https://cyphr.me/coze_verifier))
 

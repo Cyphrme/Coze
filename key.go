@@ -12,10 +12,10 @@ import (
 	"time"
 )
 
-// KeyCanonSlice is the canonical form of a Coze Key in slice form.
+// KeyCanonSlice is the canonical form of a Coze key in slice form.
 var KeyCanonSlice = []string{"alg", "x"}
 
-// KeyCanon is the canonical form of a Coze Key in struct form.
+// KeyCanon is the canonical form of a Coze key in struct form.
 type KeyCanon struct {
 	Alg string `json:"alg"`
 	X   B64    `json:"x"`
@@ -24,15 +24,15 @@ type KeyCanon struct {
 // Key is a Coze key. See `README.md` for details on Coze key. Fields must be in
 // order for correct JSON marshaling.
 //
-// Standard Coze Key Fields
-// - `alg` - Specific key algorithm. E.g. "ES256" or "Ed25519".
-// - `d`   - Private component.
-// - `iat` - Unix time of when the key was created. E.g. 1626069600.
-// - `kid` - Human readable, non-programmatic label. E.g. "My Coze key".
-// - `rvk` - Unix time of key revocation. See docs on `rvk`. E.g. 1626069601.
-// - `tmb` - Key thumbprint. E.g. "cLj8vsYtMBwYkzoFVZHBZo6SNL8wSdCIjCKAwXNuhOk".
-// - `typ` - Application label for key. E.g. "coze/key".
-// - `x`   - Public component. E.g.
+// Standard Coze key Fields
+//  - `alg` - Specific key algorithm. E.g. "ES256" or "Ed25519".
+//  - `d`   - Private component.
+//  - `iat` - Unix time of when the key was created. E.g. 1626069600.
+//  - `kid` - Human readable, non-programmatic label. E.g. "My Coze key".
+//  - `rvk` - Unix time of key revocation. See docs on `rvk`. E.g. 1626069601.
+//  - `tmb` - Key thumbprint. E.g. "cLj8vsYtMBwYkzoFVZHBZo6SNL8wSdCIjCKAwXNuhOk".
+//  - `typ` - Application label for key. E.g. "coze/key".
+//  - `x`   - Public component. E.g.
 type Key struct {
 	Alg SEAlg  `json:"alg,omitempty"`
 	D   B64    `json:"d,omitempty"`
@@ -270,10 +270,10 @@ func (c *Key) Valid() (valid bool) {
 //
 // Correct:
 //
-// 1. Checks the length of `x` and/or `tmb` against `alg`.
-// 2. If `x` and `tmb` are present, verifies correct `tmb`.
-// 3. If `d` is present, verifies correct `tmb` and `x` if present, and verifies
-// the key by verifying a generated signature.
+//  1. Checks the length of `x` and/or `tmb` against `alg`.
+//  2. If `x` and `tmb` are present, verifies correct `tmb`.
+//  3. If `d` is present, verifies correct `tmb` and `x` if present, and verifies
+//     the key by verifying a generated signature.
 func (c *Key) Correct() (bool, error) {
 	if c.Alg == 0 {
 		return false, errors.New("Correct: Alg must be set")

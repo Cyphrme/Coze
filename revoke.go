@@ -1,4 +1,4 @@
-// See `coze.md` for details.
+// See README.md https://github.com/Cyphrme/Coze#readme.
 package coze
 
 import (
@@ -8,7 +8,7 @@ import (
 )
 
 // Revoke is a self revoke coze which contains the components necessary for self
-// revoking a Coze Key.  See the documentation section "Revoke".
+// revoking a Coze key.  See the documentation section "Revoke".
 type Revoke struct {
 	Rvk int64  `json:"rvk"`           // Timestamp when key revoke occurred.
 	Msg string `json:"msg,omitempty"` // Optional message describing why the key was revoked.
@@ -109,7 +109,7 @@ func (c *Key) Revoke(msg string) (coze *Coze, err error) {
 	if err != nil {
 		return nil, err
 	}
-	c.Rvk = now // Set the key's rvk to the same value as the self-revoke coze.
+	c.Rvk = now // Sets `Key.Rvk` to the same value as the self-revoke coze.
 	return coze, nil
 }
 
@@ -118,8 +118,8 @@ func (c Key) IsRevoked() bool {
 	return c.Rvk > 0
 }
 
-// IsRevoked will return whether is the given coze.pay or Coze Key is revoked.
-// Returns true on error.
+// IsRevoked will return whether is the given `pay` or Coze key is
+// revoked. Returns true on error.
 func IsRevoked(topLevel json.RawMessage) bool {
 	r := &struct {
 		Rvk int64 `json:"rvk"`

@@ -1,14 +1,6 @@
-package coze
-
-import (
-	"encoding/json"
-	"fmt"
-
-	"github.com/cyphrme/coze"
-	"golang.org/x/exp/slices"
-)
-
-// Normal - A normal is an arrays of fields specifying the normalization of a
+// # Normal
+//
+// A normal is an arrays of fields specifying the normalization of a
 // payload. Normals may be chained to represent various combinations of
 // normalization.  Normals are implemented in Go as []string.  There are five
 // types of normals plus a nil normal.
@@ -33,18 +25,17 @@ import (
 //
 // A nil normal is valid and matches all payloads.
 //
+// Repeated field names are allowed among normals and normal chains, but Coze
+// itself prohibits duplicates.
+//
 // Normal Chaining
 //
-// Normals may be chained:
+// Normals may be chained.  A chained normal moves a record pointer up.
 //
 // - A Need in a chain is equivalent to a [Need, Extra].
-// - Option order may be given by chaining options together.
+// - Options in order may be given by chaining options together.
 // - An Extra containing fields has no addition meaning over an empty
 // Extra.
-//
-//
-// Repeated keys are allowed among normals, but Coze itself prohibits duplicate
-// object keys.
 //
 //
 // Notable Combinations:
@@ -52,23 +43,36 @@ import (
 // - An empty Need or Option does nothing.
 // - If need can appear before or after another normal, call IsNormal twice: a IsNormal(r, Need{a}), IsNormal(r, Canon{"b","c"}})
 //
+// Normals are in two groups, exclusive and permissive.  Exclusive allows only
+// listed fields.  Permissive allows fields other than listed.
 //
-//            ┌────────────────┐
-//            │     Normal     │
-//            └───────┬────────┘
-//            ┌───────┴────────┐
-//      ┌─────┴─────┐    ┌─────┴────────┐
-//      │ Exclusive │    │ Permissive   │
-//      └───────────┘    └──────────────┘
-// Normal Hierarchy
-// 	Exclusive
-// 		canon
-// 		only
-// 		option
-// 	Permissive
-// 		need
-//    extra
+//          ┌────────────────┐
+//          │     Normal     │
+//          └───────┬────────┘
+//          ┌───────┴────────┐
+//    ┌─────┴─────┐    ┌─────┴────────┐
+//    │ Exclusive │    │ Permissive   │
+//    └───────────┘    └──────────────┘
 //
+// Grouping
+//  -Exclusive
+//    -canon
+//    -only
+//    -option
+//  -Permissive
+//    -need
+//    -extra
+//
+package coze
+
+import (
+	"encoding/json"
+	"fmt"
+
+	"github.com/cyphrme/coze"
+	"golang.org/x/exp/slices"
+)
+
 type Normal string
 
 type (

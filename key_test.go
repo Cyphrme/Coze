@@ -347,7 +347,7 @@ func ExampleKey_Correct() {
 }
 
 // See also ExampleCanonicalHash.
-func Example_genCad() {
+func ExampleCanonicalHash_genCad() {
 	digest, err := CanonicalHash([]byte(GoldenPay), nil, GoldenKey.Alg.Hash())
 	if err != nil {
 		panic(err)
@@ -357,8 +357,8 @@ func Example_genCad() {
 	// LSgWE4vEfyxJZUTFaRaB2JdEclORdZcm4UVH9D8vVto
 }
 
-// BenchmarkNSV benchmarks several methods on a Coze Key. (NSV = New, Sign,
-// Verify) It generates a new Coze Key, signs a message, and verifies the
+// BenchmarkNSV benchmarks several methods on a Coze key. (NSV = New, Sign,
+// Verify) It generates a new Coze key, signs a message, and verifies the
 // signature.
 // go test -bench=.
 // go test -bench=BenchmarkNSV -benchtime=30s

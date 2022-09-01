@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"strings"
+	"testing"
 )
 
 func ExamplePay_embedded() {
@@ -153,38 +154,6 @@ func ExamplePay_String_custom() {
 
 	// Output:
 	// {"alg":"ES256","iat":1627518000,"tmb":"cLj8vsYtMBwYkzoFVZHBZo6SNL8wSdCIjCKAwXNuhOk","typ":"cyphr.me/msg","msg":"Coze Rocks"}
-}
-
-func Example_dup() {
-	data := `{"a": "b", "a":true,"c":["field_3 string 1","field3 string2"], "d": {"e": 1, "e": 2}}`
-	err := checkDuplicate(json.NewDecoder(strings.NewReader(data)))
-	if err == ErrDuplicate {
-		fmt.Println("found a duplicate")
-	} else if err != nil {
-		panic(err)
-	}
-
-	// Recursive check
-	data = `{"a": "b", "c":"d", "d": {"e": 1, "e": 2}}`
-	err = checkDuplicate(json.NewDecoder(strings.NewReader(data)))
-	if err == ErrDuplicate {
-		fmt.Println("found a duplicate")
-	} else if err != nil {
-		panic(err)
-	}
-
-	data = `{"a": "b", "c":"d", "d": {"e": 1, "f": 2}}`
-	err = checkDuplicate(json.NewDecoder(strings.NewReader(data)))
-	if err == nil {
-		fmt.Println("no duplicate")
-	} else {
-		panic(err)
-	}
-
-	// Output:
-	// found a duplicate
-	// found a duplicate
-	// no duplicate
 }
 
 // Example demonstrating that unmarshalling a `pay` that has duplicate field
@@ -359,11 +328,10 @@ func ExampleCoze_jsonMarshalPretty() {
 	// }
 }
 
-// Example_jsonRawMessageMarshal demonstrates using empty string, quote
-// characters with no other content, and nil for json.RawMessage.  When using
-// RawMessage, it should always be valid JSON or nil or otherwise it will result
-// in an error.
-func Example_jsonRawMessageMarshal() {
+// ExampleMarshal_jsonRawMessage demonstrates using empty string, two quote
+// characters, and nil for json.RawMessage.  When using json.RawMessage, it
+// should always be valid JSON or nil or otherwise it will result in an error.
+func ExampleMarshal_jsonRawMessage() {
 	o := json.RawMessage([]byte("")) // empty string
 	anon := struct {
 		Obj *json.RawMessage `json:"obj,omitempty"`
@@ -403,4 +371,26 @@ func Example_jsonRawMessageMarshal() {
 	// []
 	// {"obj":""}
 	// {"obj":null}
+}
+
+func Test_checkDuplicate(t *testing.T) {
+	// Duplicate, should error.
+	data := `{"a": "b", "a":true,"c":["field_3 string 1","field3 string2"], "d": {"e": 1, "e": 2}}`
+	err := checkDuplicate(json.NewDecoder(strings.NewReader(data)))
+	if err != ErrDuplicate {
+		panic("Should have found duplciate.")
+	}
+
+	// Recursive check with duplicate in inner struct.  Should error.
+	data = `{"a": "b", "c":"d", "d": {"e": 1, "e": 2}}`
+	err = checkDuplicate(json.NewDecoder(strings.NewReader(data)))
+	if err != ErrDuplicate {
+		panic("Should have found duplciate.")
+	}
+	// No duplicate.  Should not error.
+	data = `{"a": "b", "c":"d", "d": {"e": 1, "f": 2}}`
+	err = checkDuplicate(json.NewDecoder(strings.NewReader(data)))
+	if err != nil {
+		panic(err)
+	}
 }

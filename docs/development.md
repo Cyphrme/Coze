@@ -2,6 +2,10 @@
 
 As always with Go, use `go test` and verify any changes. 
 
+```
+go test && go test -bench=.
+```
+
 
 ## Go mod
 We seem to have issues without using this command:
@@ -36,6 +40,12 @@ cd $COZE
 golangci-lint run
 ```
 
+## Go Doc
+
+```
+godoc -http=:6060
+```
+
 
 ## Visualizer
 
@@ -52,3 +62,7 @@ simplescreenrecorder
 
 
 Wanted to say thank you again, ran `golangci-lint run` again today.
+
+# Screenshots, Gifs
+
+Zami uses `peek` for gif generation. 
