@@ -587,18 +587,17 @@ Coze was created by [Cyphr.me](Cyphr.me).
 #### Discussion?  Social Media?
  - https://old.reddit.com/r/CozeJson
  - https://twitter.com/CozeJSON
- - PM zamicol for our telegram group.  
-
+ - PM zamicol for our telegram group.  (This is where, by far, we are the most active)
+ - Matrix: https://app.element.io/#/room/!iMKghXwDGwUMrszkbY:matrix.org
+ - We also hang out in the Go rooms:
+   - https://app.element.io/#/room/#go-lang:matrix.org
+	 - https://t.me/+TgkdqZw0Q-jAkGWS
 
 #### Other Resources
-This README as a page: https://cyphrme.github.io/Coze/
-
-[go.pkg.dev](https://pkg.go.dev/github.com/cyphrme/coze#section-readme)
-
-CozeJSON.com (which is currently pointed to the [Coze verifier](https://cyphr.me/coze_verifier))
-
-Coze Table links: 
-https://docs.google.com/document/d/15_1R7qwfCf-Y3rTamtYS_QXuoTSNrOwbIRopwmv4KOc
+ - This README as a page: https://cyphrme.github.io/Coze/
+ - [go.pkg.dev](https://pkg.go.dev/github.com/cyphrme/coze#section-readme)
+ - CozeJSON.com (which is currently pointed to the [Coze verifier](https://cyphr.me/coze_verifier))
+ - Coze Table links: https://docs.google.com/document/d/15_1R7qwfCf-Y3rTamtYS_QXuoTSNrOwbIRopwmv4KOc
 
 
 

@@ -32,10 +32,10 @@
 //
 // Normals may be chained.  A chained normal moves a record pointer up.
 //
-// - A Need in a chain is equivalent to a [Need, Extra].
-// - Options in order may be given by chaining options together.
-// - An Extra containing fields has no addition meaning over an empty
-// Extra.
+//  - A Need in a chain is equivalent to a [Need, Extra].
+//  - Options in order may be given by chaining options together.
+//  - An Extra containing fields has no addition meaning over an empty
+//    Extra.
 //
 //
 // Notable Combinations:

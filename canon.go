@@ -58,6 +58,7 @@ func CanonicalHash(input []byte, canon any, hash HashAlg) (digest B64, err error
 		return nil, err
 	}
 
+	// TODO error on invalid hash
 	return Hash(hash, input), nil
 }
 
