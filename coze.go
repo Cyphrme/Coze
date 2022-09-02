@@ -88,8 +88,14 @@ func (cz *Coze) MetaWithAlg(alg SEAlg) (err error) {
 		return err
 	}
 	cz.Can = c
-	cz.Cad = Hash(cz.Parsed.Alg.Hash(), b)
-	cz.Czd = GenCzd(cz.Parsed.Alg.Hash(), cz.Cad, cz.Sig)
+	cz.Cad, err = Hash(cz.Parsed.Alg.Hash(), b)
+	if err != nil {
+		return err
+	}
+	cz.Czd, err = GenCzd(cz.Parsed.Alg.Hash(), cz.Cad, cz.Sig)
+	if err != nil {
+		return err
+	}
 	return nil
 }
 
@@ -112,37 +118,46 @@ func (cz *Coze) UnmarshalJSON(b []byte) error {
 }
 
 // GenCzd generates and returns `czd`.
-func GenCzd(hash HashAlg, cad B64, sig B64) (czd B64) {
+func GenCzd(hash HashAlg, cad B64, sig B64) (czd B64, err error) {
 	cadSig := []byte(fmt.Sprintf(`{"cad":%q,"sig":%q}`, cad, sig))
-	return Hash(hash, cadSig)
+	d, err := Hash(hash, cadSig)
+	if err != nil {
+		return nil, err
+	}
+	return d, nil
 }
 
-// Hash hashes msg and returns the digest or a set size. Returns nil on error or invalid HashAlg.
+// Hash hashes msg and returns the digest or a set size. Returns nil on error.  Errors on
+// invalid HashAlg or if digest is nil.
 //
 // SHAKE128 returns 32 bytes. SHAKE256 returns 64 bytes.
-func Hash(alg HashAlg, msg []byte) (digest B64) {
-	if alg == SHAKE128 {
-		h := make([]byte, 32)
-		sha3.ShakeSum128(h, msg)
-		return h
+func Hash(h HashAlg, msg []byte) (digest B64, err error) {
+	switch h {
+	case SHAKE128:
+		digest = make([]byte, 32)
+		sha3.ShakeSum128(digest, msg)
+	case SHAKE256:
+		digest = make([]byte, 64)
+		sha3.ShakeSum256(digest, msg)
+	default:
+		hash := h.goHash()
+		if hash == nil {
+			return nil, errors.New("coze.Hash invalid HashAlg: " + h.String())
+		}
+
+		_, err = hash.Write(msg)
+		if err != nil {
+			return nil, err
+		}
+
+		digest = hash.Sum(nil)
 	}
 
-	if alg == SHAKE256 {
-		h := make([]byte, 64)
-		sha3.ShakeSum256(h, msg)
-		return h
+	if len(digest) == 0 {
+		return nil, errors.New("coze.Hash digest is empty. Using HashAlg: " + h.String())
 	}
 
-	hash := alg.goHash()
-	if hash == nil {
-		return nil
-	}
-	_, err := hash.Write(msg)
-	if err != nil {
-		return nil
-	}
-
-	return hash.Sum(nil)
+	return digest, nil
 }
 
 // Pay contains the standard Coze pay fields as well as custom Struct given by

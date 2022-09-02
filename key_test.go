@@ -103,8 +103,7 @@ func ExampleKey_Thumbprint() {
 	gk2 := GoldenKey   // Make a copy.
 	gk2.Tmb = []byte{} // Set to empty to ensure recalculation.
 	gk2.Thumbprint()
-	h := gk2.Tmb
-	fmt.Println(h)
+	fmt.Println(gk2.Tmb)
 	// Output:
 	// cLj8vsYtMBwYkzoFVZHBZo6SNL8wSdCIjCKAwXNuhOk
 }
@@ -129,19 +128,19 @@ func ExampleKey_Sign() {
 	// Output: true
 }
 
-// ExampleKey_Sign_empty shows signing an empty Coze is valid:
-//
-// {"pay":{},"sig":"9iesKUSV7L1-xz5yd3A94vCkKLmdOAnrcPXTU3_qeKSuk4RMG7Qz0KyubpATy0XA_fXrcdaxJTvXg6saaQQcVQ"}
-//
-// Where `alg` and `key` are already implicitly known by the application.
+// ExampleKey_Sign_empty demonstrates that signing an empty Coze,
+// `{"pay":{},"sig":"9iesKU..."}`, is valid.
 func ExampleKey_Sign_empty() {
-	dig := Hash(GoldenKey.Alg.Hash(), []byte("{}"))
-	sig, err := GoldenKey.Sign(dig)
+	d, err := Hash(GoldenKey.Alg.Hash(), []byte("{}"))
+	if err != nil {
+		panic(err)
+	}
+	sig, err := GoldenKey.Sign(d)
 	if err != nil {
 		panic(err)
 	}
 
-	fmt.Println(GoldenKey.Verify(dig, sig))
+	fmt.Println(GoldenKey.Verify(d, sig))
 	// Output: true
 }
 

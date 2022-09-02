@@ -37,6 +37,16 @@ func ExampleCanonicalHash() {
 	// LSgWE4vEfyxJZUTFaRaB2JdEclORdZcm4UVH9D8vVto
 }
 
+func ExampleCanonicalHash_invalidAlg() {
+	_, err := CanonicalHash([]byte(GoldenPay), nil, 1)
+	if err != nil {
+		fmt.Println(err)
+	}
+
+	// Output:
+	// coze.Hash invalid HashAlg: UnknownSigAlg
+}
+
 // Example CanonicalHash for all hashing algos.
 func ExampleCanonicalHash_permutations() {
 	canon := []string{"alg", "iat", "msg", "tmb", "typ"}

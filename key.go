@@ -159,7 +159,12 @@ func (c *Key) SignPay(pay *Pay) (coze *Coze, err error) {
 		return nil, err
 	}
 
-	coze.Sig, err = c.Sign(Hash(c.Alg.Hash(), b))
+	d, err := Hash(c.Alg.Hash(), b)
+	if err != nil {
+		return nil, err
+	}
+
+	coze.Sig, err = c.Sign(d)
 	return coze, err
 }
 
@@ -185,7 +190,12 @@ func (c *Key) SignPayJSON(pay json.RawMessage) (sig B64, err error) {
 		return nil, err
 	}
 
-	return c.Sign(Hash(c.Alg.Hash(), b))
+	d, err := Hash(c.Alg.Hash(), b)
+	if err != nil {
+		return nil, err
+	}
+
+	return c.Sign(d)
 }
 
 // SignCoze checks that coze.alg/coze.tmb and key.alg/key.tmb fields match,
@@ -239,7 +249,12 @@ func (c *Key) VerifyCoze(cz *Coze) (bool, error) {
 		return false, err
 	}
 
-	return c.Verify(Hash(c.Alg.Hash(), b), cz.Sig), nil
+	d, err := Hash(c.Alg.Hash(), b)
+	if err != nil {
+		return false, err
+	}
+
+	return c.Verify(d, cz.Sig), nil
 }
 
 // Valid cryptographically validates a private Coze Key by signing a message and
@@ -248,12 +263,15 @@ func (c *Key) VerifyCoze(cz *Coze) (bool, error) {
 // Valid always returns false on public keys.  Use function "Verify" for public
 // keys with signed message.  See also function Correct.
 func (c *Key) Valid() (valid bool) {
-	digest := Hash(c.Alg.Hash(), []byte("7AtyaCHO2BAG06z0W1tOQlZFWbhxGgqej4k9-HWP3DE-zshRbrE-69DIfgY704_FDYez7h_rEI1WQVKhv5Hd5Q"))
-	sig, err := c.Sign(digest)
+	d, err := Hash(c.Alg.Hash(), []byte("7AtyaCHO2BAG06z0W1tOQlZFWbhxGgqej4k9-HWP3DE-zshRbrE-69DIfgY704_FDYez7h_rEI1WQVKhv5Hd5Q"))
 	if err != nil {
 		return false
 	}
-	return c.Verify(digest, sig)
+	sig, err := c.Sign(d)
+	if err != nil {
+		return false
+	}
+	return c.Verify(d, sig)
 }
 
 // Correct checks for the correct construction of a Coze key, but may return
