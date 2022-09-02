@@ -530,19 +530,29 @@ Coze explicitly requires that implementations disallow duplicate JSON names in
 Douglas Crockford, JSON's inventor, [tried to fix this but it was decided it
 was too late](https://esdiscuss.org/topic/json-duplicate-keys).  
 
-Douglas Crockford's Java JSON implementation errors on duplicate names.  Others
-use `last-value-wins`, support duplicate keys, or other non-standard behavior.
-The [JSON RFC](https://datatracker.ietf.org/doc/html/rfc8259#section-4) states
-that implementations **should not** allow duplicate keys, notes the varying
-behavior of existing implementations, and states that when names are not unique,
-"the behavior of software that receives such an object is unpredictable."  Also
-note that Javascript objects and Go structs already require unique names.
+Although Douglas Crockford couldn't change the spec forcing all implementations
+to error on duplicate, his Java JSON implementation errors on duplicate names.
+Others use `last-value-wins`, support duplicate keys, or other non-standard
+behavior. The [JSON
+RFC](https://datatracker.ietf.org/doc/html/rfc8259#section-4) states that
+implementations **should not** allow duplicate keys, notes the varying behavior
+of existing implementations, and states that when names are not unique, "the
+behavior of software that receives such an object is unpredictable."  Also note
+that Javascript objects and Go structs already require unique names.
 
-Duplicate fields is a security issue.  If multiple fields were allowed, for
-example for `alg`, `tmb`, or `rvk`, this could be a source of bugs in
-implementations and surprising behavior to users. See the article, "[An
-Exploration of JSON Interoperability
+Duplicate fields are a security issue, a source of bugs, and and a surprising
+behavior to users. See the article, "[An Exploration of JSON Interoperability
 Vulnerabilities](https://bishopfox.com/blog/json-interoperability-vulnerabilities)"
+
+Disallowing duplicates conforms to the small I-JSON RFC. The author of I-JSON,
+Tim Bray, is also the author of JSON RFC 8259.  See also
+https://github.com/json5/json5-spec/issues/38.
+
+#### Encryption?
+Coze does not currently support encryption.  
+
+If or when it ever does it would be similar to
+[age](https://github.com/FiloSottile/age).
 
 #### Cryptographic Agility?
 >The moral is the need for cryptographic agility. It’s not enough to implement a
