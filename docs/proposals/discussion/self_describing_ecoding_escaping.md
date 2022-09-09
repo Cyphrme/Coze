@@ -7,6 +7,9 @@ JSON, a text encoding, for cryptographic functions. Using text encoding may or
 may not be ergonomic for other systems. Coze does this carefully, and we think
 efficiently, but it's still a concern.  
 
+(Not that SSH also does this.  SSH's fingerprint is the hash of the _ub64t_ (not
+b64ut) encoding of the public key.)
+
 Self-described encoding allows binary value to be used in future designs to
 lessen the coupling with the text encoding design choice. 
 

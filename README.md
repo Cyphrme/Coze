@@ -376,22 +376,25 @@ following is a valid coze.
 }
 ```
 
-#### Unicode/UTF-8/Ordering?
+#### ASCII/Unicode/UTF-8/UTF-16 and Ordering?
 Although JSON was designed in a Javascript (UTF-16) context, the latest JSON RFC
-requires UTF-8 encoding, since everyone was already using UTF-8.  Unicode is a
-superset of ASCII and UTF-8 shares sorting order with Unicode. This results in
-broad, out of the box compatibility. Object field order may be denoted by a
-canon,  chaining normal, or communicate ordering via other means.  
+requires UTF-8 encoding, a decision that was made because all significant
+existing implementations used UTF-8.  Unicode is a superset of ASCII and UTF-8
+shares sorting order with Unicode. This results in broad, out of the box
+compatibility. Object field order may be denoted by a canon, chaining normal, or
+communicate ordering via other means.  If applications need sorted fields, UTF-8
+order should be used.  
 
 Note that UTF-16 (Javascript) has some code points out of order. For these
 systems, a small amount of additional logic is needed to correct the sort order.
 
 #### Binary? Why not support binary payloads like JOSE?
-JSON isn't well designed for binary.  Coze uses digests which we feel is an
-acceptable compromise.  A binary file's digest is easily included in a coze,
-while the binary itself should be transported outside of the coze. See the
-binary example above.  There's nothing stopping an application from base64
-encoding a binary for transporting, although its not recommend.  
+JSON isn't well designed for large binary payloads.  Instead, Coze suggests
+including the short binary file's digest in a coze message while transporting
+the binary seperately. See the binary example above.  
+
+There's nothing stopping an application from base64 encoding a binary for
+transporting, although its not recommend.  
 
 #### Why is Coze's scope so limited?
 Coze is intentionally scope limited.  It is easier to extend a limited standard

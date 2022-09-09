@@ -20,6 +20,12 @@ reasons why Coze was needed.
  - No real plan to expand its use.  
 
 
+# SSH
+
+SSH's fingerprint is the hash of the base64 _ub64t_ (not +b64ut) encoding of the
+public key.  This is very close to the way Coze generates `tmb`, and the
+pre-digest message includes the b64ut value.  
+
 
 # Coze vs JOSE
 
