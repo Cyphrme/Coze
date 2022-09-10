@@ -365,9 +365,20 @@ coze messages and objects.
 Coze was released on 2021/06/08 (1623132000) since it's 30 years and one day
 after the initial release of PGP 1.0.
 
-#### Zero case
-If `alg` and `tmb` are implicitly known, a zero case is legitimate. The
-following is a valid coze.
+#### Required Coze Fields 
+Coze has no required fields.  If an application uses Coze while omitting
+standard fields, it may result in incompatibility, so it is suggested to always
+include standard fields appropriately.  
+
+For the `key` object it is suggested that public keys always have `alg`, `iat`
+`kid`, `tmb` and `x` and additionally for private keys the field `d`.
+
+#### The Empty Coze
+An empty `pay` is legitimate and may be verified if `alg` and `tmb` are
+implicitly known. The following, an example of an "empty coze", is valid and
+was signed with the key "cLj8vs ..." which has the `alg` "ES256". A `pay` or
+`coze` object has no required fields, but it may be less useful without specific
+standard fields.   
 
 ```json
 {
@@ -440,8 +451,6 @@ API documentation.  If a message is malformed, applications must error.
 Applications may find it useful to have messages in a specific normalized form.
 Core Coze has canonicalization features, or for more expressive capabilities,
 see Normal in Coze Standard.  
-
-
 
 #### `key.typ` vs `pay.typ`. 
 For `pay`, `typ` may be used to denote a canon.  For example, a `typ` with value
