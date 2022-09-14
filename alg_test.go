@@ -2,9 +2,30 @@ package coze
 
 import (
 	"fmt"
+	"testing"
+
+	"golang.org/x/exp/slices"
 )
 
-// Signing and verifying tests are done in package Coze.
+func ExampleAlgs_print() {
+	fmt.Println(Algs)
+
+	// Output:
+	// [UnknownAlg UnknownSigAlg ES224 ES256 ES384 ES512 Ed25519 Ed25519ph Ed448 UnknownEncAlg UnknownHashAlg SHA-224 SHA-256 SHA-384 SHA-512 SHA3-224 SHA3-256 SHA3-384 SHA3-512 SHAKE128 SHAKE256]
+}
+
+// Tests to make sure the alg enums are in order according to Parse.
+func TestParse(t *testing.T) {
+	algs := []string{}
+
+	for _, a := range Algs {
+		algs = append(algs, Parse(a).String())
+	}
+
+	if !slices.Equal(Algs, algs) {
+		t.Fatal("slices not equal. ")
+	}
+}
 
 func ExampleHashAlg_print() {
 	h := SHA256
@@ -45,7 +66,9 @@ func ExampleAlg_Parse() {
 	a := new(Alg)
 
 	algs := []string{
-		// SEAlgs
+		"foo", // Parses as UnknownAlg.
+		"UnknownAlg",
+		"UnknownSigAlg",
 		"ES224",
 		"ES256",
 		"ES384",
@@ -53,7 +76,8 @@ func ExampleAlg_Parse() {
 		"Ed25519",
 		"Ed25519ph",
 		"Ed448",
-		// Hash algs
+		"UnknownEncAlg",
+		"UnknownHashAlg",
 		"SHA-224",
 		"SHA-256",
 		"SHA-384",
@@ -64,14 +88,6 @@ func ExampleAlg_Parse() {
 		"SHA3-512",
 		"SHAKE128",
 		"SHAKE256",
-		// Unknown algs
-		"UnknownAlg",
-		"UnknownSigAlg",
-		"UnknownEncAlg",
-		"UnknownHashAlg",
-		// "sha",
-		// "foo",
-		// "bar",
 	}
 
 	for _, alg := range algs {
@@ -80,6 +96,9 @@ func ExampleAlg_Parse() {
 	}
 
 	// Output:
+	// UnknownAlg
+	// UnknownAlg
+	// UnknownSigAlg
 	// ES224
 	// ES256
 	// ES384
@@ -87,6 +106,8 @@ func ExampleAlg_Parse() {
 	// Ed25519
 	// Ed25519ph
 	// Ed448
+	// UnknownEncAlg
+	// UnknownHashAlg
 	// SHA-224
 	// SHA-256
 	// SHA-384
@@ -97,10 +118,6 @@ func ExampleAlg_Parse() {
 	// SHA3-512
 	// SHAKE128
 	// SHAKE256
-	// UnknownAlg
-	// UnknownSigAlg
-	// UnknownEncAlg
-	// UnknownHashAlg
 }
 
 func ExampleCrv_Parse() {
