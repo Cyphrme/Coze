@@ -17,18 +17,18 @@ import (
 //
 // Fields:
 //
-//  - Can: "Canon" Pay's fields in order of appearance.
-//  - Cad: "Canonical Digest" Pay's compactified form digest.
-//  - Czd: "Coze digest" with canon ["cad","sig"].
-//  - Pay: Payload.
-//  - Key: Key used to sign the message. Must be pointer, otherwise json.Marshal
-//    (and by extension coze.Marshal) will not marshal on zero type. See
-//    https://github.com/golang/go/issues/11939.
-//  - Sig: Signature over pay.
-//  - Parsed: The parsed standard Coze pay fields ["alg","iat","tmb","typ"] from
-//    Pay.  Parsed is populated by Meta() and is JSON ignored. The source of truth
-//    is Pay, not Parsed; do not use Parsed until after calling Meta() which
-//    populates Parsed from Pay.
+//   - Can: "Canon" Pay's fields in order of appearance.
+//   - Cad: "Canonical Digest" Pay's compactified form digest.
+//   - Czd: "Coze digest" with canon ["cad","sig"].
+//   - Pay: Payload.
+//   - Key: Key used to sign the message. Must be pointer, otherwise json.Marshal
+//     (and by extension coze.Marshal) will not marshal on zero type. See
+//     https://github.com/golang/go/issues/11939.
+//   - Sig: Signature over pay.
+//   - Parsed: The parsed standard Coze pay fields ["alg","iat","tmb","typ"] from
+//     Pay.  Parsed is populated by Meta() and is JSON ignored. The source of truth
+//     is Pay, not Parsed; do not use Parsed until after calling Meta() which
+//     populates Parsed from Pay.
 type Coze struct {
 	Can []string        `json:"can,omitempty"`
 	Cad B64             `json:"cad,omitempty"`
@@ -41,12 +41,11 @@ type Coze struct {
 }
 
 // String implements fmt.Stringer.  Without this method `pay` prints as bytes.
-// Errors are returned as a string.
+// On error, returns the error as a string.
 func (cz Coze) String() string {
 	b, err := Marshal(cz)
 	if err != nil {
-		fmt.Println(err)
-		// return err.Error()
+		return err.Error()
 	}
 	return string(b)
 }
@@ -175,10 +174,11 @@ func (p *Pay) Coze() (coze *Coze, err error) {
 }
 
 // String implements fmt.Stringer.
+// On error, returns the error as a string.
 func (p Pay) String() string {
 	b, err := p.MarshalJSON()
 	if err != nil {
-		fmt.Println(err)
+		return err.Error()
 	}
 	return string(b)
 }

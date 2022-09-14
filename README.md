@@ -464,7 +464,7 @@ For ECDSA , (X and Y) and (R and S) are concatenated for `x` and `sig`
 respectively.  Padding is needed for ES512 because P-521 is rounded up to the
 nearest byte before padding.  
 
-#### Javascript vs Golang Crypto.
+#### Javascript vs Go crypto.
 Javascript's `SubtleCrypto.sign(algorithm, key, data)` always hashes a message
 before signing while Go's ECDSA expects a digest to sign. This means that in
 Javascript messages must be passed for signing, while in Go only a digest is
