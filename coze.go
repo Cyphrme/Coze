@@ -153,9 +153,13 @@ func Hash(h HashAlg, msg []byte) (digest B64, err error) {
 // for creating custom cozies (see example ExampleKey_SignPay).  Struct must
 // be a pointer or will panic.
 //
-// Note: The custom MarshalJSON() renders the JSON tags on [Alg, Iat, Tmb, Typ]
-// ineffective, however they are present for documentation.  `Struct` will be
-// marshaled when not empty and custom marshaler ignores the tag `json:"-"`.
+// The custom MarshalJSON() renders the JSON tags on [Alg, Iat, Tmb, Typ, Struct]
+// ineffective, however they are present for documentation.
+//
+// `Struct` will be marshaled when not empty. The custom marshaler promotes
+// fields inside `Struct` to be top level fields inside of `pay`. The tag
+// `json:"-"` is ignored by the custom marshaler (it is set to "-" so that the
+// default marshaler does not include it).
 type Pay struct {
 	Alg SEAlg  `json:"alg,omitempty"` // e.g. "ES256"
 	Iat int64  `json:"iat,omitempty"` // e.g. 1623132000

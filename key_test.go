@@ -153,7 +153,7 @@ func ExampleKey_SignPay() {
 
 	pay := Pay{
 		Alg:    SEAlg(ES256),
-		Iat:    1627518000, // Static for demonstration.  Use Time.Now().Unix().
+		Iat:    1627518000, // Static for demonstration.  Use time.Now().Unix().
 		Tmb:    MustDecode("cLj8vsYtMBwYkzoFVZHBZo6SNL8wSdCIjCKAwXNuhOk"),
 		Typ:    "cyphr.me/msg",
 		Struct: customStruct,
@@ -235,7 +235,7 @@ func ExampleKey_VerifyCoze() {
 	// Output: true
 }
 
-//  Tests valid on a good Coze key and a bad Coze key
+// Tests valid on a good Coze key and a bad Coze key
 func ExampleKey_Valid() {
 	fmt.Println(GoldenKey.Valid())
 	fmt.Println(GoldenKeyBad.Valid())
@@ -365,8 +365,6 @@ func BenchmarkNSV(b *testing.B) {
 	algs := []SigAlg{ES224, ES256, ES384, ES512, Ed25519}
 	for j := 0; j < b.N; j++ {
 		for _, alg := range algs {
-			// for i := 0; i < len(algs); i++ {
-
 			ck, err := NewKey(SEAlg(alg))
 			if err != nil {
 				b.Fatal("Could not generate Coze Key.")

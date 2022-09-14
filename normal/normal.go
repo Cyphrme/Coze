@@ -250,7 +250,8 @@ func isNormal(r coze.MapSlice, rSkip int, nSkip int, extraFlag bool, norms ...No
 			passedRecs++
 		}
 	case Option:
-		for i, n := range r[rSkip:].KeysString() {
+		keys := r[rSkip:].KeysString()
+		for i, n := range keys {
 			if !slices.Contains(v, Normal(n)) {
 				if nSkip+1 == len(norms) { // last norm
 					// Extras are not allowed after Option.
@@ -266,7 +267,8 @@ func isNormal(r coze.MapSlice, rSkip int, nSkip int, extraFlag bool, norms ...No
 	case Need:
 		i := 0
 		key := ""
-		for i, key = range r[rSkip:].KeysString() {
+		keys := r[rSkip:].KeysString()
+		for i, key = range keys {
 			if passedRecs == v.Len() {
 				break
 			}

@@ -57,7 +57,11 @@ var (
 	v   bool
 )
 
+// ExampleIsNormal_nil shows the nil and zero case.
 func ExampleIsNormal_nil() {
+	v, _ = IsNormal(nil, nil)
+	fmt.Println(v)
+
 	// Nil matches empty JSON, true.
 	v, _ = IsNormal([]byte(`{}`), nil)
 	fmt.Println(v)
@@ -67,6 +71,7 @@ func ExampleIsNormal_nil() {
 	fmt.Println(v)
 
 	// Output:
+	// false
 	// true
 	// true
 }
