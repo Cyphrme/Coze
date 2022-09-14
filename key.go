@@ -82,17 +82,13 @@ func NewKey(alg SEAlg) (c *Key, err error) {
 	}
 
 	c.Iat = time.Now().Unix()
-	err = c.Thumbprint()
-	if err != nil {
-		return nil, err
-	}
-	return c, nil
+	return c, c.Thumbprint()
 }
 
 // Thumbprint generates and sets the Coze key thumbprint (`tmb`) from `x` and `alg`.
 func (c *Key) Thumbprint() (err error) {
 	c.Tmb, err = Thumbprint(c)
-	return
+	return err
 }
 
 // Thumbprint generates `tmb` which is the digest of canon [alg, x].
@@ -173,16 +169,16 @@ func (c *Key) SignPay(pay *Pay) (coze *Coze, err error) {
 // to be populated.  If not needing those fields, use Sign().
 func (c *Key) SignPayJSON(pay json.RawMessage) (sig B64, err error) {
 	// Unmarshal the standard fields for checking.
-	std := new(Pay)
-	err = json.Unmarshal(pay, std)
+	p := new(Pay)
+	err = json.Unmarshal(pay, p)
 	if err != nil {
 		return nil, err
 	}
-	if c.Alg != std.Alg {
-		return nil, fmt.Errorf("SignPayJSON: key alg \"%s\" and coze alg \"%s\" do not match", c.Alg, std.Alg)
+	if c.Alg != p.Alg {
+		return nil, fmt.Errorf("SignPayJSON: key alg \"%s\" and coze alg \"%s\" do not match", c.Alg, p.Alg)
 	}
-	if !bytes.Equal(c.Tmb, std.Tmb) {
-		return nil, fmt.Errorf("SignPayJSON: key tmb \"%s\" and coze tmb  \"%s\" do not match", c.Tmb, std.Tmb)
+	if !bytes.Equal(c.Tmb, p.Tmb) {
+		return nil, fmt.Errorf("SignPayJSON: key tmb \"%s\" and coze tmb  \"%s\" do not match", c.Tmb, p.Tmb)
 	}
 
 	b, err := compact(pay)

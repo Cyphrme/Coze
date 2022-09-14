@@ -77,7 +77,7 @@ func ExamplePay_jsonMarshalCustom() {
 
 	inputPay := Pay{
 		Alg:    SEAlg(ES256),
-		Iat:    1627518000, // Static for demonstration.  Use time.Time.Unix().
+		Iat:    1627518000, // Static for demonstration.  Use time.Now().Unix().
 		Tmb:    MustDecode("cLj8vsYtMBwYkzoFVZHBZo6SNL8wSdCIjCKAwXNuhOk"),
 		Typ:    "cyphr.me/msg",
 		Struct: customStruct,
@@ -144,7 +144,7 @@ func ExamplePay_String_custom() {
 
 	inputPay := Pay{
 		Alg:    SEAlg(ES256),
-		Iat:    1627518000, // Static for demonstration.  Use time.Time.Unix().
+		Iat:    1627518000, // Static for demonstration.  Use time.Now().Unix().
 		Tmb:    MustDecode("cLj8vsYtMBwYkzoFVZHBZo6SNL8wSdCIjCKAwXNuhOk"),
 		Typ:    "cyphr.me/msg",
 		Struct: customStruct,
@@ -175,7 +175,7 @@ func ExamplePay_UnmarshalJSON_duplicate() {
 // names results in an error.
 func ExampleCoze_UnmarshalJSON_duplicate() {
 	h := &Pay{}
-	msg := []byte(`{"pay":"ES256","pay":"ES384"}`)
+	msg := []byte(`{"coze":{"pay":"ES256","pay":"ES384"}}`)
 
 	err := json.Unmarshal(msg, h)
 	if err != nil {

@@ -50,9 +50,9 @@
 //          │     Normal     │
 //          └───────┬────────┘
 //          ┌───────┴────────┐
-//    ┌─────┴─────┐    ┌─────┴────────┐
-//    │ Exclusive │    │ Permissive   │
-//    └───────────┘    └──────────────┘
+//    ┌─────┴─────┐    ┌─────┴──────┐
+//    │ Exclusive │    │ Permissive │
+//    └───────────┘    └────────────┘
 //
 // Grouping
 //  -Exclusive
@@ -170,7 +170,6 @@ func IsNormal(pay json.RawMessage, norm ...Normaler) bool {
 		fmt.Println("Error:", err)
 		return false
 	}
-
 	return isNormal(ms, 0, 0, false, norm...)
 }
 
@@ -184,10 +183,9 @@ func IsNormal(pay json.RawMessage, norm ...Normaler) bool {
 //  rSkip     - Record pointer - First field that has not yet been checked.
 //  nSkip     - Normal pointer - First Normal that has not been processed.
 //  extraFlag - Is set to false when Norm is not an Extra and set to true when
-//  Norm is an Extra.  When set to true, it moves the record pointer to the
-//  first field matching the following Normal.
-//  norms - The Normal chain, the full slice of normals.
-//
+//              Norm is an Extra.  When set to true, it moves the record pointer
+//              to the first field matching the following Normal.
+//  norms -     The Normal chain, the full slice of normals.
 func isNormal(r coze.MapSlice, rSkip int, nSkip int, extraFlag bool, norms ...Normaler) bool {
 	if nSkip >= len(norms) {
 		return true
@@ -195,11 +193,10 @@ func isNormal(r coze.MapSlice, rSkip int, nSkip int, extraFlag bool, norms ...No
 	norm := norms[nSkip]
 
 	if extraFlag { // Progress record pointer to first match.
-		n := norm.Normal()
 		keys := r[rSkip:].KeysString()
 		var i int
 		for i = 0; i < len(keys); i++ {
-			if slices.Contains(n, Normal(keys[i])) {
+			if slices.Contains(norm.Normal(), Normal(keys[i])) {
 				rSkip = i + rSkip
 				break
 			}
@@ -255,8 +252,7 @@ func isNormal(r coze.MapSlice, rSkip int, nSkip int, extraFlag bool, norms ...No
 			passedRecs++
 		}
 	case Option:
-		keys := r[rSkip:].KeysString()
-		for i, n := range keys {
+		for i, n := range r[rSkip:].KeysString() {
 			if !slices.Contains(v, Normal(n)) {
 				if nSkip+1 == len(norms) { // last norm
 					// Extras are not allowed after Option.
@@ -272,8 +268,7 @@ func isNormal(r coze.MapSlice, rSkip int, nSkip int, extraFlag bool, norms ...No
 	case Need:
 		i := 0
 		key := ""
-		keys := r[rSkip:].KeysString()
-		for i, key = range keys {
+		for i, key = range r[rSkip:].KeysString() {
 			if passedRecs == v.Len() {
 				break
 			}
@@ -299,8 +294,7 @@ func isNormal(r coze.MapSlice, rSkip int, nSkip int, extraFlag bool, norms ...No
 // as a chain.
 func IsNormalUnchained(pay json.RawMessage, norm ...Normaler) bool {
 	for _, n := range norm {
-		b := IsNormal(pay, n)
-		if !b {
+		if !IsNormal(pay, n) {
 			return false
 		}
 	}
@@ -325,8 +319,7 @@ func IsNormalNeedOption(pay json.RawMessage, need Need, option Option) bool {
 		return false
 	}
 
-	b := isNormal(ms, 0, 0, false, need)
-	if !b {
+	if !isNormal(ms, 0, 0, false, need) {
 		return false
 	}
 
@@ -337,6 +330,5 @@ func IsNormalNeedOption(pay json.RawMessage, need Need, option Option) bool {
 			ms2 = append(ms2, coze.MapItem{Key: mi.Key, Value: mi.Value})
 		}
 	}
-
 	return isNormal(ms2, 0, 0, false, option)
 }

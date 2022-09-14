@@ -66,10 +66,10 @@ type (
 	SigAlg  SEAlg // Signing Algorithm
 	EncAlg  SEAlg // Encryption Algorithm
 	Crv     int   // Curve type.  Used for EC curves.
-	KeyUse  int   // Key Use. Right now only "sig".
+	Use     int   // The only valid values are 'sig', 'enc', and 'dig'.
 
 	// SEAlg is the Signing or Encryption alg. Super type of SigAlg and EncAlg and
-	// is itself not a specific algorithm and is not included in Alg.
+	// is itself not a specific algorithm and is not included in `Alg`.
 	SEAlg Alg
 )
 
@@ -79,15 +79,15 @@ type (
 // marshaling.
 type Params struct {
 	Name     string
-	Genus    GenAlg
-	Family   FamAlg
+	Genus    GenAlg  `json:"Genus"`
+	Family   FamAlg  `json:"Family"`
 	XSize    int     `json:"X.Size,omitempty"`
 	DSize    int     `json:"D.Size,omitempty"`
-	Hash     HashAlg `json:",omitempty"`
+	Hash     HashAlg `json:"Hash,omitempty"`
 	HashSize int     `json:"Hash.Size,omitempty"`
 	SigSize  int     `json:"Sig.Size,omitempty"`
-	Curve    Crv     `json:",omitempty"`
-	KeyUse   KeyUse  `json:"Use,omitempty"`
+	Curve    Crv     `json:"Curve,omitempty"`
+	Use      Use     `json:"Use,omitempty"`
 }
 
 // Params sets and returns a Params struct. See struct definition.
@@ -102,7 +102,7 @@ func (a Alg) Params() Params {
 	p.HashSize = a.Hash().Size()
 	p.SigSize = a.SigAlg().SigSize()
 	p.Curve = a.Curve()
-	p.KeyUse = a.KeyUse()
+	p.Use = a.Use()
 
 	return p
 }
@@ -190,15 +190,15 @@ func (a *Alg) Parse(s string) {
 		*a = Alg(Ed25519ph)
 	case "Ed448":
 		*a = Alg(Ed448)
-	//	Placeholder for future.
-	// case "RS256":
-	// 	*a = Alg(RS256)
-	// case "RS384":
-	// 	*a = Alg(RS384)
-	// case "RS512":
-	// 	*a = Alg(RS512)
 	case "UnknownEncAlg":
 		*a = Alg(UnknownEncAlg)
+	////	Placeholder for future.
+	// case "RS256":
+	// 	// *a = Alg(RS256)
+	// case "RS384":
+	// 	// *a = Alg(RS384)
+	// case "RS512":
+	// 	// *a = Alg(RS512)
 	case "UnknownHashAlg":
 		*a = Alg(UnknownHashAlg)
 	case "SHA-224":
@@ -236,10 +236,11 @@ func getString(i int) (s string) {
 		"Ed25519",
 		"Ed25519ph",
 		"Ed448",
-		"RS256", // Placeholder for future.
-		"RS384",
-		"RS512",
 		"UnknownEncAlg",
+		//// Placeholder for future.
+		// "RS256",
+		// "RS384",
+		// "RS512",
 		"UnknownHashAlg",
 		"SHA-224",
 		"SHA-256",
@@ -375,7 +376,7 @@ func (se SEAlg) Hash() HashAlg {
 
 // XSize returns the byte size of `x`.  Returns 0 on error.
 //
-//For ECDSA `x` is the concatenation of X and Y.
+// For ECDSA `x` is the concatenation of X and Y.
 func (se SEAlg) XSize() int {
 	switch SigAlg(se) {
 	default:
@@ -414,7 +415,7 @@ func (se SEAlg) DSize() int {
 }
 
 const (
-	UnknownEncAlg EncAlg = iota + 10
+	UnknownEncAlg EncAlg = iota + 9
 )
 
 ////////////////
@@ -424,16 +425,19 @@ const (
 // HashAlg is a hashing algorithm. See also https://golang.org/pkg/crypto/Hash
 const (
 	// HashAlg is after Alg, SigAlg, and EncAlg.
-	UnknownHashAlg HashAlg = iota + 13
-	SHA224                 // SHA-2
+	UnknownHashAlg HashAlg = iota + 10
+	// SHA-2
+	SHA224
 	SHA256
 	SHA384
 	SHA512
-	SHA3224 // SHA-3
+	// SHA-3
+	SHA3224
 	SHA3256
 	SHA3384
 	SHA3512
-	SHAKE128 // Shake
+	// SHAKE
+	SHAKE128
 	SHAKE256
 )
 
@@ -593,54 +597,60 @@ func (s SigAlg) SigSize() int {
 }
 
 const (
-	KeyUseUnknown KeyUse = iota
-	SigUse               // "Signing Use"
-	EncUse               // "Encryption Use"
+	UseUnknown Use = iota
+	SigUse         // "Signing Use"
+	EncUse         // "Encryption Use"
+	DigUse         // "Digest Use"
 )
 
-func (u *KeyUse) UnmarshalJSON(b []byte) error {
+func (u *Use) UnmarshalJSON(b []byte) error {
 	u.Parse(string(b))
 	return nil
 }
 
-func (u KeyUse) MarshalJSON() ([]byte, error) {
+func (u Use) MarshalJSON() ([]byte, error) {
 	s := "\"" + u.String() + "\""
 	return []byte(s), nil
 }
 
-// KeyUse returns the KeyUse.
-func (a Alg) KeyUse() KeyUse {
+// Use returns the Use.
+func (a Alg) Use() Use {
 	switch a.Genus() {
 	default:
-		return KeyUseUnknown
+		return UseUnknown
 	case Eddsa, Ecdsa:
 		return SigUse
+	case SHA2, SHA3:
+		return DigUse
 	}
 }
 
-func (u *KeyUse) Parse(s string) {
+func (u *Use) Parse(s string) {
 	s = strings.Trim(s, "\"")
 	switch s {
 	default:
-		*u = KeyUseUnknown
+		*u = UseUnknown
 	case "sig":
 		*u = SigUse
 	case "enc":
 		*u = EncUse
+	case "dig":
+		*u = DigUse
 	}
 }
 
-func ParseKeyUse(s string) KeyUse {
-	u := new(KeyUse)
+func ParseUse(s string) Use {
+	u := new(Use)
 	u.Parse(s)
 	return *u
 }
 
-func (u KeyUse) String() string {
+func (u Use) String() string {
 	return []string{
-		"UnknownKeyUse",
+		"UnknownUse",
 		"sig",
 		"enc",
+		"dig",
 	}[u]
 }
 

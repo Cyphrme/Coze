@@ -17,13 +17,12 @@ func ExampleRevoke_MarshalJSON() {
 	}
 	fmt.Printf("%s\n", r)
 
-	p := Pay{
-		Iat: 1627518000,
-	}
 	r = Revoke{
 		Rvk: 1,
 		Msg: "Test",
-		Pay: p,
+		Pay: Pay{
+			Iat: 1627518000,
+		},
 	}
 	fmt.Printf("%s\n", r)
 
@@ -60,8 +59,6 @@ func ExampleKey_Revoke() {
 	if err != nil {
 		panic(err)
 	}
-
-	// fmt.Printf("%s\n", coze.Pay)
 
 	// Both the revoke coze and the key should be interpreted as revoked.
 	fmt.Println(IsRevoked(coze.Pay))

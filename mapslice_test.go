@@ -22,7 +22,7 @@ func TestMarshal(t *testing.T) {
 	r := string(b)
 
 	if r != e {
-		t.Errorf("expected: %s\ngot: %s", e, r)
+		t.Fatalf("expected: %s\ngot: %s", e, r)
 	}
 }
 
@@ -33,7 +33,7 @@ func TestMarshalError(t *testing.T) {
 
 	e := "json: error calling MarshalJSON for type coze.MapSlice: json: unsupported type: chan int"
 	if _, err := json.Marshal(ms); err != nil && e != err.Error() {
-		t.Errorf("expected: %s\ngot: %v", e, err)
+		t.Fatalf("expected: %s\ngot: %v", e, err)
 	}
 }
 
@@ -47,7 +47,7 @@ func TestUnmarshal(t *testing.T) {
 	r := fmt.Sprintf("%v", ms)
 
 	if r != e {
-		t.Errorf("expected: %s\ngot: %s", e, r)
+		t.Fatalf("expected: %s\ngot: %s", e, r)
 	}
 }
 

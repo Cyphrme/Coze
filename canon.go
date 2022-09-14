@@ -3,7 +3,6 @@ package coze
 import (
 	"bytes"
 	"encoding/json"
-	"fmt"
 )
 
 // Canon returns the current canon from raw JSON.
@@ -16,12 +15,11 @@ func Canon(raw json.RawMessage) (can []string, err error) {
 	if err != nil {
 		return nil, err
 	}
-
-	keys := make([]string, len(ms))
+	can = make([]string, len(ms))
 	for i, v := range ms {
-		keys[i] = fmt.Sprintf("%v", v.Key)
+		can[i] = v.Key
 	}
-	return keys, nil
+	return can, nil
 }
 
 // Canonical returns the canonical form. Input canon is optional and may be nil.
@@ -40,7 +38,6 @@ func Canonical(input []byte, canon any) (b []byte, err error) {
 	if canon == nil {
 		return compact(input)
 	}
-
 	// Unmarshal the given bytes into the given canonical format.
 	err = json.Unmarshal(input, &canon)
 	if err != nil {
@@ -57,7 +54,6 @@ func CanonicalHash(input []byte, canon any, hash HashAlg) (digest B64, err error
 	if err != nil {
 		return nil, err
 	}
-
 	return Hash(hash, input)
 }
 

@@ -13,7 +13,8 @@ func ExampleCanon() {
 	}
 
 	fmt.Println(can)
-	// Output: [z a]
+	// Output:
+	// [z a]
 }
 
 // ExampleCanonicalHash. See also Example_genCad

@@ -66,17 +66,9 @@ func (r *Revoke) UnmarshalJSON(b []byte) error {
 	if err != nil {
 		return err
 	}
-
-	p := new(Pay)
-	err = json.Unmarshal(b, p)
-	if err != nil {
-		return err
-	}
-
 	r.Rvk = r2.Rvk
 	r.Msg = r2.Msg
-	r.Pay = *p
-	return nil
+	return json.Unmarshal(b, &r.Pay)
 }
 
 // Revoke will return a signed revoke coze for the given key as well as setting

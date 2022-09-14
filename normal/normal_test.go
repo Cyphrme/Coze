@@ -58,7 +58,6 @@ var (
 )
 
 func ExampleIsNormal_nil() {
-	fmt.Println("Nil")
 	// Nil matches empty JSON, true.
 	v = IsNormal([]byte(`{}`), nil)
 	fmt.Println(v)
@@ -68,7 +67,6 @@ func ExampleIsNormal_nil() {
 	fmt.Println(v)
 
 	// Output:
-	// Nil
 	// true
 	// true
 }
@@ -369,6 +367,17 @@ func ExampleIsNormal_need() {
 	// false
 	// false
 	// false
+}
+
+func ExampleIsNormalUnchained() {
+	v = IsNormalUnchained(az, Need{"a"}, Need{"z"})
+	fmt.Println(v)
+	v = IsNormalUnchained(ayz, Need{"a"}, Need{"z"}, Need{"y"})
+	fmt.Println(v)
+
+	// Output:
+	// true
+	// true
 }
 
 func ExampleIsNormalNeedOption() {

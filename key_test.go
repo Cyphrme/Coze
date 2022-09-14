@@ -153,7 +153,7 @@ func ExampleKey_SignPay() {
 
 	pay := Pay{
 		Alg:    SEAlg(ES256),
-		Iat:    1627518000, // Static for demonstration.  Use time.Time.Unix().
+		Iat:    1627518000, // Static for demonstration.  Use Time.Now().Unix().
 		Tmb:    MustDecode("cLj8vsYtMBwYkzoFVZHBZo6SNL8wSdCIjCKAwXNuhOk"),
 		Typ:    "cyphr.me/msg",
 		Struct: customStruct,
@@ -364,8 +364,10 @@ func ExampleCanonicalHash_genCad() {
 func BenchmarkNSV(b *testing.B) {
 	algs := []SigAlg{ES224, ES256, ES384, ES512, Ed25519}
 	for j := 0; j < b.N; j++ {
-		for i := 0; i < len(algs); i++ {
-			ck, err := NewKey(SEAlg(algs[i]))
+		for _, alg := range algs {
+			// for i := 0; i < len(algs); i++ {
+
+			ck, err := NewKey(SEAlg(alg))
 			if err != nil {
 				b.Fatal("Could not generate Coze Key.")
 			}

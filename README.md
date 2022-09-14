@@ -53,7 +53,7 @@ additional fields.  In the first example, `msg` is additional.
 ### `pay` Reserved Names
 - `alg` - Specific cryptographic algorithm.  E.g. `"ES256"`
 - `iat` - The time when the message was signed. E.g. `1623132000`
-- `tmb` - Thumbprint of the key used to sign the message.  E.g. `"0148F4..."`
+- `tmb` - Thumbprint of the key used to sign the message.  E.g. `"cLj8vs..."`
 - `typ` - Type of `pay`.
 
 `typ`'s value may be used by applications as desired.  The value is recommended
@@ -325,7 +325,7 @@ parameters are derived from the value of `alg`. For example:
 
 
 # Coze Verifier
-Cyphr.me provides an online tool for signing and verify Coze messages and plans
+Cyphr.me provides an online tool for signing and verifying Coze messages and plans
 to release an open source, stand alone version of the webpage.  
 
 Play with Coze here: https://cyphr.me/coze_verifier.
@@ -405,7 +405,7 @@ including the short binary file's digest in a coze message while transporting
 the binary seperately. See the binary example above.  
 
 There's nothing stopping an application from base64 encoding a binary for
-transporting, although its not recommend.  
+transporting, although it's not recommended.
 
 #### Why is Coze's scope so limited?
 Coze is intentionally scope limited.  It is easier to extend a limited standard
@@ -426,9 +426,9 @@ may be included in "Coze Standard".  Further draft, proposals, and extended
 algorithm support are planned in "Coze Experimental".
 
 #### How can my API do versioning?
-API versioning may be handled an application however desired.  A suggested way
-of incorporating API versioning in Coze is to use `typ`, e.g.
-`cyphr.me/v1/msg/create`, where v1 is the api version.
+API versioning may be handled in an application however desired.  A suggested
+way of incorporating API versioning in Coze is to use `typ`,
+e.g. `cyphr.me/v1/msg/create`, where v1 is the api version.
 
 #### Why does `pay` have cryptographic components?
 Coze's `pay` includes all payload information, a design we've dubbed a "fat
@@ -464,7 +464,7 @@ For ECDSA , (X and Y) and (R and S) are concatenated for `x` and `sig`
 respectively.  Padding is needed for ES512 because P-521 is rounded up to the
 nearest byte before padding.  
 
-#### Javascript Vs Golang Crypto.
+#### Javascript vs Golang Crypto.
 Javascript's `SubtleCrypto.sign(algorithm, key, data)` always hashes a message
 before signing while Go's ECDSA expects a digest to sign. This means that in
 Javascript messages must be passed for signing, while in Go only a digest is
@@ -537,7 +537,7 @@ member name.  In this document we use "field name" to avoid confusion with Coze
 key.
 
 #### Why are duplicate field names prohibited?
-Coze explicitly requires that implementations disallow duplicate JSON names in
+Coze explicitly requires that implementations disallow duplicate field names in
 `coze`, `pay`, and `key`.  Existing JSON implementations have varying behavior.  
 Douglas Crockford, JSON's inventor, [tried to fix this but it was decided it
 was too late](https://esdiscuss.org/topic/json-duplicate-keys).  

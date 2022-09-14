@@ -46,6 +46,7 @@ func (cz Coze) String() string {
 	b, err := Marshal(cz)
 	if err != nil {
 		fmt.Println(err)
+		// return err.Error()
 	}
 	return string(b)
 }
@@ -60,7 +61,6 @@ func (cz *Coze) Meta() (err error) {
 	if cz.Pay == nil || cz.Sig == nil {
 		return errors.New("Meta: pay and/or sig is nil")
 	}
-
 	return cz.MetaWithAlg(0)
 }
 
@@ -83,24 +83,20 @@ func (cz *Coze) MetaWithAlg(alg SEAlg) (err error) {
 	if err != nil {
 		return err
 	}
-	c, err := Canon(b)
+	cz.Can, err = Canon(b)
 	if err != nil {
 		return err
 	}
-	cz.Can = c
 	cz.Cad, err = Hash(cz.Parsed.Alg.Hash(), b)
 	if err != nil {
 		return err
 	}
 	cz.Czd, err = GenCzd(cz.Parsed.Alg.Hash(), cz.Cad, cz.Sig)
-	if err != nil {
-		return err
-	}
-	return nil
+	return err
 }
 
-// UnmarshalJSON unmarshals checks for duplicates and unmarshals `coze`.   See
-// notes on Pay.UnmarshalJSON
+// UnmarshalJSON unmarshals checks for duplicates and unmarshals `coze`.
+// See notes on Pay.UnmarshalJSON.
 func (cz *Coze) UnmarshalJSON(b []byte) error {
 	err := checkDuplicate(json.NewDecoder(bytes.NewReader(b)))
 	if err != nil {
@@ -119,16 +115,11 @@ func (cz *Coze) UnmarshalJSON(b []byte) error {
 
 // GenCzd generates and returns `czd`.
 func GenCzd(hash HashAlg, cad B64, sig B64) (czd B64, err error) {
-	cadSig := []byte(fmt.Sprintf(`{"cad":%q,"sig":%q}`, cad, sig))
-	d, err := Hash(hash, cadSig)
-	if err != nil {
-		return nil, err
-	}
-	return d, nil
+	return Hash(hash, []byte(fmt.Sprintf(`{"cad":%q,"sig":%q}`, cad, sig)))
 }
 
-// Hash hashes msg and returns the digest or a set size. Returns nil on error.  Errors on
-// invalid HashAlg or if digest is nil.
+// Hash hashes msg and returns the digest or a set size. Returns nil on error.
+// Errors on invalid HashAlg or if digest is nil.
 //
 // SHAKE128 returns 32 bytes. SHAKE256 returns 64 bytes.
 func Hash(h HashAlg, msg []byte) (digest B64, err error) {
@@ -144,12 +135,10 @@ func Hash(h HashAlg, msg []byte) (digest B64, err error) {
 		if hash == nil {
 			return nil, errors.New("coze.Hash invalid HashAlg: " + h.String())
 		}
-
 		_, err = hash.Write(msg)
 		if err != nil {
 			return nil, err
 		}
-
 		digest = hash.Sum(nil)
 	}
 
@@ -166,15 +155,16 @@ func Hash(h HashAlg, msg []byte) (digest B64, err error) {
 // be a pointer or will panic.
 //
 // Note: The custom MarshalJSON() renders the JSON tags on [Alg, Iat, Tmb, Typ]
-// ineffective, however they are present for documentation.  Field Struct will
-// be marshaled when not empty and custom marshaler ignores the tag `json:"-"`.
+// ineffective, however they are present for documentation.  `Struct` will be
+// marshaled when not empty and custom marshaler ignores the tag `json:"-"`.
 type Pay struct {
 	Alg SEAlg  `json:"alg,omitempty"` // e.g. "ES256"
 	Iat int64  `json:"iat,omitempty"` // e.g. 1623132000
 	Tmb B64    `json:"tmb,omitempty"` // e.g. "cLj8vsYtMBwYkzoFVZHBZo6SNL8wSdCIjCKAwXNuhOk"
 	Typ string `json:"typ,omitempty"` // e.g. "cyphr.me/msg/create"
 
-	Struct any `json:"-"` // Custom arbitrary struct given by application. Custom marshaler promotes given structure and ignores tag `json:"-"`.
+	// Custom arbitrary struct given by application.
+	Struct any `json:"-"`
 }
 
 // Pay.Coze() returns a new Coze with only Pay populated.
@@ -193,8 +183,8 @@ func (p Pay) String() string {
 	return string(b)
 }
 
-// MarshalJSON promotes the embedded field "Struct" to top level JSON. Solution
-//  from Jonathan Hall
+// MarshalJSON promotes the embedded field "Struct" to top level JSON.
+// Solution from Jonathan Hall:
 // https://jhall.io/posts/go-json-tricks-embedded-marshaler
 func (p *Pay) MarshalJSON() ([]byte, error) {
 	type pay2 Pay // Break infinite Marshal loop
