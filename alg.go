@@ -438,8 +438,7 @@ func (a Alg) SigAlg() SigAlg {
 /////////////////////
 
 const (
-
-	// EncAlg appears in `Algs` after SigAlgs.
+	// SigAlg appears in `Algs` after algs.
 	UnknownSignAlg SigAlg = iota + SigAlg(UnknownAlg) + 1
 	ES224
 	ES256
