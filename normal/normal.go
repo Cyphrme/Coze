@@ -5,12 +5,12 @@
 // normalization.  Normals are implemented in Go as []string.  There are five
 // types of normals plus a nil normal.
 //
-//  canon       (can)
-//  only        (ony)
-//  option      (opt)
-//  need        (ned)
-//  extra       (ext)
-//  (nil)
+//	canon       (can)
+//	only        (ony)
+//	option      (opt)
+//	need        (ned)
+//	extra       (ext)
+//	(nil)
 //
 // Canon requires specified fields in the given order and prohibits extra fields.
 //
@@ -28,15 +28,14 @@
 // Repeated field names are allowed among normals and normal chains, but Coze
 // itself prohibits duplicates.
 //
-// Normal Chaining
+// # Normal Chaining
 //
 // Normals may be chained.  A chained normal moves a record pointer up.
 //
-//  - A Need in a chain is equivalent to a [Need, Extra].
-//  - Options in order may be given by chaining options together.
-//  - An Extra containing fields has no addition meaning over an empty
-//    Extra.
-//
+//   - A Need in a chain is equivalent to a [Need, Extra].
+//   - Options in order may be given by chaining options together.
+//   - An Extra containing fields has no addition meaning over an empty
+//     Extra.
 //
 // Notable Combinations:
 // - A an empty Canon or Only ("[]") matches only an a empty (i.e. `{}`) payload.
@@ -46,28 +45,27 @@
 // Normals are in two groups, exclusive and permissive.  Exclusive allows only
 // listed fields.  Permissive allows fields other than listed.
 //
-//          ┌────────────────┐
-//          │     Normal     │
-//          └───────┬────────┘
-//          ┌───────┴────────┐
-//    ┌─────┴─────┐    ┌─────┴──────┐
-//    │ Exclusive │    │ Permissive │
-//    └───────────┘    └────────────┘
+//	      ┌────────────────┐
+//	      │     Normal     │
+//	      └───────┬────────┘
+//	      ┌───────┴────────┐
+//	┌─────┴─────┐    ┌─────┴──────┐
+//	│ Exclusive │    │ Permissive │
+//	└───────────┘    └────────────┘
 //
 // Grouping
-//  -Exclusive
-//    -canon
-//    -only
-//    -option
-//  -Permissive
-//    -need
-//    -extra
 //
+//	-Exclusive
+//	  -canon
+//	  -only
+//	  -option
+//	-Permissive
+//	  -need
+//	  -extra
 package coze
 
 import (
 	"encoding/json"
-	"fmt"
 
 	"github.com/cyphrme/coze"
 	"golang.org/x/exp/slices"
@@ -163,14 +161,13 @@ func Merge[T ~[]Normal](norms ...T) any {
 // IsNormal checks if a Coze is normalized according to the given normal chain.
 // Normals are interpreted as a chain that progress a record pointer based on
 // normal rules.  See notes on Normal.  Parameters may be nil.
-func IsNormal(pay json.RawMessage, norm ...Normaler) bool {
+func IsNormal(pay json.RawMessage, norm ...Normaler) (bool, error) {
 	ms := coze.MapSlice{}
 	err := json.Unmarshal(pay, &ms)
 	if err != nil {
-		fmt.Println("Error:", err)
-		return false
+		return false, err
 	}
-	return isNormal(ms, 0, 0, false, norm...)
+	return isNormal(ms, 0, 0, false, norm...), nil
 }
 
 // isNormal checks if datastructure conforms to the given normal chain. See docs
@@ -179,13 +176,14 @@ func IsNormal(pay json.RawMessage, norm ...Normaler) bool {
 // TODO consider pointers for r and norms.
 //
 // Params:
-//  r         - (Records) The fields being checked if conforming to normal chain.
-//  rSkip     - Record pointer - First field that has not yet been checked.
-//  nSkip     - Normal pointer - First Normal that has not been processed.
-//  extraFlag - Is set to false when Norm is not an Extra and set to true when
-//              Norm is an Extra.  When set to true, it moves the record pointer
-//              to the first field matching the following Normal.
-//  norms -     The Normal chain, the full slice of normals.
+//
+//	r         - (Records) The fields being checked if conforming to normal chain.
+//	rSkip     - Record pointer - First field that has not yet been checked.
+//	nSkip     - Normal pointer - First Normal that has not been processed.
+//	extraFlag - Is set to false when Norm is not an Extra and set to true when
+//	            Norm is an Extra.  When set to true, it moves the record pointer
+//	            to the first field matching the following Normal.
+//	norms -     The Normal chain, the full slice of normals.
 func isNormal(r coze.MapSlice, rSkip int, nSkip int, extraFlag bool, norms ...Normaler) bool {
 	if nSkip >= len(norms) {
 		return true
@@ -292,13 +290,18 @@ func isNormal(r coze.MapSlice, rSkip int, nSkip int, extraFlag bool, norms ...No
 
 // IsNormalUnchained is a helper to run a slice of normals individually and not
 // as a chain.
-func IsNormalUnchained(pay json.RawMessage, norm ...Normaler) bool {
+func IsNormalUnchained(pay json.RawMessage, norm ...Normaler) (bool, error) {
 	for _, n := range norm {
-		if !IsNormal(pay, n) {
-			return false
+
+		v, err := IsNormal(pay, n)
+		if err != nil {
+			return false, err
+		}
+		if !v {
+			return false, nil
 		}
 	}
-	return true
+	return true, nil
 }
 
 // IsNormalNeedOption is a helper for a special case.
@@ -311,16 +314,15 @@ func IsNormalUnchained(pay json.RawMessage, norm ...Normaler) bool {
 // IsNormal may be called twice.  Once with the need(s), and a second time with
 // the option(s) concatenated with the need(s).  This is logically equivalent to
 // subtracting the need.
-func IsNormalNeedOption(pay json.RawMessage, need Need, option Option) bool {
+func IsNormalNeedOption(pay json.RawMessage, need Need, option Option) (bool, error) {
 	ms := coze.MapSlice{}
 	err := json.Unmarshal(pay, &ms)
 	if err != nil {
-		fmt.Println("Error:", err)
-		return false
+		return false, err
 	}
 
 	if !isNormal(ms, 0, 0, false, need) {
-		return false
+		return false, nil
 	}
 
 	// TODO add function "delete" to map slice.
@@ -330,5 +332,5 @@ func IsNormalNeedOption(pay json.RawMessage, need Need, option Option) bool {
 			ms2 = append(ms2, coze.MapItem{Key: mi.Key, Value: mi.Value})
 		}
 	}
-	return isNormal(ms2, 0, 0, false, option)
+	return isNormal(ms2, 0, 0, false, option), nil
 }

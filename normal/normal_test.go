@@ -59,11 +59,11 @@ var (
 
 func ExampleIsNormal_nil() {
 	// Nil matches empty JSON, true.
-	v = IsNormal([]byte(`{}`), nil)
+	v, _ = IsNormal([]byte(`{}`), nil)
 	fmt.Println(v)
 
 	// Nil Normal matches everything, true.
-	v = IsNormal(az, nil)
+	v, _ = IsNormal(az, nil)
 	fmt.Println(v)
 
 	// Output:
@@ -75,79 +75,79 @@ func ExampleIsNormal_canon() {
 	fmt.Println("\nCanon")
 
 	// Canon empty with empty records, true.
-	v = IsNormal([]byte(`{}`), Canon{})
+	v, _ = IsNormal([]byte(`{}`), Canon{})
 	fmt.Println(v)
 
 	// Canon in order, Canon in order, ending nil with no record (variadic), true.
-	v = IsNormal(az, Canon{"a"}, Canon{"z"}, nil)
+	v, _ = IsNormal(az, Canon{"a"}, Canon{"z"}, nil)
 	fmt.Println(v)
 
 	// Canon in order, Canon in order, ending nil with record (variadic), true.
-	v = IsNormal(ayz, Canon{"a"}, Canon{"y"}, nil)
+	v, _ = IsNormal(ayz, Canon{"a"}, Canon{"y"}, nil)
 	fmt.Println(v)
 
 	// Canon in order, true.
-	v = IsNormal(az, Canon{"a", "z"})
+	v, _ = IsNormal(az, Canon{"a", "z"})
 	fmt.Println(v)
 
 	// Canon in order variadic, true.
-	v = IsNormal(az, Canon{"a"}, Canon{"z"})
+	v, _ = IsNormal(az, Canon{"a"}, Canon{"z"})
 	fmt.Println(v)
 
 	// Canon in order with Only in order (variadic), true.
-	v = IsNormal(az, Canon{"a"}, Only{"z"})
+	v, _ = IsNormal(az, Canon{"a"}, Only{"z"})
 	fmt.Println(v)
 
 	// Canon in order with Extra (variadic), true.
-	v = IsNormal(az, Canon{"a"}, Extra{})
+	v, _ = IsNormal(az, Canon{"a"}, Extra{})
 	fmt.Println(v)
 
 	// Canon in order with Option missing (variadic), true.
-	v = IsNormal(az, Canon{"a", "z"}, Option{"b"})
+	v, _ = IsNormal(az, Canon{"a", "z"}, Option{"b"})
 	fmt.Println(v)
 
 	// Canon with Extra (not present) and Canon (variadic), true.
-	v = IsNormal(az, Canon{"a"}, Extra{}, Canon{"z"})
+	v, _ = IsNormal(az, Canon{"a"}, Extra{}, Canon{"z"})
 	fmt.Println(v)
 
 	// Canon with Extra not present and Canon (variadic), true.
-	v = IsNormal(ayz, Canon{"a"}, Extra{}, Canon{"y", "z"})
+	v, _ = IsNormal(ayz, Canon{"a"}, Extra{}, Canon{"y", "z"})
 	fmt.Println(v)
 
 	// Canon with Extra present and Canon (variadic), true.
-	v = IsNormal(ayz, Canon{"a"}, Extra{}, Canon{"z"})
+	v, _ = IsNormal(ayz, Canon{"a"}, Extra{}, Canon{"z"})
 	fmt.Println(v)
 
 	// Canon empty with records, false.
-	v = IsNormal(az, Canon{})
+	v, _ = IsNormal(az, Canon{})
 	fmt.Println(v)
 
 	// Canon in order, Canon in order, extra field, false.
-	v = IsNormal(ayz, Canon{"a"}, Canon{"y"})
+	v, _ = IsNormal(ayz, Canon{"a"}, Canon{"y"})
 	fmt.Println(v)
 
 	// Canon out of order, false.
-	v = IsNormal(az, Canon{"z", "a"})
+	v, _ = IsNormal(az, Canon{"z", "a"})
 	fmt.Println(v)
 
 	// Canon (correct) succeeded by extra (incorrect), false.
-	v = IsNormal(az, Canon{"a"})
+	v, _ = IsNormal(az, Canon{"a"})
 	fmt.Println(v)
 
 	// Canon in order (correct) with Only missing (incorrect) (variadic), false.
-	v = IsNormal(az, Canon{"a"}, Only{"b"})
+	v, _ = IsNormal(az, Canon{"a"}, Only{"b"})
 	fmt.Println(v)
 
 	// Canon amd Canon with extra field inbetween (variadic), false.
-	v = IsNormal(ayz, Canon{"a"}, Canon{"z"})
+	v, _ = IsNormal(ayz, Canon{"a"}, Canon{"z"})
 	fmt.Println(v)
 
 	// Canon with Extra (not present) and Canon and with succeeding extra (variadic), false.
-	v = IsNormal(ayz, Canon{"a"}, Extra{}, Canon{"y"})
+	v, _ = IsNormal(ayz, Canon{"a"}, Extra{}, Canon{"y"})
 	fmt.Println(v)
 
 	// Canon with extra (not present, incorrect) and Extra (variadic)(Checks for panic on out of bounds), false.
-	v = IsNormal(az, Canon{"a", "z", "y"}, Extra{})
+	v, _ = IsNormal(az, Canon{"a", "z", "y"}, Extra{})
 	fmt.Println(v)
 
 	// Output:
@@ -177,27 +177,27 @@ func ExampleIsNormal_only() {
 	fmt.Println("\nOnly")
 
 	// Only empty with empty records, true.
-	v = IsNormal([]byte(`{}`), Only{})
+	v, _ = IsNormal([]byte(`{}`), Only{})
 	fmt.Println(v)
 
 	// Only in order, true.
-	v = IsNormal(az, Only{"a", "z"})
+	v, _ = IsNormal(az, Only{"a", "z"})
 	fmt.Println(v)
 
 	// Only out of order, true.
-	v = IsNormal(az, Only{"z", "a"})
+	v, _ = IsNormal(az, Only{"z", "a"})
 	fmt.Println(v)
 
 	// Only in order variadic, true.
-	v = IsNormal(az, Only{"a"}, Only{"z"})
+	v, _ = IsNormal(az, Only{"a"}, Only{"z"})
 	fmt.Println(v)
 
 	// Only empty with records, false.
-	v = IsNormal(az, Only{})
+	v, _ = IsNormal(az, Only{})
 	fmt.Println(v)
 
 	// Only with extra field, false.
-	v = IsNormal(az, Only{"a", "y", "z"})
+	v, _ = IsNormal(az, Only{"a", "y", "z"})
 	fmt.Println(v)
 
 	// Output:
@@ -214,67 +214,67 @@ func ExampleIsNormal_option() {
 	fmt.Println("\nOption")
 
 	// Option empty with empty records, true.
-	v = IsNormal([]byte(`{}`), Option{})
+	v, _ = IsNormal([]byte(`{}`), Option{})
 	fmt.Println(v)
 
 	// Option with optional one field missing, true.
-	v = IsNormal(az, Option{"a", "z", "x"})
+	v, _ = IsNormal(az, Option{"a", "z", "x"})
 	fmt.Println(v)
 
 	// Two Options, true.
-	v = IsNormal(az, Option{"a"}, Option{"z"})
+	v, _ = IsNormal(az, Option{"a"}, Option{"z"})
 	fmt.Println(v)
 
 	// Three Options with last missing, true.
-	v = IsNormal(az, Option{"a"}, Option{"z"}, Option{"x"}) // TODO
+	v, _ = IsNormal(az, Option{"a"}, Option{"z"}, Option{"x"}) // TODO
 	fmt.Println(v)
 
 	// Option with field missing and Extra, true.
-	v = IsNormal(az, Option{"b"}, Extra{})
+	v, _ = IsNormal(az, Option{"b"}, Extra{})
 	fmt.Println(v)
 
 	// Option (field missing) with canon present (variadic), true.
-	v = IsNormal(ayz, Option{"b"}, Canon{"a", "y", "z"})
+	v, _ = IsNormal(ayz, Option{"b"}, Canon{"a", "y", "z"})
 	fmt.Println(v)
 
 	// Option in order with optional field missing and variadic, true.
-	v = IsNormal(az, Option{"a"}, Option{"z", "x"})
+	v, _ = IsNormal(az, Option{"a"}, Option{"z", "x"})
 	fmt.Println(v)
 
 	// Option with canon present (variadic), true.
-	v = IsNormal(ayz, Option{"a"}, Canon{"y", "z"})
+	v, _ = IsNormal(ayz, Option{"a"}, Canon{"y", "z"})
 	fmt.Println(v)
 
 	// Option missing with Canon (variadic), true.
-	v = IsNormal(az, Option{"b"}, Canon{"a", "z"})
+	v, _ = IsNormal(az, Option{"b"}, Canon{"a", "z"})
 	fmt.Println(v)
 
 	// Need with option missing, true.
-	v = IsNormal(ayz, Need{"a"}, Option{"b"})
+	v, _ = IsNormal(ayz, Need{"a"}, Option{"b"})
 	fmt.Println(v)
 
 	// Option empty with records, false.
-	v = IsNormal(az, Option{})
+	v, _ = IsNormal(az, Option{})
 	fmt.Println(v)
 
 	// Option with extra field, false.
-	v = IsNormal(az, Option{"a"})
+	v, _ = IsNormal(az, Option{"a"})
 	fmt.Println(v)
 
 	// Extra field then option, false.
-	v = IsNormal(az, Option{"z"})
+	v, _ = IsNormal(az, Option{"z"})
 	fmt.Println(v)
 
 	// Option out of order with optional field missing and variadic, false.
-	v = IsNormal(az, Option{"z"}, Option{"x", "a"})
+	v, _ = IsNormal(az, Option{"z"}, Option{"x", "a"})
 	fmt.Println(v)
 
 	// Option with extra pay field, false.
-	v = IsNormal(ayz, Option{"a", "y"})
+	v, _ = IsNormal(ayz, Option{"a", "y"})
 	fmt.Println(v)
 
 	// Need, option,then extra field, false.
-	v = IsNormal(ayz, Need{"a"}, Option{"y"})
+	v, _ = IsNormal(ayz, Need{"a"}, Option{"y"})
 	fmt.Println(v)
 
 	// Output:
@@ -301,55 +301,55 @@ func ExampleIsNormal_need() {
 	fmt.Println("\nNeed")
 
 	// Need empty with empty records, true.
-	v = IsNormal([]byte(`{}`), Need{})
+	v, _ = IsNormal([]byte(`{}`), Need{})
 	fmt.Println(v)
 
 	// Need empty with records, true.
-	v = IsNormal(az, Need{})
+	v, _ = IsNormal(az, Need{})
 	fmt.Println(v)
 
 	// Need with extra second field, true.
-	v = IsNormal(az, Need{"a"})
+	v, _ = IsNormal(az, Need{"a"})
 	fmt.Println(v)
 
 	// Need with extra first field, true.
-	v = IsNormal(az, Need{"z"})
+	v, _ = IsNormal(az, Need{"z"})
 	fmt.Println(v)
 
 	// Need in order, true.
-	v = IsNormal(az, Need{"a", "z"})
+	v, _ = IsNormal(az, Need{"a", "z"})
 	fmt.Println(v)
 
 	// Need out of order, true.
-	v = IsNormal(az, Need{"a", "z"})
+	v, _ = IsNormal(az, Need{"a", "z"})
 	fmt.Println(v)
 
 	// Need in order with extra, true.
-	v = IsNormal(ayz, Need{"a", "y"})
+	v, _ = IsNormal(ayz, Need{"a", "y"})
 	fmt.Println(v)
 
 	// Need in order with extra and Canon, true.
-	v = IsNormal(ayz, Need{"a"}, Canon{"z"})
+	v, _ = IsNormal(ayz, Need{"a"}, Canon{"z"})
 	fmt.Println(v)
 
 	// Need with option present, true.
-	v = IsNormal(ayz, Need{"a", "y"}, Option{"z"})
+	v, _ = IsNormal(ayz, Need{"a", "y"}, Option{"z"})
 	fmt.Println(v)
 
 	// Need, extra field, then option, true.
-	v = IsNormal(ayz, Need{"a"}, Option{"z"})
+	v, _ = IsNormal(ayz, Need{"a"}, Option{"z"})
 	fmt.Println(v)
 
 	// Need missing field, false.
-	v = IsNormal(az, Need{"a", "y", "z"})
+	v, _ = IsNormal(az, Need{"a", "y", "z"})
 	fmt.Println(v)
 
 	// Option present, Need repeated, false.
-	v = IsNormal(az, Option{"a"}, Need{"a"})
+	v, _ = IsNormal(az, Option{"a"}, Need{"a"})
 	fmt.Println(v)
 
 	// Need with and Canon and extra, false.
-	v = IsNormal(ayz, Need{"a"}, Canon{"y"})
+	v, _ = IsNormal(ayz, Need{"a"}, Canon{"y"})
 	fmt.Println(v)
 
 	// Output:
@@ -370,10 +370,12 @@ func ExampleIsNormal_need() {
 }
 
 func ExampleIsNormalUnchained() {
-	v = IsNormalUnchained(az, Need{"a"}, Need{"z"})
+	v, _ = IsNormalUnchained(az, Need{"a"}, Need{"z"})
 	fmt.Println(v)
-	v = IsNormalUnchained(ayz, Need{"a"}, Need{"z"}, Need{"y"})
+	v, _ = IsNormalUnchained(ayz, Need{"a"}, Need{"z"}, Need{"y"})
 	fmt.Println(v)
+
+	// TODO Jared test option
 
 	// Output:
 	// true
@@ -394,8 +396,8 @@ func ExampleIsNormalNeedOption() {
 		"last_name": "1"
 	 }`)
 
-	b := IsNormalNeedOption(pay, Need{"alg", "iat", "tmb", "typ", "id"}, Option{"display_name", "first_name", "last_name", "email", "address_1", "address_2", "phone_1", "phone_2", "city", "state", "zip", "country"})
-	fmt.Println(b)
+	v, _ = IsNormalNeedOption(pay, Need{"alg", "iat", "tmb", "typ", "id"}, Option{"display_name", "first_name", "last_name", "email", "address_1", "address_2", "phone_1", "phone_2", "city", "state", "zip", "country"})
+	fmt.Println(v)
 
 	// Output:
 	// true
