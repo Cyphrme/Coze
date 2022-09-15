@@ -371,13 +371,11 @@ func checkDuplicate(d *json.Decoder) error {
 	case '[':
 		for d.More() {
 			if err := checkDuplicate(d); err != nil {
-				fmt.Println(err)
 				return err
 			}
 		}
 		// consume trailing ]
 		if _, err := d.Token(); err != nil {
-			fmt.Println(err)
 			return err
 		}
 	}
