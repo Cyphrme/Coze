@@ -98,7 +98,7 @@ application defined programmatic functions.  In the first example,
 - `rvk` - "Revoke", time of key revocation.  See the `rvk` section.  E.g. `1655924566`
 
 Note that the private component `d` is not included in `tmb` generation.   Also
-note that `kid` must not be used programmatically while`typ` may be used
+note that `kid` must not be used programmatically while `typ` may be used
 programmatically. 
 
 

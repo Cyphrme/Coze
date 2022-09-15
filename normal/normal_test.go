@@ -28,8 +28,7 @@ func ExampleMerge() {
 
 	// When merging with Normals of different type, all type need to be the same
 	// type.  The following casts Only as a Canon.
-	m := Merge(Canon{"a", "b"}, Canon{"c", "d"}, Canon{"e", "f"}, Canon(Only{"g", "h"}))
-	fmt.Printf("%+v", m)
+	fmt.Printf("%+v", Merge(Canon{"a", "b"}, Canon{"c", "d"}, Canon{"e", "f"}, Canon(Only{"g", "h"})))
 
 	// Output:
 	// [a b c d e f]
@@ -379,31 +378,39 @@ func ExampleIsNormalUnchained() {
 	fmt.Println(v)
 	v, _ = IsNormalUnchained(ayz, Need{"a"}, Need{"z"}, Need{"y"})
 	fmt.Println(v)
-
-	// TODO Jared test option
-
-	// Output:
-	// true
-	// true
-}
-
-func ExampleIsNormalNeedOption() {
-	pay := []byte(`{
-		"alg": "ES256",
-		"iat": 1647357960,
-		"tmb": "L0SS81e5QKSUSu-17LTQsvwKpUhBxe6ZZIEnSRV73o8",
-		"typ": "cyphr.me/user/profile/update",
-		"id": "L0SS81e5QKSUSu-17LTQsvwKpUhBxe6ZZIEnSRV73o8",
-		"city": "Pueblo",
-		"country": "ISO 3166-2:US",
-		"display_name": "Mr. Dev",
-		"first_name": "Dev Test",
-		"last_name": "1"
-	 }`)
-
-	v, _ = IsNormalNeedOption(pay, Need{"alg", "iat", "tmb", "typ", "id"}, Option{"display_name", "first_name", "last_name", "email", "address_1", "address_2", "phone_1", "phone_2", "city", "state", "zip", "country"})
+	v, _ = IsNormalUnchained(az, Need{"a"}, Option{"z"})
 	fmt.Println(v)
 
 	// Output:
 	// true
+	// true
+	// false
+}
+
+func ExampleIsNormalNeedOption() {
+	standard := `{
+		"alg": "ES256",
+		"iat": 1647357960,
+		"tmb": "L0SS81e5QKSUSu-17LTQsvwKpUhBxe6ZZIEnSRV73o8",
+		"typ": "cyphr.me/user/profile/update",
+		`
+	required := `"id": "L0SS81e5QKSUSu-17LTQsvwKpUhBxe6ZZIEnSRV73o8",`
+	optional := `
+	"city": "Pueblo",
+	"country": "ISO 3166-2:US",
+	"display_name": "Mr. Dev",
+	"first_name": "Dev Test",
+	"last_name": "1"
+ }`
+	need := Need{"alg", "iat", "tmb", "typ", "id"}
+	option := Option{"display_name", "first_name", "last_name", "email", "address_1", "address_2", "phone_1", "phone_2", "city", "state", "zip", "country"}
+	v, _ = IsNormalNeedOption([]byte(standard+required+optional), need, option)
+	fmt.Println(v)
+	// Missing required field 'id'.
+	v, _ = IsNormalNeedOption([]byte(standard+optional), need, option)
+	fmt.Println(v)
+
+	// Output:
+	// true
+	// false
 }

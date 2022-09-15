@@ -17,18 +17,18 @@ import (
 //
 // Fields:
 //
-//   - Can: "Canon" Pay's fields in order of appearance.
-//   - Cad: "Canonical Digest" Pay's compactified form digest.
-//   - Czd: "Coze digest" with canon ["cad","sig"].
-//   - Pay: Payload.
-//   - Key: Key used to sign the message. Must be pointer, otherwise json.Marshal
-//     (and by extension coze.Marshal) will not marshal on zero type. See
-//     https://github.com/golang/go/issues/11939.
-//   - Sig: Signature over pay.
-//   - Parsed: The parsed standard Coze pay fields ["alg","iat","tmb","typ"] from
-//     Pay.  Parsed is populated by Meta() and is JSON ignored. The source of truth
-//     is Pay, not Parsed; do not use Parsed until after calling Meta() which
-//     populates Parsed from Pay.
+//   - Can:    "Canon" Pay's fields in order of appearance.
+//   - Cad:    "Canonical Digest" Pay's compactified form digest.
+//   - Czd:    "Coze digest" with canon ["cad","sig"].
+//   - Pay:    Payload.
+//   - Key:    Key used to sign the message. Must be pointer, otherwise
+//             json.Marshal (and by extension coze.Marshal) will not marshal on
+//             zero type. See: https://github.com/golang/go/issues/11939.
+//   - Sig:    Signature over pay.
+//   - Parsed: The parsed standard Coze pay fields ["alg","iat","tmb","typ"]
+//             from `Pay`.  `Parsed` is populated by Meta() and is JSON ignored.
+//             The source of truth is `Pay`, not `Parsed`; do not use `Parsed`
+//             until after calling Meta(), which populates `Parsed` from `Pay`.
 type Coze struct {
 	Can []string        `json:"can,omitempty"`
 	Cad B64             `json:"cad,omitempty"`
@@ -49,9 +49,6 @@ func (cz Coze) String() string {
 	}
 	return string(b)
 }
-
-// CzdCanon is the canon for a `czd`.
-var CzdCanon = []string{"cad", "sig"}
 
 // Meta recalculates meta, [can, cad, czd], for a given `coze`. Coze.Pay,
 // Coze.Pay.Alg, and Coze.Sig must be set. Meta does no cryptographic
@@ -112,6 +109,9 @@ func (cz *Coze) UnmarshalJSON(b []byte) error {
 	return nil
 }
 
+// CzdCanon is the canon for a `czd`.
+var CzdCanon = []string{"cad", "sig"}
+
 // GenCzd generates and returns `czd`.
 func GenCzd(hash HashAlg, cad B64, sig B64) (czd B64, err error) {
 	return Hash(hash, []byte(fmt.Sprintf(`{"cad":%q,"sig":%q}`, cad, sig)))
@@ -153,8 +153,8 @@ func Hash(h HashAlg, msg []byte) (digest B64, err error) {
 // for creating custom cozies (see example ExampleKey_SignPay).  Struct must
 // be a pointer or will panic.
 //
-// The custom MarshalJSON() renders the JSON tags on [Alg, Iat, Tmb, Typ, Struct]
-// ineffective, however they are present for documentation.
+// The custom MarshalJSON() renders the JSON tags on [Alg, Iat, Tmb, Typ,
+// Struct] ineffective, however they are present for documentation.
 //
 // `Struct` will be marshaled when not empty. The custom marshaler promotes
 // fields inside `Struct` to be top level fields inside of `pay`. The tag
@@ -353,7 +353,7 @@ func checkDuplicate(d *json.Decoder) error {
 
 			key := t.(string)
 			if keys[key] { // Check for duplicates.
-				return ErrDuplicate
+				return ErrJSONDuplicate
 			}
 			keys[key] = true
 
@@ -369,19 +369,21 @@ func checkDuplicate(d *json.Decoder) error {
 		}
 
 	case '[':
-		i := 0
 		for d.More() {
 			if err := checkDuplicate(d); err != nil {
+				fmt.Println(err)
 				return err
 			}
-			i++
 		}
 		// consume trailing ]
 		if _, err := d.Token(); err != nil {
+			fmt.Println(err)
 			return err
 		}
 	}
 	return nil
 }
 
-var ErrDuplicate = errors.New("JSON duplicate field name")
+// Useful for applications that need to check for this error. Otherwise, have
+// to check for the error string, which may change.
+var ErrJSONDuplicate = errors.New("Coze: JSON duplicate field name")

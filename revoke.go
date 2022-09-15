@@ -61,7 +61,6 @@ func (r *Revoke) MarshalJSON() ([]byte, error) {
 // UnmarshalJSON unmarshals a Revoke. See notes on revoke.
 func (r *Revoke) UnmarshalJSON(b []byte) error {
 	r2 := new(revoke)
-
 	err := json.Unmarshal(b, r2)
 	if err != nil {
 		return err
@@ -74,8 +73,8 @@ func (r *Revoke) UnmarshalJSON(b []byte) error {
 // Revoke will return a signed revoke coze for the given key as well as setting
 // `rvk` on the Coze key itself.
 //
-// The revoke coze may simply be discarded if not needed, e.g. `_, err :=
-// cozeKey.Revoke(nil)`
+// The revoke coze may simply be discarded if not needed,
+// e.g. `_, err := cozeKey.Revoke(nil)`
 func (c *Key) Revoke(msg string) (coze *Coze, err error) {
 	correct, err := c.Correct()
 	if !correct || err != nil {

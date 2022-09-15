@@ -26,13 +26,13 @@ type KeyCanon struct {
 //
 // Standard Coze key Fields
 //  - `alg` - Specific key algorithm. E.g. "ES256" or "Ed25519".
-//  - `d`   - Private component.
+//  - `d`   - Private component. E.g. "bNstg4_H3m3SlROufwRSEgibLrBuRq9114OvdapcpVA".
 //  - `iat` - Unix time of when the key was created. E.g. 1626069600.
 //  - `kid` - Human readable, non-programmatic label. E.g. "My Coze key".
 //  - `rvk` - Unix time of key revocation. See docs on `rvk`. E.g. 1626069601.
 //  - `tmb` - Key thumbprint. E.g. "cLj8vsYtMBwYkzoFVZHBZo6SNL8wSdCIjCKAwXNuhOk".
 //  - `typ` - Application label for key. E.g. "coze/key".
-//  - `x`   - Public component. E.g.
+//  - `x`   - Public component. E.g. "2nTOaFVm2QLxmUO_SjgyscVHBtvHEfo2rq65MvgNRjORojq39Haq9rXNxvXxwba_Xj0F5vZibJR3isBdOWbo5g".
 type Key struct {
 	Alg SEAlg  `json:"alg,omitempty"`
 	D   B64    `json:"d,omitempty"`
@@ -85,7 +85,8 @@ func NewKey(alg SEAlg) (c *Key, err error) {
 	return c, c.Thumbprint()
 }
 
-// Thumbprint generates and sets the Coze key thumbprint (`tmb`) from `x` and `alg`.
+// Thumbprint generates and sets the Coze key thumbprint (`tmb`) from `x` and
+// `alg`.
 func (c *Key) Thumbprint() (err error) {
 	c.Tmb, err = Thumbprint(c)
 	return err
@@ -286,8 +287,8 @@ func (c *Key) Valid() (valid bool) {
 //
 //  1. Checks the length of `x` and/or `tmb` against `alg`.
 //  2. If `x` and `tmb` are present, verifies correct `tmb`.
-//  3. If `d` is present, verifies correct `tmb` and `x` if present, and verifies
-//     the key by verifying a generated signature.
+//  3. If `d` is present, verifies correct `tmb` and `x` if present, and
+//     verifies the key by verifying a generated signature.
 func (c *Key) Correct() (bool, error) {
 	if c.Alg == 0 {
 		return false, errors.New("Correct: Alg must be set")
@@ -343,19 +344,19 @@ func (c *Key) Correct() (bool, error) {
 	return ck.Valid(), nil
 }
 
-// recalcX recalculates x from d. Algorithms are constant-time.
+// recalcX recalculates 'x' from 'd' and returns 'x'. 'x' will not be set on the
+// key from here. Algorithms are constant-time.
 // https://cs.opensource.google/go/go/+/refs/tags/go1.18.3:src/crypto/elliptic/elliptic.go;l=455;drc=7f9494c277a471f6f47f4af3036285c0b1419816
-func (c *Key) recalcX() (x B64) {
+func (c *Key) recalcX() B64 {
 	switch c.Alg.SigAlg() {
 	default:
 		return nil
 	case ES224, ES256, ES384, ES512:
 		pukx, puky := c.Alg.Curve().EllipticCurve().ScalarBaseMult(c.D)
-		x = PadInts(pukx, puky, c.Alg.XSize())
+		return PadInts(pukx, puky, c.Alg.XSize())
 	case Ed25519, Ed25519ph:
-		x = []byte(ed25519.NewKeyFromSeed(c.D)[32:])
+		return []byte(ed25519.NewKeyFromSeed(c.D)[32:])
 	}
-	return x
 }
 
 // KeyToPubEcdsa converts a Coze Key to ecdsa.PublicKey.
