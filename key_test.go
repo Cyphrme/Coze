@@ -37,15 +37,15 @@ var GoldenKeyBad = Key{
 
 var (
 	GoldenTmb = "cLj8vsYtMBwYkzoFVZHBZo6SNL8wSdCIjCKAwXNuhOk"
-	GoldenCad = "LSgWE4vEfyxJZUTFaRaB2JdEclORdZcm4UVH9D8vVto"
-	GoldenCzd = "d0ygwQCGzuxqgUq1KsuAtJ8IBu0mkgAcKpUJzuX075M"
-	GoldenSig = "ywctP6lEQ_HcYLhgpoecqhFrqNpBSyNPuAPOV94SThuztJek7x7H9mXFD0xTrlmQPg_WC7jwg70nzNoGn70JyA"
+	GoldenCad = "Ie3xL77AsiCcb4r0pbnZJqMcfSBqg5Lk0npNJyJ9BC4"
+	GoldenCzd = "TnRe4DRuGJlw280u3pGhMDOIYM7ii7J8_PhNuSScsIU"
+	GoldenSig = "Jl8Kt4nznAf0LGgO5yn_9HkGdY3ulvjg-NyRGzlmJzhncbTkFFn9jrwIwGoRAQYhjc88wmwFNH5u_rO56USo_w"
 )
 
 var GoldenPay = `{
 	"msg": "Coze Rocks",
 	"alg": "ES256",
-	"iat": 1627518000,
+	"iat": 1623132000,
 	"tmb": "cLj8vsYtMBwYkzoFVZHBZo6SNL8wSdCIjCKAwXNuhOk",
 	"typ": "cyphr.me/msg"
  }`
@@ -159,7 +159,7 @@ func ExampleKey_SignPay() {
 
 	pay := Pay{
 		Alg:    SEAlg(ES256),
-		Iat:    1627518000, // Static for demonstration.  Use time.Now().Unix().
+		Iat:    1623132000, // Static for demonstration.  Use time.Now().Unix().
 		Tmb:    MustDecode("cLj8vsYtMBwYkzoFVZHBZo6SNL8wSdCIjCKAwXNuhOk"),
 		Typ:    "cyphr.me/msg",
 		Struct: customStruct,
@@ -362,7 +362,7 @@ func ExampleCanonicalHash_genCad() {
 	fmt.Println(digest)
 
 	// Output:
-	// LSgWE4vEfyxJZUTFaRaB2JdEclORdZcm4UVH9D8vVto
+	// Ie3xL77AsiCcb4r0pbnZJqMcfSBqg5Lk0npNJyJ9BC4
 }
 
 // BenchmarkNSV benchmarks several methods on a Coze key. (NSV = New, Sign,

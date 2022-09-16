@@ -34,8 +34,8 @@ func ExampleCanonicalHash() {
 	fmt.Println(cad.String())
 
 	// Output:
-	// aC2YKfNvovfnZOw_RVxSEW6NeaUq41DZXX0oeaOboRg
-	// LSgWE4vEfyxJZUTFaRaB2JdEclORdZcm4UVH9D8vVto
+	// 4bmwgjkxQJIG2jiLiqq6eKptwTs97lYAFUtS25Rc3DU
+	// Ie3xL77AsiCcb4r0pbnZJqMcfSBqg5Lk0npNJyJ9BC4
 }
 
 func ExampleCanonicalHash_invalidAlg() {
@@ -61,16 +61,16 @@ func ExampleCanonicalHash_permutations() {
 	}
 
 	// Output:
-	// nrGQqKYvFKeVDFlOMIusP2A2AWn4DX-2XLNfJA
-	// aC2YKfNvovfnZOw_RVxSEW6NeaUq41DZXX0oeaOboRg
-	// KC5UHPxzNl567oONOphhWY6cHhuXoSiyOLiNGSmTIcvA8XDtWQf-fr4xNPCLfzCo
-	// oX2NMgJ_QRW9rf59N5VOSMILg6mzVHld5CqRaOatLCbRWVRh1Y6Rq4tRZGzZNvNKEM0qbYBlWk6y9BcnuRzczA
-	// GAYOBAxW2x7MvHVYpRLnjX3rUKcuhvDOCVVK3Q
-	// UfFl2lw4KHc2-0GX-mnqtfpScM1Qf7L_IaTGojR6_Go
-	// pVo43tSAG8apVs26QLOFG0Cbh3ScrbHd_VGjaFAIQtlCLiXcsgdmsGwOyXoK4zBz
-	// IA8Xv6tt32B49THtWOzN9AyKtnG5a0v93DSF4IShHsT6S2lWKQl1H2yuyMAYocVKBkMF5dp0miKB58NXROqAMg
-	// muWDwpDGlR-jwGPOQlj6A6B5FYA_U5nFq2KtwV8B-Uw
-	// QPfIPjKmLO4qLmiClA6GjYQKBO6MI2wBZUhi9uVTVr0WGP3LgOTQRup6l5Caxz6GtiUnNeQe6JMdVSvhdvLW-Q
+	// cGCQ6FHj0fjAyYbvxS_8sfC0qTaSLJtcu0Xkhw
+	// 4bmwgjkxQJIG2jiLiqq6eKptwTs97lYAFUtS25Rc3DU
+	// WQiyyY5Ye2Y8vKcbANlmiXJkU-SVEgboYJg-wnrOKJ3v8PcI5XvQu_-C4yyGFrbW
+	// irByY6uGnp6DrPvInvggL0ibo2p5yNvcuMVx1GiZoOArVIp4cGkAfB2FvknV5DyzKMHH-tV6vW8TyW7LZOyVFw
+	// 9YyKIbtFYbSNqdwAXcwV0lwLb-X65k6zTBTWeQ
+	// 8P9aSEJjC8tRKzfLNYBQTTXK-9E-DPlNaH_ikFkYUHQ
+	// suqhBt29HS7c_wwDpcp943h0HlSI_FQdOkiz-Tjf9R_Wegil2pXHVxIFXkpOaceP
+	// dAzMJWHLnGw9kjeo4RbVhzAAL6bwGasQbLFLZ1kHhdhGNNQm5nMib0cAQAAoIwdnKf0L8RADELg1XSFd8aJKww
+	// QzbJ9ONj21KF3Zno1ctdIHfpGqmFGm11tinsAJUkYOg
+	// MFYCTNhmavKZmFk_JNcttN9ccm4MAuYN3T868B2q0olpJ_6po2l98-617RfjnxkVuY2J--JjKt-KGi1S2RL4Bw
 }
 
 // ExampleCanonical.

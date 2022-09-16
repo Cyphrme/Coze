@@ -21,7 +21,7 @@ func ExampleRevoke_MarshalJSON() {
 		Rvk: 1,
 		Msg: "Test",
 		Pay: Pay{
-			Iat: 1627518000,
+			Iat: 1623132000,
 		},
 	}
 	fmt.Printf("%s\n", r)
@@ -29,7 +29,7 @@ func ExampleRevoke_MarshalJSON() {
 	// Output:
 	// {"rvk":1}
 	// {"rvk":1,"msg":"Test"}
-	// {"rvk":1,"msg":"Test","iat":1627518000}
+	// {"rvk":1,"msg":"Test","iat":1623132000}
 }
 
 func ExampleRevoke_unmarshalJSON() {
@@ -40,7 +40,7 @@ func ExampleRevoke_unmarshalJSON() {
 	}
 	fmt.Printf("%s\n", r)
 
-	err = json.Unmarshal([]byte(`{"rvk":1,"msg":"Test","iat":1627518000}`), r)
+	err = json.Unmarshal([]byte(`{"rvk":1,"msg":"Test","iat":1623132000}`), r)
 	if err != nil {
 		panic(err)
 	}
@@ -48,7 +48,7 @@ func ExampleRevoke_unmarshalJSON() {
 
 	// Output:
 	// {"rvk":1}
-	// {"rvk":1,"msg":"Test","iat":1627518000}
+	// {"rvk":1,"msg":"Test","iat":1623132000}
 }
 
 func ExampleKey_Revoke() {

@@ -19,11 +19,11 @@ readability.
 	"pay": {
 		"msg": "Coze Rocks",
 		"alg": "ES256",
-		"iat": 1627518000,
+		"iat": 1623132000,
 		"tmb": "cLj8vsYtMBwYkzoFVZHBZo6SNL8wSdCIjCKAwXNuhOk",
 		"typ": "cyphr.me/msg"
 	},
-	"sig": "Dmmv5PeyD3xs-9XcZu_DrpMXf2TL6BXPhP7ARI0xoHoGnus4nkS9aW4n6e1HVcoiOCHUsaDnDySylG5XAN13oQ"
+	"sig": "Jl8Kt4nznAf0LGgO5yn_9HkGdY3ulvjg-NyRGzlmJzhncbTkFFn9jrwIwGoRAQYhjc88wmwFNH5u_rO56USo_w"
 }
 ```
 
@@ -67,7 +67,7 @@ application defined programmatic functions.  In the first example,
 ```JSON
 {
 	"alg":"ES256",
-	"iat":1627518000,
+	"iat":1623132000,
 	"kid":"Zami's Majuscule Key.",
 	"tmb":"cLj8vsYtMBwYkzoFVZHBZo6SNL8wSdCIjCKAwXNuhOk",
 	"x":"2nTOaFVm2QLxmUO_SjgyscVHBtvHEfo2rq65MvgNRjORojq39Haq9rXNxvXxwba_Xj0F5vZibJR3isBdOWbo5g"
@@ -78,7 +78,7 @@ application defined programmatic functions.  In the first example,
 ```JSON
 {
 	"alg":"ES256",
-	"iat":1627518000,
+	"iat":1623132000,
 	"kid":"Zami's Majuscule Key.",
 	"d":"bNstg4_H3m3SlROufwRSEgibLrBuRq9114OvdapcpVA",
 	"tmb":"cLj8vsYtMBwYkzoFVZHBZo6SNL8wSdCIjCKAwXNuhOk",
@@ -95,7 +95,7 @@ application defined programmatic functions.  In the first example,
 - `tmb` - Thumbprint.  E.g. `"cLj8vs..."`
 - `x`   - Public component.  E.g. `"2nTOaF..."`.
 - `typ` - "Type", Additional application information.  E.g. `"cyphr.me/msg"`
-- `rvk` - "Revoke", time of key revocation.  See the `rvk` section.  E.g. `1655924566`
+- `rvk` - "Revoke", time of key revocation.  See the `rvk` section.  E.g. `1623132000`
 
 Note that the private component `d` is not included in `tmb` generation.   Also
 note that `kid` must not be used programmatically while `typ` may be used
@@ -111,11 +111,11 @@ The JSON name `coze` may be used to wrap Coze objects.  For example:
 		"pay": {
 			"msg": "Coze Rocks",
 			"alg": "ES256",
-			"iat": 1627518000,
+			"iat": 1623132000,
 			"tmb": "cLj8vsYtMBwYkzoFVZHBZo6SNL8wSdCIjCKAwXNuhOk",
 			"typ": "cyphr.me/msg"
 		},
-		"sig": "ywctP6lEQ_HcYLhgpoecqhFrqNpBSyNPuAPOV94SThuztJek7x7H9mXFD0xTrlmQPg_WC7jwg70nzNoGn70JyA"
+		"sig": "Jl8Kt4nznAf0LGgO5yn_9HkGdY3ulvjg-NyRGzlmJzhncbTkFFn9jrwIwGoRAQYhjc88wmwFNH5u_rO56USo_w"
 	}
 }
 ```
@@ -147,19 +147,21 @@ recalculatable, and the label `coze` may be inferred.
 
 The tautological coze
 
+TODO fix cad and czd
+
 ```JSON
 {
 	"coze": {
 		"pay": {
 			"msg": "Coze Rocks",
 			"alg": "ES256",
-			"iat": 1627518000,
+			"iat": 1623132000,
 			"tmb": "cLj8vsYtMBwYkzoFVZHBZo6SNL8wSdCIjCKAwXNuhOk",
 			"typ": "cyphr.me/msg"
 		},
 		"key": {
 			"alg":"ES256",
-			"iat":1627518000,
+			"iat":1623132000,
 			"kid":"Zami's Majuscule Key.",
 			"tmb":"cLj8vsYtMBwYkzoFVZHBZo6SNL8wSdCIjCKAwXNuhOk",
 			"x":"2nTOaFVm2QLxmUO_SjgyscVHBtvHEfo2rq65MvgNRjORojq39Haq9rXNxvXxwba_Xj0F5vZibJR3isBdOWbo5g"
@@ -167,7 +169,7 @@ The tautological coze
 		"can": ["alg","iat","msg","tmb","typ"],
 		"cad": "LSgWE4vEfyxJZUTFaRaB2JdEclORdZcm4UVH9D8vVto",
 		"czd": "d0ygwQCGzuxqgUq1KsuAtJ8IBu0mkgAcKpUJzuX075M",
-		"sig": "ywctP6lEQ_HcYLhgpoecqhFrqNpBSyNPuAPOV94SThuztJek7x7H9mXFD0xTrlmQPg_WC7jwg70nzNoGn70JyA"
+		"sig": "Jl8Kt4nznAf0LGgO5yn_9HkGdY3ulvjg-NyRGzlmJzhncbTkFFn9jrwIwGoRAQYhjc88wmwFNH5u_rO56USo_w"
 	}
 }
 ```
@@ -179,11 +181,11 @@ simplifies to
 	"pay": {
 		"msg": "Coze Rocks",
 		"alg": "ES256",
-		"iat": 1627518000,
+		"iat": 1623132000,
 		"tmb": "cLj8vsYtMBwYkzoFVZHBZo6SNL8wSdCIjCKAwXNuhOk",
 		"typ": "cyphr.me/msg"
 	},
-	"sig": "ywctP6lEQ_HcYLhgpoecqhFrqNpBSyNPuAPOV94SThuztJek7x7H9mXFD0xTrlmQPg_WC7jwg70nzNoGn70JyA"
+	"sig": "Jl8Kt4nznAf0LGgO5yn_9HkGdY3ulvjg-NyRGzlmJzhncbTkFFn9jrwIwGoRAQYhjc88wmwFNH5u_rO56USo_w"
 }
 ```
 
@@ -254,15 +256,15 @@ authorization to upload a file to a user's account:
 
 ```JSON
 {
-	"pay": {
-		"alg": "ES256",
-		"file_name": "coze_logo_icon_256.png",
-		"id": "oDBDAg4xplHQby6iQ2lZMS1Jz4Op0bNoD5LK3KxEUZo",
-		"iat": 1627518000,
-		"tmb": "cLj8vsYtMBwYkzoFVZHBZo6SNL8wSdCIjCKAwXNuhOk",
-		"typ": "cyphr.me/file/create"
-	},
-	"sig": "TcpnA4wPV3QUl1XWNfbey5cLkO2qHXGxnfEOI0BSic3J__Tr5TPL1In2yBmL8ZWhvFMOS11o1fm802K20OpQyw"
+ "pay": {
+  "alg": "ES256",
+  "file_name": "coze_logo_icon_256.png",
+  "id": "oDBDAg4xplHQby6iQ2lZMS1Jz4Op0bNoD5LK3KxEUZo",
+  "iat": 1623132000,
+  "tmb": "cLj8vsYtMBwYkzoFVZHBZo6SNL8wSdCIjCKAwXNuhOk",
+  "typ": "cyphr.me/file/create"
+ },
+ "sig": "DgJb6Qb81uhC-ulZJlIIj8ahi0b5rAbtnkQhiEH1FB0HeNiACVh_Deo6a22OkK2tr0UcDOiIRY1X-BUriw03Mg"
 }
 ```
 
@@ -273,18 +275,17 @@ the field `rvk` an integer value other than `0`.  For example, the integer value
 revocation is the suggested value for `rvk`.
 
 ### Example Self Revoke
-
 ```JSON
 {
-	"pay": {
-	"alg": "ES256",
-		"iat": 1627518000,
-		"msg": "Posted my private key online",
-		"rvk": 1627518000,
-		"tmb": "cLj8vsYtMBwYkzoFVZHBZo6SNL8wSdCIjCKAwXNuhOk",
-		"typ": "cyphr.me/key/revoke"
-	},
-	"sig": "6PHU4HM6CLFe6JULchXKFtXrGD_fn_U26ef99tXfOlFRGATHFy_XRpfG6lQM3D0DfTnskPvA4jpVUqie6FuFuA"
+ "pay": {
+  "alg": "ES256",
+  "iat": 1623132000,
+  "msg": "Posted my private key online",
+  "rvk": 1623132000,
+  "tmb": "cLj8vsYtMBwYkzoFVZHBZo6SNL8wSdCIjCKAwXNuhOk",
+  "typ": "cyphr.me/key/revoke"
+ },
+ "sig": "KVjPjMVHoL828WyAH5biqIOt-IOaQ5EBtN_7eQifP2w3agUHu6KfqO40_oqQ5GE_BShgXvhbK0O6Z2h5YPNAcw"
 }
 ```
 
@@ -498,7 +499,7 @@ dubbed this a "tilde encapsulated payload". For example:
 ```json
 {
 	"alg": "ES256",
-	"iat": 1627518000,
+	"iat": 1623132000,
 	"tmb": "cLj8vsYtMBwYkzoFVZHBZo6SNL8wSdCIjCKAwXNuhOk",
 	"typ": "cyphr.me/msg/create",
 	"~": {

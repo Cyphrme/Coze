@@ -225,18 +225,18 @@ func (se SEAlg) XSize() int {
 	switch SigAlg(se) {
 	default:
 		return 0
+	case Ed25519, Ed25519ph:
+		return 32
 	case ES224:
 		return 56
+	case Ed448:
+		return 57
 	case ES256:
 		return 64
 	case ES384:
 		return 96
 	case ES512:
 		return 132 // X and Y are 66 bytes (Rounded up for P521)
-	case Ed25519, Ed25519ph:
-		return 32
-	case Ed448:
-		return 57
 	}
 }
 
