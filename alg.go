@@ -92,19 +92,18 @@ type Params struct {
 
 // Params sets and returns a Params struct. See struct definition.
 func (a Alg) Params() Params {
-	var p Params
-	p.Name = a.String()
-	p.Genus = a.Genus()
-	p.Family = a.Family()
-	p.XSize = SEAlg(a).XSize()
-	p.DSize = SEAlg(a).DSize()
-	p.Hash = a.Hash()
-	p.HashSize = a.Hash().Size()
-	p.SigSize = a.SigAlg().SigSize()
-	p.Curve = a.Curve()
-	p.Use = a.Use()
-
-	return p
+	return Params{
+		Name:     a.String(),
+		Genus:    a.Genus(),
+		Family:   a.Family(),
+		XSize:    SEAlg(a).XSize(),
+		DSize:    SEAlg(a).DSize(),
+		Hash:     a.Hash(),
+		HashSize: a.Hash().Size(),
+		SigSize:  a.SigAlg().SigSize(),
+		Curve:    a.Curve(),
+		Use:      a.Use(),
+	}
 }
 
 // GenAlg "Genus".
@@ -194,8 +193,7 @@ func (se *SEAlg) UnmarshalJSON(b []byte) error {
 }
 
 func (se SEAlg) MarshalJSON() ([]byte, error) {
-	s := `"` + se.String() + `"`
-	return []byte(s), nil
+	return []byte(`"` + se.String() + `"`), nil
 }
 
 func (se *SEAlg) Parse(s string) {
@@ -284,6 +282,7 @@ var SigAlgs = []string{
 	"Ed448",
 }
 
+// Encryption algs.
 var EncAlgs = []string{
 	"UnknownEncAlg",
 	//// Placeholder for future.
@@ -292,6 +291,7 @@ var EncAlgs = []string{
 	// "RS512",
 }
 
+// Digest/Hash algs.
 var DigAlgs = []string{
 	"UnknownHashAlg",
 	"SHA-224",
@@ -319,13 +319,11 @@ const (
 
 func (a *Alg) UnmarshalJSON(b []byte) error {
 	a.Parse(string(b))
-
 	return nil
 }
 
 func (a Alg) MarshalJSON() ([]byte, error) {
-	s := `"` + a.String() + `"`
-	return []byte(s), nil
+	return []byte(`"` + a.String() + `"`), nil
 }
 
 func (a Alg) String() string {
@@ -339,9 +337,7 @@ func Parse(s string) (a *Alg) {
 }
 
 func (a *Alg) Parse(s string) {
-	s = strings.Trim(s, `"`)
-
-	switch s {
+	switch strings.Trim(s, `"`) {
 	default:
 		*a = UnknownAlg
 	case "UnknownAlg":
@@ -406,16 +402,15 @@ func (a Alg) Genus() GenAlg {
 }
 
 // Family is for EC, SHA, and RSA.
-func (a Alg) Family() (f FamAlg) {
+func (a Alg) Family() FamAlg {
 	switch a {
 	default:
-		f = UnknownFamAlg
+		return UnknownFamAlg
 	case Alg(ES224), Alg(ES256), Alg(ES384), Alg(ES512), Alg(Ed25519), Alg(Ed25519ph), Alg(Ed448):
-		f = EC
+		return EC
 	case Alg(SHA224), Alg(SHA256), Alg(SHA384), Alg(SHA512), Alg(SHA3224), Alg(SHA3256), Alg(SHA3384), Alg(SHA3512), Alg(SHAKE128), Alg(SHAKE256):
-		f = SHA
+		return SHA
 	}
-	return
 }
 
 // Hash returns respective hashing algorithm if specified. If alg is a hashing
@@ -566,8 +561,7 @@ func (h *HashAlg) UnmarshalJSON(b []byte) error {
 }
 
 func (h HashAlg) MarshalJSON() ([]byte, error) {
-	s := `"` + Alg(h).String() + `"`
-	return []byte(s), nil
+	return []byte(`"` + Alg(h).String() + `"`), nil
 }
 
 func (h *HashAlg) Parse(s string) {
@@ -637,8 +631,7 @@ func (u *Use) UnmarshalJSON(b []byte) error {
 }
 
 func (u Use) MarshalJSON() ([]byte, error) {
-	s := "\"" + u.String() + "\""
-	return []byte(s), nil
+	return []byte("\"" + u.String() + "\""), nil
 }
 
 // Use returns the Use.
@@ -654,8 +647,7 @@ func (a Alg) Use() Use {
 }
 
 func (u *Use) Parse(s string) {
-	s = strings.Trim(s, "\"")
-	switch s {
+	switch strings.Trim(s, "\"") {
 	default:
 		*u = UseUnknown
 	case "sig":

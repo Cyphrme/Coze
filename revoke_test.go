@@ -34,7 +34,6 @@ func ExampleRevoke_MarshalJSON() {
 
 func ExampleRevoke_unmarshalJSON() {
 	r := new(Revoke)
-
 	err := json.Unmarshal([]byte(`{"rvk":1}`), r)
 	if err != nil {
 		panic(err)
@@ -87,7 +86,6 @@ func ExampleIsRevoked() {
 	if err != nil {
 		panic(err)
 	}
-
 	// Both the revoke coze and the key should be interpreted as revoked.
 	fmt.Println(IsRevoked(coze.Pay))
 	fmt.Println(IsRevoked([]byte(gk2.String())))

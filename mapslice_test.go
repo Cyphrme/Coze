@@ -62,7 +62,6 @@ func ExampleMapSlice_MarshalJSON() {
 	if err != nil {
 		panic(err)
 	}
-
 	fmt.Printf("%s", b)
 
 	// Output:
@@ -75,7 +74,6 @@ func ExampleMapSlice_UnmarshalJSON() {
 	if err := json.Unmarshal([]byte(`{"abc":123,"def":456,"ghi":789}`), &ms); err != nil {
 		panic(err)
 	}
-
 	fmt.Printf("%s", ms)
 
 	// Output:
@@ -88,20 +86,6 @@ func ExampleMapSlice_Keys() {
 		MapItem{Key: "def", Value: 456},
 		MapItem{Key: "ghi", Value: 789},
 	}
-
-	fmt.Println(ms.Keys())
-
-	// Output:
-	// [abc def ghi]
-}
-
-func ExampleMapSlice_KeysString() {
-	ms := MapSlice{
-		MapItem{Key: "abc", Value: 123},
-		MapItem{Key: "def", Value: 456},
-		MapItem{Key: "ghi", Value: 789},
-	}
-
 	fmt.Println(ms.Keys())
 
 	// Output:
@@ -114,7 +98,6 @@ func ExampleMapSlice_Values() {
 		MapItem{Key: "def", Value: 456},
 		MapItem{Key: "ghi", Value: 789},
 	}
-
 	fmt.Println(ms.Values())
 
 	// Output:

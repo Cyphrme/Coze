@@ -29,8 +29,8 @@ func TestParse(t *testing.T) {
 
 func ExampleHashAlg_print() {
 	h := SHA256
-
 	fmt.Println(h)
+
 	// Output: SHA-256
 }
 
@@ -43,8 +43,8 @@ func ExampleAlg_jsonMarshal() {
 	if err != nil {
 		panic(err)
 	}
-
 	fmt.Printf("%s\n", jm)
+
 	// Output: {"alg":"ES256"}
 }
 
@@ -57,8 +57,8 @@ func ExampleHashAlg_jsonMarshal() {
 	if err != nil {
 		panic(err)
 	}
-
 	fmt.Printf("%+s\n", jm)
+
 	// Output: {"hashAlg":"SHA-256"}
 }
 

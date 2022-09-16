@@ -35,6 +35,13 @@ var GoldenKeyBad = Key{
 	Tmb: []byte{112, 184, 252, 190, 198, 45, 48, 28, 24, 147, 58, 5, 85, 145, 193, 102, 142, 146, 52, 191, 48, 73, 208, 136, 140, 34, 128, 193, 115, 110, 132, 233},
 }
 
+var (
+	GoldenTmb = "cLj8vsYtMBwYkzoFVZHBZo6SNL8wSdCIjCKAwXNuhOk"
+	GoldenCad = "LSgWE4vEfyxJZUTFaRaB2JdEclORdZcm4UVH9D8vVto"
+	GoldenCzd = "d0ygwQCGzuxqgUq1KsuAtJ8IBu0mkgAcKpUJzuX075M"
+	GoldenSig = "ywctP6lEQ_HcYLhgpoecqhFrqNpBSyNPuAPOV94SThuztJek7x7H9mXFD0xTrlmQPg_WC7jwg70nzNoGn70JyA"
+)
+
 var GoldenPay = `{
 	"msg": "Coze Rocks",
 	"alg": "ES256",
@@ -42,13 +49,6 @@ var GoldenPay = `{
 	"tmb": "cLj8vsYtMBwYkzoFVZHBZo6SNL8wSdCIjCKAwXNuhOk",
 	"typ": "cyphr.me/msg"
  }`
-
-var (
-	GoldenTmb = "cLj8vsYtMBwYkzoFVZHBZo6SNL8wSdCIjCKAwXNuhOk"
-	GoldenCad = "LSgWE4vEfyxJZUTFaRaB2JdEclORdZcm4UVH9D8vVto"
-	GoldenCzd = "d0ygwQCGzuxqgUq1KsuAtJ8IBu0mkgAcKpUJzuX075M"
-	GoldenSig = "ywctP6lEQ_HcYLhgpoecqhFrqNpBSyNPuAPOV94SThuztJek7x7H9mXFD0xTrlmQPg_WC7jwg70nzNoGn70JyA"
-)
 
 var GoldenCoze = `{
 	"pay":` + GoldenPay + `,
@@ -73,6 +73,7 @@ type CustomStruct struct {
 
 func ExampleKey_String() {
 	fmt.Printf("%s\n", GoldenKey)
+
 	// Output:
 	// {"alg":"ES256","d":"bNstg4_H3m3SlROufwRSEgibLrBuRq9114OvdapcpVA","iat":1623132000,"kid":"Zami's Majuscule Key.","tmb":"cLj8vsYtMBwYkzoFVZHBZo6SNL8wSdCIjCKAwXNuhOk","x":"2nTOaFVm2QLxmUO_SjgyscVHBtvHEfo2rq65MvgNRjORojq39Haq9rXNxvXxwba_Xj0F5vZibJR3isBdOWbo5g"}
 }
@@ -85,6 +86,7 @@ func ExampleKey_jsonUnmarshal() {
 		panic(err)
 	}
 	fmt.Printf("%+v\n", Key)
+
 	// Output:
 	//{"alg":"ES256","d":"bNstg4_H3m3SlROufwRSEgibLrBuRq9114OvdapcpVA","iat":1623132000,"kid":"Zami's Majuscule Key.","tmb":"cLj8vsYtMBwYkzoFVZHBZo6SNL8wSdCIjCKAwXNuhOk","x":"2nTOaFVm2QLxmUO_SjgyscVHBtvHEfo2rq65MvgNRjORojq39Haq9rXNxvXxwba_Xj0F5vZibJR3isBdOWbo5g"}
 }
@@ -95,6 +97,7 @@ func ExampleKey_jsonMarshal() {
 		panic(err)
 	}
 	fmt.Printf("%s\n", string(b))
+
 	// Output:
 	//{"alg":"ES256","d":"bNstg4_H3m3SlROufwRSEgibLrBuRq9114OvdapcpVA","iat":1623132000,"kid":"Zami's Majuscule Key.","tmb":"cLj8vsYtMBwYkzoFVZHBZo6SNL8wSdCIjCKAwXNuhOk","x":"2nTOaFVm2QLxmUO_SjgyscVHBtvHEfo2rq65MvgNRjORojq39Haq9rXNxvXxwba_Xj0F5vZibJR3isBdOWbo5g"}
 }
@@ -104,6 +107,7 @@ func ExampleKey_Thumbprint() {
 	gk2.Tmb = []byte{} // Set to empty to ensure recalculation.
 	gk2.Thumbprint()
 	fmt.Println(gk2.Tmb)
+
 	// Output:
 	// cLj8vsYtMBwYkzoFVZHBZo6SNL8wSdCIjCKAwXNuhOk
 }
@@ -114,6 +118,7 @@ func ExampleThumbprint() {
 		panic(err)
 	}
 	fmt.Println(h)
+
 	// Output:
 	// cLj8vsYtMBwYkzoFVZHBZo6SNL8wSdCIjCKAwXNuhOk
 }
@@ -125,6 +130,7 @@ func ExampleKey_Sign() {
 		panic(err)
 	}
 	fmt.Printf("%v\n", GoldenKey.Verify(cad, sig))
+
 	// Output: true
 }
 
@@ -139,8 +145,8 @@ func ExampleKey_Sign_empty() {
 	if err != nil {
 		panic(err)
 	}
-
 	fmt.Println(GoldenKey.Verify(d, sig))
+
 	// Output: true
 }
 
@@ -216,6 +222,7 @@ func ExampleKey_SignCoze() {
 func ExampleKey_Verify() {
 	v := GoldenKey.Verify(MustDecode(GoldenCad), MustDecode(GoldenSig))
 	fmt.Println(v)
+
 	// Output: true
 }
 
@@ -230,8 +237,8 @@ func ExampleKey_VerifyCoze() {
 	if err != nil {
 		panic(err)
 	}
-
 	fmt.Println(v)
+
 	// Output: true
 }
 
@@ -251,6 +258,7 @@ func ExampleNewKey_valid() {
 		panic(err)
 	}
 	fmt.Println(ck.Valid())
+
 	// Output:
 	// true
 }
@@ -352,6 +360,7 @@ func ExampleCanonicalHash_genCad() {
 		panic(err)
 	}
 	fmt.Println(digest)
+
 	// Output:
 	// LSgWE4vEfyxJZUTFaRaB2JdEclORdZcm4UVH9D8vVto
 }

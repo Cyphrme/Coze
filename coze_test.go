@@ -62,8 +62,8 @@ func ExamplePay_jsonUnmarshal() {
 	if err != nil {
 		panic(err)
 	}
-
 	fmt.Printf("%s\n", out)
+
 	// Output:
 	// {"alg":"ES256","iat":1627518000,"tmb":"cLj8vsYtMBwYkzoFVZHBZo6SNL8wSdCIjCKAwXNuhOk","typ":"cyphr.me/msg"}
 }
@@ -126,7 +126,6 @@ func ExamplePay_jsonUnmarshalCustom() {
 	if err != nil {
 		fmt.Printf("Unmarshal error: %s\n", err)
 	}
-
 	fmt.Println(pay)
 	fmt.Println(pay.Struct)
 
@@ -149,7 +148,6 @@ func ExamplePay_String_custom() {
 		Typ:    "cyphr.me/msg",
 		Struct: customStruct,
 	}
-
 	fmt.Println(inputPay)
 
 	// Output:
@@ -168,7 +166,28 @@ func ExamplePay_UnmarshalJSON_duplicate() {
 	}
 
 	// Output:
-	// JSON duplicate field name
+	// Coze: JSON duplicate field name
+}
+
+// Example demonstrating that unmarshalling a `pay` that has duplicate field
+// names results in an error.
+func ExamplePay_UnmarshalJSON_duplicate_array() {
+	h := &Pay{}
+
+	// Error will be nil
+	err := json.Unmarshal([]byte(`{"bob":"bob","joe":["alg","alg"]}`), h)
+	if err != nil {
+		fmt.Println(err)
+	}
+
+	// Error will not be nil
+	err = json.Unmarshal([]byte(`{"bob":"bob","joe":["alg","alg"],"bob":"bob2"}`), h)
+	if err != nil {
+		fmt.Println(err)
+	}
+
+	// Output:
+	// Coze: JSON duplicate field name
 }
 
 // Example demonstrating that unmarshalling a `coze` that has duplicate field
@@ -183,7 +202,7 @@ func ExampleCoze_UnmarshalJSON_duplicate() {
 	}
 
 	// Output:
-	// JSON duplicate field name
+	// Coze: JSON duplicate field name
 }
 
 // ExampleCoze_embed demonstrates how to embed a JSON `coze` into a third party
@@ -200,8 +219,8 @@ func ExampleCoze_embed() {
 		Coze Coze   `json:"coze"` // Embed a Coze into a larger, application defined JSON structure.
 	}
 	b, _ := json.Marshal(Outer{Name: "Bob", Coze: *cz})
-
 	fmt.Printf("%s", b)
+
 	// Output:
 	// {"name":"Bob","coze":{"pay":{"msg":"Coze Rocks","alg":"ES256","iat":1627518000,"tmb":"cLj8vsYtMBwYkzoFVZHBZo6SNL8wSdCIjCKAwXNuhOk","typ":"cyphr.me/msg"},"sig":"ywctP6lEQ_HcYLhgpoecqhFrqNpBSyNPuAPOV94SThuztJek7x7H9mXFD0xTrlmQPg_WC7jwg70nzNoGn70JyA"}}
 }
@@ -213,6 +232,7 @@ func ExampleCoze_String() {
 		panic(err)
 	}
 	fmt.Println(cz)
+
 	// Output:
 	// {"pay":{"msg":"Coze Rocks","alg":"ES256","iat":1627518000,"tmb":"cLj8vsYtMBwYkzoFVZHBZo6SNL8wSdCIjCKAwXNuhOk","typ":"cyphr.me/msg"},"sig":"ywctP6lEQ_HcYLhgpoecqhFrqNpBSyNPuAPOV94SThuztJek7x7H9mXFD0xTrlmQPg_WC7jwg70nzNoGn70JyA"}
 }
@@ -228,7 +248,6 @@ func ExampleCoze_Meta() {
 	if err != nil {
 		panic(err)
 	}
-
 	fmt.Printf("%s\n", cz)
 
 	// Output:
@@ -253,6 +272,7 @@ func ExampleCoze_MetaWithAlg() {
 	if err != nil {
 		panic(err)
 	}
+
 	fmt.Printf("%s\n", cz)
 
 	// No alg given.  Alg is parsed from pay.
@@ -281,6 +301,7 @@ func ExampleCoze_jsonUnMarshal() {
 		panic(err)
 	}
 	fmt.Println(string(b))
+
 	// Output:
 	//{"pay":{"msg":"Coze Rocks","alg":"ES256","iat":1627518000,"tmb":"cLj8vsYtMBwYkzoFVZHBZo6SNL8wSdCIjCKAwXNuhOk","typ":"cyphr.me/msg"},"sig":"ywctP6lEQ_HcYLhgpoecqhFrqNpBSyNPuAPOV94SThuztJek7x7H9mXFD0xTrlmQPg_WC7jwg70nzNoGn70JyA"}
 }
@@ -296,8 +317,8 @@ func ExampleCoze_jsonMarshal() {
 	if err != nil {
 		panic(err)
 	}
-
 	fmt.Printf("%+s\n", b)
+
 	// Output:
 	//{"pay":{"msg":"Coze Rocks","alg":"ES256","iat":1627518000,"tmb":"cLj8vsYtMBwYkzoFVZHBZo6SNL8wSdCIjCKAwXNuhOk","typ":"cyphr.me/msg"},"sig":"ywctP6lEQ_HcYLhgpoecqhFrqNpBSyNPuAPOV94SThuztJek7x7H9mXFD0xTrlmQPg_WC7jwg70nzNoGn70JyA"}
 }
@@ -313,8 +334,8 @@ func ExampleCoze_jsonMarshalPretty() {
 	if err != nil {
 		panic(err)
 	}
-
 	fmt.Printf("%+s\n", b)
+
 	// Output:
 	// {
 	//     "pay": {
@@ -377,20 +398,20 @@ func Test_checkDuplicate(t *testing.T) {
 	// Duplicate, should error.
 	data := `{"a": "b", "a":true,"c":["field_3 string 1","field3 string2"], "d": {"e": 1, "e": 2}}`
 	err := checkDuplicate(json.NewDecoder(strings.NewReader(data)))
-	if err != ErrDuplicate {
-		panic("Should have found duplciate.")
+	if err != ErrJSONDuplicate {
+		t.Fatal("Should have found duplciate.")
 	}
 
 	// Recursive check with duplicate in inner struct.  Should error.
 	data = `{"a": "b", "c":"d", "d": {"e": 1, "e": 2}}`
 	err = checkDuplicate(json.NewDecoder(strings.NewReader(data)))
-	if err != ErrDuplicate {
-		panic("Should have found duplciate.")
+	if err != ErrJSONDuplicate {
+		t.Fatal("Should have found duplciate.")
 	}
 	// No duplicate.  Should not error.
 	data = `{"a": "b", "c":"d", "d": {"e": 1, "f": 2}}`
 	err = checkDuplicate(json.NewDecoder(strings.NewReader(data)))
 	if err != nil {
-		panic(err)
+		t.Fatal(err)
 	}
 }

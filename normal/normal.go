@@ -292,15 +292,13 @@ func isNormal(r coze.MapSlice, rSkip int, nSkip int, extraFlag bool, norms ...No
 
 // IsNormalUnchained is a helper to run a slice of normals individually and not
 // as a chain.
+// Passing an 'option' will return false unless the given pay only has one
+// field, and it is the 'option'.
 func IsNormalUnchained(pay json.RawMessage, norm ...Normaler) (bool, error) {
 	for _, n := range norm {
-
 		v, err := IsNormal(pay, n)
-		if err != nil {
+		if err != nil || !v {
 			return false, err
-		}
-		if !v {
-			return false, nil
 		}
 	}
 	return true, nil
