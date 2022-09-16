@@ -25,12 +25,9 @@ func Canon(raw json.RawMessage) (can []string, err error) {
 // Canonical returns the canonical form. Input canon is optional and may be nil.
 // If canon is nil, input JSON is only compactified.
 //
-// Interface "canon" may be any valid type for json.Unmarshal, including
-// `[]string`, `struct``, and `nil`.  If canon is nil, json.Unmarshal will place
-// the input into a UTF-8 ordered map.
-//
-// If "canon" is a struct the struct must be properly ordered. Go's JSON package
-// orders struct fields according to their struct position.
+// Interface "canon" may be `[]string`, `struct“, or `nil`.  If "canon" is a
+// struct or slice it must be properly ordered.  If canon is nil, json.Unmarshal
+// will place the input into a UTF-8 ordered map.
 //
 // In the Go version of Coze, the canonical form of a struct is (currently)
 // achieved by unmarshalling and remarshaling.
@@ -38,11 +35,33 @@ func Canonical(input []byte, canon any) (b []byte, err error) {
 	if canon == nil {
 		return compact(input)
 	}
+
+	s, ok := canon.([]string)
+	if ok {
+		// The only datastructure that can unmarshal arbitrary JSON is map, but
+		// json.Marshal will unmarshal *all* elements and there is no way to specify
+		// unmarshalling to only the given fields.  Solution: unmarshal into new
+		// map, and transfer appropriate fields to a second map.
+		m := make(map[string]any)
+		err = json.Unmarshal(input, &m)
+		if err != nil {
+			return nil, err
+		}
+
+		mm := make(map[string]any)
+		for i := 0; i < len(s); i++ {
+			mm[s[i]] = m[s[i]]
+		}
+
+		return Marshal(mm)
+	}
+
 	// Unmarshal the given bytes into the given canonical format.
 	err = json.Unmarshal(input, &canon)
 	if err != nil {
 		return nil, err
 	}
+
 	return Marshal(canon)
 }
 

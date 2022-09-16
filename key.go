@@ -13,26 +13,20 @@ import (
 )
 
 // KeyCanonSlice is the canonical form of a Coze key in slice form.
-var KeyCanonSlice = []string{"alg", "x"}
-
-// KeyCanon is the canonical form of a Coze key in struct form.
-type KeyCanon struct {
-	Alg string `json:"alg"`
-	X   B64    `json:"x"`
-}
+var KeyCanon = []string{"alg", "x"}
 
 // Key is a Coze key. See `README.md` for details on Coze key. Fields must be in
 // order for correct JSON marshaling.
 //
 // Standard Coze key Fields
-//  - `alg` - Specific key algorithm. E.g. "ES256" or "Ed25519".
-//  - `d`   - Private component.
-//  - `iat` - Unix time of when the key was created. E.g. 1626069600.
-//  - `kid` - Human readable, non-programmatic label. E.g. "My Coze key".
-//  - `rvk` - Unix time of key revocation. See docs on `rvk`. E.g. 1626069601.
-//  - `tmb` - Key thumbprint. E.g. "cLj8vsYtMBwYkzoFVZHBZo6SNL8wSdCIjCKAwXNuhOk".
-//  - `typ` - Application label for key. E.g. "coze/key".
-//  - `x`   - Public component. E.g.
+//   - `alg` - Specific key algorithm. E.g. "ES256" or "Ed25519".
+//   - `d`   - Private component.
+//   - `iat` - Unix time of when the key was created. E.g. 1626069600.
+//   - `kid` - Human readable, non-programmatic label. E.g. "My Coze key".
+//   - `rvk` - Unix time of key revocation. See docs on `rvk`. E.g. 1626069601.
+//   - `tmb` - Key thumbprint. E.g. "cLj8vsYtMBwYkzoFVZHBZo6SNL8wSdCIjCKAwXNuhOk".
+//   - `typ` - Application label for key. E.g. "coze/key".
+//   - `x`   - Public component. E.g.
 type Key struct {
 	Alg SEAlg  `json:"alg,omitempty"`
 	D   B64    `json:"d,omitempty"`
@@ -97,7 +91,7 @@ func Thumbprint(c *Key) (tmb B64, err error) {
 	if err != nil {
 		return nil, err
 	}
-	return CanonicalHash(b, &KeyCanon{}, c.Alg.Hash())
+	return CanonicalHash(b, KeyCanon, c.Alg.Hash())
 }
 
 // Sign uses a private Coze key to sign a digest.

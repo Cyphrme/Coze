@@ -122,3 +122,32 @@ func ExampleCanonical() {
 	// Input: []byte; Canon: struct => {"a":"a","c":"c"}
 	// Input: []byte; Canon: nil    => {"c":"c","a":"a"}
 }
+
+// ExampleCanonical_struct demonstrates using a given struct as a canon.
+func ExampleCanonical_struct() {
+	// KeyCanon is the canonical form of a Coze key in struct form.
+	type KeyCanonStruct struct {
+		Alg string `json:"alg"`
+		X   B64    `json:"x"`
+	}
+	kcs := new(KeyCanonStruct)
+
+	dig, err := CanonicalHash([]byte(GoldenKeyString), kcs, GoldenKey.Alg.Hash())
+	if err != nil {
+		panic(err)
+	}
+	fmt.Println(dig)
+
+	// Output:
+	// cLj8vsYtMBwYkzoFVZHBZo6SNL8wSdCIjCKAwXNuhOk
+}
+
+func ExampleCanonical_slice() {
+	dig, err := CanonicalHash([]byte(GoldenKeyString), KeyCanon, GoldenKey.Alg.Hash())
+	if err != nil {
+		panic(err)
+	}
+	fmt.Println(dig)
+
+	// Output: cLj8vsYtMBwYkzoFVZHBZo6SNL8wSdCIjCKAwXNuhOk
+}
