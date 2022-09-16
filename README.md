@@ -478,7 +478,7 @@ We have a lot of respect for existing projects. They're great at what they do.
 Existing solutions were not meeting our particular needs. Coze is influenced
 by many ideas and standards.  
  
-See the `coze_vs..md` document for more. 
+See the `coze_vs.md` document for more. 
 
 #### Does Coze have checksums?
 For keys, `tmb`, and for messages, `cad` and `czd`, may be used as checksums.

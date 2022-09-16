@@ -1,3 +1,6 @@
+# Coze Vs "x".  
+Why not use "x" over Coze?
+
 # See the [presentation](https://docs.google.com/presentation/d/1bVojfkDs7K9hRwjr8zMW-AoHv5yAZjKL9Z3Bicz5Too)
 
 
@@ -11,7 +14,7 @@ We also think it's important to give specific reason why Coze's design is
 different from other projects.  In this document, we attempt to give specific
 reasons why Coze was needed.  
 
-# Why not "x"?
+
 
 ## signify (OpenBSD):
  - Not JSON.  
