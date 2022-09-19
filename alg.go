@@ -169,7 +169,7 @@ func ParseSEAlg(s string) SEAlg {
 func (se SEAlg) SigAlg() SigAlg {
 	switch SigAlg(se) {
 	default:
-		return UnknownSignAlg
+		return UnknownSigAlg
 	case ES224:
 		return ES224
 	case ES256:
@@ -343,7 +343,7 @@ func (a *Alg) Parse(s string) {
 	case "UnknownAlg":
 		*a = UnknownAlg
 	case "UnknownSigAlg":
-		*a = Alg(UnknownSignAlg)
+		*a = Alg(UnknownSigAlg)
 	case "ES224":
 		*a = Alg(ES224)
 	case "ES256":
@@ -434,7 +434,7 @@ func (a Alg) SigAlg() SigAlg {
 
 const (
 	// SigAlg appears in `Algs` after algs.
-	UnknownSignAlg SigAlg = iota + SigAlg(UnknownAlg) + 1
+	UnknownSigAlg SigAlg = iota + SigAlg(UnknownAlg) + 1
 	ES224
 	ES256
 	ES384
