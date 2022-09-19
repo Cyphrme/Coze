@@ -183,21 +183,21 @@ func ExampleAlg_Params() {
 
 	// Output:
 	// [ES224 ES256 ES384 ES512 Ed25519 Ed25519ph Ed448 SHA-224 SHA-256 SHA-384 SHA-512 SHA3-224 SHA3-256 SHA3-384 SHA3-512 SHAKE128 SHAKE256]
-	// {"Name":"ES224","Genus":"ECDSA","Family":"EC","X.Size":56,"D.Size":28,"Hash":"SHA-224","Hash.Size":28,"Sig.Size":56,"Curve":"P-224","Use":"sig"}
-	// {"Name":"ES256","Genus":"ECDSA","Family":"EC","X.Size":64,"D.Size":32,"Hash":"SHA-256","Hash.Size":32,"Sig.Size":64,"Curve":"P-256","Use":"sig"}
-	// {"Name":"ES384","Genus":"ECDSA","Family":"EC","X.Size":96,"D.Size":48,"Hash":"SHA-384","Hash.Size":48,"Sig.Size":96,"Curve":"P-384","Use":"sig"}
-	// {"Name":"ES512","Genus":"ECDSA","Family":"EC","X.Size":132,"D.Size":66,"Hash":"SHA-512","Hash.Size":64,"Sig.Size":132,"Curve":"P-521","Use":"sig"}
-	// {"Name":"Ed25519","Genus":"EdDSA","Family":"EC","X.Size":32,"D.Size":32,"Hash":"SHA-512","Hash.Size":64,"Sig.Size":64,"Curve":"Curve25519","Use":"sig"}
-	// {"Name":"Ed25519ph","Genus":"EdDSA","Family":"EC","X.Size":32,"D.Size":32,"Hash":"SHA-512","Hash.Size":64,"Sig.Size":64,"Curve":"Curve25519","Use":"sig"}
-	// {"Name":"Ed448","Genus":"EdDSA","Family":"EC","X.Size":57,"D.Size":57,"Hash":"SHAKE256","Hash.Size":64,"Sig.Size":114,"Curve":"Curve448","Use":"sig"}
-	// {"Name":"SHA-224","Genus":"SHA2","Family":"SHA","Hash":"SHA-224","Hash.Size":28,"Use":"dig"}
-	// {"Name":"SHA-256","Genus":"SHA2","Family":"SHA","Hash":"SHA-256","Hash.Size":32,"Use":"dig"}
-	// {"Name":"SHA-384","Genus":"SHA2","Family":"SHA","Hash":"SHA-384","Hash.Size":48,"Use":"dig"}
-	// {"Name":"SHA-512","Genus":"SHA2","Family":"SHA","Hash":"SHA-512","Hash.Size":64,"Use":"dig"}
-	// {"Name":"SHA3-224","Genus":"SHA3","Family":"SHA","Hash":"SHA3-224","Hash.Size":28,"Use":"dig"}
-	// {"Name":"SHA3-256","Genus":"SHA3","Family":"SHA","Hash":"SHA3-256","Hash.Size":32,"Use":"dig"}
-	// {"Name":"SHA3-384","Genus":"SHA3","Family":"SHA","Hash":"SHA3-384","Hash.Size":48,"Use":"dig"}
-	// {"Name":"SHA3-512","Genus":"SHA3","Family":"SHA","Hash":"SHA3-512","Hash.Size":64,"Use":"dig"}
-	// {"Name":"SHAKE128","Genus":"SHA3","Family":"SHA","Hash":"SHAKE128","Hash.Size":32,"Use":"dig"}
-	// {"Name":"SHAKE256","Genus":"SHA3","Family":"SHA","Hash":"SHAKE256","Hash.Size":64,"Use":"dig"}
+	// {"Name":"ES224","Genus":"ECDSA","Family":"EC","Use":"sig","Hash":"SHA-224","HashSize":28,"HashSizeB64":37,"XSize":56,"XSizeB64":74,"DSize":28,"DSizeB64":37,"Curve":"P-224","SigSize":56,"SigSizeB64":74}
+	// {"Name":"ES256","Genus":"ECDSA","Family":"EC","Use":"sig","Hash":"SHA-256","HashSize":32,"HashSizeB64":42,"XSize":64,"XSizeB64":85,"DSize":32,"DSizeB64":42,"Curve":"P-256","SigSize":64,"SigSizeB64":85}
+	// {"Name":"ES384","Genus":"ECDSA","Family":"EC","Use":"sig","Hash":"SHA-384","HashSize":48,"HashSizeB64":64,"XSize":96,"XSizeB64":128,"DSize":48,"DSizeB64":64,"Curve":"P-384","SigSize":96,"SigSizeB64":128}
+	// {"Name":"ES512","Genus":"ECDSA","Family":"EC","Use":"sig","Hash":"SHA-512","HashSize":64,"HashSizeB64":85,"XSize":132,"XSizeB64":176,"DSize":66,"DSizeB64":88,"Curve":"P-521","SigSize":132,"SigSizeB64":176}
+	// {"Name":"Ed25519","Genus":"EdDSA","Family":"EC","Use":"sig","Hash":"SHA-512","HashSize":64,"HashSizeB64":85,"XSize":32,"XSizeB64":42,"DSize":32,"DSizeB64":42,"Curve":"Curve25519","SigSize":64,"SigSizeB64":85}
+	// {"Name":"Ed25519ph","Genus":"EdDSA","Family":"EC","Use":"sig","Hash":"SHA-512","HashSize":64,"HashSizeB64":85,"XSize":32,"XSizeB64":42,"DSize":32,"DSizeB64":42,"Curve":"Curve25519","SigSize":64,"SigSizeB64":85}
+	// {"Name":"Ed448","Genus":"EdDSA","Family":"EC","Use":"sig","Hash":"SHAKE256","HashSize":64,"HashSizeB64":85,"XSize":57,"XSizeB64":76,"DSize":57,"DSizeB64":76,"Curve":"Curve448","SigSize":114,"SigSizeB64":152}
+	// {"Name":"SHA-224","Genus":"SHA2","Family":"SHA","Use":"dig","Hash":"SHA-224","HashSize":28,"HashSizeB64":37}
+	// {"Name":"SHA-256","Genus":"SHA2","Family":"SHA","Use":"dig","Hash":"SHA-256","HashSize":32,"HashSizeB64":42}
+	// {"Name":"SHA-384","Genus":"SHA2","Family":"SHA","Use":"dig","Hash":"SHA-384","HashSize":48,"HashSizeB64":64}
+	// {"Name":"SHA-512","Genus":"SHA2","Family":"SHA","Use":"dig","Hash":"SHA-512","HashSize":64,"HashSizeB64":85}
+	// {"Name":"SHA3-224","Genus":"SHA3","Family":"SHA","Use":"dig","Hash":"SHA3-224","HashSize":28,"HashSizeB64":37}
+	// {"Name":"SHA3-256","Genus":"SHA3","Family":"SHA","Use":"dig","Hash":"SHA3-256","HashSize":32,"HashSizeB64":42}
+	// {"Name":"SHA3-384","Genus":"SHA3","Family":"SHA","Use":"dig","Hash":"SHA3-384","HashSize":48,"HashSizeB64":64}
+	// {"Name":"SHA3-512","Genus":"SHA3","Family":"SHA","Use":"dig","Hash":"SHA3-512","HashSize":64,"HashSizeB64":85}
+	// {"Name":"SHAKE128","Genus":"SHA3","Family":"SHA","Use":"dig","Hash":"SHAKE128","HashSize":32,"HashSizeB64":42}
+	// {"Name":"SHAKE256","Genus":"SHA3","Family":"SHA","Use":"dig","Hash":"SHAKE256","HashSize":64,"HashSizeB64":85}
 }

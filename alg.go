@@ -5,6 +5,7 @@ import (
 	"crypto/sha256"
 	"crypto/sha512"
 	"hash"
+	"math"
 	"strings"
 
 	"golang.org/x/crypto/sha3"
@@ -77,33 +78,47 @@ type (
 // for a particular `alg`, values may be populated with the Go zero value, e.g.
 // for the hash alg "SHA-256" Curve's value is 0 and omitted from JSON
 // marshaling.
+// TODO add the 64s
 type Params struct {
-	Name     string
-	Genus    GenAlg  `json:"Genus"`
-	Family   FamAlg  `json:"Family"`
-	XSize    int     `json:"X.Size,omitempty"`
-	DSize    int     `json:"D.Size,omitempty"`
-	Hash     HashAlg `json:"Hash,omitempty"`
-	HashSize int     `json:"Hash.Size,omitempty"`
-	SigSize  int     `json:"Sig.Size,omitempty"`
-	Curve    Crv     `json:"Curve,omitempty"`
-	Use      Use     `json:"Use,omitempty"`
+	Name        string
+	Genus       GenAlg  `json:"Genus"`
+	Family      FamAlg  `json:"Family"`
+	Use         Use     `json:"Use,omitempty"`
+	Hash        HashAlg `json:"Hash,omitempty"` // Hash
+	HashSize    int     `json:"HashSize,omitempty"`
+	HashSizeB64 int     `json:"HashSizeB64,omitempty"`
+	XSize       int     `json:"XSize,omitempty"` // Key
+	XSizeB64    int     `json:"XSizeB64,omitempty"`
+	DSize       int     `json:"DSize,omitempty"`
+	DSizeB64    int     `json:"DSizeB64,omitempty"`
+	Curve       Crv     `json:"Curve,omitempty"`
+	SigSize     int     `json:"SigSize,omitempty"` // Sig
+	SigSizeB64  int     `json:"SigSizeB64,omitempty"`
 }
 
 // Params sets and returns a Params struct. See struct definition.
 func (a Alg) Params() Params {
-	return Params{
+	p := Params{
 		Name:     a.String(),
 		Genus:    a.Genus(),
 		Family:   a.Family(),
-		XSize:    SEAlg(a).XSize(),
-		DSize:    SEAlg(a).DSize(),
+		Use:      a.Use(),
 		Hash:     a.Hash(),
 		HashSize: a.Hash().Size(),
-		SigSize:  a.SigAlg().SigSize(),
+		XSize:    SEAlg(a).XSize(),
+		DSize:    SEAlg(a).DSize(),
 		Curve:    a.Curve(),
-		Use:      a.Use(),
+		SigSize:  a.SigAlg().SigSize(),
 	}
+
+	toB64 := func(sizeInBytes int) int {
+		return int(math.Ceil(float64(4 * sizeInBytes / 3)))
+	}
+	p.HashSizeB64 = toB64(p.HashSize)
+	p.XSizeB64 = toB64(p.XSize)
+	p.DSizeB64 = toB64(p.DSize)
+	p.SigSizeB64 = toB64(p.SigSize)
+	return p
 }
 
 // GenAlg "Genus".

@@ -22,13 +22,13 @@ import (
 //   - Czd:    "Coze digest" with canon ["cad","sig"].
 //   - Pay:    Payload.
 //   - Key:    Key used to sign the message. Must be pointer, otherwise
-//             json.Marshal (and by extension coze.Marshal) will not marshal on
-//             zero type. See: https://github.com/golang/go/issues/11939.
+//     json.Marshal (and by extension coze.Marshal) will not marshal on
+//     zero type. See: https://github.com/golang/go/issues/11939.
 //   - Sig:    Signature over pay.
 //   - Parsed: The parsed standard Coze pay fields ["alg","iat","tmb","typ"]
-//             from `Pay`.  `Parsed` is populated by Meta() and is JSON ignored.
-//             The source of truth is `Pay`, not `Parsed`; do not use `Parsed`
-//             until after calling Meta(), which populates `Parsed` from `Pay`.
+//     from `Pay`.  `Parsed` is populated by Meta() and is JSON ignored.
+//     The source of truth is `Pay`, not `Parsed`; do not use `Parsed`
+//     until after calling Meta(), which populates `Parsed` from `Pay`.
 type Coze struct {
 	Can []string        `json:"can,omitempty"`
 	Cad B64             `json:"cad,omitempty"`
@@ -244,8 +244,8 @@ func (p *Pay) UnmarshalJSON(b []byte) error {
 // From Go's packages, X, Y, R, and S are type big.Int of varying size. Before
 // encoding to fixed sized string, left padding of bytes is needed.
 //
-// NOTE: EdDSA is little-endian while ECDSA is big-endian. EdDSA should not be
-// used with this function.
+// Algorithm notes: EdDSA is little-endian while ECDSA is big-endian. EdDSA
+// should not be used with this function.
 //
 // For ECDSA, Coze's `x` and `sig` is left padded concatenation of X || Y and R
 // || S respectively.
