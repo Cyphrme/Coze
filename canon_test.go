@@ -39,13 +39,13 @@ func ExampleCanonicalHash() {
 }
 
 func ExampleCanonicalHash_invalidAlg() {
-	_, err := CanonicalHash([]byte(GoldenPay), nil, 1)
+	_, err := CanonicalHash([]byte(GoldenPay), nil, "")
 	if err != nil {
 		fmt.Println(err)
 	}
 
 	// Output:
-	// coze.Hash invalid HashAlg: UnknownSigAlg
+	// coze.Hash invalid HashAlg: UnknownHashAlg
 }
 
 // Example CanonicalHash for all hashing algos.

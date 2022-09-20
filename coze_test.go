@@ -276,7 +276,7 @@ func ExampleCoze_MetaWithAlg() {
 	fmt.Printf("%s\n", cz)
 
 	// No alg given.  Alg is parsed from pay.
-	err = cz.MetaWithAlg(0)
+	err = cz.MetaWithAlg("")
 	if err != nil {
 		panic(err)
 	}

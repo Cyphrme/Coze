@@ -108,7 +108,7 @@ func (c *Key) Sign(digest B64) (sig B64, err error) {
 	switch c.Alg.SigAlg().Genus() {
 	default:
 		return nil, errors.New("Sign: unsupported alg: " + c.Alg.String())
-	case Ecdsa:
+	case ECDSA:
 		prk := ecdsa.PrivateKey{
 			// ecdsa.Sign only needs PublicKey.Curve, not it's value.
 			PublicKey: ecdsa.PublicKey{Curve: c.Alg.Curve().EllipticCurve()},
@@ -120,7 +120,7 @@ func (c *Key) Sign(digest B64) (sig B64, err error) {
 		}
 		// ECDSA Sig is R || S rounded up to byte left padded.
 		return PadInts(r, s, c.Alg.SigAlg().SigSize()), nil
-	case Eddsa:
+	case EdDSA:
 		pk := ed25519.NewKeyFromSeed(c.D)
 		// Alternatively, concat d with x
 		// b := make([]coze.B64, 64)
@@ -284,7 +284,7 @@ func (c *Key) Valid() (valid bool) {
 //  3. If `d` is present, verifies correct `tmb` and `x` if present, and
 //     verifies the key by verifying a generated signature.
 func (c *Key) Correct() (bool, error) {
-	if c.Alg == 0 {
+	if c.Alg == "" {
 		return false, errors.New("Correct: Alg must be set")
 	}
 

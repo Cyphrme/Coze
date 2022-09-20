@@ -57,7 +57,7 @@ func (cz *Coze) Meta() (err error) {
 	if cz.Pay == nil || cz.Sig == nil {
 		return errors.New("Meta: pay and/or sig is nil")
 	}
-	return cz.MetaWithAlg(0)
+	return cz.MetaWithAlg("")
 }
 
 // MetaWithAlg is for contextual cozies that may be lacking `alg` in `pay`, but
@@ -69,7 +69,7 @@ func (cz *Coze) MetaWithAlg(alg SEAlg) (err error) {
 	if err != nil {
 		return err
 	}
-	if alg == 0 {
+	if alg == "" {
 		alg = cz.Parsed.Alg
 	}
 	if alg != cz.Parsed.Alg {

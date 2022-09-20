@@ -87,8 +87,10 @@ func ExampleMapSlice_Keys() {
 		MapItem{Key: "ghi", Value: 789},
 	}
 	fmt.Println(ms.Keys())
+	fmt.Println(ms.KeysString())
 
 	// Output:
+	// [abc def ghi]
 	// [abc def ghi]
 }
 

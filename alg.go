@@ -59,15 +59,15 @@ type (
 	// excludes hashing.
 	//
 	// See the main Coze README for Coze supported and unsupported things.
-	Alg int // Alg is for all cryptographic algorithms. All levels included.
+	Alg string // Alg is for all cryptographic algorithms. All levels included.
 
-	GenAlg  int   // Algorithm genus.    Level 1.
-	FamAlg  int   // Algorithm family    Level 2.
-	HashAlg Alg   // Hashing Algorithm
-	SigAlg  SEAlg // Signing Algorithm
-	EncAlg  SEAlg // Encryption Algorithm
-	Crv     int   // Curve type.  Used for EC curves.
-	Use     int   // The only valid values are 'sig', 'enc', and 'dig'.
+	GenAlg  string // Algorithm genus.    Level 1.
+	FamAlg  string // Algorithm family    Level 2.
+	HashAlg Alg    // Hashing Algorithm
+	SigAlg  SEAlg  // Signing Algorithm
+	EncAlg  SEAlg  // Encryption Algorithm
+	Crv     string // Curve type.  Used for EC curves.
+	Use     string // The only valid values are 'sig', 'enc', and 'dig'.
 
 	// SEAlg is the Signing or Encryption alg. Super type of SigAlg and EncAlg and
 	// is itself not a specific algorithm and is not included in `Alg`.
@@ -78,7 +78,6 @@ type (
 // for a particular `alg`, values may be populated with the Go zero value, e.g.
 // for the hash alg "SHA-256" Curve's value is 0 and omitted from JSON
 // marshaling.
-// TODO add the 64s
 type Params struct {
 	Name        string
 	Genus       GenAlg  `json:"Genus"`
@@ -123,46 +122,35 @@ func (a Alg) Params() Params {
 
 // GenAlg "Genus".
 const (
-	UnknownGenAlg GenAlg = iota
-	Ecdsa
-	Eddsa
-	SHA2
-	SHA3
+	UnknownGenAlg GenAlg = "UnknownGenAlg"
+	ECDSA         GenAlg = "ECDSA"
+	EdDSA         GenAlg = "EdDSA"
+	SHA2          GenAlg = "SHA2"
+	SHA3          GenAlg = "SHA3"
 )
 
 func (g GenAlg) String() string {
-	return []string{
-		"UnknownGenAlg",
-		"ECDSA",
-		"EdDSA",
-		"SHA2",
-		"SHA3",
-	}[g]
+	return string(g)
 }
 
 func (g GenAlg) MarshalJSON() ([]byte, error) {
-	return []byte(`"` + g.String() + `"`), nil
+	return []byte(`"` + g + `"`), nil
 }
 
 // FamAlg "Family".
 const (
-	UnknownFamAlg FamAlg = iota
-	EC
-	SHA
-	RSA
+	UnknownFamAlg FamAlg = "UnknownFamAlg"
+	EC            FamAlg = "EC"
+	SHA           FamAlg = "SHA"
+	RSA           FamAlg = "RSA"
 )
 
 func (f FamAlg) String() string {
-	return []string{
-		"UnknownFamAlg",
-		"EC",
-		"SHA",
-		"RSA",
-	}[f]
+	return string(f)
 }
 
 func (f FamAlg) MarshalJSON() ([]byte, error) {
-	return []byte(`"` + f.String() + `"`), nil
+	return []byte(`"` + f + `"`), nil
 }
 
 //////////////////////
@@ -170,11 +158,11 @@ func (f FamAlg) MarshalJSON() ([]byte, error) {
 /////////////////////
 
 const (
-	SEAlgUnknown SEAlg = iota
+	SEAlgUnknown SEAlg = "UnknownSEAlg"
 )
 
 func (se SEAlg) String() string {
-	return Alg(se).String()
+	return string(se)
 }
 
 func ParseSEAlg(s string) SEAlg {
@@ -208,7 +196,7 @@ func (se *SEAlg) UnmarshalJSON(b []byte) error {
 }
 
 func (se SEAlg) MarshalJSON() ([]byte, error) {
-	return []byte(`"` + se.String() + `"`), nil
+	return []byte(`"` + se + `"`), nil
 }
 
 func (se *SEAlg) Parse(s string) {
@@ -279,14 +267,14 @@ func (se SEAlg) DSize() int {
 
 // algs is the "default" algs, which at the moment is only "UnknownAlg".  It
 // remains unmodified, unlike variable `Algs`.
-var algs = []string{
+var algs = []Alg{
 	"UnknownAlg",
 }
 
 // Algs is initialized in the init function to include all algs, including
 // "UnknownAlg", SigAlg, EncAlg, and DigAlg.
 var Algs = algs
-var SigAlgs = []string{
+var SigAlgs = []Alg{
 	"UnknownSigAlg",
 	"ES224",
 	"ES256",
@@ -298,7 +286,7 @@ var SigAlgs = []string{
 }
 
 // Encryption algs.
-var EncAlgs = []string{
+var EncAlgs = []Alg{
 	"UnknownEncAlg",
 	//// Placeholder for future.
 	// "RS256",
@@ -307,7 +295,7 @@ var EncAlgs = []string{
 }
 
 // Digest/Hash algs.
-var DigAlgs = []string{
+var DigAlgs = []Alg{
 	"UnknownHashAlg",
 	"SHA-224",
 	"SHA-256",
@@ -329,7 +317,7 @@ func init() {
 }
 
 const (
-	UnknownAlg Alg = iota
+	UnknownAlg Alg = "UnknownAlg"
 )
 
 func (a *Alg) UnmarshalJSON(b []byte) error {
@@ -338,11 +326,11 @@ func (a *Alg) UnmarshalJSON(b []byte) error {
 }
 
 func (a Alg) MarshalJSON() ([]byte, error) {
-	return []byte(`"` + a.String() + `"`), nil
+	return []byte(`"` + a + `"`), nil
 }
 
 func (a Alg) String() string {
-	return Algs[int(a)]
+	return string(a)
 }
 
 func Parse(s string) (a *Alg) {
@@ -406,9 +394,9 @@ func (a Alg) Genus() GenAlg {
 	default:
 		return UnknownGenAlg
 	case Alg(ES224), Alg(ES256), Alg(ES384), Alg(ES512):
-		return Ecdsa
+		return ECDSA
 	case Alg(Ed25519), Alg(Ed25519ph), Alg(Ed448):
-		return Eddsa
+		return EdDSA
 	case Alg(SHA224), Alg(SHA256), Alg(SHA384), Alg(SHA512):
 		return SHA2
 	case Alg(SHA3224), Alg(SHA3256), Alg(SHA3384), Alg(SHA3512), Alg(SHAKE128), Alg(SHAKE256):
@@ -449,15 +437,15 @@ func (a Alg) SigAlg() SigAlg {
 
 const (
 	// SigAlg appears in `Algs` after algs.
-	UnknownSigAlg SigAlg = iota + SigAlg(UnknownAlg) + 1
-	ES224
-	ES256
-	ES384
-	ES512
+	UnknownSigAlg SigAlg = "UnknownSigAlg"
+	ES224         SigAlg = "ES224"
+	ES256         SigAlg = "ES256"
+	ES384         SigAlg = "ES384"
+	ES512         SigAlg = "ES512"
 
-	Ed25519
-	Ed25519ph
-	Ed448
+	Ed25519   SigAlg = "Ed25519"
+	Ed25519ph SigAlg = "Ed25519ph"
+	Ed448     SigAlg = "Ed448"
 
 	// Not implemented [RS256, RS384, RS512].
 )
@@ -475,7 +463,7 @@ func (s SigAlg) FamAlg() FamAlg {
 }
 
 func (s SigAlg) MarshalJSON() ([]byte, error) {
-	return []byte(`"` + s.String() + `"`), nil
+	return []byte(`"` + s + `"`), nil
 }
 
 func (s SigAlg) Genus() GenAlg {
@@ -483,21 +471,21 @@ func (s SigAlg) Genus() GenAlg {
 	default:
 		return UnknownGenAlg
 	case ES224, ES256, ES384, ES512:
-		return Ecdsa
+		return ECDSA
 	case Ed25519, Ed25519ph, Ed448:
-		return Eddsa
+		return EdDSA
 	}
 }
 
 func (s SigAlg) String() string {
-	return Alg(s).String()
+	return string(s)
 }
 
 // Hash returns respective hashing algorithm if specified.
 func (s SigAlg) Hash() HashAlg {
 	switch s {
 	default:
-		return 0
+		return UnknownHashAlg
 	case ES224:
 		return SHA224
 	case ES256:
@@ -539,7 +527,7 @@ func (s SigAlg) SigSize() int {
 
 const (
 	// EncAlg appears in `Algs` after SigAlgs.
-	UnknownEncAlg EncAlg = iota + EncAlg(Ed448) + 1
+	UnknownEncAlg EncAlg = "UnknownEncAlg"
 )
 
 ////////////////
@@ -549,34 +537,36 @@ const (
 // HashAlg is a hashing algorithm. See also https://golang.org/pkg/crypto/Hash
 const (
 	// HashAlg appears in `Algs` after EncAlgs.
-	UnknownHashAlg HashAlg = iota + HashAlg(UnknownEncAlg) + 1
+	UnknownHashAlg HashAlg = "UnknownHashAlg"
 	// SHA-2
-	SHA224
-	SHA256
-	SHA384
-	SHA512
+	SHA224 HashAlg = "SHA-224"
+	SHA256 HashAlg = "SHA-256"
+	SHA384 HashAlg = "SHA-384"
+	SHA512 HashAlg = "SHA-512"
 	// SHA-3
-	SHA3224
-	SHA3256
-	SHA3384
-	SHA3512
+	SHA3224 HashAlg = "SHA3-224"
+	SHA3256 HashAlg = "SHA3-256"
+	SHA3384 HashAlg = "SHA3-384"
+	SHA3512 HashAlg = "SHA3-512"
 	// SHAKE
-	SHAKE128
-	SHAKE256
+	SHAKE128 HashAlg = "SHAKE128"
+	SHAKE256 HashAlg = "SHAKE256"
 )
 
 func (h HashAlg) String() string {
-	return Alg(h).String()
+	if h == "" {
+		return string(UnknownHashAlg)
+	}
+	return string(h)
 }
 
 func (h *HashAlg) UnmarshalJSON(b []byte) error {
 	h.Parse(string(b))
-
 	return nil
 }
 
 func (h HashAlg) MarshalJSON() ([]byte, error) {
-	return []byte(`"` + Alg(h).String() + `"`), nil
+	return []byte(`"` + h + `"`), nil
 }
 
 func (h *HashAlg) Parse(s string) {
@@ -634,10 +624,10 @@ func (h HashAlg) Size() int {
 }
 
 const (
-	UseUnknown Use = iota
-	SigUse         // "Signing Use"
-	EncUse         // "Encryption Use"
-	DigUse         // "Digest Use"
+	UseUnknown Use = "UnknownUse"
+	SigUse     Use = "sig" // "Signing Use"
+	EncUse     Use = "enc" // "Encryption Use"
+	DigUse     Use = "dig" // "Digest Use"
 )
 
 func (u *Use) UnmarshalJSON(b []byte) error {
@@ -646,7 +636,7 @@ func (u *Use) UnmarshalJSON(b []byte) error {
 }
 
 func (u Use) MarshalJSON() ([]byte, error) {
-	return []byte("\"" + u.String() + "\""), nil
+	return []byte("\"" + u + "\""), nil
 }
 
 // Use returns the Use.
@@ -654,7 +644,7 @@ func (a Alg) Use() Use {
 	switch a.Genus() {
 	default:
 		return UseUnknown
-	case Eddsa, Ecdsa:
+	case EdDSA, ECDSA:
 		return SigUse
 	case SHA2, SHA3:
 		return DigUse
@@ -681,29 +671,24 @@ func ParseUse(s string) Use {
 }
 
 func (u Use) String() string {
-	return []string{
-		"UnknownUse",
-		"sig",
-		"enc",
-		"dig",
-	}[u]
+	return string(u)
 }
 
 const (
-	UnknownCrv Crv = iota
-	P224
-	P256
-	P384
-	P521
-	Curve25519
-	Curve448
+	UnknownCrv Crv = "UnknownCrv"
+	P224       Crv = "P-224"
+	P256       Crv = "P-256"
+	P384       Crv = "P-384"
+	P521       Crv = "P-521"
+	Curve25519 Crv = "Curve25519"
+	Curve448   Crv = "Curve448"
 )
 
 // Curve returns the curve for the given alg, if it has one.
 func (a Alg) Curve() Crv {
 	switch SigAlg(a) {
 	default:
-		return UnknownCrv
+		return ""
 	case ES224:
 		return P224
 	case ES256:
@@ -720,19 +705,11 @@ func (a Alg) Curve() Crv {
 }
 
 func (c Crv) String() string {
-	return []string{
-		"UnknownCrv",
-		"P-224",
-		"P-256",
-		"P-384",
-		"P-521",
-		"Curve25519",
-		"Curve448",
-	}[c]
+	return string(c)
 }
 
 func (c Crv) MarshalJSON() ([]byte, error) {
-	return []byte(`"` + c.String() + `"`), nil
+	return []byte(`"` + c + `"`), nil
 }
 
 func (c *Crv) Parse(s string) {

@@ -16,10 +16,10 @@ func ExampleAlgs_print() {
 
 // Tests to make sure the alg enums are in order according to Parse.
 func TestParse(t *testing.T) {
-	algs := []string{}
+	algs := []Alg{}
 
 	for _, a := range Algs {
-		algs = append(algs, Parse(a).String())
+		algs = append(algs, *Parse(a.String()))
 	}
 
 	if !slices.Equal(Algs, algs) {
@@ -31,7 +31,8 @@ func ExampleHashAlg_print() {
 	h := SHA256
 	fmt.Println(h)
 
-	// Output: SHA-256
+	// Output:
+	// SHA-256
 }
 
 func ExampleAlg_jsonMarshal() {
@@ -45,7 +46,8 @@ func ExampleAlg_jsonMarshal() {
 	}
 	fmt.Printf("%s\n", jm)
 
-	// Output: {"alg":"ES256"}
+	// Output:
+	// {"alg":"ES256"}
 }
 
 func ExampleHashAlg_jsonMarshal() {
@@ -59,14 +61,16 @@ func ExampleHashAlg_jsonMarshal() {
 	}
 	fmt.Printf("%+s\n", jm)
 
-	// Output: {"hashAlg":"SHA-256"}
+	// Output:
+	// {"hashAlg":"SHA-256"}
 }
 
 func ExampleAlg_Parse() {
 	a := new(Alg)
 
 	algs := []string{
-		"foo", // Parses as UnknownAlg.
+		"",
+		"foo",
 		"UnknownAlg",
 		"UnknownSigAlg",
 		"ES224",
@@ -96,6 +100,7 @@ func ExampleAlg_Parse() {
 	}
 
 	// Output:
+	// UnknownAlg
 	// UnknownAlg
 	// UnknownAlg
 	// UnknownSigAlg
@@ -134,7 +139,7 @@ func ExampleCrv_Parse() {
 
 	for _, crv := range crvs {
 		c.Parse(crv)
-		fmt.Println(c)
+		fmt.Println(*c)
 	}
 
 	// Output:
