@@ -241,8 +241,7 @@ hashing algorithm and any other metadata may be denoted by an accompanying coze.
 For example, an image ("coze_logo_icon_256.png") may be referred to by its
 digest. 
 
-```JSON
-{
+```JSONV
 	"alg":"SHA-256",
 	"file_name":"coze_logo_icon_256.png",
 	"id":"oDBDAg4xplHQby6iQ2lZMS1Jz4Op0bNoD5LK3KxEUZo"
@@ -367,7 +366,7 @@ after the initial release of PGP 1.0.
 #### Required Coze Fields 
 Coze has no required fields.  If an application uses Coze while omitting
 standard fields, it may result in incompatibility, so it is suggested to always
-include standard fields appropriately.  
+include standard fields appropriately.   
 
 For the `key` object it is suggested that public keys always have `alg`, `iat`
 `kid`, `tmb` and `x` and additionally for private keys the field `d`.

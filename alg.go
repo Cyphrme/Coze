@@ -112,7 +112,7 @@ func (a Alg) Params() Params {
 	}
 
 	toB64 := func(sizeInBytes int) int {
-		return int(math.Ceil(float64(4 * sizeInBytes / 3)))
+		return int(math.Ceil(float64(4*sizeInBytes) / 3))
 	}
 	p.HashSizeB64 = toB64(p.HashSize)
 	p.XSizeB64 = toB64(p.XSize)
