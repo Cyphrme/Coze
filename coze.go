@@ -113,15 +113,15 @@ func (cz *Coze) UnmarshalJSON(b []byte) error {
 var CzdCanon = []string{"cad", "sig"}
 
 // GenCzd generates and returns `czd`.
-func GenCzd(hash HashAlg, cad B64, sig B64) (czd B64, err error) {
+func GenCzd(hash HshAlg, cad B64, sig B64) (czd B64, err error) {
 	return Hash(hash, []byte(fmt.Sprintf(`{"cad":%q,"sig":%q}`, cad, sig)))
 }
 
 // Hash hashes msg and returns the digest or a set size. Returns nil on error.
-// Errors on invalid HashAlg or if digest is nil.
+// Errors on invalid HshAlg or if digest is nil.
 //
 // SHAKE128 returns 32 bytes. SHAKE256 returns 64 bytes.
-func Hash(h HashAlg, msg []byte) (digest B64, err error) {
+func Hash(h HshAlg, msg []byte) (digest B64, err error) {
 	switch h {
 	case SHAKE128:
 		digest = make([]byte, 32)
@@ -132,7 +132,7 @@ func Hash(h HashAlg, msg []byte) (digest B64, err error) {
 	default:
 		hash := h.goHash()
 		if hash == nil {
-			return nil, errors.New("coze.Hash invalid HashAlg: " + h.String())
+			return nil, fmt.Errorf("coze.Hash invalid HashAlg: %s", h)
 		}
 		_, err = hash.Write(msg)
 		if err != nil {
@@ -142,7 +142,7 @@ func Hash(h HashAlg, msg []byte) (digest B64, err error) {
 	}
 
 	if len(digest) == 0 {
-		return nil, errors.New("coze.Hash digest is empty. Using HashAlg: " + h.String())
+		return nil, fmt.Errorf("coze.Hash digest is empty. Using HashAlg: %s", h)
 	}
 
 	return digest, nil

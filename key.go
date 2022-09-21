@@ -54,7 +54,7 @@ func NewKey(alg SEAlg) (c *Key, err error) {
 
 	switch c.Alg.SigAlg() {
 	default:
-		return nil, errors.New("NewKey: unsupported alg: " + alg.String())
+		return nil, fmt.Errorf("NewKey: unsupported alg: %s", alg)
 	case ES224, ES256, ES384, ES512:
 		eck, err := ecdsa.GenerateKey(c.Alg.Curve().EllipticCurve(), rand.Reader)
 		if err != nil {
@@ -107,7 +107,7 @@ func (c *Key) Sign(digest B64) (sig B64, err error) {
 
 	switch c.Alg.SigAlg().Genus() {
 	default:
-		return nil, errors.New("Sign: unsupported alg: " + c.Alg.String())
+		return nil, fmt.Errorf("Sign: unsupported alg: %s", c.Alg)
 	case ECDSA:
 		prk := ecdsa.PrivateKey{
 			// ecdsa.Sign only needs PublicKey.Curve, not it's value.

@@ -306,7 +306,7 @@ func ExampleKey_Correct() {
 	// Test new keys.  These keys should pass every test.
 	algs := []string{"ES224", "ES256", "ES384", "ES512", "Ed25519"}
 	for _, alg := range algs {
-		key, err := NewKey(ParseSEAlg(alg))
+		key, err := NewKey(SEAlg(Parse(alg)))
 		if err != nil {
 			panic(err)
 		}

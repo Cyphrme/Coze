@@ -45,7 +45,7 @@ func ExampleCanonicalHash_invalidAlg() {
 	}
 
 	// Output:
-	// coze.Hash invalid HashAlg: UnknownHashAlg
+	// coze.Hash invalid HashAlg:
 }
 
 // Example CanonicalHash for all hashing algos.

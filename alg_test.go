@@ -17,22 +17,12 @@ func ExampleAlgs_print() {
 // Tests to make sure the alg enums are in order according to Parse.
 func TestParse(t *testing.T) {
 	algs := []Alg{}
-
 	for _, a := range Algs {
-		algs = append(algs, *Parse(a.String()))
+		algs = append(algs, Parse(string(a)))
 	}
-
 	if !slices.Equal(Algs, algs) {
 		t.Fatal("slices not equal. ")
 	}
-}
-
-func ExampleHashAlg_print() {
-	h := SHA256
-	fmt.Println(h)
-
-	// Output:
-	// SHA-256
 }
 
 func ExampleAlg_jsonMarshal() {
@@ -50,24 +40,7 @@ func ExampleAlg_jsonMarshal() {
 	// {"alg":"ES256"}
 }
 
-func ExampleHashAlg_jsonMarshal() {
-	type testStruct = struct {
-		H HashAlg `json:"hashAlg"`
-	}
-	z := testStruct{H: SHA256}
-	jm, err := Marshal(z)
-	if err != nil {
-		panic(err)
-	}
-	fmt.Printf("%+s\n", jm)
-
-	// Output:
-	// {"hashAlg":"SHA-256"}
-}
-
 func ExampleAlg_Parse() {
-	a := new(Alg)
-
 	algs := []string{
 		"",
 		"foo",
@@ -94,6 +67,7 @@ func ExampleAlg_Parse() {
 		"SHAKE256",
 	}
 
+	var a Alg
 	for _, alg := range algs {
 		a.Parse(alg) // Call as method
 		fmt.Println(a)
@@ -125,8 +99,31 @@ func ExampleAlg_Parse() {
 	// SHAKE256
 }
 
+func ExampleHshAlg_print() {
+	h := SHA256
+	fmt.Println(h)
+
+	// Output:
+	// SHA-256
+}
+
+func ExampleHshAlg_jsonMarshal() {
+	type testStruct = struct {
+		H HshAlg `json:"hashAlg"`
+	}
+	z := testStruct{H: SHA256}
+	jm, err := Marshal(z)
+	if err != nil {
+		panic(err)
+	}
+	fmt.Printf("%+s\n", jm)
+
+	// Output:
+	// {"hashAlg":"SHA-256"}
+}
+
 func ExampleCrv_Parse() {
-	c := new(Crv)
+	var c Crv
 
 	crvs := []string{
 		"P-224",
@@ -139,7 +136,7 @@ func ExampleCrv_Parse() {
 
 	for _, crv := range crvs {
 		c.Parse(crv)
-		fmt.Println(*c)
+		fmt.Println(c)
 	}
 
 	// Output:
@@ -152,14 +149,12 @@ func ExampleCrv_Parse() {
 }
 
 func ExampleUse_Parse() {
-	u := new(Use)
-
+	var u Use
 	uses := []string{
 		"sig",
 		"enc",
-		"dig",
+		"hsh",
 	}
-
 	for _, use := range uses {
 		u.Parse(use)
 		fmt.Println(u)
@@ -168,7 +163,7 @@ func ExampleUse_Parse() {
 	// Output:
 	// sig
 	// enc
-	// dig
+	// hsh
 }
 
 func ExampleAlg_Params() {
@@ -195,14 +190,14 @@ func ExampleAlg_Params() {
 	// {"Name":"Ed25519","Genus":"EdDSA","Family":"EC","Use":"sig","Hash":"SHA-512","HashSize":64,"HashSizeB64":86,"XSize":32,"XSizeB64":43,"DSize":32,"DSizeB64":43,"Curve":"Curve25519","SigSize":64,"SigSizeB64":86}
 	// {"Name":"Ed25519ph","Genus":"EdDSA","Family":"EC","Use":"sig","Hash":"SHA-512","HashSize":64,"HashSizeB64":86,"XSize":32,"XSizeB64":43,"DSize":32,"DSizeB64":43,"Curve":"Curve25519","SigSize":64,"SigSizeB64":86}
 	// {"Name":"Ed448","Genus":"EdDSA","Family":"EC","Use":"sig","Hash":"SHAKE256","HashSize":64,"HashSizeB64":86,"XSize":57,"XSizeB64":76,"DSize":57,"DSizeB64":76,"Curve":"Curve448","SigSize":114,"SigSizeB64":152}
-	// {"Name":"SHA-224","Genus":"SHA2","Family":"SHA","Use":"dig","Hash":"SHA-224","HashSize":28,"HashSizeB64":38}
-	// {"Name":"SHA-256","Genus":"SHA2","Family":"SHA","Use":"dig","Hash":"SHA-256","HashSize":32,"HashSizeB64":43}
-	// {"Name":"SHA-384","Genus":"SHA2","Family":"SHA","Use":"dig","Hash":"SHA-384","HashSize":48,"HashSizeB64":64}
-	// {"Name":"SHA-512","Genus":"SHA2","Family":"SHA","Use":"dig","Hash":"SHA-512","HashSize":64,"HashSizeB64":86}
-	// {"Name":"SHA3-224","Genus":"SHA3","Family":"SHA","Use":"dig","Hash":"SHA3-224","HashSize":28,"HashSizeB64":38}
-	// {"Name":"SHA3-256","Genus":"SHA3","Family":"SHA","Use":"dig","Hash":"SHA3-256","HashSize":32,"HashSizeB64":43}
-	// {"Name":"SHA3-384","Genus":"SHA3","Family":"SHA","Use":"dig","Hash":"SHA3-384","HashSize":48,"HashSizeB64":64}
-	// {"Name":"SHA3-512","Genus":"SHA3","Family":"SHA","Use":"dig","Hash":"SHA3-512","HashSize":64,"HashSizeB64":86}
-	// {"Name":"SHAKE128","Genus":"SHA3","Family":"SHA","Use":"dig","Hash":"SHAKE128","HashSize":32,"HashSizeB64":43}
-	// {"Name":"SHAKE256","Genus":"SHA3","Family":"SHA","Use":"dig","Hash":"SHAKE256","HashSize":64,"HashSizeB64":86}
+	// {"Name":"SHA-224","Genus":"SHA2","Family":"SHA","Use":"hsh","Hash":"SHA-224","HashSize":28,"HashSizeB64":38}
+	// {"Name":"SHA-256","Genus":"SHA2","Family":"SHA","Use":"hsh","Hash":"SHA-256","HashSize":32,"HashSizeB64":43}
+	// {"Name":"SHA-384","Genus":"SHA2","Family":"SHA","Use":"hsh","Hash":"SHA-384","HashSize":48,"HashSizeB64":64}
+	// {"Name":"SHA-512","Genus":"SHA2","Family":"SHA","Use":"hsh","Hash":"SHA-512","HashSize":64,"HashSizeB64":86}
+	// {"Name":"SHA3-224","Genus":"SHA3","Family":"SHA","Use":"hsh","Hash":"SHA3-224","HashSize":28,"HashSizeB64":38}
+	// {"Name":"SHA3-256","Genus":"SHA3","Family":"SHA","Use":"hsh","Hash":"SHA3-256","HashSize":32,"HashSizeB64":43}
+	// {"Name":"SHA3-384","Genus":"SHA3","Family":"SHA","Use":"hsh","Hash":"SHA3-384","HashSize":48,"HashSizeB64":64}
+	// {"Name":"SHA3-512","Genus":"SHA3","Family":"SHA","Use":"hsh","Hash":"SHA3-512","HashSize":64,"HashSizeB64":86}
+	// {"Name":"SHAKE128","Genus":"SHA3","Family":"SHA","Use":"hsh","Hash":"SHAKE128","HashSize":32,"HashSizeB64":43}
+	// {"Name":"SHAKE256","Genus":"SHA3","Family":"SHA","Use":"hsh","Hash":"SHAKE256","HashSize":64,"HashSizeB64":86}
 }
