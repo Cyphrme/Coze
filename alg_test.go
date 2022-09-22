@@ -26,17 +26,28 @@ func TestParse(t *testing.T) {
 }
 
 func ExampleAlg_jsonMarshal() {
-	type zStruct struct {
+	type algStruct struct {
 		A Alg `json:"alg"`
 	}
 
-	jm, err := Marshal(zStruct{A: Alg(ES256)})
+	b, err := Marshal(algStruct{A: Alg(ES256)})
 	if err != nil {
 		panic(err)
 	}
-	fmt.Printf("%s\n", jm)
+	fmt.Printf("%s\n", b)
+
+	type seAlgStruct struct {
+		A SEAlg `json:"alg"`
+	}
+
+	b, err = Marshal(seAlgStruct{A: SEAlg(ES256)})
+	if err != nil {
+		panic(err)
+	}
+	fmt.Printf("%s\n", b)
 
 	// Output:
+	// {"alg":"ES256"}
 	// {"alg":"ES256"}
 }
 
