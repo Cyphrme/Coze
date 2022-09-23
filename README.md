@@ -145,7 +145,7 @@ The following adds to the previous example the fields `key`, `can`, `cad`, and
 be looked up by applications by using `tmb`, `can`, `cad`, and `czd` are
 recalculatable, and the label `coze` may be inferred.  
 
-The tautological coze
+A tautological coze:
 
 ```JSON
 {
@@ -172,7 +172,7 @@ The tautological coze
 }
 ```
 
-simplifies to
+Simplified:
 
 ```JSON
 {
@@ -241,15 +241,16 @@ hashing algorithm and any other metadata may be denoted by an accompanying coze.
 For example, an image ("coze_logo_icon_256.png") may be referred to by its
 digest. 
 
-```JSONV
+```JSON
+{
 	"alg":"SHA-256",
 	"file_name":"coze_logo_icon_256.png",
 	"id":"oDBDAg4xplHQby6iQ2lZMS1Jz4Op0bNoD5LK3KxEUZo"
 }
 ```
 
-For example, a file's digest, denoted here by `id`, may represent the
-authorization to upload a file to a user's account:
+For example, a file's digest, denoted by `id`, may represent the authorization
+to upload a file to a user's account.
 
 ```JSON
 {
