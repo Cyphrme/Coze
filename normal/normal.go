@@ -62,7 +62,7 @@
 //	-Permissive
 //	  -need
 //	  -extra
-package coze
+package normal
 
 import (
 	"encoding/json"
