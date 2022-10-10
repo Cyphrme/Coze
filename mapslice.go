@@ -7,13 +7,23 @@ import (
 	"sort"
 )
 
-// MapSlice of map items.
+// MapSlice of map items.  Go maps have an arbitrary order that cannot be
+// (easily) set.  MapSlice is for easy setting of a given order for maps.
 //
-// MapSlice and MapItem was originally taken from:
+// This implementation of MapSlice supports only things that JSON or Coze
+// needs, chiefly, Key is now type string instead of type any, and has extra
+// methods, "Keys()", "KeyStrings()", "Values()".
+//
+// We may publish this as a standalone package.
+//
+// go-yaml, a dead project, had the same problem and was solved 8 years ago:
+// https://github.com/go-yaml/yaml/blob/7649d4548cb53a614db133b2a8ac1f31859dda8c/yaml.go#L20
+//
+// MapSlice and MapItem was originally inspired from (3 years ago):
 // https://github.com/golang/go/issues/27179#issuecomment-587528269,
-// https://github.com/ake-persson/mapslice-json. Thanks ake-persson!  This has
-// been modified from ake-persson/mapslice-json to support only things that JSON
-// or Coze needs, chiefly, Key is now type string instead of type any.
+// https://github.com/ake-persson/mapslice-json, but now appears to be dead.
+// https://github.com/ake-persson/mapslice-json/pull/1.
+// https://github.com/ake-persson/mapslice-json/pull/3
 type MapSlice []MapItem
 
 func (ms MapSlice) Len() int           { return len(ms) }
