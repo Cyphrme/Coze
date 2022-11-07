@@ -289,7 +289,7 @@ type Marshaler interface {
 // (Go structs already require unique fields).
 //
 // Other works:
-// Tailscale's JSON serilizer:
+// Tailscale's JSON serializer:
 // https://pkg.go.dev/github.com/go-json-experiment/json
 //
 // Joe Tsai is also working on json "fixes" in a yet-to-be-publicly-released
@@ -322,10 +322,8 @@ func MarshalPretty(i any) ([]byte, error) {
 // checkDuplicate checks if the JSON string has a duplicate. Go has an issue
 // regarding duplicates: https://github.com/golang/go/issues/48298
 //
-// Another solution is being created by Joe Tsai, but he asked that I not link
-// to it publicly yet.  When he's done, we'll take this out or even better, use
-// it in Go's standard library or use whatever solution the standard library
-// comes up with.
+// Another solution is being created by Joe Tsai (see notes on Marshal).  When
+// he's done, we'll take this out and use v2.
 //
 // Inspire by Cerise Limón.
 // https://stackoverflow.com/questions/50107569/detect-duplicate-in-json-string-golang

@@ -26,6 +26,7 @@ import (
 // https://github.com/ake-persson/mapslice-json/pull/3
 type MapSlice []MapItem
 
+// Implements "sort.Interface"
 func (ms MapSlice) Len() int           { return len(ms) }
 func (ms MapSlice) Less(i, j int) bool { return ms[i].index < ms[j].index }
 func (ms MapSlice) Swap(i, j int)      { ms[i], ms[j] = ms[j], ms[i] }
