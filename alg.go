@@ -15,9 +15,6 @@ type (
 	// Alg is a declarative abstraction for cryptographic functions for Coze.
 	// For more on Alg, see the main Coze README.
 	//
-	// The integer value of the "enum" will change in the future. Use the string
-	// name for algos when storing information.
-	//
 	// Hierarchy for signing and hashing cryptographic functions. Naming is
 	// inspired by taxonomic rank.
 	//
