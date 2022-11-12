@@ -1,44 +1,53 @@
 # Normal
 
-We consider Normal to be Coze Standard and not Coze core.
+Normal is design to make normalizing fields in a Coze payload easy.
 
+A normal is an arrays of fields specifying the normalization of a
+payload. Normals may be chained to represent various combinations of
+normalization.  There are five
+types of normals plus a nil normal.
 
-Coze Core
-Coze Standard
-Coze Experimental
+See the documentation in [normal.go](normal.go)
 
-
-# Example
-Use with Coze
+## Example
 
 Example code (`ExampleIsNormalNeedOption`) can be found in `normal_test.go`.
 
-The following example demonstrates use with Coze Standard for a user account
-form.
+### Form Example
+Given an arbitrary form with the following requirements.  
 
-The form requires the standard Coze fields ("alg", "iat", "tmb", "typ") along
-with the field 'id', which is the user's account id for the application.
+The application requires "id", which is the user's account id for the
+application.
 
-The Coze Normal for the form would be:
+The Normal is:
 ``` Go
-Need{"alg", "iat", "tmb", "typ", "id"}
+Need{"id"}
 ```
-Now let's say we allow other optional fields in the form, such as: "display_name",
-"first_name", "last_name", "email", "address_1", "address_2", "phone_1", "phone_2",
-"city", "state", "zip", and "country".
 
-As a Coze Normal, the options would be the following:
+Also, the form has optional fields in the form, such as:
+"display_name", "first_name", "last_name", "email", "address_1", "address_2",
+"phone_1", "phone_2", "city", "state", "zip", and "country".
+
+The optional fields as a Normal would is the following:
 
 ``` Go
 Option{"display_name", "first_name", "last_name", "email", "address_1", "address_2", "phone_1", "phone_2", "city", "state", "zip", "country"}
 ```
 
-The full Coze Normal (normals chained) would become:
+Since the application uses Coze to sign messages, the application decides to require the standard Coze fields ("alg", "iat", "tmb", "typ")
+
+``` Go
+Need{"alg", "iat", "tmb", "typ"}
+```
+
+
+The two needs can be summed, and the resulting need is concatenated to the
+option.  The full Normal chain becomes:
 
 
 ``` Go
 [
-Need{"alg", "iat", "tmb", "typ", "id"},
+Need{"id", "alg", "iat", "tmb", "typ"},
 Option{"display_name", "first_name", "last_name", "email", "address_1", "address_2", "phone_1", "phone_2", "city", "state", "zip", "country"}
 ]
 ```
@@ -86,5 +95,15 @@ useful for JSON field validation.
 On the other hand, a cryptographically verified payload may not guarantee that
 the 'pay' has the required fields present for an application's specific endpoint.
 
-Pairing verification, and normal allows for better and potentially more 
+Pairing verification and normal allows for better and potentially more 
 optimized validation of incoming payloads.
+
+
+# How does Normal relate to Coze?
+
+We consider Normal to be apart of Coze Standard and not Coze core.
+
+
+1. Coze Core
+2. Coze Standard
+3. Coze Experimental
