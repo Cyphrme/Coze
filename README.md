@@ -599,6 +599,20 @@ https://github.com/json5/json5-spec/issues/38.
 See also I-JSON
  - (2015, Bray)     https://datatracker.ietf.org/doc/html/rfc7493
 
+
+#### JSON APIs?
+Coze is well suited for JSON APIs.
+
+#### HTTP?  HTTP Cookies?  HTTP Headers?  
+When using Coze with HTTP cookies, Coze messages should be JSON minified.  For
+example, we've encountered no issues using the first example as a cookie:
+
+```JSON
+token={"pay":{"msg":"Coze Rocks","alg":"ES256","iat":1623132000,"tmb":"cLj8vsYtMBwYkzoFVZHBZo6SNL8wSdCIjCKAwXNuhOk","typ":"cyphr.me/msg"},"sig":"Jl8Kt4nznAf0LGgO5yn_9HkGdY3ulvjg-NyRGzlmJzhncbTkFFn9jrwIwGoRAQYhjc88wmwFNH5u_rO56USo_w"}; Path=/;  Secure; Max-Age=999999999; SameSite=None
+```
+
+For more considerations see the document [http_headers.md](docs/http_headers.md)
+
 #### Who created Coze?
 Coze was created by [Cyphr.me](Cyphr.me).  
 
