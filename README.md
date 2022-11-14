@@ -617,14 +617,14 @@ For more considerations see the document [http_headers.md](docs/http_headers.md)
 Coze was created by [Cyphr.me](Cyphr.me).  
 
 #### Discussion?  Social Media?
- - We have a bridged Matrix and Telegram chat room.  (This is where, by far, we are the most active) 
+ - We have a bridged Matrix and Telegram chat room.  (This is where we are the most active) 
 	- Matrix: https://app.element.io/#/room/#cyphrmepub:matrix.org
 	- PM zamicol for our bridged Telegram group.
  - https://twitter.com/CozeJSON
  - We also hang out in the Go rooms:
    - https://app.element.io/#/room/#go-lang:matrix.org
    - https://t.me/+TgkdqZw0Q-jAkGWS
-	- https://old.reddit.com/r/CozeJson
+ - https://old.reddit.com/r/CozeJson
 
 #### Other Resources
  - This README as a page: https://cyphrme.github.io/Coze/

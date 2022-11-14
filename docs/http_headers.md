@@ -3,7 +3,7 @@
 When using Coze with HTTP cookies, Coze messages should be minified.  For
 example, we've encountered no issues using the first example as a cookie:
 
-```JSON
+```
 token={"pay":{"msg": "Coze Rocks","alg":"ES256","iat":1623132000,"tmb":"cLj8vsYtMBwYkzoFVZHBZo6SNL8wSdCIjCKAwXNuhOk","typ":"cyphr.me/msg"},"sig":"Jl8Kt4nznAf0LGgO5yn_9HkGdY3ulvjg-NyRGzlmJzhncbTkFFn9jrwIwGoRAQYhjc88wmwFNH5u_rO56USo_w"}; Path=/;  Secure; Max-Age=999999999; SameSite=None
 ```
 
