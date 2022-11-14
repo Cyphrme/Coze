@@ -607,7 +607,7 @@ Coze is well suited for JSON APIs.
 When using Coze with HTTP cookies, Coze messages should be JSON minified.  For
 example, we've encountered no issues using the first example as a cookie:
 
-```JSON
+```
 token={"pay":{"msg":"Coze Rocks","alg":"ES256","iat":1623132000,"tmb":"cLj8vsYtMBwYkzoFVZHBZo6SNL8wSdCIjCKAwXNuhOk","typ":"cyphr.me/msg"},"sig":"Jl8Kt4nznAf0LGgO5yn_9HkGdY3ulvjg-NyRGzlmJzhncbTkFFn9jrwIwGoRAQYhjc88wmwFNH5u_rO56USo_w"}; Path=/;  Secure; Max-Age=999999999; SameSite=None
 ```
 
@@ -617,13 +617,14 @@ For more considerations see the document [http_headers.md](docs/http_headers.md)
 Coze was created by [Cyphr.me](Cyphr.me).  
 
 #### Discussion?  Social Media?
- - https://old.reddit.com/r/CozeJson
+ - We have a bridged Matrix and Telegram chat room.  (This is where, by far, we are the most active) 
+	- Matrix: https://app.element.io/#/room/#cyphrmepub:matrix.org
+	- PM zamicol for our bridged Telegram group.
  - https://twitter.com/CozeJSON
- - PM zamicol for our telegram group.  (This is where, by far, we are the most active)
- - Matrix: https://app.element.io/#/room/!iMKghXwDGwUMrszkbY:matrix.org
  - We also hang out in the Go rooms:
    - https://app.element.io/#/room/#go-lang:matrix.org
    - https://t.me/+TgkdqZw0Q-jAkGWS
+	- https://old.reddit.com/r/CozeJson
 
 #### Other Resources
  - This README as a page: https://cyphrme.github.io/Coze/
