@@ -7,8 +7,7 @@ example, we've encountered no issues using the first example as a cookie:
 token={"pay":{"msg": "Coze Rocks","alg":"ES256","iat":1623132000,"tmb":"cLj8vsYtMBwYkzoFVZHBZo6SNL8wSdCIjCKAwXNuhOk","typ":"cyphr.me/msg"},"sig":"Jl8Kt4nznAf0LGgO5yn_9HkGdY3ulvjg-NyRGzlmJzhncbTkFFn9jrwIwGoRAQYhjc88wmwFNH5u_rO56USo_w"}; Path=/;  Secure; Max-Age=999999999; SameSite=None
 ```
 
-See https://www.rfc-editor.org/rfc/rfc7230#section-3.2.6 (further reading at
-https://www.rfc-editor.org/rfc/rfc8187)
+See https://www.rfc-editor.org/rfc/rfc7230#section-3.2.6
 
 ## Default Assumption: Assume unquoted JSON characters ```{}[]:,".+-``` are HTTP header compatible and that HTTP's `quoted-string` is sufficient for payload strings.
 
@@ -67,8 +66,8 @@ human readability with minimal overhead.
 token="{\"pay\":{\"msg\": \"Coze Rocks\",\"alg\":\"ES256\",\"iat\":1623132000,\"tmb\":\"cLj8vsYtMBwYkzoFVZHBZo6SNL8wSdCIjCKAwXNuhOk\",\"typ\":\"cyphr.me/msg\"},\"sig\":\"Jl8Kt4nznAf0LGgO5yn_9HkGdY3ulvjg-NyRGzlmJzhncbTkFFn9jrwIwGoRAQYhjc88wmwFNH5u_rO56USo_w\"}"; Path=/;  Secure; Max-Age=999999999; SameSite=None
 ```
 
-The original string is **228** characters.  With `"` escaping, it's **254**,
-about 10% overhead.  Base64 URL truncated encoding would be **304** characters,
+The original string is **228** characters.  With quote escaping, it's **254**,
+about 10% overhead.  Base64 URL truncated (b64ut) encoding would be **304** characters,
 about 25% overhead.  
 
 ### Other options.  
