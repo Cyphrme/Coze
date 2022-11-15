@@ -277,23 +277,27 @@ type Marshaler interface {
 	CozeMarshal() ([]byte, error)
 }
 
-// Marshal is a UTF-8 friendly marshaler. Go's json.Marshal is not UTF-8
-// friendly because it replaces the valid JSON and valid UTF-8 characters "&".
-// "<", ">" with the "slash u" unicode escaped forms (e.g. \u0026). It
-// preemptively escapes for HTML friendliness. Where JSON may include these
-// characters, json.Marshal should not be used. Playground of Go breaking a book
-// title: https://play.golang.org/p/o2hiX0c62oN
+// Marshal is a JSON friendly marshaler.
 //
-// Marshaling will not sanitize for duplicates, unlike coze.UnmarshalJSON or
-// pay.UnmarshalJSON, so a correct struct with no duplicates must be given.
-// (Go structs already require unique fields).
+// The Go team is aware that the existing implementation of the JSON marshaler
+// has some large issues but have yet to release a new version, so this function
+// is needed.  Go's json.Marshal is not JSON friendly because it preemptively
+// replaces the valid JSON and valid UTF-8 characters "&". "<", ">" with the
+// "slash u" unicode escapes (e.g. \u0026) in the name of HTML friendliness.
+// JSON is not HTML, and this HTML escaping is incorrect.  The JSON spec calls
+// for no such measures and other industry adopted encoders do no such
+// preemptive HTML escaping.  Where JSON may include these characters, like user
+// arbitrary data, json.Marshal should not be used. Playground of Go breaking a
+// book title: https://play.golang.org/p/o2hiX0c62oN. Joe Tsai is working on
+// json "fixes" in a yet-to-be-publicly-released "v2" json package, which we
+// hope to use upon release.
 //
-// Other works:
-// Tailscale's JSON serializer:
+// Unlike coze.UnmarshalJSON or pay.UnmarshalJSON, marshaling will not sanitize
+// for duplicates so a correct struct with no duplicates must be given. (Go
+// structs already require unique fields). See notes on checkDuplicate.
+//
+// Another work is Tailscale's JSON serializer:
 // https://pkg.go.dev/github.com/go-json-experiment/json
-//
-// Joe Tsai is also working on json "fixes" in a yet-to-be-publicly-released
-// "v2" json package.
 func Marshal(i any) ([]byte, error) {
 	buffer := &bytes.Buffer{}
 	encoder := json.NewEncoder(buffer)

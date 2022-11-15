@@ -22,20 +22,40 @@ escaping.  For example, the characters `"` `\` are already escaped when used in
 JSON strings.  
 
 
+# Testing
+```sh
+curl --insecure --cookie 'test1={"test1":"v1"}; test2={"test2":"v2"}'  https://localhost:8081/
+```
+
+Which results in a HTTP header like the following:
+
+```
+GET / HTTP/2.0
+Host: localhost:8081
+Accept: */*
+Cookie: test1={"test1":"v1"}; test2={"test2":"v2"}
+User-Agent: curl/7.0.0
+```
+
+Which is perfectly acceptable.  
+
+
+# "If the above was wrong" solutions:
 ## Assuming some JSON characters `whitespace DQUOTE` and `;` may not be sufficiently escaped.
 
 Since the cookie payload is likely to be in control of the web application, the
 application should elect to not construct Coze messages that:
 
 1. Use the characters ";". 
-2. End strings in whitespace.
+2. End strings in whitespace, as that would result in whitespace double quote.  
 
-Arbitrary JSON may be out-of-the-box incompatible with some clients.  JSON encoders should already escape
-`"` and `\`, but they do not escape `;`.  Since the only valid place for `;` to
-appear in JSON is strings, simply do not use the value or URL encode arbitrary
-strings in payloads.  
+Arbitrary JSON may be out-of-the-box incompatible with some clients.  JSON
+encoders should already escape `"` and `\`, but they do not escape `;`.  Since
+the only valid place for `;` to appear in JSON is strings, simply do not use the
+value or URL encode arbitrary strings in payloads.  
 
-TODO created HTTP header escaper for this circumstance.
+TODO created HTTP header escaper for this circumstance.  Also consider double
+quote to single quote (with then single quote escaping) escaper.  
 
 ## Assuming some JSON characters ```{}[]:,".+-``` (and `\` used as an escape) are HTTP header incompatible.
 
@@ -68,7 +88,7 @@ suggest one of the following strategies:
 	- This is not only ugly, but may cause further compatibility issues with other
 	HTTP systems. 
 
-# Design philosophy in case of insufficiency
+# Design philosophy (Especially in case of insufficiency of the preceding)
 
 0. Every effort should be made to keep JSON unchanged.
 	- Any sort of escaping/sanitization should be minimally invasive.  
@@ -87,3 +107,40 @@ suggest one of the following strategies:
 
 If incompatibility is discovered, we should also push for clients to support JSON.  
 
+
+
+# Further Reading
+
+HTTP spec: https://www.rfc-editor.org/rfc/rfc7230#section-3.2.6 
+Cookie spec: https://www.rfc-editor.org/rfc/rfc6265#section-4.1.1
+
+Go's discussion:
+Go's cookie sanitization code: https://cs.opensource.google/go/go/+/refs/tags/go1.19.3:src/net/http/cookie.go;drc=2041bde2b619c8e2cecaa72d986fc1f0d054c615;l=399
+[net/http: support cookie values with comma](https://github.com/golang/go/issues/7243)
+
+Cyphr.me also has custom logic in `cookies.go`.  
+
+
+# Attempting to get answers about HTTP cookie acceptable characters
+Zami tried to email the [11 year old proposed cookie RFC
+6265](https://datatracker.ietf.org/doc/rfc6265) and it looks like they're gone.  
+
+Stuck as a proposal forever? There are so many loose ends!
+
+The original cookie RFC just says quoted strings as cookie values are okay,
+which leaves a lot to be desired, but a reasonable assumption would be: "we
+delegate the semantics to the HTTP standard".
+
+So this is how I would "fix" the cookie RFC 6265. The cookie RFC should
+explicitly defer to the HTTP RFC semantics regarding escapes as defined in RFC
+7230 3.2.6.  https://www.rfc-editor.org/rfc/rfc7230#section-3.2.6
+
+This means these characters should be included for `quoted-string`:
+
+HTAB, SP
+!#$%&'()*+,-./0123456789:;<=>?@ABCDEFGHIJKLMNOPQRSTUVWXYZ[]^_`abcdefghijklmnopqrstuvwxyz{|}~
+%x80-FF
+
+The characters " and / may be included if escaped.  
+
+Done.  
