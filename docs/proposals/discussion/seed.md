@@ -14,8 +14,6 @@ We used to have `sed` in Coze, it was `czd`.  It stood for "SignaturE Digest".
 
 
 
-
-
 # Ed25519
 See also, Ed25519's naming differences in
 implementations, (see
