@@ -1,80 +1,51 @@
-# Serialized form
+# Serialized Form for Coze Keys
+Colon `:` is used as the serialized component delimiter.  Although "url unsafe",
+as it is widely used in URLs without issue.
 
-Colon delimit values. 
+# Serialized Forms 
 
-Coze key serialized:
+`chk` is checksum.  
 
+	alg:izd:d:x:tmb
 	alg:d:x:tmb
-
-Can be shorted to public:
-
+	alg:d:x:
 	alg:x:tmb
-
-Which can be shortened to just thumbprint:
-
 	alg:tmb
-
-With x and no tmb
-
+	alg:tmb~chk
+	alg:d::tmb
 	alg:x:
-
-With just d:
-
 	alg:d::
+	alg:izd:::
 
 
-With just seed:
+## Always Useful checksummed forms 
+If always processed when possible.  
 
-alg:seed:::
-
-Full
-alg:seed:d:x:tmb
-
-
-# Seed
-
-Although we have not implemented seeds, this documents is our thoughts
-on how we would.  Ed25519's naming differences in implementations, (see
-https://github.com/Cyphrme/ed25519_applet#naming-differences-in-implementations)
-highlights the possible future need.  
-
-
-# (Bad) Option 1: New Key field
-All logic now has to worry about two fields, `d` and `seed`
-
-# Option 2: Deliminator and Concatenate
+### Useful
+These are the only forms that `chk` is useful.  All other forms are redundant.  
 
 ```
-"d":"seed:private d"
+alg:izd~chk:::
+alg:d~chk::
+alg:x~chk:
+alg:tmb~chk
 ```
 
+### Redundant (don't do this)
+Any combination of two or more Coze fields [`izd`,`d`,`x`,`tmb`], including the following:
 
-With just seed:
-```
-"d":"seed:"
-```
+- `alg:x:tmb~chk`
+    - tmb already serves as the checksum of x.  
+- `alg:d~chk:x:`
+   - x is derived from d and so x may serve as a checksum.    
+- `alg:d~chk::tmb`
+    - tmb is derived from x, which x is derived from d and so tmb may serve as a checksum for d.
+- `alg:d~chk::tmb~chk`
+- `alg:d~chk:x~chk:`
+- `alg:d~chk:x~chk:tmb~chk` 
+- `alg:izd~chk:d~chk:x~chk:tmb~chk` 
 
-And with just private d:
+The only reason to do these forms is if your system does not have the ability to
+do signatures, but does have the ability to check digests.  This would be a
+mostly unreasonable circumstance.  
 
-```
-"d":"private d"
-```
-
-
-# Checksums and Reveal.
-
-// TODO think about this more.  
-If tmb is first class, there is no checksum for tmb itself.  Suggested form for checksums:
-
-	alg:tmb~checksum
-
-Alternatively:
-
-	alg:::tmb:checksum
-
-
-
-
-## See also:
-https://github.com/multiformats/multiformats
-https://multiformats.io/multihash/

@@ -143,3 +143,20 @@ HTAB, SP
 The characters " and / may be included if escaped.  
 
 Done.  
+
+
+# Go considerations:
+Go does silly things currently with cookies.  **Do not** use
+`SetCookie(w,cookie)`. Instead, do this:
+
+```go
+setCookievalue := "token=" + string(b) + "; Path=/;  Secure; Max-Age=999999999; SameSite=None"
+w.Header().Add("Set-Cookie", setCookievalue)
+```
+
+TODO See and comment on this. That section of code has been bugging me for
+almost two years.  I was finally pointed to this issue.  
+https://github.com/golang/go/issues/46443
+
+
+

@@ -28,14 +28,16 @@ the Go command that you’re writing code in multiple modules at the same time a
 easily build and run code in those modules".
 
 
-We use the module during local development (The should be "no duh", but Go mod has a gotcha.)
+We use the module during local development (The should be "no duh", but Go mod
+has a gotcha.)
 
-Add the following line to `go.mod` in your other projects for local changes to apply while doing local development.
+Add the following line to `go.mod` in your other projects for local changes to
+apply while doing local development.
 ```go.mod
 replace github.com/cyphrme/coze => ../coze
 ```
 
-Alternatively, use go workspaces.  
+Alternatively, use Go workspaces.  
 
 
 Also do a 

@@ -486,11 +486,22 @@ by many ideas and standards.
  
 See the `coze_vs.md` document for more. 
 
+#### Is `x` derived from `d`?
+Yes.  Coze assumes that `x` must be derived from `d`.  
+
 #### Does Coze have checksums?
-For keys, `tmb`, and for messages, `cad` and `czd`, may be used as checksums.
-When given a new public key, systems storing keys may recalculate `tmb`, compare
-given values, and error on mismatch. Alternatively, systems may used
-cryptographic verification to serve the function of checksumming.
+For keys, `x` and `tmb`, and for messages, `cad` and `czd`, may be used as
+checksums. When given a new public key, systems may recalculate `x` and/or
+`tmb`, and error on mismatch. When given messages, systems can recalculate
+`cad`, and/or `czd` and error on mismatch.  For keys, `x` may serve the function
+of checksumming for `d`.  `tmb` is the checksum of `x`.  
+
+Alternatively, systems may used cryptographic verification using `sig` to serve
+the function of checksumming.
+
+The only circumstance a Coze key value cannot be checksummed is when "d", "x",
+or "tmb" are presented alone.  In situations needing checksums, we recommend
+passing another component along so the Coze key may be checked.
 
 #### Performance hacks?
 Coze is not optimized for long messages, but if early knowledge of Coze standard
