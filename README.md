@@ -483,7 +483,7 @@ numbered P-521, X, Y, R, and S are padded before concatenation.
 #### Why use `tmb` and not `x` for references in messages?
 Coze places no limit on public key size which may be large. For example,
 GeMSS128 public keys are 352,188 bytes, compared to Ed25519's 32 bytes.  Using
-`tmb` instead of `x`  generalizes Coze for present and future algorithm use.
+`tmb` instead of `x` generalizes Coze for present and future algorithm use.
 Additionally, `x` may be cryptographically significant for key security while
 `tmb` is not.
 

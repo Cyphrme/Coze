@@ -58,3 +58,10 @@ For comparison with the broken Rainbow:
 
 
 https://www-polsys.lip6.fr/Links/NIST/GeMSS.html
+
+
+
+# Others
+
+See multicodec for alg names:
+https://github.com/multiformats/multicodec/blob/master/table.csv#L136-L138
