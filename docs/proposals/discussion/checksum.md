@@ -54,21 +54,24 @@ always be used as a checksum.
 
 
 ## Checksum Coze three letter field name
-Currently, this isn't needed, but if it ever were, this would be the three letter field name.
+Currently, this isn't needed, but if it ever were, this would be the three
+letter field name.
 
 Checksum field name: `chk`
 
 
 ## Seed considerations.  
-Currently, in all Coze supported signing algorithms (ES224, ES256, ES384, ES512,
-Ed25519, Ed25519ph) x is directly related to d.  We plan on keeping this
-assumption in place when supporting future algorithms.  
+Currently, Coze assumes that `x` is derived from `d`.  In all Coze supported
+signing algorithms (ES224, ES256, ES384, ES512, Ed25519, Ed25519ph) x is
+directly related to d.  We plan on keeping this assumption in place when
+supporting future algorithms.  
 
 In Coze for Ed25519 and Ed25519ph, d is what the RFC names the "seed", so a
 further seed isn't (necessarily) needed.
 
 Seed probably would be implemented as a generalized way to generate a key for
 any given Coze algorithm.  
+
 
 
 # Checksum utility

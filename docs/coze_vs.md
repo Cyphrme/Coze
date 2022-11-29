@@ -24,10 +24,30 @@ reasons why Coze was needed.
 
 
 # SSH
+##  SSHSIG
+OpenBSD announcement: https://cvsweb.openbsd.org/cgi-bin/cvsweb/src/usr.bin/ssh/PROTOCOL.sshsig?rev=1.1&content-type=text/x-cvsweb-markup
 
+Can finally support signing messages:  https://github.com/openssh/openssh-portable/blob/master/PROTOCOL.sshsig
+
+Proposed 2020, implemented and pushed 2022?
+
+
+Go lib: https://github.com/paultag/go-sshsig
+qbit's: https://github.com/qbit/sshign
+
+Random blog: https://www.agwa.name/blog/post/ssh_signatures#comment-32383
+
+## Other ssh
 SSH's fingerprint is the hash of the base64 _ub64t_ (not +b64ut) encoding of the
 public key.  This is very close to the way Coze generates `tmb`, and the
 pre-digest message includes the b64ut value.  
+
+
+# PGP
+Phil Zimmerman can't sign things.  If the author can't use it, perhaps others
+should think about the usability.  
+https://blog.cryptographyengineering.com/2014/08/13/whats-matter-with-pgp
+The PGP Problem - https://latacora.micro.blog/2019/07/16/the-pgp-problem.html
 
 
 # Coze vs JOSE

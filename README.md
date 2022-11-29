@@ -190,9 +190,9 @@ Simplified:
 
 ## Canon
 A **canon** is a list of fields used for normalization, e.g. `["alg","x"]`. Coze
-objects are canonicalized for creating digests, signing, verification, and
-reference. The canon of `pay` is the currently present fields in order of
-appearance. The following Coze fields have predefined canons:  
+objects are canonicalized for creating digests, signing, and verification. The
+canon of `pay` is the currently present fields in order of appearance. The
+following Coze fields have predefined canons:  
 
 - `cad`'s canon is `pay`'s canon. 
 - `tmb`'s canon is `["alg","x"]`.
@@ -239,8 +239,8 @@ Using the first example, the following canonical digests are calculated:
 - `cad` is `LSgWE4vEfyxJZUTFaRaB2JdEclORdZcm4UVH9D8vVto`.
 - `czd` is `d0ygwQCGzuxqgUq1KsuAtJ8IBu0mkgAcKpUJzuX075M`.
 
-Any mutation of `pay` via `can` must occur before verification and calls
-to verification functions must ignore `can` if present.  
+Signing and verification functions must not mutate `pay`.  Any mutation of `pay`
+via `can` must occur by canon related functions.
 
 ### Coze and Binaries
 The canonical digest of a binary file may simply be the digest of the file. The
@@ -480,6 +480,13 @@ For ECDSA , (X and Y) and (R and S) are concatenated for `x` and `sig`
 respectively.  For ES512, which unlike the other ECDSA algorithms uses the odd
 numbered P-521, X, Y, R, and S are padded before concatenation.  
 
+#### Why use `tmb` and not `x` for references in messages?
+Coze places no limit on public key size which may be large. For example,
+GeMSS128 public keys are 352,188 bytes, compared to Ed25519's 32 bytes.  Using
+`tmb` instead of `x`  generalizes Coze for present and future algorithm use.
+Additionally, `x` may be cryptographically significant for key security while
+`tmb` is not.
+
 #### Javascript vs Go crypto.
 Javascript's `SubtleCrypto.sign(algorithm, key, data)` always hashes a message
 before signing while Go's ECDSA expects a digest to sign. This means that in
@@ -492,9 +499,6 @@ Existing solutions were not meeting our particular needs. Coze is influenced
 by many ideas and standards.  
  
 See the `coze_vs.md` document for more. 
-
-#### Is `x` derived from `d`?
-Yes.  Coze assumes that `x` must be derived from `d`.  
 
 #### Does Coze have checksums?
 `x`, `tmb`,`cad`, `czd`, and `sig` may be used for integrity checking. For
