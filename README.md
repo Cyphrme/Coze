@@ -551,9 +551,9 @@ thumbprint.  Associating thumbprints to issuers is the design we recommend.
 - `exp` - "Expiration". Outside the scope of Coze.  
 - `nbf` - "Not before". Outside the scope of Coze.  
 - `aud` - "Audience". Outside the scope of Coze, but consider denoting this with
-  'typ'.
+  `typ`.
 - `sub` - "Subject". Outside the scope of Coze, but consider denoting this with
-  'typ'.
+  `typ`.
 - `jti` - "Token ID/JWT ID". Redundant by `czd`, `cad`, or an application
   specified field.
 
