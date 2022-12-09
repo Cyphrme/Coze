@@ -29,7 +29,8 @@ OpenBSD announcement: https://cvsweb.openbsd.org/cgi-bin/cvsweb/src/usr.bin/ssh/
 
 Can finally support signing messages:  https://github.com/openssh/openssh-portable/blob/master/PROTOCOL.sshsig
 
-Proposed 2020, implemented and pushed 2022?
+Proposed 2020, implemented and pushed 2022? Zami was waiting forever for this.
+Glad it's finally out there, but why did it take 25 years?
 
 
 Go lib: https://github.com/paultag/go-sshsig

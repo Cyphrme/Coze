@@ -129,23 +129,26 @@ func (c *Key) Sign(digest B64) (sig B64, err error) {
 	}
 }
 
-// SignPay checks that coze.alg/coze.tmb and key.alg/key.tmb fields match, signs
-// coze.Pay, and returns a new Coze with coze.Sig populated.  Expects pay.alg
-// and pay.tmb fields to be populated.  If not needing those fields, use Sign().
-func (c *Key) SignPay(pay *Pay) (coze *Coze, err error) {
-	if c.Alg != pay.Alg {
-		return nil, fmt.Errorf("SignPay: key alg \"%s\" and coze alg \"%s\" do not match", c.Alg, pay.Alg)
+// SignPay signs coze.Pay and returns a new Coze with coze.Sig populated. If set
+// SignPay checks that `pay.alg` and `key.alg` match and that `pay.tmb` is
+// correct according to `key`.
+//
+// SignPay works with contextual cozies that lack pay.alg and/or pay.tmb and
+// uses key as a source of truth.
+func (c *Key) SignPay(p *Pay) (coze *Coze, err error) {
+	if p.Alg != "" && c.Alg != p.Alg {
+		return nil, fmt.Errorf("SignPay: key alg \"%s\" and coze alg \"%s\" do not match", c.Alg, p.Alg)
 	}
-	if !bytes.Equal(c.Tmb, pay.Tmb) {
-		return nil, fmt.Errorf("SignPay: key tmb \"%s\" and coze tmb  \"%s\" do not match", c.Tmb, pay.Tmb)
+	if len(p.Tmb) != 0 && !bytes.Equal(c.Tmb, p.Tmb) {
+		return nil, fmt.Errorf("SignPay: key tmb \"%s\" and coze tmb  \"%s\" do not match", c.Tmb, p.Tmb)
 	}
 
-	b, err := Marshal(pay)
+	b, err := Marshal(p)
 	if err != nil {
 		return nil, err
 	}
 
-	coze, err = pay.Coze()
+	coze, err = p.Coze()
 	if err != nil {
 		return nil, err
 	}
@@ -159,21 +162,19 @@ func (c *Key) SignPay(pay *Pay) (coze *Coze, err error) {
 	return coze, err
 }
 
-// SignPayJSON checks that coze.alg/coze.tmb and key.alg/key.tmb fields match,
-// signs coze.Pay, and populates coze.Sig.  Expects pay.alg and pay.tmb fields
-// to be populated.  If not needing those fields, use Sign().
-func (c *Key) SignPayJSON(pay json.RawMessage) (sig B64, err error) {
-	// Unmarshal the standard fields for checking.
+// SignPayJSON signs a json `coze.pay`.  See documentation on SignPay.
+func (c *Key) SignPayJSON(pay json.RawMessage) (coze *Coze, err error) {
 	p := new(Pay)
 	err = json.Unmarshal(pay, p)
 	if err != nil {
 		return nil, err
 	}
-	if c.Alg != p.Alg {
-		return nil, fmt.Errorf("SignPayJSON: key alg \"%s\" and coze alg \"%s\" do not match", c.Alg, p.Alg)
+
+	if p.Alg != "" && c.Alg != p.Alg {
+		return nil, fmt.Errorf("SignPay: key alg \"%s\" and coze alg \"%s\" do not match", c.Alg, p.Alg)
 	}
-	if !bytes.Equal(c.Tmb, p.Tmb) {
-		return nil, fmt.Errorf("SignPayJSON: key tmb \"%s\" and coze tmb  \"%s\" do not match", c.Tmb, p.Tmb)
+	if len(p.Tmb) != 0 && !bytes.Equal(c.Tmb, p.Tmb) {
+		return nil, fmt.Errorf("SignPay: key tmb \"%s\" and coze tmb  \"%s\" do not match", c.Tmb, p.Tmb)
 	}
 
 	b, err := compact(pay)
@@ -186,15 +187,20 @@ func (c *Key) SignPayJSON(pay json.RawMessage) (sig B64, err error) {
 		return nil, err
 	}
 
-	return c.Sign(d)
+	coze = new(Coze)
+	coze.Pay = b
+	coze.Sig, err = c.Sign(d)
+	return coze, err
 }
 
-// SignCoze checks that coze.alg/coze.tmb and key.alg/key.tmb fields match,
-// signs coze.Pay, and populates coze.Sig.  Expects pay.alg and pay.tmb fields
-// to be populated.  If not needing those fields, use Sign().
+// SignCoze signs `coze.pay` and sets `coze.sig`.  See documentation on SignPay.
 func (c *Key) SignCoze(cz *Coze) (err error) {
-	cz.Sig, err = c.SignPayJSON(cz.Pay)
-	return
+	coze, err := c.SignPayJSON(cz.Pay)
+	if err != nil {
+		return err
+	}
+	cz.Sig = coze.Sig
+	return nil
 }
 
 // Verify uses a Coze key to verify a digest.
@@ -219,20 +225,23 @@ func (c *Key) Verify(digest, sig B64) (valid bool) {
 	}
 }
 
-// VerifyCoze cryptographically verifies `pay` with given `sig` and checks that
-// the `pay` and `key` fields `alg` and `tmb` match. Always returns false on
-// error. If trying to verify without `alg` and/or `tmb`, use Verify instead.
+// VerifyCoze cryptographically verifies `pay` with given `sig`.  If set
+// VerifyCoze checks that `pay.alg` and `key.alg` match and that `pay.tmb` is
+// correct according to `key`. Always returns false on error.
+//
+// VerifyCoze works with contextual cozies that lack pay.alg and/or
+// pay.tmb and uses key as a source of truth.
 func (c *Key) VerifyCoze(cz *Coze) (bool, error) {
-	h := new(Pay)
-	err := json.Unmarshal(cz.Pay, h)
+	p := new(Pay)
+	err := json.Unmarshal(cz.Pay, p)
 	if err != nil {
 		return false, err
 	}
-	if c.Alg != h.Alg {
-		return false, fmt.Errorf("VerifyCoze: key alg \"%s\" and coze alg \"%s\" do not match", c.Alg, h.Alg)
+	if p.Alg != "" && c.Alg != p.Alg {
+		return false, fmt.Errorf("VerifyCoze: key alg \"%s\" and coze alg \"%s\" do not match", c.Alg, p.Alg)
 	}
-	if !bytes.Equal(c.Tmb, h.Tmb) {
-		return false, fmt.Errorf("VerifyCoze: key tmb \"%s\" and coze tmb  \"%s\" do not match", c.Tmb, h.Tmb)
+	if len(p.Tmb) != 0 && !bytes.Equal(c.Tmb, p.Tmb) {
+		return false, fmt.Errorf("VerifyCoze: key tmb \"%s\" and coze tmb  \"%s\" do not match", c.Tmb, p.Tmb)
 	}
 
 	b, err := compact(cz.Pay)

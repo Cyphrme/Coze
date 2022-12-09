@@ -17,25 +17,25 @@ import (
 //
 // Fields:
 //
-//   - Can:    "Canon" Pay's fields in order of appearance.
-//   - Cad:    "Canonical Digest" Pay's compactified form digest.
-//   - Czd:    "Coze digest" with canon ["cad","sig"].
-//   - Pay:    Payload.
+
+//   - Pay:    The raw Payload.
 //   - Key:    Key used to sign the message. Must be pointer, otherwise
 //     json.Marshal (and by extension coze.Marshal) will not marshal on
 //     zero type. See: https://github.com/golang/go/issues/11939.
+//   - Can:    "Canon" Pay's fields in order of appearance.
+//   - Cad:    "Canonical Digest" Pay's compactified form digest.
 //   - Sig:    Signature over pay.
+//   - Czd:    "Coze digest" with canon ["cad","sig"].
+//
 //   - Parsed: The parsed standard Coze pay fields ["alg","iat","tmb","typ"]
 //     from `Pay`.  `Parsed` is populated by Meta() and is JSON ignored.
-//     The source of truth is `Pay`, not `Parsed`; do not use `Parsed`
-//     until after calling Meta(), which populates `Parsed` from `Pay`.
 type Coze struct {
-	Can []string        `json:"can,omitempty"`
-	Cad B64             `json:"cad,omitempty"`
-	Czd B64             `json:"czd,omitempty"`
 	Pay json.RawMessage `json:"pay,omitempty"`
 	Key *Key            `json:"key,omitempty"`
+	Can []string        `json:"can,omitempty"`
+	Cad B64             `json:"cad,omitempty"`
 	Sig B64             `json:"sig,omitempty"`
+	Czd B64             `json:"czd,omitempty"`
 
 	Parsed *Pay `json:"-"`
 }
@@ -50,19 +50,29 @@ func (cz Coze) String() string {
 	return string(b)
 }
 
-// Meta recalculates meta, [can, cad, czd], for a given `coze`. Coze.Pay,
-// Coze.Pay.Alg, and Coze.Sig must be set. Meta does no cryptographic
-// verification.
+// Meta recalculates [can, cad, czd] and sets Coze.Parsed
+// ("alg","iat","tmb","typ") from Pay. Coze.Pay, Coze.Pay.Alg, and Coze.Sig must
+// be set.  Meta resets Parsed ("alg","iat","tmb","typ") to zero before
+// populating Parsed from Pay. If needing to use for contextual cozies, use
+// "MetaWithAlg".
+//
+// Meta does no cryptographic verification.
 func (cz *Coze) Meta() (err error) {
 	if cz.Pay == nil || cz.Sig == nil {
 		return errors.New("Meta: pay and/or sig is nil")
 	}
+	// Reset coze.parsed to zero.
+	cz.Parsed = new(Pay)
 	return cz.MetaWithAlg("")
 }
 
 // MetaWithAlg is for contextual cozies that may be lacking `alg` in `pay`, but
-// `alg` in otherwise known.  Errors if pay.alg is set and doesn't match
-// parameter alg.  See notes on Meta().
+// `alg` in otherwise known.  MetaWithAlg recalculates [can, cad, czd] and sets
+// Coze.Parsed ("alg","iat","tmb","typ") from Pay.     Will not calculated `czd`
+// if Coze.Sig is empty.  Errors if Pay.Alg is set and doesn't match parameter
+// alg.
+//
+// MetaWithAlg does no cryptographic verification.
 func (cz *Coze) MetaWithAlg(alg SEAlg) (err error) {
 	// Set Parsed from Pay.
 	err = json.Unmarshal(cz.Pay, &cz.Parsed)
@@ -72,7 +82,7 @@ func (cz *Coze) MetaWithAlg(alg SEAlg) (err error) {
 	if alg == "" {
 		alg = cz.Parsed.Alg
 	}
-	if alg != cz.Parsed.Alg {
+	if cz.Parsed.Alg != "" && alg != cz.Parsed.Alg {
 		return fmt.Errorf("MetaWithAlg: input alg %s doesn't match pay.alg %s", alg, cz.Parsed.Alg)
 	}
 	b, err := compact(cz.Pay)
@@ -83,12 +93,16 @@ func (cz *Coze) MetaWithAlg(alg SEAlg) (err error) {
 	if err != nil {
 		return err
 	}
-	cz.Cad, err = Hash(cz.Parsed.Alg.Hash(), b)
+	cz.Cad, err = Hash(alg.Hash(), b)
 	if err != nil {
 		return err
 	}
-	cz.Czd, err = GenCzd(cz.Parsed.Alg.Hash(), cz.Cad, cz.Sig)
-	return err
+	cz.Czd = []byte{} // Zero `czd` in case Coze.Sig is not set.
+	if len(cz.Sig) != 0 {
+		cz.Czd, err = GenCzd(alg.Hash(), cz.Cad, cz.Sig)
+		return err
+	}
+	return nil
 }
 
 // UnmarshalJSON unmarshals checks for duplicates and unmarshals `coze`.
@@ -115,37 +129,6 @@ var CzdCanon = []string{"cad", "sig"}
 // GenCzd generates and returns `czd`.
 func GenCzd(hash HshAlg, cad B64, sig B64) (czd B64, err error) {
 	return Hash(hash, []byte(fmt.Sprintf(`{"cad":%q,"sig":%q}`, cad, sig)))
-}
-
-// Hash hashes msg and returns the digest or a set size. Returns nil on error.
-// Errors on invalid HshAlg or if digest is nil.
-//
-// SHAKE128 returns 32 bytes. SHAKE256 returns 64 bytes.
-func Hash(h HshAlg, msg []byte) (digest B64, err error) {
-	switch h {
-	case SHAKE128:
-		digest = make([]byte, 32)
-		sha3.ShakeSum128(digest, msg)
-	case SHAKE256:
-		digest = make([]byte, 64)
-		sha3.ShakeSum256(digest, msg)
-	default:
-		hash := h.goHash()
-		if hash == nil {
-			return nil, fmt.Errorf("coze.Hash invalid HashAlg: %s", h)
-		}
-		_, err = hash.Write(msg)
-		if err != nil {
-			return nil, err
-		}
-		digest = hash.Sum(nil)
-	}
-
-	if len(digest) == 0 {
-		return nil, fmt.Errorf("coze.Hash digest is empty. Using HashAlg: %s", h)
-	}
-
-	return digest, nil
 }
 
 // Pay contains the standard Coze pay fields as well as custom Struct given by
@@ -321,6 +304,37 @@ func MarshalPretty(i any) ([]byte, error) {
 		return nil, err
 	}
 	return bytes.TrimRight(buffer.Bytes(), "\n"), nil
+}
+
+// Hash hashes msg and returns the digest or a set size. Returns nil on error.
+// Errors on invalid HshAlg or if digest is nil.
+//
+// SHAKE128 returns 32 bytes. SHAKE256 returns 64 bytes.
+func Hash(h HshAlg, msg []byte) (digest B64, err error) {
+	switch h {
+	case SHAKE128:
+		digest = make([]byte, 32)
+		sha3.ShakeSum128(digest, msg)
+	case SHAKE256:
+		digest = make([]byte, 64)
+		sha3.ShakeSum256(digest, msg)
+	default:
+		hash := h.goHash()
+		if hash == nil {
+			return nil, fmt.Errorf("coze.Hash invalid HashAlg: %s", h)
+		}
+		_, err = hash.Write(msg)
+		if err != nil {
+			return nil, err
+		}
+		digest = hash.Sum(nil)
+	}
+
+	if len(digest) == 0 {
+		return nil, fmt.Errorf("coze.Hash digest is empty. Using HashAlg: %s", h)
+	}
+
+	return digest, nil
 }
 
 // checkDuplicate checks if the JSON string has a duplicate. Go has an issue

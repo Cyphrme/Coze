@@ -251,7 +251,7 @@ func ExampleCoze_Meta() {
 	fmt.Printf("%s\n", cz)
 
 	// Output:
-	// {"can":["msg","alg","iat","tmb","typ"],"cad":"Ie3xL77AsiCcb4r0pbnZJqMcfSBqg5Lk0npNJyJ9BC4","czd":"TnRe4DRuGJlw280u3pGhMDOIYM7ii7J8_PhNuSScsIU","pay":{"msg":"Coze Rocks","alg":"ES256","iat":1623132000,"tmb":"cLj8vsYtMBwYkzoFVZHBZo6SNL8wSdCIjCKAwXNuhOk","typ":"cyphr.me/msg"},"sig":"Jl8Kt4nznAf0LGgO5yn_9HkGdY3ulvjg-NyRGzlmJzhncbTkFFn9jrwIwGoRAQYhjc88wmwFNH5u_rO56USo_w"}
+	//{"pay":{"msg":"Coze Rocks","alg":"ES256","iat":1623132000,"tmb":"cLj8vsYtMBwYkzoFVZHBZo6SNL8wSdCIjCKAwXNuhOk","typ":"cyphr.me/msg"},"can":["msg","alg","iat","tmb","typ"],"cad":"Ie3xL77AsiCcb4r0pbnZJqMcfSBqg5Lk0npNJyJ9BC4","sig":"Jl8Kt4nznAf0LGgO5yn_9HkGdY3ulvjg-NyRGzlmJzhncbTkFFn9jrwIwGoRAQYhjc88wmwFNH5u_rO56USo_w","czd":"TnRe4DRuGJlw280u3pGhMDOIYM7ii7J8_PhNuSScsIU"}
 }
 
 func ExampleCoze_MetaWithAlg() {
@@ -272,7 +272,6 @@ func ExampleCoze_MetaWithAlg() {
 	if err != nil {
 		panic(err)
 	}
-
 	fmt.Printf("%s\n", cz)
 
 	// No alg given.  Alg is parsed from pay.
@@ -283,8 +282,41 @@ func ExampleCoze_MetaWithAlg() {
 	fmt.Printf("%s\n", cz)
 
 	// Output:
-	// {"can":["msg","alg","iat","tmb","typ"],"cad":"Ie3xL77AsiCcb4r0pbnZJqMcfSBqg5Lk0npNJyJ9BC4","czd":"TnRe4DRuGJlw280u3pGhMDOIYM7ii7J8_PhNuSScsIU","pay":{"msg":"Coze Rocks","alg":"ES256","iat":1623132000,"tmb":"cLj8vsYtMBwYkzoFVZHBZo6SNL8wSdCIjCKAwXNuhOk","typ":"cyphr.me/msg"},"sig":"Jl8Kt4nznAf0LGgO5yn_9HkGdY3ulvjg-NyRGzlmJzhncbTkFFn9jrwIwGoRAQYhjc88wmwFNH5u_rO56USo_w"}
-	// {"can":["msg","alg","iat","tmb","typ"],"cad":"Ie3xL77AsiCcb4r0pbnZJqMcfSBqg5Lk0npNJyJ9BC4","czd":"TnRe4DRuGJlw280u3pGhMDOIYM7ii7J8_PhNuSScsIU","pay":{"msg":"Coze Rocks","alg":"ES256","iat":1623132000,"tmb":"cLj8vsYtMBwYkzoFVZHBZo6SNL8wSdCIjCKAwXNuhOk","typ":"cyphr.me/msg"},"sig":"Jl8Kt4nznAf0LGgO5yn_9HkGdY3ulvjg-NyRGzlmJzhncbTkFFn9jrwIwGoRAQYhjc88wmwFNH5u_rO56USo_w"}
+	// {"pay":{"msg":"Coze Rocks","alg":"ES256","iat":1623132000,"tmb":"cLj8vsYtMBwYkzoFVZHBZo6SNL8wSdCIjCKAwXNuhOk","typ":"cyphr.me/msg"},"can":["msg","alg","iat","tmb","typ"],"cad":"Ie3xL77AsiCcb4r0pbnZJqMcfSBqg5Lk0npNJyJ9BC4","sig":"Jl8Kt4nznAf0LGgO5yn_9HkGdY3ulvjg-NyRGzlmJzhncbTkFFn9jrwIwGoRAQYhjc88wmwFNH5u_rO56USo_w","czd":"TnRe4DRuGJlw280u3pGhMDOIYM7ii7J8_PhNuSScsIU"}
+	// {"pay":{"msg":"Coze Rocks","alg":"ES256","iat":1623132000,"tmb":"cLj8vsYtMBwYkzoFVZHBZo6SNL8wSdCIjCKAwXNuhOk","typ":"cyphr.me/msg"},"can":["msg","alg","iat","tmb","typ"],"cad":"Ie3xL77AsiCcb4r0pbnZJqMcfSBqg5Lk0npNJyJ9BC4","sig":"Jl8Kt4nznAf0LGgO5yn_9HkGdY3ulvjg-NyRGzlmJzhncbTkFFn9jrwIwGoRAQYhjc88wmwFNH5u_rO56USo_w","czd":"TnRe4DRuGJlw280u3pGhMDOIYM7ii7J8_PhNuSScsIU"}
+}
+
+func ExampleCoze_MetaWithAlg_contextual() {
+	// func TestCoze_MetaWithAlg_contextual(t *testing.T) {
+	// Test MetaWithAlg using no sig, which should calc what it can.
+	cz := new(Coze)
+	err := json.Unmarshal([]byte(GoldenCoze), cz)
+	if err != nil {
+		panic(err)
+	}
+	cz.Sig = []byte{} // set sig to nothing.
+	err = cz.MetaWithAlg("")
+	if err != nil {
+		panic(err)
+	}
+
+	fmt.Printf("%s\n", cz)
+	// Test empty coze with coze.parsed.alg
+	cz = new(Coze)
+	err = json.Unmarshal(GoldenCozeEmpty, cz)
+	if err != nil {
+		panic(err)
+	}
+	err = cz.MetaWithAlg(GoldenKey.Alg)
+	if err != nil {
+		panic(err)
+	}
+
+	fmt.Printf("%s\n", cz)
+
+	// Output:
+	// {"pay":{"msg":"Coze Rocks","alg":"ES256","iat":1623132000,"tmb":"cLj8vsYtMBwYkzoFVZHBZo6SNL8wSdCIjCKAwXNuhOk","typ":"cyphr.me/msg"},"can":["msg","alg","iat","tmb","typ"],"cad":"Ie3xL77AsiCcb4r0pbnZJqMcfSBqg5Lk0npNJyJ9BC4"}
+	// {"pay":{},"cad":"RBNvo1WzZ4oRRq0W9-hknpT7T8If536DEMBg9hyq_4o","sig":"9iesKUSV7L1-xz5yd3A94vCkKLmdOAnrcPXTU3_qeKSuk4RMG7Qz0KyubpATy0XA_fXrcdaxJTvXg6saaQQcVQ","czd":"Y3Us02VVqh67wMIrKU-d5lpHCm0OfxNbIO6oGjJf43c"}
 }
 
 // ExampleCoze_jsonUnMarshal tests unmarshalling a coze.

@@ -31,6 +31,7 @@ var GoldenKeyBad = Key{
 	Kid: "Zami's Majuscule Key.",
 	Iat: 1623132000,
 	X:   []byte{218, 116, 206, 104, 85, 102, 217, 2, 241, 153, 67, 191, 74, 56, 50, 177, 197, 71, 6, 219, 199, 17, 250, 54, 174, 174, 185, 50, 248, 13, 70, 51, 145, 162, 58, 183, 244, 118, 170, 246, 181, 205, 198, 245, 241, 193, 182, 191, 94, 61, 5, 230, 246, 98, 108, 148, 119, 138, 192, 93, 57, 102, 232, 230},
+	//D:MustDecode("3"), // TODO
 	D:   []byte{108, 219, 45, 131, 143, 199, 222, 109, 210, 149, 19, 174, 127, 4, 82, 18, 8, 155, 46, 176, 110, 70, 175, 117, 215, 131, 175, 117, 170, 92, 165, 81},
 	Tmb: []byte{112, 184, 252, 190, 198, 45, 48, 28, 24, 147, 58, 5, 85, 145, 193, 102, 142, 146, 52, 191, 48, 73, 208, 136, 140, 34, 128, 193, 115, 110, 132, 233},
 }
@@ -65,6 +66,11 @@ var GoldenCozeWKey = `{
 	"key": ` + GoldenKeyString + `,
 	"sig": "` + GoldenSig + `"
  }`
+
+var GoldenCozeEmpty = json.RawMessage(`{
+	"pay":{},
+	"sig":"9iesKUSV7L1-xz5yd3A94vCkKLmdOAnrcPXTU3_qeKSuk4RMG7Qz0KyubpATy0XA_fXrcdaxJTvXg6saaQQcVQ"
+}`)
 
 // CustomStruct is for examples demonstrating Pay/Coze with custom structs.
 type CustomStruct struct {
@@ -105,38 +111,21 @@ func ExampleKey_jsonMarshal() {
 func ExampleKey_Thumbprint() {
 	gk2 := GoldenKey   // Make a copy.
 	gk2.Tmb = []byte{} // Set to empty to ensure recalculation.
-	gk2.Thumbprint()
-	fmt.Println(gk2.Tmb)
+	err := gk2.Thumbprint()
+	fmt.Println(gk2.Tmb, err)
 
 	// Output:
-	// cLj8vsYtMBwYkzoFVZHBZo6SNL8wSdCIjCKAwXNuhOk
+	// cLj8vsYtMBwYkzoFVZHBZo6SNL8wSdCIjCKAwXNuhOk <nil>
 }
 
 func ExampleThumbprint() {
-	h, err := Thumbprint(&GoldenKey)
-	if err != nil {
-		panic(err)
-	}
-	fmt.Println(h)
-
-	// Output:
-	// cLj8vsYtMBwYkzoFVZHBZo6SNL8wSdCIjCKAwXNuhOk
+	fmt.Println(Thumbprint(&GoldenKey))
+	// Output: cLj8vsYtMBwYkzoFVZHBZo6SNL8wSdCIjCKAwXNuhOk <nil>
 }
 
 func ExampleKey_Sign() {
-	cad := MustDecode(GoldenCad)
-	sig, err := GoldenKey.Sign(cad)
-	if err != nil {
-		panic(err)
-	}
-	fmt.Printf("%v\n", GoldenKey.Verify(cad, sig))
-
-	// Output: true
-}
-
-// ExampleKey_Sign_empty demonstrates that signing an empty Coze,
-// `{"pay":{},"sig":"9iesKU..."}`, is valid.
-func ExampleKey_Sign_empty() {
+	// Manual signing of empty Coze, `{"pay":{},"sig":"9iesKU..."}`, is a valid
+	// Coze.  In this case, it would be better to use SignPayJSON.
 	d, err := Hash(GoldenKey.Alg.Hash(), []byte("{}"))
 	if err != nil {
 		panic(err)
@@ -147,7 +136,17 @@ func ExampleKey_Sign_empty() {
 	}
 	fmt.Println(GoldenKey.Verify(d, sig))
 
-	// Output: true
+	// Signing a previously known cad.
+	cad := MustDecode(GoldenCad)
+	sig, err = GoldenKey.Sign(cad)
+	if err != nil {
+		panic(err)
+	}
+	fmt.Printf("%v\n", GoldenKey.Verify(cad, sig))
+
+	// Output:
+	// true
+	// true
 }
 
 // ExampleKey_SignPay demonstrates converting a custom data structure into a
@@ -170,58 +169,60 @@ func ExampleKey_SignPay() {
 		panic(err)
 	}
 
-	v, err := GoldenKey.VerifyCoze(coze)
-	if err != nil {
-		panic(err)
-	}
-	fmt.Println(v)
+	fmt.Println(GoldenKey.VerifyCoze(coze))
 
-	// Output:
-	// true
+	// Output: true <nil>
 }
 
 func ExampleKey_SignPayJSON() {
-	coze := new(Coze)
-	coze.Pay = []byte(GoldenPay)
-
-	var err error
-	coze.Sig, err = GoldenKey.SignPayJSON(coze.Pay)
+	coze, err := GoldenKey.SignPayJSON(json.RawMessage(GoldenPay))
 	if err != nil {
 		panic(err)
 	}
+	fmt.Println(GoldenKey.VerifyCoze(coze))
 
-	v, err := GoldenKey.VerifyCoze(coze)
+	// Output: true <nil>
+}
+
+// ExampleKey_Sign_empty demonstrates signing of empty Coze,
+// `{"pay":{},"sig":"9iesKU..."}`, is valid.
+func ExampleKey_SignPayJSON_empty() {
+	coze, err := GoldenKey.SignPayJSON([]byte("{}"))
 	if err != nil {
 		panic(err)
 	}
-	fmt.Println(v)
+	fmt.Println(GoldenKey.VerifyCoze(coze))
 
-	// Output:
-	// true
+	// Output: true <nil>
+}
+
+// Example demonstrating the verification of the empty coze from the README.
+func ExampleKey_Verify_empty() {
+	cz := new(Coze)
+	err := json.Unmarshal(GoldenCozeEmpty, cz)
+	if err != nil {
+		panic(err)
+	}
+	fmt.Println(GoldenKey.VerifyCoze(cz))
+
+	// Output: true <nil>
 }
 
 func ExampleKey_SignCoze() {
 	cz := new(Coze)
-	cz.Pay = []byte(GoldenPay)
-
+	cz.Pay = json.RawMessage(GoldenPay)
 	err := GoldenKey.SignCoze(cz)
 	if err != nil {
 		panic(err)
 	}
 
-	v, err := GoldenKey.VerifyCoze(cz)
-	if err != nil {
-		panic(err)
-	}
-	fmt.Println(v)
+	fmt.Println(GoldenKey.VerifyCoze(cz))
 
-	// Output:
-	// true
+	// Output: true <nil>
 }
 
 func ExampleKey_Verify() {
-	v := GoldenKey.Verify(MustDecode(GoldenCad), MustDecode(GoldenSig))
-	fmt.Println(v)
+	fmt.Println(GoldenKey.Verify(MustDecode(GoldenCad), MustDecode(GoldenSig)))
 
 	// Output: true
 }
@@ -233,23 +234,16 @@ func ExampleKey_VerifyCoze() {
 		panic(err)
 	}
 
-	v, err := GoldenKey.VerifyCoze(cz)
-	if err != nil {
-		panic(err)
-	}
-	fmt.Println(v)
+	fmt.Println(GoldenKey.VerifyCoze(cz))
 
-	// Output: true
+	// Output: true <nil>
 }
 
 // Tests valid on a good Coze key and a bad Coze key
 func ExampleKey_Valid() {
-	fmt.Println(GoldenKey.Valid())
-	fmt.Println(GoldenKeyBad.Valid())
+	fmt.Println(GoldenKey.Valid(), GoldenKeyBad.Valid())
 
-	// Output:
-	// true
-	// false
+	// Output: true false
 }
 
 func ExampleNewKey_valid() {
@@ -259,8 +253,7 @@ func ExampleNewKey_valid() {
 	}
 	fmt.Println(ck.Valid())
 
-	// Output:
-	// true
+	// Output: true
 }
 
 func ExampleNewKey() {
@@ -289,13 +282,9 @@ func ExampleNewKey() {
 }
 
 func ExampleNewKey_bad() {
-	_, err := NewKey(SEAlg(SHA256)) // Invalid signing alg, fails.
-	if err != nil {
-		fmt.Println(err)
-	}
+	fmt.Println(NewKey(SEAlg(SHA256))) // Invalid signing alg, fails.
 
-	// Output:
-	// NewKey: unsupported alg: SHA-256
+	// Output: <nil> NewKey: unsupported alg: SHA-256
 }
 
 func ExampleKey_Correct() {
@@ -355,14 +344,9 @@ func ExampleKey_Correct() {
 
 // See also ExampleCanonicalHash.
 func ExampleCanonicalHash_genCad() {
-	digest, err := CanonicalHash([]byte(GoldenPay), nil, GoldenKey.Alg.Hash())
-	if err != nil {
-		panic(err)
-	}
-	fmt.Println(digest)
+	fmt.Println(CanonicalHash([]byte(GoldenPay), nil, GoldenKey.Alg.Hash()))
 
-	// Output:
-	// Ie3xL77AsiCcb4r0pbnZJqMcfSBqg5Lk0npNJyJ9BC4
+	// Output: Ie3xL77AsiCcb4r0pbnZJqMcfSBqg5Lk0npNJyJ9BC4 <nil>
 }
 
 // BenchmarkNSV benchmarks several methods on a Coze key. (NSV = New, Sign,

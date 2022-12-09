@@ -36,10 +36,9 @@ Coze objects encapsulate a set of JSON name/value fields.  Coze JSON objects are
 case sensitive, must be valid JSON, and must contain unique field names. Coze
 **reserved fields** must be used according to Coze.  Applications are permitted
 to use additional fields as desired.  All reserved fields are optional, but
-omitting standard fields may limit compatibility among Coze supporting
-applications.  Binary values are encoded as RFC 4648 base64 URI with padding
-omitted.  The Coze objects `pay`, `key`, and `coze` have respective reserved
-fields.
+omitting standard fields may limit compatibility among applications.  Binary
+values are encoded as RFC 4648 base64 URI with padding omitted.  The Coze
+objects `pay`, `key`, and `coze` have respective reserved fields.
 
 #### All Coze Reserved Field Names
 ![Coze Reserved Fields](docs/img/coze_reserved_fields.png)
@@ -366,11 +365,9 @@ See `docs/developement.md` for the Go development guide.
 # FAQ
 
 #### Pronunciation? What does "Coze" mean? 
-We say "Co-zee" like a comfy cozy couch.  The English word Coze is pronounced
-"kohz" and means "a friendly talk; a chat" which is the perfect name for a
-messaging standard.
-
-Jared suggested Coze because it looks like JOSE or COSE but it's funnier.
+We say "Co-zee" like a comfy cozy couch.  Jared suggested Coze because it's
+funny. The English word Coze is pronounced "kohz" and means "a friendly talk; a
+chat" which is the perfect name for a messaging standard.  
 
 #### "Coze" vs "coze"?
 We use upper case "Coze" to refer to the specification, and "coze" to refer to
@@ -380,41 +377,19 @@ coze messages and objects.
 Coze was released on 2021/06/08 (1623132000) since it's 30 years and one day
 after the initial release of PGP 1.0.
 
-#### Required Coze Fields 
-Coze has no required fields.  If an application uses Coze while omitting
-standard fields, it may result in incompatibility, so it is suggested to always
-include standard fields appropriately.   
-
-For the `key` object it is suggested that public keys always have `alg`, `iat`
-`kid`, `tmb` and `x` and additionally for private keys the field `d`.
-
-#### The Empty Coze
-An empty `pay` is legitimate and may be verified if `alg` and `tmb` are
-implicitly known. The following, an example of an "empty coze", is valid and was
-signed with the key "cLj8vs ..." which has the `alg` "ES256". The objects `pay`
-and `coze` have no required fields, but without the standard fields cozies will
-be less useful to third parties.    
-
-```json
-{
-	"pay":{},
-	"sig":"9iesKUSV7L1-xz5yd3A94vCkKLmdOAnrcPXTU3_qeKSuk4RMG7Qz0KyubpATy0XA_fXrcdaxJTvXg6saaQQcVQ"
-}
-```
-
 #### ASCII/Unicode/UTF-8/UTF-16 and Ordering?
 Although JSON was designed in a Javascript (UTF-16) context, the latest JSON RFC
 requires UTF-8 encoding, a decision that was made because all significant
 existing implementations used UTF-8.  Unicode is a superset of ASCII and UTF-8
 shares sorting order with Unicode. This results in broad, out of the box
 compatibility. Object field order may be denoted by a canon, chaining normal, or
-communicate ordering via other means.  If applications need sorted fields, UTF-8
-order should be used.  
+communicate ordering via other means.  If applications need sorted fields,
+UTF-8/Unicode order is suggested.  
 
 Note that UTF-16 (Javascript) has some code points out of order. For these
 systems, a small amount of additional logic is needed to correct the sort order.
 
-#### Binary? Why not support binary payloads like JOSE?
+#### Binary? Why not support binary payloads?
 JSON isn't well designed for large binary payloads.  Instead, Coze suggests
 including the short binary file's digest in a coze message while transporting
 the binary seperately. See the binary example above.  
@@ -487,13 +462,29 @@ GeMSS128 public keys are 352,188 bytes, compared to Ed25519's 32 bytes.  Using
 Additionally, `x` may be cryptographically significant for key security while
 `tmb` is not.
 
-#### Javascript vs Go crypto.
-Javascript's `SubtleCrypto.sign(algorithm, key, data)` always hashes a message
-before signing while Go's ECDSA expects a digest to sign. This means that in
-Javascript messages must be passed for signing, while in Go only a digest is
-needed.  
+#### Required Coze Fields 
+Coze has no required fields, however omitting standard fields limits
+interoperability among applications, so it is suggested to include standard
+fields appropriately.   
 
-#### Why not PGP/OpenSSL/LibreSSL/libsodium/JOSE/COSE/etc...?
+####  Contextual Cozies and the Empty Coze
+Cozies that are missing the fields `pay.alg` and/or `pay.tmb` are **contextual
+cozies**, denoting that additional information is needed for verification.
+Caution is urged when deploying contextual cozies as including the standard
+fields `pay.alg` and `pay.tmb` is preferred.  
+
+An empty `pay` is legitimate and may be verified if `alg`, `tmb` or `key` are
+otherwise known. The following valid "empty coze" was signed with key "cLj8vs"
+which has the `alg` "ES256".   
+
+```json
+{
+	"pay":{},
+	"sig":"9iesKUSV7L1-xz5yd3A94vCkKLmdOAnrcPXTU3_qeKSuk4RMG7Qz0KyubpATy0XA_fXrcdaxJTvXg6saaQQcVQ"
+}
+```
+
+#### Why not PGP/OpenSSL/LibreSSL/SSHSIG/libsodium/JOSE/COSE/etc...?
 We have a lot of respect for existing projects. They're great at what they do.
 Existing solutions were not meeting our particular needs. Coze is influenced
 by many ideas and standards.  
