@@ -1,9 +1,9 @@
 # ⚠️ COZE IS IN ALPHA.  USE AT YOUR OWN RISK ⚠️
-[![pkg.go.dev](https://pkg.go.dev/badge/github.com/github.com/cyphrme/coze)](https://pkg.go.dev/github.com/cyphrme/coze)
+[![pkg.go.dev][GoBadge]][GoDoc]
 
-![Coze](docs/img/coze_logo_zami_white_450x273.png)
+![Coze][CozeLogo]
 
-[Presentation](https://docs.google.com/presentation/d/1bVojfkDs7K9hRwjr8zMW-AoHv5yAZjKL9Z3Bicz5Too)
+[Presentation][Presentation]
 
 # Coze 
 **Coze** is a cryptographic JSON messaging specification designed for human
@@ -275,8 +275,8 @@ to upload a file to a user's account.
 
 ## Revoke
 A Coze key may be revoked by signing a self-revoke coze.  A self-revoke coze has
-the field `rvk` an integer value greater than `0`.  For example, the integer
-value `1` is suitable to denote revocation.  A Unix timestamp of the time of
+the field `rvk` with an integer value greater than `0`.  For example, the
+integer value `1` is suitable to denote revocation.  A Unix timestamp of
 revocation is the suggested value for `rvk`.
 
 ### Example Self Revoke
@@ -338,12 +338,22 @@ cryptographic operations.
 
 
 ## Coze Verifier
-Cyphr.me provides an online tool for signing and verifying Coze messages and
-plans to release an open source, stand alone version of the webpage.  
+The Coze verifier is an in-browser tool for verifying, signing, and generating
+Coze keys.  
 
-Play with Coze here: https://cyphr.me/coze_verifier.
+[Coze Verifier](https://cyphr.me/coze_verifier)
 
 ![coze_verifier](docs/img/Hello_World!.gif)
+
+There is also the [Simple Coze Verifier](https://cyphr.me/coze_verifier_simple/coze.html).  
+Its [codebase is in the Cozejs repo][CozeJSVerifier] and may be locally hosted.  
+
+
+## Coze Implementations
+ - [Go Coze (this repo)](https://github.com/Cyphrme/coze)
+ - [Coze js (Javascript)](https://github.com/Cyphrme/cozejs)
+
+See `docs/developement.md` for the Go development guide.
 
 
 ## Standard Coze
@@ -353,13 +363,6 @@ algorithm support are planned in "Coze Experimental".
 
 See `normal.go` for an example of a Coze Standard feature not included in Core
 Coze.  
-
-
-## Coze Implementations
- - [Go Coze (this repo)](https://github.com/Cyphrme/coze)
- - [Coze js (Javascript)](https://github.com/Cyphrme/cozejs)
-
-See `docs/developement.md` for the Go development guide.
 
 
 # FAQ
@@ -649,3 +652,12 @@ Coze is released under The 3-Clause BSD License.
 
 "Cyphr.me" is a trademark of Cypherpunk, LLC. The Cyphr.me logo is all rights
 reserved Cypherpunk, LLC and may not be used without permission.
+
+
+[GoBadge]: https://pkg.go.dev/badge/github.com/github.com/cyphrme/coze
+[GoDoc]: https://pkg.go.dev/github.com/cyphrme/coze
+[CozeLogo]: (docs/img/coze_logo_zami_white_450x273.png)
+
+[Presentation]:(https://docs.google.com/presentation/d/1bVojfkDs7K9hRwjr8zMW-AoHv5yAZjKL9Z3Bicz5Too)
+[CozeJSVerifier]: https://github.com/Cyphrme/Cozejs/tree/master/verifier
+[GithubCozeVerifier]: https://cyphrme.github.io/Cozejs/verifier/coze.html
