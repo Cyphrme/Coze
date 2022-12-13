@@ -275,8 +275,8 @@ to upload a file to a user's account.
 
 ## Revoke
 A Coze key may be revoked by signing a self-revoke coze.  A self-revoke coze has
-the field `rvk` an integer value other than `0`.  For example, the integer value
-`1` is suitable to denote revocation.  A Unix timestamp of the time of
+the field `rvk` an integer value greater than `0`.  For example, the integer
+value `1` is suitable to denote revocation.  A Unix timestamp of the time of
 revocation is the suggested value for `rvk`.
 
 ### Example Self Revoke
