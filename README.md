@@ -656,7 +656,7 @@ reserved Cypherpunk, LLC and may not be used without permission.
 
 [GoBadge]: https://pkg.go.dev/badge/github.com/github.com/cyphrme/coze
 [GoDoc]: https://pkg.go.dev/github.com/cyphrme/coze
-[CozeLogo]: (docs/img/coze_logo_zami_white_450x273.png)
+[CozeLogo]: docs/img/coze_logo_zami_white_450x273.png
 
 [Presentation]:(https://docs.google.com/presentation/d/1bVojfkDs7K9hRwjr8zMW-AoHv5yAZjKL9Z3Bicz5Too)
 [CozeJSVerifier]: https://github.com/Cyphrme/Cozejs/tree/master/verifier
