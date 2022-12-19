@@ -319,8 +319,8 @@ func ExampleCoze_MetaWithAlg_contextual() {
 	// {"pay":{},"cad":"RBNvo1WzZ4oRRq0W9-hknpT7T8If536DEMBg9hyq_4o","sig":"9iesKUSV7L1-xz5yd3A94vCkKLmdOAnrcPXTU3_qeKSuk4RMG7Qz0KyubpATy0XA_fXrcdaxJTvXg6saaQQcVQ","czd":"Y3Us02VVqh67wMIrKU-d5lpHCm0OfxNbIO6oGjJf43c"}
 }
 
-// ExampleCoze_jsonUnMarshal tests unmarshalling a coze.
-func ExampleCoze_jsonUnMarshal() {
+// ExampleCoze_jsonUnmarshal tests unmarshalling a coze.
+func ExampleCoze_jsonUnmarshal() {
 	cz := new(Coze)
 	err := json.Unmarshal([]byte(GoldenCoze), cz)
 	if err != nil {

@@ -13,22 +13,16 @@ import (
 // Coze is for signed Coze objects (cozies).  See the Coze docs (README.md) for
 // more on the construction of `coze`.
 //
-// Struct fields appear in sorted order for JSON marshaling.
-//
-// Fields:
-//
-
-//   - Pay:    The raw Payload.
-//   - Key:    Key used to sign the message. Must be pointer, otherwise
-//     json.Marshal (and by extension coze.Marshal) will not marshal on
-//     zero type. See: https://github.com/golang/go/issues/11939.
-//   - Can:    "Canon" Pay's fields in order of appearance.
-//   - Cad:    "Canonical Digest" Pay's compactified form digest.
-//   - Sig:    Signature over pay.
-//   - Czd:    "Coze digest" with canon ["cad","sig"].
-//
-//   - Parsed: The parsed standard Coze pay fields ["alg","iat","tmb","typ"]
-//     from `Pay`.  `Parsed` is populated by Meta() and is JSON ignored.
+//	Pay: The raw Payload.
+//	Key: Key used to sign the message. Must be pointer, otherwise
+//	  json.Marshal will not marshal on zero type.
+//	  See: https://github.com/golang/go/issues/11939.
+//	Can: "Canon" Pay's fields in order of appearance.
+//	Cad: "Canonical Digest" Pay's compactified form digest.
+//	Sig: Signature over `pay`.
+//	Czd: "Coze digest" with canon ["cad","sig"].
+//	Parsed: The standard Coze pay fields ["alg","iat","tmb","typ"] parsed
+//	  from `Pay`.  `Parsed` is populated by Meta() and is JSON ignored.
 type Coze struct {
 	Pay json.RawMessage `json:"pay,omitempty"`
 	Key *Key            `json:"key,omitempty"`
@@ -68,7 +62,7 @@ func (cz *Coze) Meta() (err error) {
 
 // MetaWithAlg is for contextual cozies that may be lacking `alg` in `pay`, but
 // `alg` in otherwise known.  MetaWithAlg recalculates [can, cad, czd] and sets
-// Coze.Parsed ("alg","iat","tmb","typ") from Pay.     Will not calculated `czd`
+// Coze.Parsed ("alg","iat","tmb","typ") from Pay.  Will not calculated `czd`
 // if Coze.Sig is empty.  Errors if Pay.Alg is set and doesn't match parameter
 // alg.
 //
@@ -260,27 +254,23 @@ type Marshaler interface {
 	CozeMarshal() ([]byte, error)
 }
 
-// Marshal is a JSON friendly marshaler.
+// Marshal is a JSON friendly marshaler. The Go team is aware that the existing
+// implementation has issues but hasn't release a new version.  For example,
+// Go's json.Marshal breaking a title: https://play.golang.org/p/o2hiX0c62oN.
+// json.Marshal preemptively replaces the valid JSON and valid UTF-8
+// characters "&". "<", ">" with the "slash u" unicode escapes (e.g. \u0026) in
+// the name of HTML friendliness. JSON is not HTML, and preemptive HTML escaping
+// in JSON is incorrect.  The JSON spec calls for no such measures and other
+// industry adopted encoders do not preemptively escape for HTML.  Where JSON
+// may include these characters, like user arbitrary data, json.Marshal should
+// not be used.
 //
-// The Go team is aware that the existing implementation of the JSON marshaler
-// has some large issues but have yet to release a new version, so this function
-// is needed.  Go's json.Marshal is not JSON friendly because it preemptively
-// replaces the valid JSON and valid UTF-8 characters "&". "<", ">" with the
-// "slash u" unicode escapes (e.g. \u0026) in the name of HTML friendliness.
-// JSON is not HTML, and this HTML escaping is incorrect.  The JSON spec calls
-// for no such measures and other industry adopted encoders do no such
-// preemptive HTML escaping.  Where JSON may include these characters, like user
-// arbitrary data, json.Marshal should not be used. Playground of Go breaking a
-// book title: https://play.golang.org/p/o2hiX0c62oN. Joe Tsai is working on
-// json "fixes" in a yet-to-be-publicly-released "v2" json package, which we
-// hope to use upon release.
+// Go structs already require unique fields, so Unlike coze.UnmarshalJSON or
+// pay.UnmarshalJSON, marshaling will not sanitize for duplicates.
 //
-// Unlike coze.UnmarshalJSON or pay.UnmarshalJSON, marshaling will not sanitize
-// for duplicates so a correct struct with no duplicates must be given. (Go
-// structs already require unique fields). See notes on checkDuplicate.
-//
-// Another work is Tailscale's JSON serializer:
-// https://pkg.go.dev/github.com/go-json-experiment/json
+// Joe Tsai is working on json "fixes" in a yet-to-be-publicly-released "v2"
+// json package, which we hope to use upon release.  Another work is Tailscale's
+// JSON serializer: https://pkg.go.dev/github.com/go-json-experiment/json
 func Marshal(i any) ([]byte, error) {
 	buffer := &bytes.Buffer{}
 	encoder := json.NewEncoder(buffer)
@@ -338,10 +328,9 @@ func Hash(h HshAlg, msg []byte) (digest B64, err error) {
 }
 
 // checkDuplicate checks if the JSON string has a duplicate. Go has an issue
-// regarding duplicates: https://github.com/golang/go/issues/48298
-//
-// Another solution is being created by Joe Tsai (see notes on Marshal).  When
-// he's done, we'll take this out and use v2.
+// regarding duplicates: https://github.com/golang/go/issues/48298. Another
+// solution is being created by Joe Tsai (see notes on Marshal).  When he's
+// done, we'll take this out and use v2.
 //
 // Inspire by Cerise Limón.
 // https://stackoverflow.com/questions/50107569/detect-duplicate-in-json-string-golang

@@ -522,10 +522,12 @@ func (h *HshAlg) goHash() hash.Hash {
 
 // HashSize returns the digest size in bytes for the given hashing algorithm.
 //
-// For SHAKE128 and SHAKE256, this function returns the static sizes, 32 and 64 respectively, although the algorithm permits any larger arbitrary output size.
-// SHAKE128 has 128 bits of pre-collision resistance and a capacity of 256,
-// although it has arbitrary output size. SHAKE256 has 256 bits of pre-collision
-// resistance and a capacity of 512, although it has arbitrary output size.
+// For SHAKE128 and SHAKE256, this function returns the static sizes, 32 and 64
+// respectively, although the algorithm permits any larger arbitrary output
+// size. SHAKE128 has 128 bits of pre-collision resistance and a capacity of
+// 256, although it has arbitrary output size. SHAKE256 has 256 bits of
+// pre-collision resistance and a capacity of 512, although it has arbitrary
+// output size.
 func (h HshAlg) Size() int {
 	switch h {
 	default:

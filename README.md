@@ -1,4 +1,4 @@
-# ⚠️ COZE IS IN ALPHA.  USE AT YOUR OWN RISK ⚠️
+#### ⚠️ COZE IS IN ALPHA.  USE AT YOUR OWN RISK ⚠️
 [![pkg.go.dev][GoBadge]][GoDoc]
 
 ![Coze][CozeLogo]
