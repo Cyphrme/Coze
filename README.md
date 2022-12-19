@@ -1,6 +1,5 @@
 #### ⚠️ COZE IS IN ALPHA.  USE AT YOUR OWN RISK ⚠️
 [![pkg.go.dev][GoBadge]][GoDoc]
-
 ![Coze][CozeLogo]
 
 [Presentation][Presentation]
@@ -654,10 +653,10 @@ Coze is released under The 3-Clause BSD License.
 reserved Cypherpunk, LLC and may not be used without permission.
 
 
-[GoBadge]: https://pkg.go.dev/badge/github.com/github.com/cyphrme/coze
-[GoDoc]: https://pkg.go.dev/github.com/cyphrme/coze
+[GoBadge]:  https://pkg.go.dev/badge/github.com/github.com/cyphrme/coze
+[GoDoc]:    https://pkg.go.dev/github.com/cyphrme/coze
 [CozeLogo]: docs/img/coze_logo_zami_white_450x273.png
 
-[Presentation]:(https://docs.google.com/presentation/d/1bVojfkDs7K9hRwjr8zMW-AoHv5yAZjKL9Z3Bicz5Too)
-[CozeJSVerifier]: https://github.com/Cyphrme/Cozejs/tree/master/verifier
+[Presentation]:       https://docs.google.com/presentation/d/1bVojfkDs7K9hRwjr8zMW-AoHv5yAZjKL9Z3Bicz5Too
+[CozeJSVerifier]:     https://github.com/Cyphrme/Cozejs/tree/master/verifier
 [GithubCozeVerifier]: https://cyphrme.github.io/Cozejs/verifier/coze.html
