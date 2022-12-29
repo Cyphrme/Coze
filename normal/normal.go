@@ -126,6 +126,10 @@ func (n Extra) Normal() []Normal {
 	return n
 }
 
+// Standard is the standard coze.pay fields. Custom fields may be appended after
+// standard. e.g. `normID := append(standard, "id")`.
+var Standard = []Normal{"alg", "iat", "tmb", "typ"}
+
 // Type returns the type for a given Normaler including a case for []Normal.
 func Type(norm Normaler) string {
 	switch norm.(type) {
