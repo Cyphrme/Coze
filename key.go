@@ -15,18 +15,19 @@ import (
 // KeyCanonSlice is the canonical form of a Coze key in slice form.
 var KeyCanon = []string{"alg", "x"}
 
-// Key is a Coze key. See `README.md` for details on Coze key. Fields must be in
-// order for correct JSON marshaling.
+// Key is a Coze key. See `README.md` for details on Coze key. Fields `alg` and
+// `tmb` must be in correct relative order for thumbprint canon because JSON
+// marshal uses struct order.
 //
 // Standard Coze key Fields
-//   - `alg` - Specific key algorithm. E.g. "ES256" or "Ed25519".
-//   - `d`   - Private component. E.g. "bNstg4_H3m3SlROufwRSEgibLrBuRq9114OvdapcpVA".
-//   - `iat` - Unix time of when the key was created. E.g. 1626069600.
-//   - `kid` - Human readable, non-programmatic label. E.g. "My Coze key".
-//   - `rvk` - Unix time of key revocation. See docs on `rvk`. E.g. 1626069601.
-//   - `tmb` - Key thumbprint. E.g. "cLj8vsYtMBwYkzoFVZHBZo6SNL8wSdCIjCKAwXNuhOk".
-//   - `typ` - Application label for key. E.g. "coze/key".
-//   - `x`   - Public component. E.g. "2nTOaFVm2QLxmUO_SjgyscVHBtvHEfo2rq65MvgNRjORojq39Haq9rXNxvXxwba_Xj0F5vZibJR3isBdOWbo5g".
+//	`alg` - Specific key algorithm. E.g. "ES256" or "Ed25519".
+//	`d`   - Private component. E.g. "bNstg4_H3m3SlROufwRSEgibLrBuRq9114OvdapcpVA".
+//	`iat` - Unix time of when the key was created. E.g. 1626069600.
+//	`kid` - Human readable, non-programmatic label. E.g. "My Coze key".
+//	`rvk` - Unix time of key revocation. See docs on `rvk`. E.g. 1626069601.
+//	`tmb` - Key thumbprint. E.g. "cLj8vsYtMBwYkzoFVZHBZo6SNL8wSdCIjCKAwXNuhOk".
+//	`typ` - Application label for key. E.g. "coze/key".
+//	`x`   - Public component. E.g. "2nTOaFVm2QLxmUO_SjgyscVHBtvHEfo2rq65MvgNRjORojq39Haq9rXNxvXxwba_Xj0F5vZibJR3isBdOWbo5g".
 type Key struct {
 	Alg SEAlg  `json:"alg,omitempty"`
 	D   B64    `json:"d,omitempty"`
