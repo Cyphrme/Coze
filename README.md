@@ -1,5 +1,6 @@
-#### ⚠️ COZE IS IN ALPHA.  USE AT YOUR OWN RISK ⚠️
 [![pkg.go.dev][GoBadge]][GoDoc]
+#### ⚠️ COZE IS IN ALPHA.  USE AT YOUR OWN RISK ⚠️
+
 ![Coze][CozeLogo]
 
 [Presentation][Presentation]
@@ -31,33 +32,32 @@ readability.
 4. Cryptographic agility.
 
 ### Coze Fields
-Coze objects encapsulate a set of JSON name/value fields.  Coze JSON objects are
-case sensitive, must be valid JSON, and must contain unique field names. Coze
-**reserved fields** must be used according to Coze.  Applications are permitted
-to use additional fields as desired.  All reserved fields are optional, but
-omitting standard fields may limit compatibility among applications.  Binary
-values are encoded as RFC 4648 base64 URI with padding omitted.  The Coze
-objects `pay`, `key`, and `coze` have respective reserved fields.
+Coze JSON fields and are case sensitive and contain unique names. The standard
+fields are reserved.  Applications are permitted to use additional fields as
+desired.  All fields are optional, but omitting standard fields may limit
+compatibility.  Binary values are encoded as RFC 4648 base64 URI with padding
+omitted.  The Coze objects `pay`, `key`, and `coze` have respective reserved
+fields.
 
 #### All Coze Reserved Field Names
 ![Coze Reserved Fields](docs/img/coze_reserved_fields.png)
 
 
 ## Pay
-`pay` may contain the standard fields `alg`, `iat`, `tmb`, and `typ` and
-additional fields.  In the first example, `msg` is additional.
+`pay` contains the fields `alg`, `iat`, `tmb`, and `typ` and optionally any
+additional application fields.  In the first example `msg` is additional.
 
 ### `pay` Reserved Names
 - `alg` - Specific cryptographic algorithm.  E.g. `"ES256"`
-- `iat` - The time when the message was signed. E.g. `1623132000`
-- `tmb` - Thumbprint of the key used to sign the message.  E.g. `"cLj8vs..."`
+- `iat` - Time of message signature. E.g. `1623132000`
+- `tmb` - Thumbprint of the signature's key..  E.g. `"cLj8vs..."`
 - `typ` - Type of `pay`.
 
 `typ`'s value may be used by applications as desired.  The value is recommended
 to denote API information such as versioning, expected fields, and/or other
 application defined programmatic functions.  In the first example,
 `"typ":"cyphr.me/msg"` denotes a `pay` with the fields
-`["msg","alg","iat","tmb","typ"]` as defined by a hypothetical application.  
+`["msg","alg","iat","tmb","typ"]` as defined by the application.  
 
 
 ## Coze Key
