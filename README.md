@@ -32,22 +32,20 @@ readability.
 4. Cryptographic agility.
 
 ### Coze Fields
-Coze JSON fields and are case sensitive and contain unique names. The standard
-fields are reserved.  Applications are permitted to use additional fields as
-desired.  All fields are optional, but omitting standard fields may limit
-compatibility.  Binary values are encoded as RFC 4648 base64 URI with padding
-omitted.  The Coze objects `pay`, `key`, and `coze` have respective reserved
-fields.
+Coze JSON fields are case sensitive and unique.  Coze defines standard fields
+and applications may include additional fields as desired.  All fields are
+optional, but omitting standard fields may limit compatibility. Binary values
+are encoded as RFC 4648 base64 URI with padding truncated (b64ut).  The Coze
+objects `pay`, `key`, and `coze` have respective standard fields.
 
-#### All Coze Reserved Field Names
-![Coze Reserved Fields](docs/img/coze_reserved_fields.png)
-
+#### All Coze Standard Fields
+![Coze Standard Fields](docs/img/coze_standard_fields.png)
 
 ## Pay
 `pay` contains the fields `alg`, `iat`, `tmb`, and `typ` and optionally any
 additional application fields.  In the first example `msg` is additional.
 
-### `pay` Reserved Names
+### `pay` Standard Fields
 - `alg` - Specific cryptographic algorithm.  E.g. `"ES256"`
 - `iat` - Time of message signature. E.g. `1623132000`
 - `tmb` - Thumbprint of the signature's key..  E.g. `"cLj8vs..."`
@@ -84,7 +82,7 @@ application defined programmatic functions.  In the first example,
 }
 ```
 
-### `key` Reserved Names
+### `key` Standard Fields
 - `key` - Key object.  E.g. `"key":{"alg":"ES256", ...}`
 - `alg` - Algorithm.  E.g. `"ES256"`
 - `d`   - Private component.  E.g. `"bNstg4..."`
@@ -118,7 +116,7 @@ The JSON name `coze` may be used to wrap Coze objects.  For example:
 }
 ```
 
-### `coze` Reserved Names
+### `coze` Standard Fields
 - `coze` - JSON name for Coze objects.  E.g. `{"coze":{"pay":..., sig:...}}`
 - `can` - "Canon" of `pay`.  E.g. `["alg","iat","tmb","typ"]`
 - `cad` - "Canon digest", the digest of `pay`.  E.g.: `"LSgWE4v..."`
@@ -624,6 +622,16 @@ token={"pay":{"msg":"Coze Rocks","alg":"ES256","iat":1623132000,"tmb":"cLj8vsYtM
 ```
 
 For more considerations see the document [http_headers.md](docs/http_headers.md)
+
+
+#### Signature Malleability?
+Coze prohibits signature malleability.  
+
+Modern Ed25519 already makes this prohibition.  https://www.rfc-editor.org/rfc/rfc8032#section-8.4
+
+For ECDSA, the low s rule must be applied.  See
+- https://github.com/bitcoin/bips/blob/master/bip-0146.mediawiki#low_s
+- https://eips.ethereum.org/EIPS/eip-2
 
 #### Who created Coze?
 Coze was created by [Cyphr.me](https://cyphr.me).  
