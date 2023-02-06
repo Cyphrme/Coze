@@ -115,6 +115,10 @@ UTF8(eyJhbGciOiJSUzI1NiJ9.eyJpc3MiOiJqb2UiLA0KICJleHAiOjEzMDA4MTkzODAsDQogImh0dH
   object or binary blob, including keys and messages.  
 - Instead of "claims" inside of "payload" which is separate from head, Coze puts
   everything in pay. 
+- Coze provides replay protection using `czd` while JOSE requires places the
+  burden of defining  unique message identifiers onto applications.  This also
+  means various systems are not out-of-the-box compatible.  See https://www.rfc-editor.org/rfc/rfc7515#section-10.10
+
 
 
 

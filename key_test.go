@@ -3,6 +3,7 @@ package coze
 import (
 	"encoding/json"
 	"fmt"
+	"math/big"
 	"testing"
 )
 
@@ -368,4 +369,39 @@ func BenchmarkNSV(b *testing.B) {
 			}
 		}
 	}
+}
+
+// Tests to make sure generated ECDSA keys are low-s and not high-s.
+func Example_LowS() {
+	d, err := Hash(SHA512, []byte("7AtyaCHO2BAG06z0W1tOQlZFWbhxGgqej4k9-HWP3DE-zshRbrE-69DIfgY704_FDYez7h_rEI1WQVKhv5Hd5Q"))
+	if err != nil {
+		panic(err)
+	}
+
+	lowS := 0
+	algs := []SigAlg{ES224, ES256, ES384, ES512}
+	for i := 0; i < 128; i++ {
+		for _, alg := range algs {
+			ck, err := NewKey(SEAlg(alg))
+			if err != nil {
+				panic(err)
+			}
+			sig, err := ck.Sign(d)
+			if err != nil {
+				panic(err)
+			}
+
+			size := ck.Alg.SigAlg().SigSize() / 2
+			s := big.NewInt(0).SetBytes(sig[size:])
+			goEcdsa := KeyToPubEcdsa(ck)
+			ls, _ := IsLowS(goEcdsa, s)
+
+			if ls {
+				lowS++
+			}
+		}
+	}
+
+	fmt.Printf("Low s: %d\n", lowS)
+	// Output: Low s: 512
 }

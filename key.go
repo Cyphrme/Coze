@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"crypto/ecdsa"
 	"crypto/ed25519"
+	"crypto/elliptic"
 	"crypto/rand"
 	"encoding/json"
 	"errors"
@@ -109,6 +110,7 @@ func (c *Key) Sign(digest B64) (sig B64, err error) {
 	default:
 		return nil, fmt.Errorf("Sign: unsupported alg: %s", c.Alg)
 	case ECDSA:
+		pub := KeyToPubEcdsa(c)
 		prk := ecdsa.PrivateKey{
 			// ecdsa.Sign only needs PublicKey.Curve, not it's value.
 			PublicKey: ecdsa.PublicKey{Curve: c.Alg.Curve().EllipticCurve()},
@@ -118,6 +120,13 @@ func (c *Key) Sign(digest B64) (sig B64, err error) {
 		if err != nil {
 			return nil, err
 		}
+
+		// Low S
+		s, err = ToLowS(pub, s)
+		if err != nil {
+			return nil, err
+		}
+
 		// ECDSA Sig is R || S rounded up to byte left padded.
 		return PadInts(r, s, c.Alg.SigAlg().SigSize()), nil
 	case EdDSA:
@@ -219,6 +228,15 @@ func (c *Key) Verify(digest, sig B64) (valid bool) {
 		size := c.Alg.SigAlg().SigSize() / 2
 		r := big.NewInt(0).SetBytes(sig[:size])
 		s := big.NewInt(0).SetBytes(sig[size:])
+
+		// Low S
+		pub := KeyToPubEcdsa(c)
+		var err error
+		s, err = ToLowS(pub, s)
+		if err != nil {
+			return false
+		}
+
 		return ecdsa.Verify(KeyToPubEcdsa(c), digest, r, s)
 	case Ed25519, Ed25519ph:
 		return ed25519.Verify(ed25519.PublicKey(c.X), digest, sig)
@@ -370,4 +388,38 @@ func KeyToPubEcdsa(c *Key) (key *ecdsa.PublicKey) {
 		X:     new(big.Int).SetBytes(c.X[:size]),
 		Y:     new(big.Int).SetBytes(c.X[size:]),
 	}
+}
+
+// IsLow checks that s is a low-S
+func IsLowS(k *ecdsa.PublicKey, s *big.Int) (bool, error) {
+	halfOrder, ok := curveHalfOrders[k.Curve]
+	if !ok {
+		return false, fmt.Errorf("curve not recognized [%s]", k.Curve)
+	}
+	return s.Cmp(halfOrder) != 1, nil
+}
+
+// ToLowS sets set s to N - s if high that will be then low.
+func ToLowS(k *ecdsa.PublicKey, s *big.Int) (*big.Int, error) {
+	lowS, err := IsLowS(k, s)
+	if err != nil {
+		return nil, err
+	}
+
+	if !lowS {
+		s.Sub(k.Params().N, s)
+		return s, nil
+	}
+
+	return s, nil
+}
+
+// curveHalfOrders contains the precomputed curve group orders halved for
+// ToLowS. It is used to ensure that signature' S value is lower or equal to the
+// curve group order halved. From https://github.com/golang/go/issues/54549
+var curveHalfOrders = map[elliptic.Curve]*big.Int{
+	elliptic.P224(): new(big.Int).Rsh(elliptic.P224().Params().N, 1),
+	elliptic.P256(): new(big.Int).Rsh(elliptic.P256().Params().N, 1),
+	elliptic.P384(): new(big.Int).Rsh(elliptic.P384().Params().N, 1),
+	elliptic.P521(): new(big.Int).Rsh(elliptic.P521().Params().N, 1),
 }

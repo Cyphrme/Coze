@@ -529,6 +529,8 @@ Much of this comes from NIST FIPS (See https://csrc.nist.gov/publications/fips)
 
 For example, FIPS PUB 186-3 defines P-224, P-256, P-384, and P-521.
 
+To learn more see this [walkthrough of ECDSA](https://learnmeabitcoin.com/technical/ecdsa). 
+
 
 #### Unsupported Things?
 The following are out of scope or redundant.  
