@@ -42,9 +42,44 @@ However, this is expected to be unlikely, and we'd most likely advocate for
 non-adoption of such standard.  
 
 
+### Go Code to generate Malleable Signatures
+
+```golang
+//Example_GenHighSCoze generates high s.  Must comment out S canonicalization
+// in verify and sign for this to work.
+func Example_GenHighSCoze() {
+	goEcdsa := KeyToPubEcdsa(&GoldenKey)
+
+	for i := 0; i < 10; i++ {
+		cz := new(Coze)
+		err := json.Unmarshal([]byte(GoldenCoze), cz)
+		if err != nil {
+			panic(err)
+		}
+
+		err = GoldenKey.SignCoze(cz)
+		if err != nil {
+			panic(err)
+		}
+
+		size := GoldenKey.Alg.SigAlg().SigSize() / 2
+		s := big.NewInt(0).SetBytes(cz.Sig[size:])
+
+		ls, _ := IsLowS(goEcdsa, s)
+		if !ls {
+			fmt.Printf("High S coze: %s\n", cz)
+		}
+		fmt.Printf("Low S coze: %s\n", cz)
+	}
+	// Output:
+}
+```
 
 
 # Other Links
+[Wikipedia](https://en.wikipedia.org/wiki/Malleability_(cryptography))
+
+
 Non-modern Ed malleability demonstration:
 https://slowli.github.io/ed25519-quirks/malleability
 

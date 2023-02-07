@@ -407,41 +407,6 @@ func Example_LowS() {
 	// Output: Low s: 512
 }
 
-// Example_ed25519Malleability demonstrates that the Go Ed25519 implementation
-// is not malleable.  The malleable form was generated using
-// https://slowli.github.io/ed25519-quirks/malleability.
-func Example_ed25519Malleability() {
-	msg := []byte("Hello, world!")
-	// Public key b64ut: 6ySOZK7GdGzY-AJvpRwNyWOD4RtWGB4rDJCD0MLCG-M
-	// Public key ub64p: 6ySOZK7GdGzY+AJvpRwNyWOD4RtWGB4rDJCD0MLCG+M=
-	// Public key Hex: 85B3AC41C8A2F1D1CD1E684169E67253F26D1862605ACB615D2D4E0CC44941AA
-	//
-	// seed || pub key form:
-	// Hex: 85B3AC41C8A2F1D1CD1E684169E67253F26D1862605ACB615D2D4E0CC44941AAEB248E64AEC6746CD8F8026FA51C0DC96383E11B56181E2B0C9083D0C2C21BE3
-	// ub64p: hbOsQcii8dHNHmhBaeZyU/JtGGJgWsthXS1ODMRJQarrJI5krsZ0bNj4Am+lHA3JY4PhG1YYHisMkIPQwsIb4w==
-	//
-	// Seed:
-	// ub64p: hbOsQcii8dHNHmhBaeZyU/JtGGJgWsthXS1ODMRJQao=
-	pri := ed25519.NewKeyFromSeed(MustDecode("hbOsQcii8dHNHmhBaeZyU_JtGGJgWsthXS1ODMRJQao"))
-	p := pri.Public()
-	pub, ok := p.(ed25519.PublicKey)
-	if !ok {
-		return
-	}
-
-	// ub64p: WA8oFP3rnGa/Fbcei89ztetTEJ921iOLgPlUbww2ZbyHq3pYD/ZN5mpUC7iBXMJdzM7zV1nbi0TSzbFpAk4ACA==
-	valid := ed25519.Verify(pub, msg, MustDecode("WA8oFP3rnGa_Fbcei89ztetTEJ921iOLgPlUbww2ZbyHq3pYD_ZN5mpUC7iBXMJdzM7zV1nbi0TSzbFpAk4ACA"))
-	fmt.Println(valid)
-
-	// Alternative, malleable form.
-	valid = ed25519.Verify(pub, msg, MustDecode("WA8oFP3rnGa_Fbcei89ztetTEJ921iOLgPlUbww2Zbx0f3C1KVlgPkHxAltgVqFyzM7zV1nbi0TSzbFpAk4AGA"))
-	fmt.Println(valid)
-
-	// Output:
-	// true
-	// false
-}
-
 // Example_ECDSAToLowSSig demonstrates converting non-coze compliant high S
 // signatures to the canonicalized, coze compliant low S form.
 func Example_ECDSAToLowSSig() {
@@ -483,31 +448,37 @@ func Example_ECDSAToLowSSig() {
 	// {"pay":{"msg":"Coze Rocks","alg":"ES256","iat":1623132000,"tmb":"cLj8vsYtMBwYkzoFVZHBZo6SNL8wSdCIjCKAwXNuhOk","typ":"cyphr.me/msg"},"sig":"9KvWfOSIZUjW8Ie0jbdVdu9UlIP4TT4MXz3YyNW3fCQpo4YwKzwuxfjoQgymyAdjgfP6gis368dCwaNBWS5oeg"}
 }
 
-// Example_GenHighSCoze generates high s.  Must comment out S canonicalization
-// in verify and sign for this to work.
-// func Example_GenHighSCoze() {
-// 	goEcdsa := KeyToPubEcdsa(&GoldenKey)
+// Example_ed25519Malleability demonstrates that the Go Ed25519 implementation
+// is not malleable.  The malleable form was generated using
+// https://slowli.github.io/ed25519-quirks/malleability.
+func Example_ed25519Malleability() {
+	msg := []byte("Hello, world!")
+	// Public key b64ut: 6ySOZK7GdGzY-AJvpRwNyWOD4RtWGB4rDJCD0MLCG-M
+	// Public key ub64p: 6ySOZK7GdGzY+AJvpRwNyWOD4RtWGB4rDJCD0MLCG+M=
+	// Public key Hex: 85B3AC41C8A2F1D1CD1E684169E67253F26D1862605ACB615D2D4E0CC44941AA
+	//
+	// seed || pub key form:
+	// Hex: 85B3AC41C8A2F1D1CD1E684169E67253F26D1862605ACB615D2D4E0CC44941AAEB248E64AEC6746CD8F8026FA51C0DC96383E11B56181E2B0C9083D0C2C21BE3
+	// ub64p: hbOsQcii8dHNHmhBaeZyU/JtGGJgWsthXS1ODMRJQarrJI5krsZ0bNj4Am+lHA3JY4PhG1YYHisMkIPQwsIb4w==
+	//
+	// Seed:
+	// ub64p: hbOsQcii8dHNHmhBaeZyU/JtGGJgWsthXS1ODMRJQao=
+	pri := ed25519.NewKeyFromSeed(MustDecode("hbOsQcii8dHNHmhBaeZyU_JtGGJgWsthXS1ODMRJQao"))
+	p := pri.Public()
+	pub, ok := p.(ed25519.PublicKey)
+	if !ok {
+		return
+	}
 
-// 	for i := 0; i < 10; i++ {
-// 		cz := new(Coze)
-// 		err := json.Unmarshal([]byte(GoldenCoze), cz)
-// 		if err != nil {
-// 			panic(err)
-// 		}
+	// ub64p: WA8oFP3rnGa/Fbcei89ztetTEJ921iOLgPlUbww2ZbyHq3pYD/ZN5mpUC7iBXMJdzM7zV1nbi0TSzbFpAk4ACA==
+	valid := ed25519.Verify(pub, msg, MustDecode("WA8oFP3rnGa_Fbcei89ztetTEJ921iOLgPlUbww2ZbyHq3pYD_ZN5mpUC7iBXMJdzM7zV1nbi0TSzbFpAk4ACA"))
+	fmt.Println(valid)
 
-// 		err = GoldenKey.SignCoze(cz)
-// 		if err != nil {
-// 			panic(err)
-// 		}
+	// Alternative, malleable form.
+	valid = ed25519.Verify(pub, msg, MustDecode("WA8oFP3rnGa_Fbcei89ztetTEJ921iOLgPlUbww2Zbx0f3C1KVlgPkHxAltgVqFyzM7zV1nbi0TSzbFpAk4AGA"))
+	fmt.Println(valid)
 
-// 		size := GoldenKey.Alg.SigAlg().SigSize() / 2
-// 		s := big.NewInt(0).SetBytes(cz.Sig[size:])
-
-// 		ls, _ := IsLowS(goEcdsa, s)
-// 		if !ls {
-// 			fmt.Printf("High S coze: %s\n", cz)
-// 		}
-// 		fmt.Printf("Low S coze: %s\n", cz)
-// 	}
-// 	// Output:
-// }
+	// Output:
+	// true
+	// false
+}
