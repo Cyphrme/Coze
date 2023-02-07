@@ -248,7 +248,7 @@ func (a Alg) Family() FamAlg {
 // Hash returns respective hashing algorithm if specified. If alg is a hashing
 // algorithm, it returns itself.
 func (a Alg) Hash() HshAlg {
-	// Return itself if type HshAlg // TODO actually do a type def here.
+	// Return itself if type HshAlg
 	if a.Family() == SHA {
 		return HshAlg(a)
 	}

@@ -123,7 +123,7 @@ func (c *Key) Sign(digest B64) (sig B64, err error) {
 
 		// S canonicalization. Only generate signature with low S.
 		pub := KeyToPubEcdsa(c)
-		s, err = ToLowS(pub, s)
+		err = ToLowS(pub, s)
 		if err != nil {
 			return nil, err
 		}
@@ -365,6 +365,41 @@ func (c *Key) Correct() (bool, error) {
 	return ck.Valid(), nil
 }
 
+// Revoke will return a signed revoke coze for the given key as well as setting
+// `rvk` on the Coze key itself.
+func (c *Key) Revoke() (coze *Coze, err error) {
+	correct, err := c.Correct()
+	if !correct || err != nil {
+		return nil, errors.New("revoke: Coze key is not correct")
+	}
+
+	now := time.Now().Unix()
+	r := new(Pay)
+	r.Alg = c.Alg
+	r.Iat = now
+	r.Rvk = now
+	r.Tmb = c.Tmb
+	r.Typ = "cyphr.me/key/revoke"
+
+	coze = new(Coze)
+	coze.Pay, err = r.MarshalJSON()
+	if err != nil {
+		return
+	}
+
+	err = c.SignCoze(coze)
+	if err != nil {
+		return nil, err
+	}
+	c.Rvk = now // Sets `Key.Rvk` to the same value as the self-revoke coze.
+	return coze, nil
+}
+
+// IsRevoked returns true if the given Key is marked as revoked.
+func (c Key) IsRevoked() bool {
+	return c.Rvk > 0
+}
+
 // recalcX recalculates 'x' from 'd' and returns 'x'. 'x' will not be set on the
 // key from here. Algorithms are constant-time.
 // https://cs.opensource.google/go/go/+/refs/tags/go1.18.3:src/crypto/elliptic/elliptic.go;l=455;drc=7f9494c277a471f6f47f4af3036285c0b1419816
@@ -390,7 +425,7 @@ func KeyToPubEcdsa(c *Key) (key *ecdsa.PublicKey) {
 	}
 }
 
-// IsLow checks that s is a low-S
+// IsLow checks that s is a low S.
 func IsLowS(k *ecdsa.PublicKey, s *big.Int) (bool, error) {
 	halfOrder, ok := curveHalfOrders[k.Curve]
 	if !ok {
@@ -399,19 +434,18 @@ func IsLowS(k *ecdsa.PublicKey, s *big.Int) (bool, error) {
 	return s.Cmp(halfOrder) != 1, nil
 }
 
-// ToLowS sets set s to N - s if high that will be then low.
-func ToLowS(k *ecdsa.PublicKey, s *big.Int) (*big.Int, error) {
+// ToLowS converts high S to low S and leave low S as is.  It does this by (N -
+// S).
+func ToLowS(k *ecdsa.PublicKey, s *big.Int) error {
 	lowS, err := IsLowS(k, s)
 	if err != nil {
-		return nil, err
+		return err
 	}
-
 	if !lowS {
 		s.Sub(k.Params().N, s)
-		return s, nil
+		return nil
 	}
-
-	return s, nil
+	return nil
 }
 
 // curveHalfOrders contains the precomputed curve group orders halved for
@@ -437,7 +471,7 @@ func ECDSAToLowSSig(c *Key, coze *Coze) (err error) {
 
 	// Low S
 	pub := KeyToPubEcdsa(c)
-	s, err = ToLowS(pub, s)
+	err = ToLowS(pub, s)
 	if err != nil {
 		return err
 	}

@@ -127,11 +127,10 @@ func GenCzd(hash HshAlg, cad B64, sig B64) (czd B64, err error) {
 
 // Pay contains the standard Coze pay fields as well as custom Struct given by
 // third party applications.  This allows embedding third party structs into Pay
-// for creating custom cozies (see example ExampleKey_SignPay).  Struct must
-// be a pointer or will panic.
+// for creating custom cozies (see example ExampleKey_SignPay).
 //
 // The custom MarshalJSON() renders the JSON tags on [Alg, Iat, Tmb, Typ,
-// Struct] ineffective, however they are present for documentation.
+// Rvk, Struct] ineffective, however they are present for documentation.
 //
 // `Struct` will be marshaled when not empty. The custom marshaler promotes
 // fields inside `Struct` to be top level fields inside of `pay`. The tag
@@ -142,6 +141,9 @@ type Pay struct {
 	Iat int64  `json:"iat,omitempty"` // e.g. 1623132000
 	Tmb B64    `json:"tmb,omitempty"` // e.g. "cLj8vsYtMBwYkzoFVZHBZo6SNL8wSdCIjCKAwXNuhOk"
 	Typ string `json:"typ,omitempty"` // e.g. "cyphr.me/msg/create"
+
+	// Rvk is only for revoke messages.
+	Rvk int64 `json:"rvk,omitempty"` // e.g. 1623132000
 
 	// Custom arbitrary struct given by application.
 	Struct any `json:"-"`
@@ -325,6 +327,12 @@ func Hash(h HshAlg, msg []byte) (digest B64, err error) {
 	}
 
 	return digest, nil
+}
+
+// IsRevoke returns true if the given Key is marked as revoked. Revoke rule must
+// match Key.IsRevoked.
+func (p *Pay) IsRevoke() bool {
+	return p.Rvk > 0
 }
 
 // checkDuplicate checks if the JSON string has a duplicate. Go has an issue

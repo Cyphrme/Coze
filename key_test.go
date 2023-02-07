@@ -372,44 +372,32 @@ func BenchmarkNSV(b *testing.B) {
 	}
 }
 
-// Tests to make sure generated ECDSA keys are low-s and not high-s.
-func Example_LowS() {
-	d, err := Hash(SHA512, []byte("7AtyaCHO2BAG06z0W1tOQlZFWbhxGgqej4k9-HWP3DE-zshRbrE-69DIfgY704_FDYez7h_rEI1WQVKhv5Hd5Q"))
+func ExampleKey_IsRevoked() {
+	gk2 := GoldenKey // Make a copy
+	fmt.Println(gk2.IsRevoked())
+	coze, err := gk2.Revoke()
 	if err != nil {
 		panic(err)
 	}
 
-	lowS := 0
-	algs := []SigAlg{ES224, ES256, ES384, ES512}
-	for i := 0; i < 128; i++ {
-		for _, alg := range algs {
-			ck, err := NewKey(SEAlg(alg))
-			if err != nil {
-				panic(err)
-			}
-			sig, err := ck.Sign(d)
-			if err != nil {
-				panic(err)
-			}
-
-			size := ck.Alg.SigAlg().SigSize() / 2
-			s := big.NewInt(0).SetBytes(sig[size:])
-			goEcdsa := KeyToPubEcdsa(ck)
-			ls, _ := IsLowS(goEcdsa, s)
-
-			if ls {
-				lowS++
-			}
-		}
+	pay := new(Pay)
+	err = pay.UnmarshalJSON(coze.Pay)
+	if err != nil {
+		panic(err)
 	}
+	// Both the revoke coze and the key should be interpreted as revoked.
+	fmt.Println(pay.IsRevoke())
+	fmt.Println(gk2.IsRevoked())
 
-	fmt.Printf("Low s: %d\n", lowS)
-	// Output: Low s: 512
+	// Output:
+	// false
+	// true
+	// true
 }
 
 // Example_ECDSAToLowSSig demonstrates converting non-coze compliant high S
 // signatures to the canonicalized, coze compliant low S form.
-func Example_ECDSAToLowSSig() {
+func ExampleECDSAToLowSSig() {
 	highSCozies := []string{
 		`{"pay":{},"sig":"9iesKUSV7L1-xz5yd3A94vCkKLmdOAnrcPXTU3_qeKSuk4RMG7Qz0KyubpATy0XA_fXrcdaxJTvXg6saaQQcVQ"}`,
 		`{"pay":{"msg":"Coze Rocks","alg":"ES256","iat":1623132000,"tmb":"cLj8vsYtMBwYkzoFVZHBZo6SNL8wSdCIjCKAwXNuhOk","typ":"cyphr.me/msg"},"sig":"mVw8N6ZncWcObVGvnwUMRIC6m2fbX3Sr1LlHMbj_tZ3ji1rNL-00pVaB12_fmlK3d_BVDipNQUsaRyIlGJudtg"}`,
@@ -446,6 +434,41 @@ func Example_ECDSAToLowSSig() {
 	// {"pay":{"msg":"Coze Rocks","alg":"ES256","iat":1623132000,"tmb":"cLj8vsYtMBwYkzoFVZHBZo6SNL8wSdCIjCKAwXNuhOk","typ":"cyphr.me/msg"},"sig":"mVw8N6ZncWcObVGvnwUMRIC6m2fbX3Sr1LlHMbj_tZ0cdKUx0BLLW6l-KJAgZa1IRPaln3zKXTnZcqid48eHmw"}
 	// {"pay":{"msg":"Coze Rocks","alg":"ES256","iat":1623132000,"tmb":"cLj8vsYtMBwYkzoFVZHBZo6SNL8wSdCIjCKAwXNuhOk","typ":"cyphr.me/msg"},"sig":"cn6KNl4VQlk5MzmhYFVyyJoTOU57O5Bq-8r-yXXR6OggTLBE065iDsKnFPd2_vU5F337ZwurFjy6wstJ5Z3PIA"}
 	// {"pay":{"msg":"Coze Rocks","alg":"ES256","iat":1623132000,"tmb":"cLj8vsYtMBwYkzoFVZHBZo6SNL8wSdCIjCKAwXNuhOk","typ":"cyphr.me/msg"},"sig":"9KvWfOSIZUjW8Ie0jbdVdu9UlIP4TT4MXz3YyNW3fCQpo4YwKzwuxfjoQgymyAdjgfP6gis368dCwaNBWS5oeg"}
+}
+
+// Example_lowS tests to make sure generated ECDSA keys are low-s and not high-s.
+func Example_lowS() {
+	d, err := Hash(SHA512, []byte("7AtyaCHO2BAG06z0W1tOQlZFWbhxGgqej4k9-HWP3DE-zshRbrE-69DIfgY704_FDYez7h_rEI1WQVKhv5Hd5Q"))
+	if err != nil {
+		panic(err)
+	}
+
+	lowS := 0
+	algs := []SigAlg{ES224, ES256, ES384, ES512}
+	for i := 0; i < 128; i++ {
+		for _, alg := range algs {
+			ck, err := NewKey(SEAlg(alg))
+			if err != nil {
+				panic(err)
+			}
+			sig, err := ck.Sign(d)
+			if err != nil {
+				panic(err)
+			}
+
+			size := ck.Alg.SigAlg().SigSize() / 2
+			s := big.NewInt(0).SetBytes(sig[size:])
+			goEcdsa := KeyToPubEcdsa(ck)
+			ls, _ := IsLowS(goEcdsa, s)
+
+			if ls {
+				lowS++
+			}
+		}
+	}
+
+	fmt.Printf("Low s: %d\n", lowS)
+	// Output: Low s: 512
 }
 
 // Example_ed25519Malleability demonstrates that the Go Ed25519 implementation
