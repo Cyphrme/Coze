@@ -374,6 +374,10 @@ func (se SEAlg) Hash() HshAlg {
 	return se.SigAlg().Hash()
 }
 
+func (se SEAlg) SigSize() int {
+	return SigAlg(se).SigSize()
+}
+
 // XSize returns the byte size of `x`.  Returns 0 on invalid algorithm.
 //
 // For ECDSA `x` is the concatenation of X and Y.

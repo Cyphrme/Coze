@@ -131,6 +131,11 @@ calculated from brace to brace, including the braces. `cad` and `czd` are
 recalculatable and are recommended to be omitted, although they may be useful
 for reference.  
 
+As an added technical constraint, because `sig` and `czd` are used as
+identifiers, `sig` must be non-malleable. Malleable schemes like ECDSA must
+perform signature canonicalization that constrains signatures to a non-malleable
+form.  
+
 ### Verbose `coze`
 Needlessly wrapping Coze objects or including unneeded labels is not
 recommended. For example, the JSON object `{"pay":{...},"sig":...}` doesn't need
@@ -363,7 +368,6 @@ Coze.
 
 
 # FAQ
-
 #### Pronunciation? What does "Coze" mean? 
 We say "Co-zee" like a comfy cozy couch.  Jared suggested Coze because it's
 funny. The English word Coze is pronounced "kohz" and means "a friendly talk; a
@@ -531,7 +535,6 @@ For example, FIPS PUB 186-3 defines P-224, P-256, P-384, and P-521.
 
 To learn more see this [walkthrough of ECDSA](https://learnmeabitcoin.com/technical/ecdsa). 
 
-
 #### Unsupported Things?
 The following are out of scope or redundant.  
 
@@ -549,7 +552,6 @@ thumbprint.  Associating thumbprints to issuers is the design we recommend.
   `typ`.
 - `jti` - "Token ID/JWT ID". Redundant by `czd`, `cad`, or an application
   specified field.
-
 
 #### Encryption?
 Coze does not currently support encryption.  If or when it ever does it would be
@@ -611,7 +613,6 @@ https://github.com/json5/json5-spec/issues/38.
 See also I-JSON
  - (2015, Bray)     https://datatracker.ietf.org/doc/html/rfc7493
 
-
 #### JSON APIs?
 Coze is well suited for JSON APIs.
 
@@ -625,15 +626,9 @@ token={"pay":{"msg":"Coze Rocks","alg":"ES256","iat":1623132000,"tmb":"cLj8vsYtM
 
 For more considerations see the document [http_headers.md](docs/http_headers.md)
 
-
 #### Signature Malleability?
-Coze prohibits signature malleability.  
-
-Modern Ed25519 already makes this prohibition.  https://www.rfc-editor.org/rfc/rfc8032#section-8.4
-
-For ECDSA, the low s rule must be applied.  See
-- https://github.com/bitcoin/bips/blob/master/bip-0146.mediawiki#low_s
-- https://eips.ethereum.org/EIPS/eip-2
+Coze prohibits signature malleability.  See
+[malleability.md](docs/proposals/implemented/malleability.md)
 
 #### Who created Coze?
 Coze was created by [Cyphr.me](https://cyphr.me).  

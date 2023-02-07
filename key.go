@@ -110,7 +110,7 @@ func (c *Key) Sign(digest B64) (sig B64, err error) {
 	default:
 		return nil, fmt.Errorf("Sign: unsupported alg: %s", c.Alg)
 	case ECDSA:
-		pub := KeyToPubEcdsa(c)
+
 		prk := ecdsa.PrivateKey{
 			// ecdsa.Sign only needs PublicKey.Curve, not it's value.
 			PublicKey: ecdsa.PublicKey{Curve: c.Alg.Curve().EllipticCurve()},
@@ -121,7 +121,8 @@ func (c *Key) Sign(digest B64) (sig B64, err error) {
 			return nil, err
 		}
 
-		// Low S
+		// S canonicalization. Only generate signature with low S.
+		pub := KeyToPubEcdsa(c)
 		s, err = ToLowS(pub, s)
 		if err != nil {
 			return nil, err
@@ -229,11 +230,10 @@ func (c *Key) Verify(digest, sig B64) (valid bool) {
 		r := big.NewInt(0).SetBytes(sig[:size])
 		s := big.NewInt(0).SetBytes(sig[size:])
 
-		// Low S
+		// S canonicalization. Only accept low S.
 		pub := KeyToPubEcdsa(c)
-		var err error
-		s, err = ToLowS(pub, s)
-		if err != nil {
+		lowS, err := IsLowS(pub, s)
+		if !lowS || err != nil {
 			return false
 		}
 
@@ -422,4 +422,36 @@ var curveHalfOrders = map[elliptic.Curve]*big.Int{
 	elliptic.P256(): new(big.Int).Rsh(elliptic.P256().Params().N, 1),
 	elliptic.P384(): new(big.Int).Rsh(elliptic.P384().Params().N, 1),
 	elliptic.P521(): new(big.Int).Rsh(elliptic.P521().Params().N, 1),
+}
+
+// ECDSAToLowSSig generates low s signature from existing ecdsa signatures (high
+// or low s).  This is useful for migrating signatures from non-Coze systems
+// that may have high S signatures.
+func ECDSAToLowSSig(c *Key, coze *Coze) (err error) {
+	if c.Alg.Genus() != ECDSA {
+		return nil
+	}
+	size := c.Alg.SigAlg().SigSize() / 2
+	r := big.NewInt(0).SetBytes(coze.Sig[:size])
+	s := big.NewInt(0).SetBytes(coze.Sig[size:])
+
+	// Low S
+	pub := KeyToPubEcdsa(c)
+	s, err = ToLowS(pub, s)
+	if err != nil {
+		return err
+	}
+
+	coze.Sig = PadInts(r, s, c.Alg.SigSize())
+
+	// Make sure the possible mutation of the signature is valid.
+	valid, _ := c.VerifyCoze(coze)
+	if !valid {
+		return fmt.Errorf("Coze invalid.")
+	}
+	if err != nil {
+		return err
+	}
+
+	return nil
 }

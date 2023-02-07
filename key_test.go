@@ -1,6 +1,7 @@
 package coze
 
 import (
+	"crypto/ed25519"
 	"encoding/json"
 	"fmt"
 	"math/big"
@@ -11,9 +12,9 @@ var GoldenKey = Key{
 	Alg: SEAlg(ES256),
 	Kid: "Zami's Majuscule Key.",
 	Iat: 1623132000,
-	X:   []byte{218, 116, 206, 104, 85, 102, 217, 2, 241, 153, 67, 191, 74, 56, 50, 177, 197, 71, 6, 219, 199, 17, 250, 54, 174, 174, 185, 50, 248, 13, 70, 51, 145, 162, 58, 183, 244, 118, 170, 246, 181, 205, 198, 245, 241, 193, 182, 191, 94, 61, 5, 230, 246, 98, 108, 148, 119, 138, 192, 93, 57, 102, 232, 230},
-	D:   []byte{108, 219, 45, 131, 143, 199, 222, 109, 210, 149, 19, 174, 127, 4, 82, 18, 8, 155, 46, 176, 110, 70, 175, 117, 215, 131, 175, 117, 170, 92, 165, 80},
-	Tmb: []byte{112, 184, 252, 190, 198, 45, 48, 28, 24, 147, 58, 5, 85, 145, 193, 102, 142, 146, 52, 191, 48, 73, 208, 136, 140, 34, 128, 193, 115, 110, 132, 233},
+	X:   MustDecode("2nTOaFVm2QLxmUO_SjgyscVHBtvHEfo2rq65MvgNRjORojq39Haq9rXNxvXxwba_Xj0F5vZibJR3isBdOWbo5g"),
+	D:   MustDecode("bNstg4_H3m3SlROufwRSEgibLrBuRq9114OvdapcpVA"),
+	Tmb: MustDecode("cLj8vsYtMBwYkzoFVZHBZo6SNL8wSdCIjCKAwXNuhOk"),
 }
 
 const GoldenKeyString = `{
@@ -25,16 +26,16 @@ const GoldenKeyString = `{
 	"x":"2nTOaFVm2QLxmUO_SjgyscVHBtvHEfo2rq65MvgNRjORojq39Haq9rXNxvXxwba_Xj0F5vZibJR3isBdOWbo5g"
 }`
 
-// The very last byte in D was changed from 80, to 81, making it invalid.
-// Base64 needs to be to "E", not B-D for it to be effective: bNstg4_H3m3SlROufwRSEgibLrBuRq9114OvdapcpVE
+// The very last byte in D was changed from 80, to 81, making it invalid. Base64
+// needs to be to "E", not "B" through "D" for it to be effective:
+// "bNstg4_H3m3SlROufwRSEgibLrBuRq9114OvdapcpVE"
 var GoldenKeyBad = Key{
 	Alg: SEAlg(ES256),
 	Kid: "Zami's Majuscule Key.",
 	Iat: 1623132000,
-	X:   []byte{218, 116, 206, 104, 85, 102, 217, 2, 241, 153, 67, 191, 74, 56, 50, 177, 197, 71, 6, 219, 199, 17, 250, 54, 174, 174, 185, 50, 248, 13, 70, 51, 145, 162, 58, 183, 244, 118, 170, 246, 181, 205, 198, 245, 241, 193, 182, 191, 94, 61, 5, 230, 246, 98, 108, 148, 119, 138, 192, 93, 57, 102, 232, 230},
-	//D:MustDecode("3"), // TODO
-	D:   []byte{108, 219, 45, 131, 143, 199, 222, 109, 210, 149, 19, 174, 127, 4, 82, 18, 8, 155, 46, 176, 110, 70, 175, 117, 215, 131, 175, 117, 170, 92, 165, 81},
-	Tmb: []byte{112, 184, 252, 190, 198, 45, 48, 28, 24, 147, 58, 5, 85, 145, 193, 102, 142, 146, 52, 191, 48, 73, 208, 136, 140, 34, 128, 193, 115, 110, 132, 233},
+	X:   MustDecode("2nTOaFVm2QLxmUO_SjgyscVHBtvHEfo2rq65MvgNRjORojq39Haq9rXNxvXxwba_Xj0F5vZibJR3isBdOWbo5g"),
+	D:   MustDecode("bNstg4_H3m3SlROufwRSEgibLrBuRq9114OvdapcpVE"),
+	Tmb: MustDecode("cLj8vsYtMBwYkzoFVZHBZo6SNL8wSdCIjCKAwXNuhOk"),
 }
 
 var (
@@ -70,7 +71,7 @@ var GoldenCozeWKey = `{
 
 var GoldenCozeEmpty = json.RawMessage(`{
 	"pay":{},
-	"sig":"9iesKUSV7L1-xz5yd3A94vCkKLmdOAnrcPXTU3_qeKSuk4RMG7Qz0KyubpATy0XA_fXrcdaxJTvXg6saaQQcVQ"
+	"sig":"9iesKUSV7L1-xz5yd3A94vCkKLmdOAnrcPXTU3_qeKRRbHuy5EvMMFNRkW_sNLo-vvEPO9BmeUkcNh-ok18I_A"
 }`)
 
 // CustomStruct is for examples demonstrating Pay/Coze with custom structs.
@@ -405,3 +406,108 @@ func Example_LowS() {
 	fmt.Printf("Low s: %d\n", lowS)
 	// Output: Low s: 512
 }
+
+// Example_ed25519Malleability demonstrates that the Go Ed25519 implementation
+// is not malleable.  The malleable form was generated using
+// https://slowli.github.io/ed25519-quirks/malleability.
+func Example_ed25519Malleability() {
+	msg := []byte("Hello, world!")
+	// Public key b64ut: 6ySOZK7GdGzY-AJvpRwNyWOD4RtWGB4rDJCD0MLCG-M
+	// Public key ub64p: 6ySOZK7GdGzY+AJvpRwNyWOD4RtWGB4rDJCD0MLCG+M=
+	// Public key Hex: 85B3AC41C8A2F1D1CD1E684169E67253F26D1862605ACB615D2D4E0CC44941AA
+	//
+	// seed || pub key form:
+	// Hex: 85B3AC41C8A2F1D1CD1E684169E67253F26D1862605ACB615D2D4E0CC44941AAEB248E64AEC6746CD8F8026FA51C0DC96383E11B56181E2B0C9083D0C2C21BE3
+	// ub64p: hbOsQcii8dHNHmhBaeZyU/JtGGJgWsthXS1ODMRJQarrJI5krsZ0bNj4Am+lHA3JY4PhG1YYHisMkIPQwsIb4w==
+	//
+	// Seed:
+	// ub64p: hbOsQcii8dHNHmhBaeZyU/JtGGJgWsthXS1ODMRJQao=
+	pri := ed25519.NewKeyFromSeed(MustDecode("hbOsQcii8dHNHmhBaeZyU_JtGGJgWsthXS1ODMRJQao"))
+	p := pri.Public()
+	pub, ok := p.(ed25519.PublicKey)
+	if !ok {
+		return
+	}
+
+	// ub64p: WA8oFP3rnGa/Fbcei89ztetTEJ921iOLgPlUbww2ZbyHq3pYD/ZN5mpUC7iBXMJdzM7zV1nbi0TSzbFpAk4ACA==
+	valid := ed25519.Verify(pub, msg, MustDecode("WA8oFP3rnGa_Fbcei89ztetTEJ921iOLgPlUbww2ZbyHq3pYD_ZN5mpUC7iBXMJdzM7zV1nbi0TSzbFpAk4ACA"))
+	fmt.Println(valid)
+
+	// Alternative, malleable form.
+	valid = ed25519.Verify(pub, msg, MustDecode("WA8oFP3rnGa_Fbcei89ztetTEJ921iOLgPlUbww2Zbx0f3C1KVlgPkHxAltgVqFyzM7zV1nbi0TSzbFpAk4AGA"))
+	fmt.Println(valid)
+
+	// Output:
+	// true
+	// false
+}
+
+// Example_ECDSAToLowSSig demonstrates converting non-coze compliant high S
+// signatures to the canonicalized, coze compliant low S form.
+func Example_ECDSAToLowSSig() {
+	highSCozies := []string{
+		`{"pay":{},"sig":"9iesKUSV7L1-xz5yd3A94vCkKLmdOAnrcPXTU3_qeKSuk4RMG7Qz0KyubpATy0XA_fXrcdaxJTvXg6saaQQcVQ"}`,
+		`{"pay":{"msg":"Coze Rocks","alg":"ES256","iat":1623132000,"tmb":"cLj8vsYtMBwYkzoFVZHBZo6SNL8wSdCIjCKAwXNuhOk","typ":"cyphr.me/msg"},"sig":"mVw8N6ZncWcObVGvnwUMRIC6m2fbX3Sr1LlHMbj_tZ3ji1rNL-00pVaB12_fmlK3d_BVDipNQUsaRyIlGJudtg"}`,
+		`{"pay":{"msg":"Coze Rocks","alg":"ES256","iat":1623132000,"tmb":"cLj8vsYtMBwYkzoFVZHBZo6SNL8wSdCIjCKAwXNuhOk","typ":"cyphr.me/msg"},"sig":"cn6KNl4VQlk5MzmhYFVyyJoTOU57O5Bq-8r-yXXR6Ojfs0-6LFGd8j1Y6wiJAQrGpWj_RptsiEg49v95FsVWMQ"}`,
+		`{"pay":{"msg":"Coze Rocks","alg":"ES256","iat":1623132000,"tmb":"cLj8vsYtMBwYkzoFVZHBZo6SNL8wSdCIjCKAwXNuhOk","typ":"cyphr.me/msg"},"sig":"9KvWfOSIZUjW8Ie0jbdVdu9UlIP4TT4MXz3YyNW3fCTWXHnO1MPROwcXvfNZN_icOvMAK3vfsr2w-CeBozS81w"}`,
+	}
+
+	for _, s := range highSCozies {
+		cz := new(Coze)
+		err := json.Unmarshal([]byte(s), cz)
+		if err != nil {
+			panic(err)
+		}
+		v, _ := GoldenKey.VerifyCoze(cz)
+		if v {
+			panic("High S coze should not validate.")
+		}
+
+		err = ECDSAToLowSSig(&GoldenKey, cz)
+		if err != nil {
+			panic(err)
+		}
+
+		v, _ = GoldenKey.VerifyCoze(cz)
+		if !v {
+			panic("Low S coze should validate.")
+		}
+
+		fmt.Printf("%s\n", cz)
+	}
+
+	// Output:
+	// {"pay":{},"sig":"9iesKUSV7L1-xz5yd3A94vCkKLmdOAnrcPXTU3_qeKRRbHuy5EvMMFNRkW_sNLo-vvEPO9BmeUkcNh-ok18I_A"}
+	// {"pay":{"msg":"Coze Rocks","alg":"ES256","iat":1623132000,"tmb":"cLj8vsYtMBwYkzoFVZHBZo6SNL8wSdCIjCKAwXNuhOk","typ":"cyphr.me/msg"},"sig":"mVw8N6ZncWcObVGvnwUMRIC6m2fbX3Sr1LlHMbj_tZ0cdKUx0BLLW6l-KJAgZa1IRPaln3zKXTnZcqid48eHmw"}
+	// {"pay":{"msg":"Coze Rocks","alg":"ES256","iat":1623132000,"tmb":"cLj8vsYtMBwYkzoFVZHBZo6SNL8wSdCIjCKAwXNuhOk","typ":"cyphr.me/msg"},"sig":"cn6KNl4VQlk5MzmhYFVyyJoTOU57O5Bq-8r-yXXR6OggTLBE065iDsKnFPd2_vU5F337ZwurFjy6wstJ5Z3PIA"}
+	// {"pay":{"msg":"Coze Rocks","alg":"ES256","iat":1623132000,"tmb":"cLj8vsYtMBwYkzoFVZHBZo6SNL8wSdCIjCKAwXNuhOk","typ":"cyphr.me/msg"},"sig":"9KvWfOSIZUjW8Ie0jbdVdu9UlIP4TT4MXz3YyNW3fCQpo4YwKzwuxfjoQgymyAdjgfP6gis368dCwaNBWS5oeg"}
+}
+
+// Example_GenHighSCoze generates high s.  Must comment out S canonicalization
+// in verify and sign for this to work.
+// func Example_GenHighSCoze() {
+// 	goEcdsa := KeyToPubEcdsa(&GoldenKey)
+
+// 	for i := 0; i < 10; i++ {
+// 		cz := new(Coze)
+// 		err := json.Unmarshal([]byte(GoldenCoze), cz)
+// 		if err != nil {
+// 			panic(err)
+// 		}
+
+// 		err = GoldenKey.SignCoze(cz)
+// 		if err != nil {
+// 			panic(err)
+// 		}
+
+// 		size := GoldenKey.Alg.SigAlg().SigSize() / 2
+// 		s := big.NewInt(0).SetBytes(cz.Sig[size:])
+
+// 		ls, _ := IsLowS(goEcdsa, s)
+// 		if !ls {
+// 			fmt.Printf("High S coze: %s\n", cz)
+// 		}
+// 		fmt.Printf("Low S coze: %s\n", cz)
+// 	}
+// 	// Output:
+// }

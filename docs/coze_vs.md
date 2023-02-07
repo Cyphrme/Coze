@@ -117,7 +117,8 @@ UTF8(eyJhbGciOiJSUzI1NiJ9.eyJpc3MiOiJqb2UiLA0KICJleHAiOjEzMDA4MTkzODAsDQogImh0dH
   everything in pay. 
 - Coze provides replay protection using `czd` while JOSE requires places the
   burden of defining  unique message identifiers onto applications.  This also
-  means various systems are not out-of-the-box compatible.  See https://www.rfc-editor.org/rfc/rfc7515#section-10.10
+  means various systems are not out-of-the-box compatible.  See
+  https://www.rfc-editor.org/rfc/rfc7515#section-10.10
 
 
 
