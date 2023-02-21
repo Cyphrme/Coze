@@ -458,8 +458,7 @@ func Example_lowS() {
 
 			size := ck.Alg.SigAlg().SigSize() / 2
 			s := big.NewInt(0).SetBytes(sig[size:])
-			goEcdsa := KeyToPubEcdsa(ck)
-			ls, _ := IsLowS(goEcdsa, s)
+			ls, _ := IsLowS(ck, s)
 
 			if ls {
 				lowS++

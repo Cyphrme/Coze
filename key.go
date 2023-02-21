@@ -122,8 +122,7 @@ func (c *Key) Sign(digest B64) (sig B64, err error) {
 		}
 
 		// S canonicalization. Only generate signature with low S.
-		pub := KeyToPubEcdsa(c)
-		err = ToLowS(pub, s)
+		err = ToLowS(c, s)
 		if err != nil {
 			return nil, err
 		}
@@ -231,13 +230,12 @@ func (c *Key) Verify(digest, sig B64) (valid bool) {
 		s := big.NewInt(0).SetBytes(sig[size:])
 
 		// S canonicalization. Only accept low S.
-		pub := KeyToPubEcdsa(c)
-		lowS, err := IsLowS(pub, s)
+		lowS, err := IsLowS(c, s)
 		if !lowS || err != nil {
 			return false
 		}
 
-		return ecdsa.Verify(KeyToPubEcdsa(c), digest, r, s)
+		return ecdsa.Verify(c.ToPubEcdsa(), digest, r, s)
 	case Ed25519, Ed25519ph:
 		return ed25519.Verify(ed25519.PublicKey(c.X), digest, sig)
 	}
@@ -416,7 +414,7 @@ func (c *Key) recalcX() B64 {
 }
 
 // KeyToPubEcdsa converts a Coze Key to ecdsa.PublicKey.
-func KeyToPubEcdsa(c *Key) (key *ecdsa.PublicKey) {
+func (c *Key) ToPubEcdsa() (key *ecdsa.PublicKey) {
 	size := c.Alg.XSize() / 2
 	return &ecdsa.PublicKey{
 		Curve: c.Alg.Curve().EllipticCurve(),
@@ -425,42 +423,50 @@ func KeyToPubEcdsa(c *Key) (key *ecdsa.PublicKey) {
 	}
 }
 
-// IsLow checks that s is a low S.
-func IsLowS(k *ecdsa.PublicKey, s *big.Int) (bool, error) {
-	halfOrder, ok := curveHalfOrders[k.Curve]
-	if !ok {
-		return false, fmt.Errorf("curve not recognized [%s]", k.Curve)
-	}
-	return s.Cmp(halfOrder) != 1, nil
+// curveOrders contains curve group orders.
+var curveOrders = map[SigAlg]*big.Int{
+	ES224: elliptic.P224().Params().N,
+	ES256: elliptic.P256().Params().N,
+	ES384: elliptic.P384().Params().N,
+	ES512: elliptic.P521().Params().N,
 }
 
-// ToLowS converts high S to low S and leave low S as is.  It does this by (N -
-// S).
-func ToLowS(k *ecdsa.PublicKey, s *big.Int) error {
-	lowS, err := IsLowS(k, s)
+// curveHalfOrders contains curve group orders halved for ToLowS.  From
+// https://github.com/golang/go/issues/54549
+var curveHalfOrders = map[SigAlg]*big.Int{
+	// Logical right shift divides a number by 2 discretely.
+	ES224: new(big.Int).Rsh(elliptic.P224().Params().N, 1),
+	ES256: new(big.Int).Rsh(elliptic.P256().Params().N, 1),
+	ES384: new(big.Int).Rsh(elliptic.P384().Params().N, 1),
+	ES512: new(big.Int).Rsh(elliptic.P521().Params().N, 1),
+}
+
+// IsLowS checks if S is a low-S.  Only for ECDSA.  See Coze docs on low-S.
+func IsLowS(c *Key, s *big.Int) (bool, error) {
+	if c.Alg.Genus() != ECDSA {
+		return false, fmt.Errorf("alg not ECDSA: [%s]", c.Alg)
+	}
+
+	return s.Cmp(curveHalfOrders[c.Alg.SigAlg()]) != 1, nil
+}
+
+// ToLowS converts high-S to low-S or if already low-S returns itself.
+// It does this by (N - S) where N is the order.  See Coze docs on low-S.
+func ToLowS(c *Key, s *big.Int) error {
+	lowS, err := IsLowS(c, s)
 	if err != nil {
 		return err
 	}
 	if !lowS {
-		s.Sub(k.Params().N, s)
+		s.Sub(c.Alg.Curve().EllipticCurve().Params().N, s)
 		return nil
 	}
 	return nil
 }
 
-// curveHalfOrders contains the precomputed curve group orders halved for
-// ToLowS. It is used to ensure that signature' S value is lower or equal to the
-// curve group order halved. From https://github.com/golang/go/issues/54549
-var curveHalfOrders = map[elliptic.Curve]*big.Int{
-	elliptic.P224(): new(big.Int).Rsh(elliptic.P224().Params().N, 1),
-	elliptic.P256(): new(big.Int).Rsh(elliptic.P256().Params().N, 1),
-	elliptic.P384(): new(big.Int).Rsh(elliptic.P384().Params().N, 1),
-	elliptic.P521(): new(big.Int).Rsh(elliptic.P521().Params().N, 1),
-}
-
 // ECDSAToLowSSig generates low s signature from existing ecdsa signatures (high
 // or low s).  This is useful for migrating signatures from non-Coze systems
-// that may have high S signatures.
+// that may have high S signatures. See Coze docs on low-S.
 func ECDSAToLowSSig(c *Key, coze *Coze) (err error) {
 	if c.Alg.Genus() != ECDSA {
 		return nil
@@ -470,20 +476,15 @@ func ECDSAToLowSSig(c *Key, coze *Coze) (err error) {
 	s := big.NewInt(0).SetBytes(coze.Sig[size:])
 
 	// Low S
-	pub := KeyToPubEcdsa(c)
-	err = ToLowS(pub, s)
+	err = ToLowS(c, s)
 	if err != nil {
 		return err
 	}
-
 	coze.Sig = PadInts(r, s, c.Alg.SigSize())
 
 	// Make sure the possible mutation of the signature is valid.
-	valid, _ := c.VerifyCoze(coze)
+	valid, err := c.VerifyCoze(coze)
 	if !valid {
-		return fmt.Errorf("Coze invalid.")
-	}
-	if err != nil {
 		return err
 	}
 

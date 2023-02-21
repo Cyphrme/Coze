@@ -13,10 +13,10 @@ considered best practice.
 [Modern Ed25519](https://www.rfc-editor.org/rfc/rfc8032#section-8.4) already
 makes a malleability prohibition. However, be aware that there are older
 libraries and RFC non-compliant that do not implement this prohibition.  Ed
-libraries should be tested for low S when implementing Coze to make sure they
+libraries should be tested for low-S when implementing Coze to make sure they
 are RFC compliant.  
 
-For ECDSA, the "low S" rule must be implemented over most existing libraries.
+For ECDSA, the "low-S" rule must be implemented over most existing libraries.
 For more detail, see
 - https://github.com/bitcoin/bips/blob/master/bip-0146.mediawiki#low_s
 - https://eips.ethereum.org/EIPS/eip-2
@@ -45,7 +45,7 @@ non-adoption of such standard.
 ### Go Code to generate Malleable Signatures
 
 ```golang
-//Example_GenHighSCoze generates high s.  Must comment out S canonicalization
+// Example_GenHighSCoze generates high s.  Must comment out S canonicalization
 // in verify and sign for this to work.
 func Example_GenHighSCoze() {
 	goEcdsa := KeyToPubEcdsa(&GoldenKey)
@@ -67,9 +67,9 @@ func Example_GenHighSCoze() {
 
 		ls, _ := IsLowS(goEcdsa, s)
 		if !ls {
-			fmt.Printf("High S coze: %s\n", cz)
+			fmt.Printf("High-S coze: %s\n", cz)
 		}
-		fmt.Printf("Low S coze: %s\n", cz)
+		fmt.Printf("Low-S coze: %s\n", cz)
 	}
 	// Output:
 }
@@ -77,7 +77,10 @@ func Example_GenHighSCoze() {
 
 
 # Other Links
-[Wikipedia](https://en.wikipedia.org/wiki/Malleability_(cryptography))
+ - [rfc 6979 "Deterministic Usage of the Digital Signature Algorithm (DSA) and
+   Elliptic Curve Digital Signature Algorithm
+   (ECDSA)"](https://www.rfc-editor.org/rfc/rfc6979)
+ - [Wikipedia](https://en.wikipedia.org/wiki/Malleability_(cryptography))
 
 
 Non-modern Ed malleability demonstration:
