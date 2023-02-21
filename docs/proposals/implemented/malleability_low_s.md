@@ -1,8 +1,8 @@
 # Signature Malleability
-Coze requires that signature schemes be non-malleable because sig and czd are
-used as identifiers.  Signatures must not be mutatable by third parties.
-Prohibiting signature malleability makes `czd` useful in preventing replay
-attacks and helps prevent applications from making bad assumptions.
+Coze requires non-malleable signature schemes because `sig` and `czd` are used
+as identifiers.  Signatures must not be mutatable by third parties. Prohibiting
+signature malleability makes `czd` useful in preventing replay attacks and helps
+prevent applications from making bad assumptions.
 
 Without consideration for malleability, elliptic curve signatures scheme may be
 mutated by third parties.  The no-malleability constraint is already adopted by
@@ -17,11 +17,11 @@ libraries should be tested for low-S when implementing Coze to make sure they
 are RFC compliant.  
 
 For ECDSA, the "low-S" rule must be implemented over most existing libraries.
-For more detail, see
+Bitcoin and Ethereum have both implemented the "low-S" rule.  
 - https://github.com/bitcoin/bips/blob/master/bip-0146.mediawiki#low_s
 - https://eips.ethereum.org/EIPS/eip-2
 
-# Replay Attack Scenario
+# Why Malleability is Dangerous: Replay Attack Scenario
 A user signs a message, "sign me into example.com".  Unaware of the replay
 potential, the user shares the signed message publicly.  A third see the message
  and mutates the signature to another form and sends the message to example.com.
@@ -37,13 +37,12 @@ cannot mutate an existing signature to any other valid form.
 
 ### Future considerations
 If for some reason a future algorithm cannot make no malleability guarantee,
-then the suggestion is to leave `czd` empty and populate a new field in `coze`.
-However, this is expected to be unlikely, and we'd most likely advocate for
-non-adoption of such standard.  
-
+then the suggestion is to leave `sig` and `czd` empty and populate a new fields
+in `coze` specially designated for malleable signatures.  However, this is
+expected to be unlikely, and we'd most likely advocate for non-adoption of such
+standard.  
 
 ### Go Code to generate Malleable Signatures
-
 ```golang
 // Example_GenHighSCoze generates high s.  Must comment out S canonicalization
 // in verify and sign for this to work.
@@ -80,11 +79,8 @@ func Example_GenHighSCoze() {
  - [rfc 6979 "Deterministic Usage of the Digital Signature Algorithm (DSA) and
    Elliptic Curve Digital Signature Algorithm
    (ECDSA)"](https://www.rfc-editor.org/rfc/rfc6979)
- - [Wikipedia](https://en.wikipedia.org/wiki/Malleability_(cryptography))
-
-
-Non-modern Ed malleability demonstration:
-https://slowli.github.io/ed25519-quirks/malleability
+ - [Signature Malleability on Wikipedia](https://en.wikipedia.org/wiki/Malleability_(cryptography))
+- [Non-modern Ed malleability demonstration](https://slowli.github.io/ed25519-quirks/malleability)
 
 
 
