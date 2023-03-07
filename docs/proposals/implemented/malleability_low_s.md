@@ -11,13 +11,13 @@ Non-malleability is expected to apply to future standards as it is now
 considered best practice.  
 
 [Modern Ed25519](https://www.rfc-editor.org/rfc/rfc8032#section-8.4) already
-makes a malleability prohibition. However, be aware that there are older
-libraries and RFC non-compliant that do not implement this prohibition.  Ed
-libraries should be tested for low-S when implementing Coze to make sure they
-are RFC compliant.  
+makes a malleability prohibition. However, be aware that some older and RFC
+non-compliant libraries do not implement this prohibition.  Ed libraries should
+be tested for low-S when implementing Coze to make sure they are RFC compliant.  
 
 For ECDSA, the "low-S" rule must be implemented over most existing libraries.
-Bitcoin and Ethereum have both implemented the "low-S" rule.  
+Bitcoin and Ethereum have both implemented the "low-S" rule and Paul's
+noble/curves library supports "low-S".  
 - https://github.com/bitcoin/bips/blob/master/bip-0146.mediawiki#low_s
 - https://eips.ethereum.org/EIPS/eip-2
 

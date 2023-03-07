@@ -596,7 +596,7 @@ of existing implementations, and states that when names are not unique, "the
 behavior of software that receives such an object is unpredictable."  Also note
 that Javascript objects (ES6) and Go structs already require unique names.
 
-Duplicate fields are a security issue, a source of bugs, and and a surprising
+Duplicate fields are a security issue, a source of bugs, and a surprising
 behavior to users. See the article, "[An Exploration of JSON Interoperability
 Vulnerabilities](https://bishopfox.com/blog/json-interoperability-vulnerabilities)"
 
