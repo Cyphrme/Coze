@@ -232,7 +232,7 @@ results in the JSON `{"cad":"...",sig:"..."}`.  `czd`'s hash must align with
 
 The canonical digest of 
  - `pay` is `cad`, 
- - `key` is `tmb`, 
+ - `["alg","x"]` is `tmb`, 
  - `["cad","sig"]` is `czd`.
 
 Using the first example, the following canonical digests are calculated:
@@ -347,8 +347,10 @@ Coze keys.
 
 ![coze_verifier](docs/img/Hello_World!.gif)
 
-There is also the [Simple Coze Verifier](https://cyphr.me/coze_verifier_simple/coze.html).  
-Its [codebase is in the Cozejs repo][CozeJSVerifier] and may be locally hosted.  
+There is also the [Simple Coze
+Verifier](https://cyphr.me/coze_verifier_simple/coze.html) that has the minimal
+amount of code needed for a basic Coze application.  
+Its [codebase is in the Cozejs repo][CozeJSVerifier] and may be locally hosted.
 
 
 ## Coze Implementations
@@ -439,20 +441,21 @@ Verifying a coze already requires hashing `pay`.  Parsing `alg` from `pay` is a
 small additional cost.  
 
 #### Can my application use Canon/Canonicalization?
-Canon may be implicitly known by applications, implicitly derived by "typ", or
-explicitly specified by `can`. Applications may specify canon expectations in
-API documentation.  If a message is malformed, applications must error. 
+Yes, canon is suitable for general purpose application.  Applications may
+specify canon expectations in API documentation, if using Coze derived by "typ"
+or explicitly specified by `can`, or implicitly known and pre-established.  Coze
+Core contains simple canonicalization functions, or for more expressive
+capabilities see Normal in Coze Standard.
 
-Applications may find it useful to have messages in a specific normalized form.
-Core Coze has canonicalization features, or for more expressive capabilities,
-see Normal in Coze Standard.  
+#### `pay.typ` vs `key.typ`. 
+For applications, `pay.typ` may denote a canon.  For example, a `typ` with value
+`cyphr.me/create/msg` has a canon, as defined by the service, of ["alg", "iat",
+"msg", "tmb", "typ"].  
 
-#### `key.typ` vs `pay.typ`. 
-For `pay`, `typ` may be used to denote a canon.  For example, a `typ` with value
-`cyphr.me/create/msg` has a canon of ["alg", "iat", "msg", "tmb", "typ"], as
-defined by the service.  For `key`'s canonical form, `typ` is ignored and a
-static canon is used. Like `typ` in `pay`, `typ` in `key` may be used to specify
-custom application fields, e.g. "first_seen" or "account_id". 
+`Key.tmb` ignores `key.typ` because a static canon, ["alg"`,`x`] is
+always used when producing key's `tmb`. Like `typ` in `pay`, `key.typ` may still
+be used to specify custom application fields, e.g. "first_seen" or "account_id"
+and the expected order of fields. 
 
 #### ECDSA `x` and `sig` Bytes
 For ECDSA , (X and Y) and (R and S) are concatenated for `x` and `sig`
