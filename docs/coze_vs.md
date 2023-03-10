@@ -3,20 +3,21 @@ Why not use "x" over Coze?
 
 # See the [presentation](https://docs.google.com/presentation/d/1bVojfkDs7K9hRwjr8zMW-AoHv5yAZjKL9Z3Bicz5Too)
 
-
 # Coze Vs "X" Disclaimer
-We have a lot of respect for the various projects in the space.  Many projects
-have noble goals and we're thankful they exists.  We also don't think it's cool
-to "take a dump" all over someone else's work when the authors have worked so
-hard to bring value, freely, to everyone.  
+We respect the various projects in the space.  Other projects have noble goals
+and we're thankful they exists.  It's not cool to trash someone else's work.
+Authors have worked hard to bring value, frequently for free, to
+everyone.  
 
 We also think it's important to give specific reason why Coze's design is
 different from other projects.  In this document, we attempt to give specific
 reasons why Coze was needed.  
 
 
-
 ## signify (OpenBSD):
+We love signify and think it's awesome.  
+
+It wasn't the right fit for what we use Coze for because:
  - Not JSON.  
  - No browser implementations. 
  - No algorithm agility.  
@@ -25,13 +26,16 @@ reasons why Coze was needed.
 
 # SSH
 ##  SSHSIG
+We love SSHSIG and think it's awesome.  
+
 OpenBSD announcement: https://cvsweb.openbsd.org/cgi-bin/cvsweb/src/usr.bin/ssh/PROTOCOL.sshsig?rev=1.1&content-type=text/x-cvsweb-markup
 
 Can finally support signing messages:  https://github.com/openssh/openssh-portable/blob/master/PROTOCOL.sshsig
 
-Proposed 2020, implemented and pushed 2022? Zami was waiting forever for this.
-Glad it's finally out there, but why did it take 25 years?
+Proposed 2020, implemented and pushed ~2022. 
 
+Zami was waiting forever for this. Glad it's finally out there (but why did it
+take 25 years?).
 
 Go lib: https://github.com/paultag/go-sshsig
 qbit's: https://github.com/qbit/sshign
@@ -101,7 +105,6 @@ tcGxlLmNvbS9pc19yb290Ijp0cnVlfQ",
 UTF8(eyJhbGciOiJSUzI1NiJ9.eyJpc3MiOiJqb2UiLA0KICJleHAiOjEzMDA4MTkzODAsDQogImh0dHA6Ly9leGFtcGxlLmNvbS9pc19yb290Ijp0cnVlfQ)
 ```
  
-# Coze
 ## Coze Vs JOSE
 ### Key Differentiators from JOSE to Coze.
 - Canonicalization is used in JOSE, but it's only applied narrowly to
@@ -121,13 +124,10 @@ UTF8(eyJhbGciOiJSUzI1NiJ9.eyJpc3MiOiJqb2UiLA0KICJleHAiOjEzMDA4MTkzODAsDQogImh0dH
   https://www.rfc-editor.org/rfc/rfc7515#section-10.10
 
 
-
-
-# Coze Key
 ## Coze key vs JWK
 A Coze key is like a JOSE JWK, but it differs in a few significant ways. 
  
- Coze requires:
+Coze:
 1. "iat" (issued at) is suggested for messages and keys. 
 2. "tmb" may be included in the Coze key.  "tmb" is deterministic digest from
    the key's canonical form and uses the hashing algorithm specified by `alg`. 
@@ -216,15 +216,11 @@ as of 2021/05/13.
 
 
 ## Encoding Waste Example
-The example string, "Potatoes,"
+The example string, "Potatoes," is 9 characters, and is encoded in UTF-8 as 9 bytes.  
 
-is 9 characters, and is encoded in UTF-8 as 9 bytes.  
-
-Encoded into base64, this string is: UG90YXRvZXMs
-
-Which is 12 characters.  All strings are still encoded as UTF-8 in JOSE,
-including base64, which is 12 bytes. Base64 is only 75% efficient in the byte
-space. 
+Encoded into base64, this string is `UG90YXRvZXMs` which is 12 characters.  All
+strings are still encoded as UTF-8 in JOSE, including base64, which is 12 bytes.
+Base64 is only 75% efficient in the byte space. 
 
 Normal english plus URL characters uses a about 98 characters out of the
 potential 256 for byte encoding.  
