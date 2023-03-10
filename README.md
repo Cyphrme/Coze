@@ -501,15 +501,16 @@ presentation](https://docs.google.com/presentation/d/1bVojfkDs7K9hRwjr8zMW-AoHv5
 for more. 
 
 #### Does Coze have checksums?
-`x`, `tmb`,`cad`, `czd`, and `sig` may be used for integrity checking. For
-messages, `cad`, and/or `czd` may be recalculated and error on mismatch.
-Alternatively, systems may use `sig` as an integrity check via cryptographic
-verification.  For keys, `x` and/or `tmb` may be recalculated and error on
-mismatch.
+`x`, `tmb`,`cad`, `czd`, and `sig` may be used for integrity checking.
 
-The only circumstance a Coze key field cannot be integrity checked is when `d`,
-`x`, or `tmb` are presented alone.  In situations needing integrity checking, we
-recommend including at least two components.
+Systems may use `sig` as an integrity check via cryptographic verification.  If
+`cad` and/or `czd` are included they may be recalculated and error on mismatch.
+
+For keys, `x` and/or `tmb` may be recalculated and error on mismatch.Coze keys
+cannot be integrity checked when `d`, `x`, or `tmb` are presented alone.  In
+situations needing integrity checking, we recommend including at least two
+components.  See the [checksums.md](/docs/proposals/discussion/checksum.md) for
+more.  
 
 #### Performance hacks?
 Coze is not optimized for long messages, but if early knowledge of Coze standard
