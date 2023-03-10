@@ -360,10 +360,10 @@ Its [codebase is in the Cozejs repo][CozeJSVerifier] and may be locally hosted.
 See `docs/developement.md` for the Go development guide.
 
 
-## Standard Coze
-The sections above are defined as "Core Coze".  Further expansions on Coze may
-be included in "Coze Standard".  Further draft, proposals, and extended
-algorithm support are planned in "Coze Experimental".
+## Coze Core and Coze Standard
+The sections above are defined as "Coze Core".  Further expansions on Coze may
+be included in "Coze Standard".  Draft, proposals, and extended algorithm
+support are planned in "Coze Experimental".
 
 See `normal.go` for an example of a Coze Standard feature not included in Core
 Coze.  
@@ -390,10 +390,9 @@ existing implementations used UTF-8.  Unicode is a superset of ASCII and UTF-8
 shares sorting order with Unicode. This results in broad, out of the box
 compatibility. Object field order may be denoted by a canon, chaining normal, or
 communicate ordering via other means.  If applications need sorted fields,
-UTF-8/Unicode order is suggested.  
-
-Note that UTF-16 (Javascript) has some code points out of order. For these
-systems, a small amount of additional logic is needed to correct the sort order.
+UTF-8/Unicode order is suggested.  Note that UTF-16 (Javascript) has some code
+points out of order and for those systems a small amount of additional logic is
+needed to correct ordering.
 
 #### Binary? Why not support binary payloads?
 JSON isn't well designed for large binary payloads.  Instead, Coze suggests
@@ -491,12 +490,15 @@ which has the `alg` "ES256".
 }
 ```
 
-#### Why not PGP/OpenSSL/LibreSSL/SSHSIG/libsodium/JOSE/COSE/etc...?
-We have a lot of respect for existing projects. They're great at what they do.
-Existing solutions were not meeting our particular needs. Coze is influenced
-by many ideas and standards.  
+#### Why not PGP/OpenSSL/LibreSSL/SSHSIG/libsodium/JOSE(JWT)/COSE/etc...?
+We respect the various projects in the space.  Other projects have noble goals
+and we're thankful they exists.  Coze is influenced by ideas from many others.
+However existing solutions were not meeting our particular needs so we created
+Coze.  
  
-See the `coze_vs.md` document for more. 
+See [coze_vs.md](/docs/coze_vs.md) document and the [introduction
+presentation](https://docs.google.com/presentation/d/1bVojfkDs7K9hRwjr8zMW-AoHv5yAZjKL9Z3Bicz5Too/edit#slide=id.g1367bc4eb0f_0_6)
+for more. 
 
 #### Does Coze have checksums?
 `x`, `tmb`,`cad`, `czd`, and `sig` may be used for integrity checking. For
