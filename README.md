@@ -9,7 +9,7 @@
 **Coze** is a cryptographic JSON messaging specification designed for human
 readability.
 
-[Try Coze out!](https://cyphr.me/coze_verifier)
+[Try Coze out!](https://cyphr.me/coze)
 
 ### Example Coze
 ```JSON
@@ -343,7 +343,7 @@ cryptographic operations.
 The Coze verifier is an in-browser tool for verifying, signing, and generating
 Coze keys.  
 
-[Coze Verifier](https://cyphr.me/coze_verifier)
+[Coze Verifier](https://cyphr.me/coze)
 
 ![coze_verifier](docs/img/Hello_World!.gif)
 
