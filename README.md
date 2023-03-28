@@ -451,10 +451,9 @@ For applications, `pay.typ` may denote a canon.  For example, a `typ` with value
 `cyphr.me/create/msg` has a canon, as defined by the service, of ["alg", "iat",
 "msg", "tmb", "typ"].  
 
-`Key.tmb` ignores `key.typ` because a static canon, ["alg"`,`x`] is
-always used when producing key's `tmb`. Like `typ` in `pay`, `key.typ` may still
-be used to specify custom application fields, e.g. "first_seen" or "account_id"
-and the expected order of fields. 
+`Key.tmb` ignores `key.typ` because a static canon, `["alg","x"]` is always used
+when producing key's `tmb`. Like `typ` in `pay`, applications may use `key.typ`
+to specify custom fields, e.g. "first_seen" or "account_id" and field order. 
 
 #### ECDSA `x` and `sig` Bytes
 For ECDSA , (X and Y) and (R and S) are concatenated for `x` and `sig`

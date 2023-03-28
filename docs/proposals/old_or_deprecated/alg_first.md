@@ -2,7 +2,7 @@
 Changes made to Canon/Normal make the following irrelevant  Canon no longer has
 to be in Unicode order. 
 
-This document is preserved because the "tilda encapsulated payload" may be
+This document is preserved because the "tilde encapsulated payload" may be
 useful for other situations. 
 
 # "Alg First" 
@@ -28,7 +28,7 @@ correct sorting.
 	" alg": "spaceAlg",
 	"!": "bang",
 	"alg": "ES256", // normal "alg"
-	"~": "tilda"
+	"~": "tilde"
 }
  ```
 
@@ -67,7 +67,7 @@ correct sorting.
  No change to Coze.  
 
 
-## Example Solution (tilda encapsulated payload):
+## Example Solution (tilde encapsulated payload):
 
 ```json
  "pay": {

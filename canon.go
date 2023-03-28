@@ -76,7 +76,7 @@ func CanonicalHash(input []byte, canon any, hash HshAlg) (digest B64, err error)
 	return Hash(hash, input)
 }
 
-// Compact compactifies JSON.
+// Compact is a helper that compactifies JSON.
 func compact(msg json.RawMessage) ([]byte, error) {
 	var b bytes.Buffer
 	err := json.Compact(&b, msg)

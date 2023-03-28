@@ -19,7 +19,7 @@ import (
 //	  See: https://github.com/golang/go/issues/11939.
 //	Can: "Canon" Pay's fields in order of appearance.
 //	Cad: "Canonical Digest" Pay's compactified form digest.
-//	Sig: Signature over `pay`.
+//	Sig: Signature over `cad`.
 //	Czd: "Coze digest" with canon ["cad","sig"].
 //	Parsed: The standard Coze pay fields ["alg","iat","tmb","typ"] parsed
 //	  from `Pay`.  `Parsed` is populated by Meta() and is JSON ignored.
