@@ -56,19 +56,20 @@ The PGP Problem - https://latacora.micro.blog/2019/07/16/the-pgp-problem.html
 
 
 # Coze vs JOSE
+See the [Coze vs JOSE presentation](https://docs.google.com/presentation/d/1bVojfkDs7K9hRwjr8zMW-AoHv5yAZjKL9Z3Bicz5Too/edit#slide=id.g121f82e33f2_0_119).  
 
 We have a lot of respect for JOSE.  We think its goals are noble
 and we're glad it exists.  
 
 ## Why JOSE is awesome.
-- Has the goal of doing crypto in a somewhat human readable paradigm.
-- Has the goal of updating old standards that are hard to use and sometimes
-  require specific libraries, binaries, encodings, or other outside dependencies.
-- Defines a way to represent cryptographic keys in JSON.
-- JSON crypto keys, both public and private, have thumbprints, which is like a
-  PGP fingerprint or Ethereum address. Thumbprints universally address specific
-  keys. 
-- Permits algorithm agility.
+- Updates old standards that are hard to use or  require dependencies.
+- Defines cryptographic key representation in JSON.
+- Key has a thumbprint.
+	- Like a PGP/SSH fingerprint or Ethereum address. 
+	- Thumbprints universally address specific keys. 
+- Defines algorithm suites.
+- Uses some JSON.
+- Somewhat human readable.
 
 ## How JOSE could be better.
 - JWT is not JSON (despite the name).  JWT is not JSON in both encoded and
@@ -173,7 +174,7 @@ Coze:
 
  
  
-# Coze key and Javascript's JWK implementation. 
+## Coze key and Javascript's JWK implementation. 
 Note on Javascript's Subtle.Crypto
  
 ## usages != use != key_opts  
@@ -213,8 +214,6 @@ as of 2021/05/13.
 }
 ```
 
-
-
 ## Encoding Waste Example
 The example string, "Potatoes," is 9 characters, and is encoded in UTF-8 as 9 bytes.  
 
@@ -241,3 +240,40 @@ about 63% efficient.
 
 Please see the document "Efficient Barcode-URI Encoding for Arbitrary Payloads"
 for more notes on efficient encoding methods.  
+
+
+
+
+
+
+# PASETO
+
+
+I would say Coze is more generalized than PASETO.  I think PASETO was written more as response to JWT while Coze is more like JOSE (minus the encryption).  
+
+Coze 
+- Is JSON.
+- Uses digests heavily in the design.  
+- Focuses on signing messages of any kind.  This includes session tokens.  
+- Permits several cipher suits ("algs") and hopes to expand with new industry standards.  (Currently ES244, ES256, ES384, ES512, Ed25519, Ed25519ph)
+- Defines a key format 
+- Signing, not encryption, is Coze's focus.  
+
+
+PASETO's 
+- Is not JSON.
+- Does not use digests as references (For example, uses the public key directly.)
+- Focuses on security tokens.
+- Supports (two?) cipher suites (v3, v4)
+- Soatok pointed out, PASERK is an extension to PASETO that provides key-wrapping and serialization.
+- Supports encryption.
+
+
+Both Coze and PASETO use b64ut for encoding binary values. 
+
+I'm not up-to-date with current PASETO (I dug originally into v1 but I understand that it has been deprecated), but it seems to look about the same.  
+
+
+See 
+- https://github.com/paseto-standard/paseto-spec
+- https://github.com/paseto-standard/paserk

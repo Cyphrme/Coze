@@ -117,19 +117,19 @@ The JSON name `coze` may be used to wrap Coze objects.  For example:
 ```
 
 ### `coze` Standard Fields
-- `coze` - JSON name for Coze objects.  E.g. `{"coze":{"pay":..., sig:...}}`
-- `can` - "Canon" of `pay`.  E.g. `["alg","iat","tmb","typ"]`
-- `cad` - "Canon digest", the digest of `pay`.  E.g.: `"LSgWE4v..."`
-- `czd` - "Coze digest", the digest over `["cad","sig"]`.  E.g. `d0ygwQ...`
-- `pay` - Label for the pay object.  E.g. `"pay":{"alg":...}`
-- `sig` - Signature over `cad`.  E.g. `"sig":"ywctP6..."`
+- `coze` (Coze)         Coze object.                E.g. `{"coze":{"pay":..., sig:...}}`
+- `can`  (Canon)        Canon of `pay`.             E.g. `["alg","iat","tmb","typ"]`
+- `cad`  (Canon digest) Digest of `pay`.            E.g. `"LSgWE4v..."`
+- `czd`  (Coze digest)  Digest of `["cad","sig"]`.  E.g. `d0ygwQ...`
+- `pay`  (Payload)      Pay object.                 E.g. `"pay":{"alg":...}`
+- `sig`  (Signature)    Signature over `cad`.       E.g. `"sig":"ywctP6..."`
 
-`sig` is the signature of the bytes represented by `cad` and `cad` is not
-rehashed before signing. `czd`'s hashing algorithm must align with `alg` in
-`pay`.  `czd` refers to a particular signed message. Like `cad`, `czd` is
-calculated from brace to brace, including the braces. `cad` and `czd` are
-recalculatable and are recommended to be omitted, although they may be useful
-for reference.  
+`sig` is the signature over the bytes of `cad`.  `cad` is not rehashed before
+signing. `czd`'s hashing algorithm must align with `alg` in `pay`.  `czd` refers
+to a particular signed message just as `cad` refers to particular payload. `cad`
+and `czd` are calculated from brace to brace, including the braces. `cad` and
+`czd` are recalculatable and are recommended to be omitted from cozies, although
+they may be useful for reference.  
 
 As an added technical constraint, because `sig` and `czd` are used as
 identifiers, `sig` must be non-malleable. Malleable schemes like ECDSA must
@@ -340,8 +340,7 @@ cryptographic operations.
 
 
 ## Coze Verifier
-The Coze verifier is an in-browser tool for verifying, signing, and generating
-Coze keys.  
+The Coze verifier is an in-browser tool for signing and verifying.
 
 [Coze Verifier](https://cyphr.me/coze)
 
@@ -357,7 +356,7 @@ Its [codebase is in the Cozejs repo][CozeJSVerifier] and may be locally hosted.
  - [Go Coze (this repo)](https://github.com/Cyphrme/coze)
  - [Coze js (Javascript)](https://github.com/Cyphrme/cozejs)
 
-See `docs/developement.md` for the Go development guide.
+See [`docs/development.md`](docs/development.md) for the Go development guide.
 
 
 ## Coze Core and Coze Standard
@@ -421,11 +420,6 @@ spartan and avoid feature bloat. Further expansions on Coze may be included in
 "Coze Standard". Further draft, proposals, and extended algorithm support are
 planned in "Coze Experimental".
 
-#### How can my API do versioning?
-API versioning may be handled in an application however desired.  A suggested
-way of incorporating API versioning in Coze is to use `typ`,
-e.g. `cyphr.me/v1/msg/create`, where v1 is the api version.
-
 #### Why does `pay` have cryptographic components?
 Coze's `pay` includes all payload information, a design we've dubbed a "fat
 payload".  We consider single pass hashing critical for Coze's simple design.
@@ -439,17 +433,23 @@ label `"pay"` may then be inferred, `{...}`.  `{...}` is better than
 Verifying a coze already requires hashing `pay`.  Parsing `alg` from `pay` is a
 small additional cost.  
 
+#### JSON APIs?  Can my API do versioning?
+Coze is well suited for JSON APIs. API versioning may be handled by applications
+however desired.  A suggested way of incorporating API versioning in Coze is to
+use `typ`, e.g. `"typ":"cyphr.me/v1/msg/create"`, where "v1" is the api version.
+
 #### Can my application use Canon/Canonicalization?
 Yes, canon is suitable for general purpose application.  Applications may
-specify canon expectations in API documentation, if using Coze derived by "typ"
+specify canon expectations in API documentation, if using Coze denoted by "typ"
 or explicitly specified by `can`, or implicitly known and pre-established.  Coze
 Core contains simple canonicalization functions, or for more expressive
 capabilities see Normal in Coze Standard.
 
 #### `pay.typ` vs `key.typ`. 
 For applications, `pay.typ` may denote a canon.  For example, a `typ` with value
-`cyphr.me/create/msg` has a canon, as defined by the service, of ["alg", "iat",
-"msg", "tmb", "typ"].  
+`cyphr.me/msg/create` has a canon, as defined by the service, of ["alg", "iat",
+"msg", "tmb", "typ"].  The service may reject a coze that's not canonicalized as
+expected.  For example, the service might reject cozies missing `iat`.  
 
 `Key.tmb` ignores `key.typ` because a static canon, `["alg","x"]` is always used
 when producing key's `tmb`. Like `typ` in `pay`, applications may use `key.typ`
@@ -596,7 +596,7 @@ to error on duplicate, his Java JSON implementation errors on duplicate names.
 Others use `last-value-wins`, support duplicate keys, or other non-standard
 behavior. The [JSON
 RFC](https://datatracker.ietf.org/doc/html/rfc8259#section-4) states that
-implementations **should not** allow duplicate keys, notes the varying behavior
+implementations should not allow duplicate keys, notes the varying behavior
 of existing implementations, and states that when names are not unique, "the
 behavior of software that receives such an object is unpredictable."  Also note
 that Javascript objects (ES6) and Go structs already require unique names.
@@ -618,8 +618,6 @@ https://github.com/json5/json5-spec/issues/38.
 See also I-JSON
  - (2015, Bray)     https://datatracker.ietf.org/doc/html/rfc7493
 
-#### JSON APIs?
-Coze is well suited for JSON APIs.
 
 #### HTTP?  HTTP Cookies?  HTTP Headers?  
 When using Coze with HTTP cookies, Coze messages should be JSON minified.  For

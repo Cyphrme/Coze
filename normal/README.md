@@ -89,11 +89,10 @@ required 'id' field.
 
 ```
 
-Normal does not check that a payload is cryptographically valid, but is
-useful for JSON field validation.
-
-On the other hand, a cryptographically verified payload may not guarantee that
-the 'pay' has the required fields present for an application's specific endpoint.
+Normal does not check that a payload is cryptographically valid, but is useful
+for JSON field validation. On the other hand, a cryptographically verified
+payload may not guarantee that the 'pay' has the required fields present for an
+application's specific endpoint.
 
 Pairing verification and normal allows for better and potentially more 
 optimized validation of incoming payloads.
