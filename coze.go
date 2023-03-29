@@ -267,7 +267,7 @@ type Marshaler interface {
 // may include these characters, like user arbitrary data, json.Marshal should
 // not be used.
 //
-// Go structs already require unique fields, so Unlike coze.UnmarshalJSON or
+// Go structs already require unique fields, so unlike coze.UnmarshalJSON or
 // pay.UnmarshalJSON, marshaling will not sanitize for duplicates.
 //
 // Joe Tsai is working on json "fixes" in a yet-to-be-publicly-released "v2"
@@ -323,7 +323,7 @@ func Hash(h HshAlg, msg []byte) (digest B64, err error) {
 	}
 
 	if len(digest) == 0 {
-		return nil, fmt.Errorf("coze.Hash digest is empty. Using HashAlg: %s", h)
+		return nil, fmt.Errorf("coze.Hash digest is empty. Given HashAlg: %s", h)
 	}
 
 	return digest, nil
@@ -395,6 +395,7 @@ func checkDuplicate(d *json.Decoder) error {
 	return nil
 }
 
-// Useful for applications that need to check for this error. Otherwise, have
-// to check for the error string, which may change.
+// ErrJSONDuplicate is for applications that need to check for the JSON
+// duplicate error.  Alternatively, applications need to check for the error
+// string, which may change.
 var ErrJSONDuplicate = errors.New("Coze: JSON duplicate field name")
