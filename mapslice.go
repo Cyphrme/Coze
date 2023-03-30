@@ -7,16 +7,17 @@ import (
 	"sort"
 )
 
-// MapSlice of map items.  Go maps have an arbitrary order that cannot be
-// (easily) set.  MapSlice is for easy setting of a given order for maps.
+// MapSlice is for setting of a given order for maps map items.  Go maps have an
+// arbitrary order that cannot be (easily) set.
 //
-// This implementation of MapSlice supports only things that JSON or Coze
-// needs, chiefly, Key is now type string instead of type any, and has extra
-// methods, "Keys()", "KeyStrings()", "Values()".
+// This implementation of MapSlice is designed for JSON/Coze. Key is now type
+// string (instead of type any), and has extra methods, "Keys()",
+// "KeyStrings()", "Values()".
 //
 // We may publish this as a standalone package.
 //
-// go-yaml, a dead project, had the same problem and was solved 8 years ago:
+// go-yaml, a "dead"/done project, had the same problem and was solved 8 years
+// ago:
 // https://github.com/go-yaml/yaml/blob/7649d4548cb53a614db133b2a8ac1f31859dda8c/yaml.go#L20
 //
 // MapSlice and MapItem was originally inspired from (3 years ago):
@@ -38,17 +39,8 @@ func nextIndex() uint64 {
 	return indexCounter
 }
 
-// Keys returns a MapSlice's Keys in a slice.
-func (ms MapSlice) Keys() []any {
-	s := make([]any, len(ms))
-	for i, k := range ms {
-		s[i] = k.Key
-	}
-	return s
-}
-
-// KeysString returns MapSlice's Keys as []string.
-func (ms MapSlice) KeysString() []string {
+// Keys returns MapSlice's Keys as []string.
+func (ms MapSlice) Keys() []string {
 	s := make([]string, len(ms))
 	for i, k := range ms {
 		s[i] = k.Key
@@ -68,14 +60,22 @@ func (ms MapSlice) Values() []any {
 // MarshalJSON for map slice.
 func (ms MapSlice) MarshalJSON() ([]byte, error) {
 	buf := &bytes.Buffer{}
-	buf.Write([]byte{'{'})
+	buf.Write([]byte{'{'}) // Write err is always nil.
 	for i, mi := range ms {
-		b, err := json.Marshal(&mi.Value)
+		k, err := Marshal(&mi.Key)
 		if err != nil {
 			return nil, err
 		}
-		buf.WriteString(fmt.Sprintf("%q:", fmt.Sprintf("%v", mi.Key)))
-		buf.Write(b)
+		buf.Write(k)
+		buf.Write([]byte{':'})
+
+		v, err := Marshal(&mi.Value)
+		if err != nil {
+			return nil, err
+		}
+
+		buf.Write(v)
+
 		if i < len(ms)-1 {
 			buf.Write([]byte{','})
 		}

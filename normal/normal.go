@@ -195,7 +195,7 @@ func isNormal(r coze.MapSlice, rSkip int, nSkip int, extraFlag bool, norms ...No
 	norm := norms[nSkip]
 
 	if extraFlag { // Progress record pointer to first match.
-		keys := r[rSkip:].KeysString()
+		keys := r[rSkip:].Keys()
 		var i int
 		for i = 0; i < len(keys); i++ {
 			if slices.Contains(norm.Normal(), Normal(keys[i])) {
@@ -244,7 +244,7 @@ func isNormal(r coze.MapSlice, rSkip int, nSkip int, extraFlag bool, norms ...No
 		if norm.Len() > len(r)-rSkip {
 			return false
 		}
-		keys := r[rSkip : v.Len()+rSkip].KeysString()
+		keys := r[rSkip : v.Len()+rSkip].Keys()
 		slices.Sort(keys)
 		slices.Sort(v)
 		for i := range v {
@@ -254,7 +254,7 @@ func isNormal(r coze.MapSlice, rSkip int, nSkip int, extraFlag bool, norms ...No
 			passedRecs++
 		}
 	case Option:
-		keys := r[rSkip:].KeysString()
+		keys := r[rSkip:].Keys()
 		for i, n := range keys {
 			if !slices.Contains(v, Normal(n)) {
 				if nSkip+1 == len(norms) { // last norm
@@ -271,7 +271,7 @@ func isNormal(r coze.MapSlice, rSkip int, nSkip int, extraFlag bool, norms ...No
 	case Need:
 		i := 0
 		key := ""
-		keys := r[rSkip:].KeysString()
+		keys := r[rSkip:].Keys()
 		for i, key = range keys {
 			if passedRecs == v.Len() {
 				break

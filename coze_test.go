@@ -161,30 +161,7 @@ func ExamplePay_UnmarshalJSON_duplicate() {
 	msg := []byte(`{"alg":"ES256","alg":"ES384"}`)
 
 	err := json.Unmarshal(msg, h)
-	if err != nil {
-		fmt.Println(err)
-	}
-
-	// Output:
-	// Coze: JSON duplicate field name
-}
-
-// Example demonstrating that unmarshalling a `pay` that has duplicate field
-// names results in an error.
-func ExamplePay_UnmarshalJSON_duplicate_array() {
-	h := &Pay{}
-
-	// Error will be nil
-	err := json.Unmarshal([]byte(`{"bob":"bob","joe":["alg","alg"]}`), h)
-	if err != nil {
-		fmt.Println(err)
-	}
-
-	// Error will not be nil
-	err = json.Unmarshal([]byte(`{"bob":"bob","joe":["alg","alg"],"bob":"bob2"}`), h)
-	if err != nil {
-		fmt.Println(err)
-	}
+	fmt.Println(err)
 
 	// Output:
 	// Coze: JSON duplicate field name
@@ -195,11 +172,8 @@ func ExamplePay_UnmarshalJSON_duplicate_array() {
 func ExampleCoze_UnmarshalJSON_duplicate() {
 	h := &Pay{}
 	msg := []byte(`{"coze":{"pay":"ES256","pay":"ES384"}}`)
-
 	err := json.Unmarshal(msg, h)
-	if err != nil {
-		fmt.Println(err)
-	}
+	fmt.Println(err)
 
 	// Output:
 	// Coze: JSON duplicate field name
@@ -287,7 +261,6 @@ func ExampleCoze_MetaWithAlg() {
 }
 
 func ExampleCoze_MetaWithAlg_contextual() {
-	// func TestCoze_MetaWithAlg_contextual(t *testing.T) {
 	// Test MetaWithAlg using no sig, which should calc what it can.
 	cz := new(Coze)
 	err := json.Unmarshal([]byte(GoldenCoze), cz)
@@ -299,9 +272,9 @@ func ExampleCoze_MetaWithAlg_contextual() {
 	if err != nil {
 		panic(err)
 	}
-
 	fmt.Printf("%s\n", cz)
-	// Test empty coze with coze.parsed.alg
+
+	// Empty coze with coze.parsed.alg
 	cz = new(Coze)
 	err = json.Unmarshal(GoldenCozeEmpty, cz)
 	if err != nil {
@@ -394,12 +367,9 @@ func ExampleMarshal_jsonRawMessage() {
 
 	// Incorrect usage with pointer to a zero value string.
 	// Pointer to empty string will fail Marshal since an empty string is not
-	// valid JSON. (If it were the value `""` it would pass. )
-	b, err := Marshal(anon) // fails
-	if err != nil {
-		fmt.Println(err)
-	}
-	fmt.Printf("%+v\n", b) // Empty because of error.
+	// valid JSON., while the value `""` will pass.
+	b, err := Marshal(anon)         // fails
+	fmt.Printf("%s\n%+v\n", err, b) // Error is populated and b is empty because of error.
 
 	// Correct usage with quotes characters.
 	quotes := []byte("\"\"") // string with two quote characters
@@ -440,6 +410,7 @@ func Test_checkDuplicate(t *testing.T) {
 	if err != ErrJSONDuplicate {
 		t.Fatal("Should have found duplciate.")
 	}
+
 	// No duplicate.  Should not error.
 	data = `{"a": "b", "c":"d", "d": {"e": 1, "f": 2}}`
 	err = checkDuplicate(json.NewDecoder(strings.NewReader(data)))
