@@ -9,7 +9,7 @@ go get github.com/cyphrme/coze@master
 As always with Go, use `go test` and verify any changes. 
 
 ```
-go test && go test -bench=.
+go test && go test -bench=. && (cd normal && go test)
 ```
 
 

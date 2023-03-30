@@ -126,10 +126,10 @@ The JSON name `coze` may be used to wrap Coze objects.  For example:
 
 `sig` is the signature over the bytes of `cad`.  `cad` is not rehashed before
 signing. `czd`'s hashing algorithm must align with `alg` in `pay`.  `czd` refers
-to a particular signed message just as `cad` refers to particular payload. `cad`
-and `czd` are calculated from brace to brace, including the braces. `cad` and
-`czd` are recalculatable and are recommended to be omitted from cozies, although
-they may be useful for reference.  
+to a particular signed message just as `cad` refers to a particular payload.
+`cad` and `czd` are calculated from brace to brace, including the braces. `cad`
+and `czd` are recalculatable and are recommended to be omitted from cozies,
+although they may be useful for reference.  
 
 As an added technical constraint, because `sig` and `czd` are used as
 identifiers, `sig` must be non-malleable. Malleable schemes like ECDSA must
@@ -137,14 +137,11 @@ perform signature canonicalization that constrains signatures to a non-malleable
 form.  
 
 ### Verbose `coze`
-Needlessly wrapping Coze objects or including unneeded labels is not
-recommended. For example, the JSON object `{"pay":{...},"sig":...}` doesn't need
-the labeled `coze` if implicitly known by applications.
-
-The following adds to the previous example the fields `key`, `can`, `cad`, and
-`czd` that should generally be omitted unless needed by applications. `key` may
-be looked up by applications by using `tmb`, `can`, `cad`, and `czd` are
-recalculatable, and the label `coze` may be inferred.  
+Including unneeded labels is not recommended. For example, the JSON object
+`{"pay":{...},"sig":...}` doesn't need the label `coze` if implicitly known by
+applications. The following includes fields that should generally be omitted.
+`key` may be looked up by applications by using `tmb`, `can`, `cad`, and `czd`
+are recalculatable, and the label `coze` may be inferred.  
 
 A tautological coze:
 
@@ -300,7 +297,7 @@ revocation is the suggested value for `rvk`.
 
 Coze explicitly defines a self-revoke method so that third parties may revoke
 leaked keys. Systems storing Coze keys should provide an interface permitting a
-given Coze key to be mark as revoked by receiving a self-revoke message.
+given Coze key to be marked as revoked by receiving a self-revoke message.
 Self-revokes with future times must immediately be considered as revoked.  Coze
 requires `rvk` to be an integer with a maximum value of 9,007,199,254,740,991
 (2^53 – 1), which is Javascript's `MAX_SAFE_INTEGER`. Checking for revoked when
@@ -395,11 +392,9 @@ needed to correct ordering.
 
 #### Binary? Why not support binary payloads?
 JSON isn't well designed for large binary payloads.  Instead, Coze suggests
-including the short binary file's digest in a coze message while transporting
-the binary seperately. See the binary example above.  
-
-There's nothing stopping an application from base64 encoding a binary for
-transporting, although it's not recommended.
+including the digest of a binary file in a coze message while transporting the
+binary separately. There's nothing stopping an application from base64 encoding
+a binary for transport, although it's not recommended.
 
 #### Why is Coze's scope so limited?
 Coze is intentionally scope limited.  It is easier to extend a limited standard
@@ -426,8 +421,8 @@ payload".  We consider single pass hashing critical for Coze's simple design.
 
 Alternative schemes require a larger canon, `{"head":{...},"pay":{...}}`, or
 concatenation like `digest(head) || digest(pay)`.  By hashing only `pay`, the
-"head" label and encapsulating parenthathese are dropped, `pay:{...}`, and the
-label `"pay"` may then be inferred, `{...}`.  `{...}` is better than
+"head" label and encapsulating braces are dropped, `pay:{...}`, and the label
+`"pay"` may then be inferred, `{...}`.  `{...}` is better than
 `{"head":{...},"pay":{...}}`.  
 
 Verifying a coze already requires hashing `pay`.  Parsing `alg` from `pay` is a
@@ -455,7 +450,7 @@ expected.  For example, the service might reject cozies missing `iat`.
 when producing key's `tmb`. Like `typ` in `pay`, applications may use `key.typ`
 to specify custom fields, e.g. "first_seen" or "account_id" and field order. 
 
-#### ECDSA `x` and `sig` Bytes
+#### ECDSA `x` and `sig` Bytes.
 For ECDSA , (X and Y) and (R and S) are concatenated for `x` and `sig`
 respectively.  For ES512, which unlike the other ECDSA algorithms uses the odd
 numbered P-521, X, Y, R, and S are padded before concatenation.  
@@ -467,12 +462,11 @@ GeMSS128 public keys are 352,188 bytes, compared to Ed25519's 32 bytes.  Using
 Additionally, `x` may be cryptographically significant for key security while
 `tmb` is not.
 
-#### Required Coze Fields 
+####  Required Coze Fields, Contextual Cozies, and the Empty Coze.
 Coze has no required fields, however omitting standard fields limits
 interoperability among applications, so it is suggested to include standard
 fields appropriately.   
 
-####  Contextual Cozies and the Empty Coze
 Cozies that are missing the fields `pay.alg` and/or `pay.tmb` are **contextual
 cozies**, denoting that additional information is needed for verification.
 Caution is urged when deploying contextual cozies as including the standard
@@ -491,7 +485,7 @@ which has the `alg` "ES256".
 
 #### Why not PGP/OpenSSL/LibreSSL/SSHSIG/libsodium/JOSE(JWT)/COSE/etc...?
 We respect the various projects in the space.  Other projects have noble goals
-and we're thankful they exists.  Coze is influenced by ideas from many others.
+and we're thankful they exist.  Coze is influenced by ideas from many others.
 However existing solutions were not meeting our particular needs so we created
 Coze.  
  
@@ -610,13 +604,13 @@ Tim Bray, is also the author of JSON RFC 8259.  See also
 https://github.com/json5/json5-spec/issues/38.
 
 #### JSON?
-- (2017, Bray)      https://datatracker.ietf.org/doc/html/rfc8259
-- (2014, Bray)      https://datatracker.ietf.org/doc/html/rfc7159
-- (2013, Bray)      https://datatracker.ietf.org/doc/html/rfc7158
-- (2006, Crockford) https://datatracker.ietf.org/doc/html/rfc4627
+- [RFC 8259 (2017, Bray)](https://datatracker.ietf.org/doc/html/rfc8259)
+- [RFC 7159 (2014, Bray)](https://datatracker.ietf.org/doc/html/rfc7159)
+- [RFC 7158 (2013, Bray)](https://datatracker.ietf.org/doc/html/rfc7158)
+- [RFC 4627 (2006, Crockford)](https://datatracker.ietf.org/doc/html/rfc4627)
 
 See also I-JSON
- - (2015, Bray)     https://datatracker.ietf.org/doc/html/rfc7493
+ - [RFC 7493 (2015, Bray)](https://datatracker.ietf.org/doc/html/rfc7493)
 
 
 #### HTTP?  HTTP Cookies?  HTTP Headers?  
@@ -631,7 +625,7 @@ For more considerations see the document [http_headers.md](docs/http_headers.md)
 
 #### Signature Malleability?
 Coze prohibits signature malleability.  See
-[malleability.md](docs/proposals/implemented/malleability.md)
+[malleability_low_s.md](docs/proposals/implemented/malleability_low_s.md).
 
 #### Who created Coze?
 Coze was created by [Cyphr.me](https://cyphr.me).  

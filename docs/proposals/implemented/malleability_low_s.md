@@ -2,7 +2,7 @@
 Coze requires non-malleable signature schemes because `sig` and `czd` are used
 as identifiers.  Signatures must not be mutatable by third parties. Prohibiting
 signature malleability makes `czd` useful in preventing replay attacks and helps
-prevent applications from making bad assumptions.
+prevent applications from making other bad assumptions.
 
 Without consideration for malleability, elliptic curve signatures scheme may be
 mutated by third parties.  The no-malleability constraint is already adopted by
@@ -30,14 +30,14 @@ signature the value of `czd` is changed so it accepts the second message as a
 new sign in request.  The third party is now also logged into example.com using
 a valid message.  
 
-Coze prevents this scenario by requiring signatures to be non-malleable.  This
-allows `czd` identify previously processed messages.  The third party then
-cannot mutate an existing signature to any other valid form.  
+Coze prevents this scenario by requiring signatures to be non-malleable which
+makes `czd` useful in identify previously processed messages.  Third parties
+cannot mutate an existing signature to another valid form.  
 
 
 ### Future considerations
-If for some reason a future algorithm cannot make no malleability guarantee,
-then the suggestion is to leave `sig` and `czd` empty and populate a new fields
+If for some reason a future algorithm cannot make a no malleability guarantee,
+the suggestion is to leave `sig` and `czd` empty and populate a new fields
 in `coze` specially designated for malleable signatures.  However, this is
 expected to be unlikely, and we'd most likely advocate for non-adoption of such
 standard.  
