@@ -120,7 +120,7 @@ func (cz *Coze) UnmarshalJSON(b []byte) error {
 // CzdCanon is the canon for a `czd`.
 var CzdCanon = []string{"cad", "sig"}
 
-const max_safe_integer = 9007199254740992
+const max_safe_integer = 9007199254740991
 
 // GenCzd generates and returns `czd`.
 func GenCzd(hash HshAlg, cad B64, sig B64) (czd B64, err error) {
@@ -219,11 +219,8 @@ func (p *Pay) UnmarshalJSON(b []byte) error {
 		p2.Struct = str
 	}
 
-	if p2.Iat > max_safe_integer {
-		return fmt.Errorf("Pay.UnmarshalJSON: iat over 2^53 - 1 (9,007,199,254,740,991)")
-	}
-	if p2.Rvk > max_safe_integer {
-		return fmt.Errorf("Pay.UnmarshalJSON: rvk over 2^53 - 1 (9,007,199,254,740,991)")
+	if p2.Iat > max_safe_integer || p2.Rvk > max_safe_integer || p2.Iat < 0 || p2.Rvk < 0 {
+		return fmt.Errorf("Pay.UnmarshalJSON: values for iat and rvk must be between 0 and 2^53 - 1")
 	}
 
 	*p = *(*Pay)(p2)

@@ -418,3 +418,39 @@ func Test_checkDuplicate(t *testing.T) {
 		t.Fatal(err)
 	}
 }
+
+// Demonstrates expectations for values that are non-integer, negative, or too large for rvk.
+func Example_iat_rvk_too_big() {
+	p := &Pay{}
+
+	//  2^53 - 1 as a string which must error.
+	err := json.Unmarshal([]byte(`{"rvk":"9007199254740991"}`), p)
+	if err != nil {
+		fmt.Println(err)
+	}
+
+	// 2^53
+	err = json.Unmarshal([]byte(`{"rvk":9007199254740992}`), p)
+	if err != nil {
+		fmt.Println(err)
+	}
+
+	//  Negative 2^53 + 1 must error as rvk must be positive.
+	err = json.Unmarshal([]byte(`{"rvk":-9007199254740991}`), p)
+	if err != nil {
+		fmt.Println(err)
+	}
+
+	// Finally, 2^53 - 1 as an integer which is okay.
+	err = json.Unmarshal([]byte(`{"rvk":9007199254740991}`), p)
+	if err != nil {
+		fmt.Println(err)
+	}
+	fmt.Println(p)
+
+	// Output:
+	// json: cannot unmarshal string into Go struct field pay2.rvk of type int64
+	// Pay.UnmarshalJSON: values for iat and rvk must be between 0 and 2^53 - 1
+	// Pay.UnmarshalJSON: values for iat and rvk must be between 0 and 2^53 - 1
+	// {"rvk":9007199254740991}
+}
