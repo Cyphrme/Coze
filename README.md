@@ -298,10 +298,12 @@ revocation is the suggested value for `rvk`.
 Coze explicitly defines a self-revoke method so that third parties may revoke
 leaked keys. Systems storing Coze keys should provide an interface permitting a
 given Coze key to be marked as revoked by receiving a self-revoke message.
-Self-revokes with future times must immediately be considered as revoked.  Coze
-requires `rvk` to be an integer with a maximum value of 9,007,199,254,740,991
-(2^53 – 1), which is Javascript's `MAX_SAFE_INTEGER`. Checking for revoked when
- `rvk`'s value is a non-integer or value past MAX_SAFE_INTEGER must error.  
+Self-revokes with future times must immediately be considered as revoked.  
+
+`rvk` must and `iat` should be a positive integer less than 2^53 – 1
+(9,007,199,254,740,991), which is the integer precision limit specified by
+IEEE754 minus one. Revoke checks must error if `rvk`'s is not an integer or
+larger than 2^53 - 1.
 
 Key expiration policies, key rotation, and alternative revocation methods are
 outside the scope of Coze.

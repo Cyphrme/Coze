@@ -120,22 +120,27 @@ func (cz *Coze) UnmarshalJSON(b []byte) error {
 // CzdCanon is the canon for a `czd`.
 var CzdCanon = []string{"cad", "sig"}
 
+const max_safe_integer = 9007199254740992
+
 // GenCzd generates and returns `czd`.
 func GenCzd(hash HshAlg, cad B64, sig B64) (czd B64, err error) {
 	return Hash(hash, []byte(fmt.Sprintf(`{"cad":%q,"sig":%q}`, cad, sig)))
 }
 
-// Pay contains the standard Coze pay fields as well as custom Struct given by
+// Pay contains the standard Coze pay fields as well as custom struct given by
 // third party applications.  This allows embedding third party structs into Pay
 // for creating custom cozies (see example ExampleKey_SignPay).
 //
-// The custom MarshalJSON() renders the JSON tags on [Alg, Iat, Tmb, Typ,
-// Rvk, Struct] ineffective, however they are present for documentation.
+// The JSON tags on [Alg, Iat, Tmb, Typ, Rvk, Struct] are ineffective due to the
+// custom MarshalJSON(), however they are present for documentation.
 //
 // `Struct` will be marshaled when not empty. The custom marshaler promotes
 // fields inside `Struct` to be top level fields inside of `pay`. The tag
-// `json:"-"` is ignored by the custom marshaler (it is set to "-" so that the
-// default marshaler does not include it).
+// `json:"-"` is ignored by the custom marshaler, and  is set to "-" so that the
+// default marshaler does not include it.
+//
+// iat and rvk are type int64 and not uint64 to follow the advised type for
+// third party time fields.
 type Pay struct {
 	Alg SEAlg  `json:"alg,omitempty"` // e.g. "ES256"
 	Iat int64  `json:"iat,omitempty"` // e.g. 1623132000
@@ -205,13 +210,20 @@ func (p *Pay) UnmarshalJSON(b []byte) error {
 	if err != nil {
 		return err
 	}
-	if p.Struct != nil {
+	if p.Struct != nil { // Inner custom application struct.
 		str := p.Struct
 		err = json.Unmarshal(b, str)
 		if err != nil {
 			return err
 		}
 		p2.Struct = str
+	}
+
+	if p2.Iat > max_safe_integer {
+		return fmt.Errorf("Pay.UnmarshalJSON: iat over 2^53 - 1 (9,007,199,254,740,991)")
+	}
+	if p2.Rvk > max_safe_integer {
+		return fmt.Errorf("Pay.UnmarshalJSON: rvk over 2^53 - 1 (9,007,199,254,740,991)")
 	}
 
 	*p = *(*Pay)(p2)
@@ -270,9 +282,9 @@ type Marshaler interface {
 // Go structs already require unique fields, so unlike coze.UnmarshalJSON or
 // pay.UnmarshalJSON, marshaling will not sanitize for duplicates.
 //
-// Joe Tsai is working on json "fixes" in a yet-to-be-publicly-released "v2"
-// json package, which we hope to use upon release.  Another work is Tailscale's
-// JSON serializer: https://pkg.go.dev/github.com/go-json-experiment/json
+// Joe Tsai is working on fixes in a yet-to-be-released Tailscale's "JSONv2"
+// package, which we hope to use upon release:
+// https://pkg.go.dev/github.com/go-json-experiment/json
 func Marshal(i any) ([]byte, error) {
 	buffer := &bytes.Buffer{}
 	encoder := json.NewEncoder(buffer)
@@ -298,10 +310,11 @@ func MarshalPretty(i any) ([]byte, error) {
 	return bytes.TrimRight(buffer.Bytes(), "\n"), nil
 }
 
-// Hash hashes msg and returns the digest or a set size. Returns nil on error.
-// Errors on invalid HshAlg or if digest is nil.
+// Hash hashes msg and returns the digest. Returns nil on error. Errors on
+// invalid HshAlg or if digest is nil.
 //
-// SHAKE128 returns 32 bytes. SHAKE256 returns 64 bytes.
+// For algorithms that support arbitrary sized digests, Hash only returns a
+// static size.  SHAKE128 returns 32 bytes. SHAKE256 returns 64 bytes.
 func Hash(h HshAlg, msg []byte) (digest B64, err error) {
 	switch h {
 	case SHAKE128:
@@ -329,10 +342,19 @@ func Hash(h HshAlg, msg []byte) (digest B64, err error) {
 	return digest, nil
 }
 
-// IsRevoke returns true if the given Key is marked as revoked. Revoke rule must
-// match Key.IsRevoked.
+// IsRevoke returns true if the given Key is marked as revoked.
 func (p *Pay) IsRevoke() bool {
-	return p.Rvk > 0
+	return isRevoke(p.Rvk)
+}
+
+func isRevoke(rvk int64) bool {
+	// rvk is not allowed to be larger than 2^53 -1.  This library assumes that
+	// Unmarshal will error on rvk's that do not meet the specification
+	// requirements, so no error is needed here.
+	if rvk > max_safe_integer {
+		return false
+	}
+	return rvk > 0
 }
 
 // checkDuplicate checks if the JSON string has a duplicate. Go has an issue

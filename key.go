@@ -21,6 +21,7 @@ var KeyCanon = []string{"alg", "x"}
 // marshal uses struct order.
 //
 // Standard Coze key Fields
+//
 //	`alg` - Specific key algorithm. E.g. "ES256" or "Ed25519".
 //	`d`   - Private component. E.g. "bNstg4_H3m3SlROufwRSEgibLrBuRq9114OvdapcpVA".
 //	`iat` - Unix time of when the key was created. E.g. 1626069600.
@@ -396,7 +397,7 @@ func (c *Key) Revoke() (coze *Coze, err error) {
 
 // IsRevoked returns true if the given Key is marked as revoked.
 func (c Key) IsRevoked() bool {
-	return c.Rvk > 0
+	return isRevoke(c.Rvk)
 }
 
 // recalcX recalculates 'x' from 'd' and returns 'x'. 'x' will not be set on the

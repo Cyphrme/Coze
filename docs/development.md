@@ -28,7 +28,7 @@ the Go command that you’re writing code in multiple modules at the same time a
 easily build and run code in those modules".
 
 
-We use the module during local development (The should be "no duh", but Go mod
+We use the module during local development (That should be "no duh", but Go mod
 has a gotcha.)
 
 Add the following line to `go.mod` in your other projects for local changes to
