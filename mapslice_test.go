@@ -3,6 +3,7 @@ package coze
 import (
 	"encoding/json"
 	"fmt"
+	"sync"
 	"testing"
 )
 
@@ -60,4 +61,25 @@ func TestMapSlice_Marshal_chan(t *testing.T) {
 	if err != nil && e != err.Error() {
 		t.Fatalf("expected: %s\ngot: %v", e, err)
 	}
+}
+
+// See
+//
+//	https://go.dev/ref/mem
+//	https://go.dev/doc/articles/race_detector
+//
+// Use:
+//
+//	go test -race -run TestMapSlice_race
+func TestMapSlice_race(t *testing.T) {
+	var wg sync.WaitGroup
+	for i := 0; i < 10; i++ {
+		wg.Add(1)
+		go func() {
+			defer wg.Done()
+			var item MapItem
+			json.Unmarshal([]byte(`{}`), &item)
+		}()
+	}
+	wg.Wait()
 }
