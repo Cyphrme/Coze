@@ -401,14 +401,14 @@ func Test_checkDuplicate(t *testing.T) {
 	data := `{"a": "b", "a":true,"c":["field_3 string 1","field3 string2"], "d": {"e": 1, "e": 2}}`
 	err := checkDuplicate(json.NewDecoder(strings.NewReader(data)))
 	if err != ErrJSONDuplicate {
-		t.Fatal("Should have found duplciate.")
+		t.Fatal("Should have found duplicate.")
 	}
 
 	// Recursive check with duplicate in inner struct.  Should error.
 	data = `{"a": "b", "c":"d", "d": {"e": 1, "e": 2}}`
 	err = checkDuplicate(json.NewDecoder(strings.NewReader(data)))
 	if err != ErrJSONDuplicate {
-		t.Fatal("Should have found duplciate.")
+		t.Fatal("Should have found duplicate.")
 	}
 
 	// No duplicate.  Should not error.
@@ -419,7 +419,8 @@ func Test_checkDuplicate(t *testing.T) {
 	}
 }
 
-// Demonstrates expectations for values that are non-integer, negative, or too large for rvk.
+// Demonstrates expectations for values that are non-integer, negative, or too
+// large for rvk.
 func Example_iat_rvk_too_big() {
 	p := &Pay{}
 

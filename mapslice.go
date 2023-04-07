@@ -10,6 +10,8 @@ import (
 // `encoding/json` has no way to preserve the order of map keys.
 // See https://github.com/golang/go/issues/27179
 
+// MapSlice is not safe for concurrent use.  See https://github.com/Cyphrme/Coze/issues/10#issuecomment-1498196356
+
 // MapSlice is for setting of a given order for maps map items.  Go maps have an
 // arbitrary order that cannot be (easily) set.
 //
