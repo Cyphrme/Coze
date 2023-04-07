@@ -29,7 +29,7 @@ readability.
 1. Valid and idiomatic JSON. 
 2. Human readable and writable.
 3. Small in scope.
-4. Cryptographic agility.
+4. Provide defined cipher suites.
 
 ### Coze Fields
 Coze JSON fields are case sensitive and unique.  Coze defines standard fields
@@ -352,19 +352,33 @@ Its [codebase is in the Cozejs repo][CozeJSVerifier] and may be locally hosted.
 
 
 ## Coze Implementations
- - [Go Coze (this repo)](https://github.com/Cyphrme/coze)
- - [Coze js (Javascript)](https://github.com/Cyphrme/cozejs)
+ - [Go Coze (this repo)][Coze]
+ - [Coze js (Javascript)][Coze_js]
 
 See [`docs/development.md`](docs/development.md) for the Go development guide.
 
 
-## Coze Core and Coze Standard
-The sections above are defined as "Coze Core".  Further expansions on Coze may
-be included in "Coze Standard".  Draft, proposals, and extended algorithm
-support are planned in "Coze Experimental".
+## Coze Core and Coze X
+The sections above are defined as the main Coze specification, Coze core. There
+are no plans to increase Coze's scope or features in core other than additional
+algorithm support. This will be especially true after Coze is out of Alpha/Beta.
+(At the moment, we would like more time for feedback before casting the
+specification into stone.)
 
-See `normal.go` for an example of a Coze Standard feature not included in Core
-Coze.  
+Coze x (Coze extended) includes additional documentation, extra features,
+drafts, proposals, early new algorithms support that's not yet adopted in Coze
+core, and extended algorithm support.  
+
+See [Coze_go_x/normal][Normal] for an example of a Coze x feature not included in
+Coze core.  
+
+Repository structure:
+- [Coze][Coze]              Main specification (core) and the Go Coze reference implementation.  
+- [Coze_x][Coze_x]          Coze extended. Additional documents, discussion, and new algorithms (Not a code repository).
+- [Coze_go_x][Coze_go_x]    Go implementation of extended features.
+- [Coze_js][Coze_js]        Javascript implementation of Coze core.
+- [Coze_js_x][Coze_js_x]    Javascript implementation of extended.
+- etc...
 
 
 # FAQ
@@ -491,7 +505,7 @@ and we're thankful they exist.  Coze is influenced by ideas from many others.
 However existing solutions were not meeting our particular needs so we created
 Coze.  
  
-See [coze_vs.md](/docs/coze_vs.md) document and the [introduction
+See [coze_vs.md][coze_vs] and the [introduction
 presentation](https://docs.google.com/presentation/d/1bVojfkDs7K9hRwjr8zMW-AoHv5yAZjKL9Z3Bicz5Too/edit#slide=id.g1367bc4eb0f_0_6)
 for more. 
 
@@ -504,8 +518,7 @@ Systems may use `sig` as an integrity check via cryptographic verification.  If
 For keys, `x` and/or `tmb` may be recalculated and error on mismatch.Coze keys
 cannot be integrity checked when `d`, `x`, or `tmb` are presented alone.  In
 situations needing integrity checking, we recommend including at least two
-components.  See the [checksums.md](/docs/proposals/discussion/checksum.md) for
-more.  
+components.  See [checksums.md][checksums] for more.  
 
 #### Performance hacks?
 Coze is not optimized for long messages, but if early knowledge of Coze standard
@@ -558,23 +571,20 @@ thumbprint.  Associating thumbprints to issuers is the design we recommend.
 Coze does not currently support encryption.  If or when it ever does it would be
 similar to or simply complement [age](https://github.com/FiloSottile/age).
 
-#### Cryptographic Agility?
->The moral is the need for cryptographic agility. It’s not enough to implement a
-single standard; it’s vital that our systems be able to easily swap in new
-algorithms when required. We’ve learned the hard way how algorithms can get so
-entrenched in systems that it can take many years to update them: in the
-transition from DES to AES, and the transition from MD4 and MD5 to SHA, SHA-1,
-and then SHA-3.
+#### Why define algorithms?
+>It’s not enough to implement a single standard; it’s vital that our systems be
+able to easily swap in new algorithms when required. We’ve learned the hard way
+how algorithms can get so entrenched in systems that it can take many years to
+update them: in the transition from DES to AES, and the transition from MD4 and
+MD5 to SHA, SHA-1, and then SHA-3.
 
 -- [Bruce Schneier](https://www.schneier.com/blog/archives/2022/08/nists-post-quantum-cryptography-standards.html)
 
-System that are cryptographically agile must not be overly coupled to a single
-primitive.  Coze itself is cryptographically agile as its design is generalized
-and not overly coupled to any single primitive.  Coze enables other applications
-to be cryptographic agile by making cryptographic primitive switching easy. Note
-that using a single primitive is perfectly fine for cryptographic agility, but
-hard coding systems to use only one primitive is not.  Simultaneous support for
-multiple primitives is a secondary perk.
+Coze's design is generalized and not overly coupled to any single primitive.
+Because of this, applications that use Coze can easy upgrade cryptographic
+primitives. Using a single primitive is perfectly fine, but tightly coupling
+systems to a single primitive is not.  Simultaneous support for multiple
+primitives is a secondary, and optional, perk.
 
 #### JSON "Name", "Key", "Field Name", "Member Name"?
 They're all synonyms.  A JSON name is a JSON key is a JSON field name is a JSON
@@ -664,3 +674,14 @@ reserved Cypherpunk, LLC and may not be used without permission.
 [Presentation]:       https://docs.google.com/presentation/d/1bVojfkDs7K9hRwjr8zMW-AoHv5yAZjKL9Z3Bicz5Too
 [CozeJSVerifier]:     https://github.com/Cyphrme/Cozejs/tree/master/verifier
 [GithubCozeVerifier]: https://cyphrme.github.io/Cozejs/verifier/coze.html
+
+[Coze]:      https://github.com/Cyphrme/Coze
+[Coze_x]:    https://github.com/Cyphrme/Coze_x
+[Coze_go_x]: https://github.com/Cyphrme/Coze_go_x
+[Coze_js]:   https://github.com/Cyphrme/Coze_js
+[Coze_js_x]: https://github.com/Cyphrme/Coze_js
+
+[Normal]:    https://github.com/Cyphrme/Coze_go_x/tree/master/normal
+[checksums]: https://github.com/Cyphrme/Coze_x/blob/master/proposal/checksum.md
+[coze_vs]:   https://github.com/Cyphrme/Coze_x/blob/master/coze_vs.md
+
