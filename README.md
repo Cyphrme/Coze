@@ -341,12 +341,12 @@ cryptographic operations.
 ## Coze Verifier
 The Coze verifier is an in-browser tool for signing and verifying.
 
-[Coze Verifier](https://cyphr.me/coze)
+[Coze Verifier][Verifier]
 
 ![coze_verifier](docs/img/Hello_World!.gif)
 
 There is also the [Simple Coze
-Verifier](https://cyphr.me/coze_verifier_simple/coze.html) that has the minimal
+Verifier][Verifier_simple] that has the minimal
 amount of code needed for a basic Coze application.  
 Its [codebase is in the Cozejs repo][CozeJSVerifier] and may be locally hosted.
 
@@ -454,7 +454,7 @@ Yes, canon is suitable for general purpose application.  Applications may
 specify canon expectations in API documentation, if using Coze denoted by "typ"
 or explicitly specified by `can`, or implicitly known and pre-established.  Coze
 Core contains simple canonicalization functions, or for more expressive
-capabilities see Normal in Coze Standard.
+capabilities see [Normal][Normal].
 
 #### `pay.typ` vs `key.typ`. 
 For applications, `pay.typ` may denote a canon.  For example, a `typ` with value
@@ -543,7 +543,7 @@ dubbed this a "tilde encapsulated payload". For example:
 ```
 
 #### Where does the cryptography come from?
-Much of this comes from NIST FIPS (See https://csrc.nist.gov/publications/fips)
+Much of this comes from [NIST FIPS][FIPS].
 
 For example, FIPS PUB 186-3 defines P-224, P-256, P-384, and P-521.
 
@@ -616,13 +616,14 @@ Tim Bray, is also the author of JSON RFC 8259.  See also
 https://github.com/json5/json5-spec/issues/38.
 
 #### JSON?
-- [RFC 8259 (2017, Bray)](https://datatracker.ietf.org/doc/html/rfc8259)
-- [RFC 7159 (2014, Bray)](https://datatracker.ietf.org/doc/html/rfc7159)
-- [RFC 7158 (2013, Bray)](https://datatracker.ietf.org/doc/html/rfc7158)
-- [RFC 4627 (2006, Crockford)](https://datatracker.ietf.org/doc/html/rfc4627)
+- [RFC 8259 (2017, Bray)][RFC8259]
+- [RFC 7159 (2014, Bray)][RFC7159]
+- [RFC 7158 (2013, Bray)][RFC7158]
+- [RFC 4627 (2006, Crockford)][RFC4627]
 
-See also I-JSON
- - [RFC 7493 (2015, Bray)](https://datatracker.ietf.org/doc/html/rfc7493)
+See also I-JSON and JSON5
+ - [RFC 7493 (2015, Bray)][RFC7493]
+ - [JSON5][JSON5]
 
 
 #### HTTP?  HTTP Cookies?  HTTP Headers?  
@@ -633,11 +634,11 @@ example, we've encountered no issues using the first example as a cookie:
 token={"pay":{"msg":"Coze Rocks","alg":"ES256","iat":1623132000,"tmb":"cLj8vsYtMBwYkzoFVZHBZo6SNL8wSdCIjCKAwXNuhOk","typ":"cyphr.me/msg"},"sig":"Jl8Kt4nznAf0LGgO5yn_9HkGdY3ulvjg-NyRGzlmJzhncbTkFFn9jrwIwGoRAQYhjc88wmwFNH5u_rO56USo_w"}; Path=/;  Secure; Max-Age=999999999; SameSite=None
 ```
 
-For more considerations see the document [http_headers.md](docs/http_headers.md)
+For more considerations see [http_headers.md][http_headers]
 
 #### Signature Malleability?
 Coze prohibits signature malleability.  See
-[malleability_low_s.md](docs/proposals/implemented/malleability_low_s.md).
+[malleability_low_s.md][low_s].
 
 #### Who created Coze?
 Coze was created by [Cyphr.me](https://cyphr.me).  
@@ -671,7 +672,11 @@ reserved Cypherpunk, LLC and may not be used without permission.
 [GoDoc]:    https://pkg.go.dev/github.com/cyphrme/coze
 [CozeLogo]: docs/img/coze_logo_zami_white_450x273.png
 
+
 [Presentation]:       https://docs.google.com/presentation/d/1bVojfkDs7K9hRwjr8zMW-AoHv5yAZjKL9Z3Bicz5Too
+
+[Verifier]:           https://cyphr.me/coze
+[Verifier_simple]:    https://cyphr.me/coze_verifier_simple/coze.html
 [CozeJSVerifier]:     https://github.com/Cyphrme/Cozejs/tree/master/verifier
 [GithubCozeVerifier]: https://cyphrme.github.io/Cozejs/verifier/coze.html
 
@@ -681,7 +686,20 @@ reserved Cypherpunk, LLC and may not be used without permission.
 [Coze_js]:   https://github.com/Cyphrme/Coze_js
 [Coze_js_x]: https://github.com/Cyphrme/Coze_js
 
-[Normal]:    https://github.com/Cyphrme/Coze_go_x/tree/master/normal
-[checksums]: https://github.com/Cyphrme/Coze_x/blob/master/proposal/checksum.md
-[coze_vs]:   https://github.com/Cyphrme/Coze_x/blob/master/coze_vs.md
+[Normal]:       https://github.com/Cyphrme/Coze_go_x/tree/master/normal
+[checksums]:    https://github.com/Cyphrme/Coze_x/blob/master/proposal/checksum.md
+[coze_vs]:      https://github.com/Cyphrme/Coze_x/blob/master/coze_vs.md
+[http_headers]: https://github.com/Cyphrme/Coze_x/blob/master/http_headers.md
+[low_s]:        https://github.com/Cyphrme/Coze_x/blob/master/implemented/malleability_low_s.md
+
+
+
+
+[RFC8259]: https://datatracker.ietf.org/doc/html/rfc8259
+[RFC7159]: https://datatracker.ietf.org/doc/html/rfc7159
+[RFC7158]: https://datatracker.ietf.org/doc/html/rfc7158
+[RFC4627]: https://datatracker.ietf.org/doc/html/rfc4627
+[RFC7493]: https://datatracker.ietf.org/doc/html/rfc7493
+[JSON5]:   https://github.com/json5/json5-spec
+[FIPS]:    https://csrc.nist.gov/publications/fips
 
