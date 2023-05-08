@@ -35,8 +35,8 @@ readability.
 Coze JSON fields are case sensitive and unique.  Coze defines standard fields
 and applications may include additional fields as desired.  All fields are
 optional, but omitting standard fields may limit compatibility. Binary values
-are encoded as RFC 4648 base64 URI with padding truncated (b64ut).  The Coze
-objects `pay`, `key`, and `coze` have respective standard fields.
+are encoded as [RFC 4648 base 64 URI with padding truncated][RFC4648] (b64ut).
+The Coze objects `pay`, `key`, and `coze` have respective standard fields.
 
 #### All Coze Standard Fields
 ![Coze Standard Fields](docs/img/coze_standard_fields.png)
@@ -350,6 +350,8 @@ Verifier][Verifier_simple] that has the minimal
 amount of code needed for a basic Coze application.  
 Its [codebase is in the Cozejs repo][CozeJSVerifier] and may be locally hosted.
 
+## Coze CLI
+See the repository for the [Coze CLI][Coze_cli].  
 
 ## Coze Implementations
  - [Go Coze (this repo)][Coze]
@@ -409,7 +411,7 @@ needed to correct ordering.
 #### Binary? Why not support binary payloads?
 JSON isn't well designed for large binary payloads.  Instead, Coze suggests
 including the digest of a binary file in a coze message while transporting the
-binary separately. There's nothing stopping an application from base64 encoding
+binary separately. There's nothing stopping an application from base 64 encoding
 a binary for transport, although it's not recommended.
 
 #### Why is Coze's scope so limited?
@@ -479,9 +481,10 @@ Additionally, `x` may be cryptographically significant for key security while
 `tmb` is not.
 
 ####  Required Coze Fields, Contextual Cozies, and the Empty Coze.
-Coze has no required fields, however omitting standard fields limits
-interoperability among applications, so it is suggested to include standard
-fields appropriately.   
+The standard fields provide Coze and applications fields with known types since
+JSON has limited type identifiers. Coze has no required fields, however omitting
+standard fields limits interoperability among applications, so it is suggested
+to include standard fields appropriately.   
 
 Cozies that are missing the fields `pay.alg` and/or `pay.tmb` are **contextual
 cozies**, denoting that additional information is needed for verification.
@@ -498,6 +501,9 @@ which has the `alg` "ES256".
 	"sig":"9iesKUSV7L1-xz5yd3A94vCkKLmdOAnrcPXTU3_qeKSuk4RMG7Qz0KyubpATy0XA_fXrcdaxJTvXg6saaQQcVQ"
 }
 ```
+
+#### UTF-8 and B64UT (RFC Base 64 URI Truncated) Encoding
+[Strict base 64] encoding is required.  See [base64.md][base64.md].
 
 #### Why not PGP/OpenSSL/LibreSSL/SSHSIG/libsodium/JOSE(JWT)/COSE/etc...?
 We respect the various projects in the space.  Other projects have noble goals
@@ -656,7 +662,7 @@ Coze was created by [Cyphr.me](https://cyphr.me).
 #### Other Resources
  - This README as a page: https://cyphrme.github.io/Coze/
  - [Coze go.pkg.dev](https://pkg.go.dev/github.com/cyphrme/coze#section-readme)
- - CozeJSON.com (which is currently pointed to the [Coze verifier](https://cyphr.me/coze_verifier))
+ - CozeJSON.com (which is currently pointed to the [Coze verifier](https://cyphr.me/coze))
  - Coze Table links: https://docs.google.com/document/d/15_1R7qwfCf-Y3rTamtYS_QXuoTSNrOwbIRopwmv4KOc
 
 
@@ -681,6 +687,7 @@ reserved Cypherpunk, LLC and may not be used without permission.
 [GithubCozeVerifier]: https://cyphrme.github.io/Cozejs/verifier/coze.html
 
 [Coze]:      https://github.com/Cyphrme/Coze
+[Coze_cli]:  https://github.com/Cyphrme/Coze_cli
 [Coze_x]:    https://github.com/Cyphrme/Coze_x
 [Coze_go_x]: https://github.com/Cyphrme/Coze_go_x
 [Coze_js]:   https://github.com/Cyphrme/Coze_js
@@ -691,10 +698,10 @@ reserved Cypherpunk, LLC and may not be used without permission.
 [coze_vs]:      https://github.com/Cyphrme/Coze_x/blob/master/coze_vs.md
 [http_headers]: https://github.com/Cyphrme/Coze_x/blob/master/http_headers.md
 [low_s]:        https://github.com/Cyphrme/Coze_x/blob/master/implemented/malleability_low_s.md
+[base64.md]:    https://github.com/Cyphrme/Coze_x/blob/master/implemented/base64.md
 
 
-
-
+[RFC4648]: https://datatracker.ietf.org/doc/html/rfc4648
 [RFC8259]: https://datatracker.ietf.org/doc/html/rfc8259
 [RFC7159]: https://datatracker.ietf.org/doc/html/rfc7159
 [RFC7158]: https://datatracker.ietf.org/doc/html/rfc7158

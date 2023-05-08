@@ -98,6 +98,20 @@ func Thumbprint(c *Key) (tmb B64, err error) {
 	return CanonicalHash(b, KeyCanon, c.Alg.Hash())
 }
 
+// UnmarshalJSON always populates `tmb` even if it isn't given.
+func (c *Key) UnmarshalJSON(b []byte) error {
+	type key2 Key // Break infinite unmarshal loop
+	czk2 := new(key2)
+	err := json.Unmarshal(b, czk2)
+	if err != nil {
+		return err
+	}
+
+	*c = *(*Key)(czk2)
+	c.Thumbprint()
+	return nil
+}
+
 // Sign uses a private Coze key to sign a digest.
 //
 // Sign() and Verify() do not check if the Coze is correct, such as checking
@@ -184,8 +198,8 @@ func (c *Key) SignPayJSON(pay json.RawMessage) (coze *Coze, err error) {
 	if p.Alg != "" && c.Alg != p.Alg {
 		return nil, fmt.Errorf("SignPay: key alg \"%s\" and coze alg \"%s\" do not match", c.Alg, p.Alg)
 	}
-	if len(p.Tmb) != 0 && !bytes.Equal(c.Tmb, p.Tmb) {
-		return nil, fmt.Errorf("SignPay: key tmb \"%s\" and coze tmb  \"%s\" do not match", c.Tmb, p.Tmb)
+	if len(p.Tmb) != 0 && !bytes.Equal(c.Tmb, p.Tmb) { // Force correct value for `tmb`.
+		p.Tmb = c.Tmb
 	}
 
 	b, err := compact(pay)
@@ -365,8 +379,7 @@ func (c *Key) Correct() (bool, error) {
 	return ck.Valid(), nil
 }
 
-// Revoke will return a signed revoke coze for the given key as well as setting
-// `rvk` on the Coze key itself.
+// Revoke returns a signed revoke coze and sets `rvk` on the key itself.
 func (c *Key) Revoke() (coze *Coze, err error) {
 	correct, err := c.Correct()
 	if !correct || err != nil {
@@ -379,7 +392,7 @@ func (c *Key) Revoke() (coze *Coze, err error) {
 	r.Iat = now
 	r.Rvk = now
 	r.Tmb = c.Tmb
-	r.Typ = "cyphr.me/key/revoke"
+	// If needing "typ" populated, use Sign.
 
 	coze = new(Coze)
 	coze.Pay, err = r.MarshalJSON()

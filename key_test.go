@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"math/big"
+	"strconv"
 	"testing"
 )
 
@@ -208,6 +209,24 @@ func ExampleKey_Verify_empty() {
 	fmt.Println(GoldenKey.VerifyCoze(cz))
 
 	// Output: true <nil>
+}
+
+// Example demonstrating that unmarshal generates `tmb` from x,
+func ExampleKey_unmarshal() {
+	var GoldenPukNoTmb = json.RawMessage(`{
+		"alg":"ES256",
+		"iat":1623132000,
+		"kid":"Zami's Majuscule Key.",
+		"x":"2nTOaFVm2QLxmUO_SjgyscVHBtvHEfo2rq65MvgNRjORojq39Haq9rXNxvXxwba_Xj0F5vZibJR3isBdOWbo5g"
+	}`)
+	czk := new(Key)
+	err := json.Unmarshal(GoldenPukNoTmb, czk)
+	if err != nil {
+		panic(err)
+	}
+	fmt.Println(czk)
+	// Output:
+	//  {"alg":"ES256","iat":1623132000,"kid":"Zami's Majuscule Key.","tmb":"cLj8vsYtMBwYkzoFVZHBZo6SNL8wSdCIjCKAwXNuhOk","x":"2nTOaFVm2QLxmUO_SjgyscVHBtvHEfo2rq65MvgNRjORojq39Haq9rXNxvXxwba_Xj0F5vZibJR3isBdOWbo5g"}
 }
 
 func ExampleKey_SignCoze() {
@@ -503,4 +522,37 @@ func Example_ed25519Malleability() {
 	// Output:
 	// true
 	// false
+}
+
+func Example_curveOrder() {
+	algs := []SigAlg{
+		ES224,
+		ES256,
+		ES384,
+		ES512,
+	}
+
+	for _, a := range algs {
+		hexSize := Alg(a).Params().XSize
+		fmt.Printf("%0"+strconv.Itoa(hexSize)+"X\n", curveOrders[a])
+	}
+	fmt.Println()
+	for _, a := range algs {
+
+		hexSize := Alg(a).Params().XSize
+		fmt.Printf("%0"+strconv.Itoa(hexSize)+"X\n", curveHalfOrders[a])
+	}
+
+	// Output:
+	//
+	// FFFFFFFFFFFFFFFFFFFFFFFFFFFF16A2E0B8F03E13DD29455C5C2A3D
+	// FFFFFFFF00000000FFFFFFFFFFFFFFFFBCE6FAADA7179E84F3B9CAC2FC632551
+	// FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFC7634D81F4372DDF581A0DB248B0A77AECEC196ACCC52973
+	// 01FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFA51868783BF2F966B7FCC0148F709A5D03BB5C9B8899C47AEBB6FB71E91386409
+	//
+	// 7FFFFFFFFFFFFFFFFFFFFFFFFFFF8B51705C781F09EE94A2AE2E151E
+	// 7FFFFFFF800000007FFFFFFFFFFFFFFFDE737D56D38BCF4279DCE5617E3192A8
+	// 7FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFE3B1A6C0FA1B96EFAC0D06D9245853BD76760CB5666294B9
+	// 00FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFD28C343C1DF97CB35BFE600A47B84D2E81DDAE4DC44CE23D75DB7DB8F489C3204
+
 }
