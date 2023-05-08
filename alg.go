@@ -9,6 +9,8 @@ import (
 	"strings"
 
 	"golang.org/x/crypto/sha3"
+	"golang.org/x/exp/maps"   // https://github.com/golang/go/issues/57436
+	"golang.org/x/exp/slices" // https://github.com/golang/go/issues/57433
 )
 
 type (
@@ -101,31 +103,33 @@ const (
 	SHAKE256       HshAlg = "SHAKE256"
 )
 
-// Algs is initialized in the init function to include all algs, including
-// "UnknownAlg", SigAlg, EncAlg, and HshAlg.
-var Algs = []Alg{
-	UnknownAlg,
-	Alg(UnknownSigAlg),
-	Alg(ES224),
-	Alg(ES256),
-	Alg(ES384),
-	Alg(ES512),
-	Alg(Ed25519),
-	Alg(Ed25519ph),
-	Alg(Ed448),
-	Alg(UnknownEncAlg),
-	Alg(UnknownHashAlg),
-	Alg(SHA224),
-	Alg(SHA256),
-	Alg(SHA384),
-	Alg(SHA512),
-	Alg(SHA3224),
-	Alg(SHA3256),
-	Alg(SHA3384),
-	Alg(SHA3512),
-	Alg(SHAKE128),
-	Alg(SHAKE256),
+// Algs includes all algs, including
+// unknown algs, SigAlg, EncAlg, and HshAlg.
+var Algs = map[string]Alg{
+	string(UnknownAlg):     Alg(UnknownAlg),
+	string(UnknownSigAlg):  Alg(UnknownSigAlg),
+	string(ES224):          Alg(ES224),
+	string(ES256):          Alg(ES256),
+	string(ES384):          Alg(ES384),
+	string(ES512):          Alg(ES512),
+	string(Ed25519):        Alg(Ed25519),
+	string(Ed25519ph):      Alg(Ed25519ph),
+	string(Ed448):          Alg(Ed448),
+	string(UnknownEncAlg):  Alg(UnknownEncAlg),
+	string(UnknownHashAlg): Alg(UnknownHashAlg),
+	string(SHA224):         Alg(SHA224),
+	string(SHA256):         Alg(SHA256),
+	string(SHA384):         Alg(SHA384),
+	string(SHA512):         Alg(SHA512),
+	string(SHA3224):        Alg(SHA3224),
+	string(SHA3256):        Alg(SHA3256),
+	string(SHA3384):        Alg(SHA3384),
+	string(SHA3512):        Alg(SHA3512),
+	string(SHAKE128):       Alg(SHAKE128),
+	string(SHAKE256):       Alg(SHAKE256),
 }
+
+var algs []string = maps.Keys(Algs)
 
 var SigAlgs = []SigAlg{
 	UnknownSigAlg,
@@ -169,51 +173,11 @@ func Parse(s string) Alg {
 }
 
 func (a *Alg) Parse(s string) {
-	switch strings.Trim(s, `"`) {
-	default:
+	s = strings.Trim(s, `"`)
+	if slices.Contains(algs, s) {
+		*a = Algs[s]
+	} else {
 		*a = UnknownAlg
-	case string(UnknownAlg):
-		*a = UnknownAlg
-	case string(UnknownSigAlg):
-		*a = Alg(UnknownSigAlg)
-	case string(ES224):
-		*a = Alg(ES224)
-	case string(ES256):
-		*a = Alg(ES256)
-	case string(ES384):
-		*a = Alg(ES384)
-	case string(ES512):
-		*a = Alg(ES512)
-	case string(Ed25519):
-		*a = Alg(Ed25519)
-	case string(Ed25519ph):
-		*a = Alg(Ed25519ph)
-	case string(Ed448):
-		*a = Alg(Ed448)
-	case string(UnknownEncAlg):
-		*a = Alg(UnknownEncAlg)
-	case string(UnknownHashAlg):
-		*a = Alg(UnknownHashAlg)
-	case string(SHA224):
-		*a = Alg(SHA224)
-	case string(SHA256):
-		*a = Alg(SHA256)
-	case string(SHA384):
-		*a = Alg(SHA384)
-	case string(SHA512):
-		*a = Alg(SHA512)
-	case string(SHA3224):
-		*a = Alg(SHA3224)
-	case string(SHA3256):
-		*a = Alg(SHA3256)
-	case string(SHA3384):
-		*a = Alg(SHA3384)
-	case string(SHA3512):
-		*a = Alg(SHA3512)
-	case string(SHAKE128):
-		*a = Alg(SHAKE128)
-	case string(SHAKE256):
-		*a = Alg(SHAKE256)
 	}
 }
 
@@ -332,24 +296,10 @@ const (
 )
 
 func (se SEAlg) SigAlg() SigAlg {
-	switch SigAlg(se) {
-	default:
-		return UnknownSigAlg
-	case ES224:
-		return ES224
-	case ES256:
-		return ES256
-	case ES384:
-		return ES384
-	case ES512:
-		return ES512
-	case Ed25519:
-		return Ed25519
-	case Ed25519ph:
-		return Ed25519ph
-	case Ed448:
-		return Ed448
+	if slices.Contains(SigAlgs, SigAlg(se)) {
+		return SigAlg(se)
 	}
+	return UnknownSigAlg
 }
 
 func (se *SEAlg) Parse(s string) {
