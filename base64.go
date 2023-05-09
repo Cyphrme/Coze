@@ -17,7 +17,7 @@ type B64 []byte
 // UnmarshalJSON implements JSON.UnmarshalJSON so B64 is encoded as b64ut.
 func (t *B64) UnmarshalJSON(b []byte) error {
 	// JSON.Unmarshal returns b encapsulated in quotes which is invalid base64 characters.
-	s, err := base64.URLEncoding.WithPadding(base64.NoPadding).DecodeString(strings.Trim(string(b), "\""))
+	s, err := base64.URLEncoding.Strict().WithPadding(base64.NoPadding).DecodeString(strings.Trim(string(b), "\""))
 	if err != nil {
 		return err
 	}
@@ -33,22 +33,22 @@ func (t B64) MarshalJSON() ([]byte, error) {
 
 // String implements fmt.Stringer. Use with `%s`, `%v`, `%+v`.
 func (t B64) String() string {
-	return base64.URLEncoding.WithPadding(base64.NoPadding).EncodeToString([]byte(t))
+	return base64.URLEncoding.Strict().WithPadding(base64.NoPadding).EncodeToString([]byte(t))
 }
 
 // GoString implements fmt.GoStringer. Use with `%#v` (not %s or %+v).
 func (t B64) GoString() string {
-	return base64.URLEncoding.WithPadding(base64.NoPadding).EncodeToString([]byte(t))
+	return base64.URLEncoding.Strict().WithPadding(base64.NoPadding).EncodeToString([]byte(t))
 }
 
 // Decode decodes a b64ut string.
 func Decode(b64 string) (B64, error) {
-	return base64.URLEncoding.WithPadding(base64.NoPadding).DecodeString(b64)
+	return base64.URLEncoding.Strict().WithPadding(base64.NoPadding).DecodeString(b64)
 }
 
 // MustDecode decodes a b64ut string.  Panics on error.
 func MustDecode(b64 string) B64 {
-	b, err := base64.URLEncoding.WithPadding(base64.NoPadding).DecodeString(b64)
+	b, err := base64.URLEncoding.Strict().WithPadding(base64.NoPadding).DecodeString(b64)
 	if err != nil {
 		panic(err)
 	}

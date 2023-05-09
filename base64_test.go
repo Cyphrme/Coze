@@ -66,3 +66,35 @@ func ExampleMustDecode() {
 	fmt.Println(MustDecode(GoldenTmb))
 	// Output: cLj8vsYtMBwYkzoFVZHBZo6SNL8wSdCIjCKAwXNuhOk
 }
+
+// Demonstrates that Coze Go will error on non-canonical base 64 encoding.  See
+// https://github.com/Cyphrme/Coze/issues/18. The last three characters of
+// example `tmb` is `hOk`, but `hOl` also decodes to the same byte value (in
+// Hex, `84E9`) even though they are different UTF-8 values. Tool for decoding
+// [hOk](https://convert.zamicol.com/#?inAlph=base64&in=hOk&outAlph=Hex) and
+// [hOl](https://convert.zamicol.com/#?inAlph=base64&in=hOl&outAlph=Hex).
+func ExampleB64_non_strict_decode() {
+	type Foo struct {
+		Bar B64
+	}
+
+	// Canonical
+	f := new(Foo)
+	err := json.Unmarshal([]byte(`{"Bar":"hOk"}`), f)
+	if err != nil {
+		panic(err)
+	}
+	fmt.Println(f)
+
+	// Non-canonical
+	f2 := new(Foo)
+	err = json.Unmarshal([]byte(`{"Bar":"hOl"}`), f2)
+	if err != nil { // should error, but doesn't
+		fmt.Println("unmarshalling error: ", err)
+		return
+	}
+
+	// Output:
+	// &{hOk}
+	// unmarshalling error:  illegal base64 data at input byte 2
+}
