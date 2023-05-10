@@ -35,7 +35,7 @@ readability.
 Coze JSON fields are case sensitive and unique.  Coze defines standard fields
 and applications may include additional fields as desired.  All fields are
 optional, but omitting standard fields may limit compatibility. Binary values
-are encoded as [RFC 4648 base 64 canonical URI with padding truncated][RFC4648]
+are encoded as [RFC 4648 base 64 URI canonical with padding truncated][RFC4648]
 (b64ut). The Coze objects `pay`, `key`, and `coze` have respective standard
 fields.
 
@@ -503,8 +503,8 @@ which has the `alg` "ES256".
 }
 ```
 
-#### UTF-8 and B64UT (RFC Base 64 URI Truncated) Encoding
-["Canonical" base 64] (sometimes called "strict" encoding is required.  See
+#### UTF-8 and B64UT (RFC Base 64 URI canonical Truncated) Encoding
+[Canonical base 64] (sometimes called "strict") encoding is required.  See
 [base64.md][base64.md].  Non-strict encoding of both b64ut and UTF-8 must error. 
 
 #### Why not PGP/OpenSSL/LibreSSL/SSHSIG/libsodium/JOSE(JWT)/COSE/etc...?

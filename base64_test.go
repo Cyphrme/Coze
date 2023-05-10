@@ -31,28 +31,6 @@ func ExampleB64_marshalJSON() {
 	// "AP8"
 }
 
-func ExampleB64_unmarshalJSON() {
-	type Foo struct {
-		Bar B64
-	}
-
-	f := new(Foo)
-	err := json.Unmarshal([]byte(`{"Bar":"AP8"}`), f)
-	if err != nil {
-		panic(err)
-	}
-
-	b, err := Marshal(f)
-	if err != nil {
-		panic(err)
-	}
-
-	fmt.Printf("%s\n%#v\n", b, B64(b))
-	// Output:
-	// {"Bar":"AP8"}
-	// eyJCYXIiOiJBUDgifQ
-}
-
 func ExampleDecode() {
 	b, err := Decode(GoldenTmb)
 	if err != nil {
@@ -67,34 +45,85 @@ func ExampleMustDecode() {
 	// Output: cLj8vsYtMBwYkzoFVZHBZo6SNL8wSdCIjCKAwXNuhOk
 }
 
+type B64Struct struct {
+	B B64
+}
+
+func ExampleB64_unmarshalJSON() {
+	f := new(B64Struct)
+	err := json.Unmarshal([]byte(`{"B":"AP8"}`), f)
+	if err != nil {
+		panic(err)
+	}
+
+	b, err := Marshal(f)
+	if err != nil {
+		panic(err)
+	}
+
+	fmt.Printf("%s,%#v\n", b, B64(b))
+	// Output:
+	// {"B":"AP8"},eyJCIjoiQVA4In0
+}
+
 // Demonstrates that Coze Go will error on non-canonical base 64 encoding.  See
 // https://github.com/Cyphrme/Coze/issues/18. The last three characters of
 // example `tmb` is `hOk`, but `hOl` also decodes to the same byte value (in
 // Hex, `84E9`) even though they are different UTF-8 values. Tool for decoding
 // [hOk](https://convert.zamicol.com/#?inAlph=base64&in=hOk&outAlph=Hex) and
 // [hOl](https://convert.zamicol.com/#?inAlph=base64&in=hOl&outAlph=Hex).
+//
+// As an added concern, Go's base64 ignores new line and carriage return.
+// Thankfully, JSON unmarshal does not, making Coze's interpretation of base 64
+// non-malleable since Coze is JSON.
 func ExampleB64_non_strict_decode() {
-	type Foo struct {
-		Bar B64
-	}
-
 	// Canonical
-	f := new(Foo)
-	err := json.Unmarshal([]byte(`{"Bar":"hOk"}`), f)
+	f := new(B64Struct)
+	err := json.Unmarshal([]byte(`{"B":"hOk"}`), f)
 	if err != nil {
 		panic(err)
 	}
 	fmt.Println(f)
 
-	// Non-canonical
-	f2 := new(Foo)
-	err = json.Unmarshal([]byte(`{"Bar":"hOl"}`), f2)
-	if err != nil { // should error, but doesn't
+	// Non-canonical (hOk and hOl will decode to the same bytes when non-canonical
+	// is permitted.)
+	f2 := new(B64Struct)
+	err = json.Unmarshal([]byte(`{"B":"hOl"}`), f2)
+	if err != nil { // Correctly errors
 		fmt.Println("unmarshalling error: ", err)
-		return
+	}
+
+	// Print Unicode to show that Go is interpreting the string below correctly.
+	b1 := []byte(fmt.Sprintf(`{"B":"hOk"}`))
+	b2 := []byte(fmt.Sprintf("{\"B\":\"hOk\n\"}")) // Unicode U+000A is line feed.
+	b3 := []byte(fmt.Sprintf("{\"B\":\"hOk\r\"}")) // Unicode U+000D is line feed.
+
+	fmt.Printf("%U\n", b1)
+	fmt.Printf("%U\n", b2)
+	fmt.Printf("%U\n", b3)
+
+	fb1 := new(B64Struct)
+	err = json.Unmarshal(b1, fb1) // Will not error
+	if err != nil {
+		fmt.Println(err)
+	}
+	fb2 := new(B64Struct)
+	err = json.Unmarshal(b2, fb2) // Correctly errors.
+	if err != nil {
+		fmt.Println(err)
+	}
+	fb3 := new(B64Struct)
+	err = json.Unmarshal(b3, fb3) // Correctly errors.
+	if err != nil {
+		fmt.Println(err)
 	}
 
 	// Output:
 	// &{hOk}
 	// unmarshalling error:  illegal base64 data at input byte 2
+	// [U+007B U+0022 U+0042 U+0022 U+003A U+0022 U+0068 U+004F U+006B U+0022 U+007D]
+	// [U+007B U+0022 U+0042 U+0022 U+003A U+0022 U+0068 U+004F U+006B U+000A U+0022 U+007D]
+	// [U+007B U+0022 U+0042 U+0022 U+003A U+0022 U+0068 U+004F U+006B U+000D U+0022 U+007D]
+	// invalid character '\n' in string literal
+	// invalid character '\r' in string literal
 }
