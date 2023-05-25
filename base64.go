@@ -8,7 +8,7 @@ import (
 
 // Type B64 is a Coze addition to Go's base64. B64 is useful for marshaling and
 // unmarshalling structs. B64's underlying type is []byte and is represented in
-// JSON as base64 URI truncated (b64ut).
+// JSON as "RFC 4648 base 64 URI canonical with padding truncated" (b64ut).
 //
 // When converting integers or other types to B64, `nil` is encoded as "" and
 // zero is encoded as "AA".
@@ -46,7 +46,7 @@ func Decode(b64 string) (B64, error) {
 	return base64.URLEncoding.Strict().WithPadding(base64.NoPadding).DecodeString(b64)
 }
 
-// MustDecode decodes a b64ut string.  Panics on error.
+// MustDecode decodes b64ut and panics on error.
 func MustDecode(b64 string) B64 {
 	b, err := base64.URLEncoding.Strict().WithPadding(base64.NoPadding).DecodeString(b64)
 	if err != nil {
