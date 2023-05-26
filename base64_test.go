@@ -1,8 +1,11 @@
 package coze
 
 import (
+	"bytes"
+	"crypto/rand"
 	"encoding/json"
 	"fmt"
+	"testing"
 )
 
 // B64 of nil is "" while B64 of 0 is "AA".
@@ -126,4 +129,51 @@ func ExampleB64_non_strict_decode() {
 	// [U+007B U+0022 U+0042 U+0022 U+003A U+0022 U+0068 U+004F U+006B U+000D U+0022 U+007D]
 	// invalid character '\n' in string literal
 	// invalid character '\r' in string literal
+}
+
+// ExampleSB64 demonstrates using SB64 as a map key and that fmt prints "RFC
+// 4648 base 64 URI canonical with padding truncated" properly.
+func ExampleSB64() {
+	b := MustDecode("zVzgRU3WFpnrlVJAnI4ZU1Od4Agl5Zd4jIP79oubOW0")
+	b2 := MustDecode("vZIAk8rjcSIKZKokGylCtVoI3DXvFYJn4XNWzf_C_FA")
+
+	lp := make(map[SB64]B64)
+	lp[SB64(b)] = B64(b2)
+
+	fmt.Printf("%s\n", SB64(b))
+	fmt.Printf("%s\n", lp)
+	fmt.Printf("%+v\n", lp)
+	fmt.Printf("%#v\n", lp)
+
+	// Output:
+	// zVzgRU3WFpnrlVJAnI4ZU1Od4Agl5Zd4jIP79oubOW0
+	// map[zVzgRU3WFpnrlVJAnI4ZU1Od4Agl5Zd4jIP79oubOW0:vZIAk8rjcSIKZKokGylCtVoI3DXvFYJn4XNWzf_C_FA]
+	// map[zVzgRU3WFpnrlVJAnI4ZU1Od4Agl5Zd4jIP79oubOW0:vZIAk8rjcSIKZKokGylCtVoI3DXvFYJn4XNWzf_C_FA]
+	// map[coze.SB64]coze.B64{zVzgRU3WFpnrlVJAnI4ZU1Od4Agl5Zd4jIP79oubOW0:vZIAk8rjcSIKZKokGylCtVoI3DXvFYJn4XNWzf_C_FA}
+}
+
+// FuzzCastB64ToString ensures that casting to and from B64 and string does not
+// cause unexpected issues (issues like replacing bytes with the unicode
+// replacement character).
+// https://go.dev/security/fuzz/
+// https://go.dev/doc/tutorial/fuzz
+func FuzzCastB64ToString(f *testing.F) {
+	f.Add(100)
+	f.Fuzz(func(t *testing.T, a int) {
+		var b B64
+		var err error
+		for i := 0; i < a; i++ {
+			b = make([]byte, 32)
+			_, err = rand.Read(b)
+			if err != nil {
+				t.Fatal(err)
+			}
+
+			s := string(b)
+			bb := B64(s)
+			if !bytes.Equal(b, bb) {
+				t.Fatalf("Casting to string: %s failed when converting back B64.", s)
+			}
+		}
+	})
 }

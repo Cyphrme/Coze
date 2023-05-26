@@ -54,3 +54,25 @@ func MustDecode(b64 string) B64 {
 	}
 	return b
 }
+
+// sB64 is useful for map keys since currently in Go []byte is not allowed to be
+// a map key but string is.  The type really should be []byte and not string,
+// but Go does not yet support this. See https://github.com/golang/go/issues/283
+// and https://github.com/google/go-cmp/issues/67.  SB64 will be deprecated
+// if/when Go supports []byte keys.
+//
+// From https://go.dev/blog/strings >[A] string holds arbitrary bytes. It is not
+// required to hold Unicode text, UTF-8 text, or any other predefined format. As
+// far as the content of a string is concerned, it is exactly equivalent to a
+// slice of bytes.
+type SB64 string
+
+// String implements fmt.Stringer
+func (b SB64) String() string {
+	return B64(b).String()
+}
+
+// GoString implements fmt.GoString
+func (b SB64) GoString() string {
+	return b.String()
+}
