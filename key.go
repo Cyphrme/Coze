@@ -112,7 +112,7 @@ func (c *Key) UnmarshalJSON(b []byte) error {
 	}
 
 	*c = *(*Key)(czk2)
-	_, err = c.Correct() // Correct sets tmb.
+	err = c.Correct() // Correct sets tmb.
 	if err != nil {
 		return err
 	}
@@ -335,14 +335,13 @@ func (c *Key) Valid() (valid bool) {
 //     verifies the key by verifying a generated signature.
 //  4. If possible, sets tmb and/or x.
 //
-// TODO: This function should only return error, not bool.  Functions that call
-// correct can then say `if key.Correct() != nil`
-func (c *Key) Correct() (b bool, err error) {
+// Functions that call correct can check for correctness by `if key.Correct() != nil`
+func (c *Key) Correct() (err error) {
 	if c.Alg == "" {
-		return false, errors.New("Correct: alg must be set")
+		return errors.New("Correct: alg must be set")
 	}
 	if len(c.Tmb) == 0 && len(c.X) == 0 && len(c.D) == 0 {
-		return false, errors.New("Correct: at least one of [x, tmb, d] must be set")
+		return errors.New("Correct: at least one of [x, tmb, d] must be set")
 	}
 
 	// d is set.
@@ -351,10 +350,10 @@ func (c *Key) Correct() (b bool, err error) {
 		givenX := c.X
 		c.X = c.calcX()
 		if len(givenX) != 0 && !bytes.Equal(c.X, givenX) {
-			return false, fmt.Errorf("Correct: incorrect X; calculated: %s, given: %s, ", c.X, givenX)
+			return fmt.Errorf("Correct: incorrect X; calculated: %s, given: %s, ", c.X, givenX)
 		}
 		if !c.Valid() {
-			return false, fmt.Errorf("Correct: key is invalid")
+			return fmt.Errorf("Correct: key is invalid")
 		}
 	}
 
@@ -362,31 +361,31 @@ func (c *Key) Correct() (b bool, err error) {
 	// Calculate tmb from x and if tmb was given compare.
 	if len(c.X) != 0 {
 		if len(c.X) != c.Alg.XSize() {
-			return false, fmt.Errorf("Correct: incorrect x size: %d", len(c.X))
+			return fmt.Errorf("Correct: incorrect x size: %d", len(c.X))
 		}
 		givenTmb := c.Tmb
 		err := c.Thumbprint()
 		if err != nil {
-			return false, err
+			return err
 		}
 		if len(givenTmb) != 0 && !bytes.Equal(c.Tmb, givenTmb) {
-			return false, fmt.Errorf("Correct: incorrect tmb; calculated: %s, given: %s", c.Tmb, givenTmb)
+			return fmt.Errorf("Correct: incorrect tmb; calculated: %s, given: %s", c.Tmb, givenTmb)
 		}
 	}
 
 	// tmb only key.  (Coze assumes `x` is calculable from `d`, so at this point
 	// `tmb` should always be set. See `checksum_and_seed.md` for exposition.
 	if len(c.Tmb) != c.Alg.Hash().Size() {
-		return false, fmt.Errorf("Correct: incorrect tmb length; expected %d, given %d", c.Alg.Hash().Size(), len(c.Tmb))
+		return fmt.Errorf("Correct: incorrect tmb length; expected %d, given %d", c.Alg.Hash().Size(), len(c.Tmb))
 	}
 
-	return true, nil
+	return nil
 }
 
 // Revoke returns a signed revoke coze and sets `rvk` on the key itself.
 func (c *Key) Revoke() (coze *Coze, err error) {
-	correct, err := c.Correct()
-	if !correct || err != nil {
+	err = c.Correct()
+	if err != nil {
 		return nil, fmt.Errorf("Revoke: Coze key is not correct; err: %s", err)
 	}
 

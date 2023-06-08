@@ -308,11 +308,25 @@ func ExampleNewKey_bad() {
 	// Output: <nil> NewKey: unsupported alg: SHA-256
 }
 
+// ExampleKey_Correct demonstrates the expectations from Correct() when
+// different key fields appear.  Note that some calls to Correct() pass on
+// _invalid_ keys depending on given fields.
 func ExampleKey_Correct() {
-	// Note that some calls to Correct() pass on **invalid** keys depending on
-	// given fields. Second static key is valid so all field combinations pass.
-	keys := []Key{GoldenKeyBad, GoldenKey}
+	// helper print function
+	tf := func(err ...error) {
+		for i, e := range err {
+			if e != nil {
+				fmt.Printf("%t", false)
+			} else {
+				fmt.Printf("%t", true)
+			}
+			if i < len(err)-1 {
+				fmt.Printf(", ")
+			}
+		}
+	}
 
+	keys := []Key{GoldenKeyBad, GoldenKey}
 	// Test new keys.  These keys should pass every test.
 	algs := []string{"ES224", "ES256", "ES384", "ES512", "Ed25519"}
 	for _, alg := range algs {
@@ -327,36 +341,37 @@ func ExampleKey_Correct() {
 		gk2 := k // Make a copy
 
 		// Key with with [alg,d,tmb,x]
-		p1, _ := gk2.Correct()
+		p1 := gk2.Correct()
 
 		// A key with [alg,tmb,d]
 		gk2 = k
 		gk2.X = []byte{}
-		p2, _ := gk2.Correct()
+		p2 := gk2.Correct()
 
 		// Key with [alg,d].
 		gk2 = k
 		gk2.X = []byte{}
 		gk2.Tmb = []byte{}
-		p3, _ := gk2.Correct()
+		p3 := gk2.Correct()
 
 		// A key with [alg,x,d].
 		gk2 = k
 		gk2.Tmb = []byte{}
-		p4, _ := gk2.Correct()
+		p4 := gk2.Correct()
 
 		// A key with [alg,x,tmb]
 		gk2 = k
 		gk2.D = []byte{}
-		p5, _ := gk2.Correct()
+		p5 := gk2.Correct()
 
 		// Key with [alg,tmb]
 		gk2 = k
 		gk2.D = []byte{}
 		gk2.X = []byte{}
-		p6, _ := gk2.Correct()
+		p6 := gk2.Correct()
 
-		fmt.Printf("%t, %t, %t, %t, %t, %t\n", p1, p2, p3, p4, p5, p6)
+		tf(p1, p2, p3, p4, p5, p6)
+		fmt.Printf("\n")
 	}
 
 	// Output:
