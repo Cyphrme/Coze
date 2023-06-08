@@ -82,15 +82,19 @@ func NewKey(alg SEAlg) (c *Key, err error) {
 	return c, c.Thumbprint()
 }
 
-// Thumbprint generates and sets the Coze key thumbprint (`tmb`) from `x` and
-// `alg`.
+// Thumbprint generates `tmb` which is the digest of canon [alg, x].  X must be
+// set and be a valid length.  On error, tmb is set to nil.
 func (c *Key) Thumbprint() (err error) {
 	c.Tmb, err = Thumbprint(c)
 	return err
 }
 
-// Thumbprint generates `tmb` which is the digest of canon [alg, x].
+// Thumbprint generates `tmb` which is the digest of canon [alg, x].  X must be
+// set and be a valid length.  On error, tmb is set to nil.
 func Thumbprint(c *Key) (tmb B64, err error) {
+	if len(c.X) != c.Alg.XSize() {
+		return nil, fmt.Errorf("x length incorrect; for alg %s expected length %d; given %d", c.Alg, c.Alg.Hash().Size(), len(tmb))
+	}
 	b, err := Marshal(c)
 	if err != nil {
 		return nil, err
@@ -108,7 +112,10 @@ func (c *Key) UnmarshalJSON(b []byte) error {
 	}
 
 	*c = *(*Key)(czk2)
-	c.Thumbprint()
+	_, err = c.Correct() // Correct sets tmb.
+	if err != nil {
+		return err
+	}
 	return nil
 }
 
@@ -295,6 +302,7 @@ func (c *Key) VerifyCoze(cz *Coze) (bool, error) {
 // Valid always returns false on public keys.  Use function "Verify" for public
 // keys with signed message.  See also function Correct.
 func (c *Key) Valid() (valid bool) {
+	// fmt.Printf("Valid key: %v\n", c)
 	d, err := Hash(c.Alg.Hash(), []byte("7AtyaCHO2BAG06z0W1tOQlZFWbhxGgqej4k9-HWP3DE-zshRbrE-69DIfgY704_FDYez7h_rEI1WQVKhv5Hd5Q"))
 	if err != nil {
 		return false
@@ -306,13 +314,14 @@ func (c *Key) Valid() (valid bool) {
 	return c.Verify(d, sig)
 }
 
-// Correct checks for the correct construction of a Coze key, but may return
-// true on cryptographically invalid public keys.  Key must have `alg` and at
+// Correct is an advanced function for checking for the correct construction of
+// a Coze key if it can be known from the given inputs.  Correct may return no
+// error on cryptographically invalid public keys.  Key must have `alg` and at
 // least one of `tmb`, `x`, and `d`. Using input information, if possible to
-// definitively know the given key is incorrect, Correct returns false, but if
-// plausibly correct, Correct returns true. Correct answers the question: "Is
-// the given Coze key reasonable using the information provided?". Correct is
-// useful for sanity checking public keys without signed messages, sanity
+// definitively know the given key is incorrect, Correct returns an error, but
+// if plausibly correct, Correct returns no error. Correct answers the question:
+// "Is the given Coze key reasonable using the information provided?". Correct
+// is useful for sanity checking public keys without signed messages, sanity
 // checking `tmb` only keys, and validating private keys. Use function "Verify"
 // instead for verifying public keys when a signed message is available. Correct
 // is considered an advanced function. Please understand it thoroughly before
@@ -324,66 +333,61 @@ func (c *Key) Valid() (valid bool) {
 //  2. If `x` and `tmb` are present, verifies correct `tmb`.
 //  3. If `d` is present, verifies correct `tmb` and `x` if present, and
 //     verifies the key by verifying a generated signature.
-func (c *Key) Correct() (bool, error) {
+//  4. If possible, sets tmb and/or x.
+//
+// TODO: This function should only return error, not bool.  Functions that call
+// correct can then say `if key.Correct() != nil`
+func (c *Key) Correct() (b bool, err error) {
 	if c.Alg == "" {
-		return false, errors.New("Correct: Alg must be set")
+		return false, errors.New("Correct: alg must be set")
 	}
-
 	if len(c.Tmb) == 0 && len(c.X) == 0 && len(c.D) == 0 {
-		return false, errors.New("Correct: At least one of [x, tmb, d] must be set")
+		return false, errors.New("Correct: at least one of [x, tmb, d] must be set")
 	}
 
-	// tmb only key
-	if len(c.X) == 0 && len(c.D) == 0 {
-		if len(c.Tmb) != c.Alg.Hash().Size() {
-			return false, fmt.Errorf("Correct: incorrect tmb size: %d", len(c.Tmb))
+	// d is set.
+	// Calculate x from d and if x was given compare.
+	if len(c.D) != 0 {
+		givenX := c.X
+		c.X = c.calcX()
+		if len(givenX) != 0 && !bytes.Equal(c.X, givenX) {
+			return false, fmt.Errorf("Correct: incorrect X; calculated: %s, given: %s, ", c.X, givenX)
 		}
-		return true, nil
+		if !c.Valid() {
+			return false, fmt.Errorf("Correct: key is invalid")
+		}
 	}
 
-	// d is not set
-	if len(c.D) == 0 {
-		if len(c.X) != 0 && len(c.X) != c.Alg.XSize() {
+	// x is set.
+	// Calculate tmb from x and if tmb was given compare.
+	if len(c.X) != 0 {
+		if len(c.X) != c.Alg.XSize() {
 			return false, fmt.Errorf("Correct: incorrect x size: %d", len(c.X))
 		}
-		// If tmb is set, recompute and compare.
-		if len(c.Tmb) != 0 {
-			tmb, err := Thumbprint(c)
-			if err != nil {
-				return false, err
-			}
-			if !bytes.Equal(c.Tmb, tmb) {
-				return false, fmt.Errorf("Correct: incorrect given tmb. Current: %s, Calculated: %s", c.Tmb, tmb)
-			}
-		}
-		return true, nil
-	}
-
-	// If d and (x and/or tmb) is given, recompute from d and compare.
-	x := c.recalcX()
-	if len(c.X) != 0 && !bytes.Equal(c.X, x) {
-		return false, fmt.Errorf("Correct: incorrect X. Current: %s, Calculated: %s", c.X, x)
-	}
-	ck := Key{Alg: c.Alg, X: x}
-	// If tmb is set, recompute and compare with existing.
-	if len(c.Tmb) != 0 {
-		tmb, err := Thumbprint(&ck)
+		givenTmb := c.Tmb
+		err := c.Thumbprint()
 		if err != nil {
 			return false, err
 		}
-		if !bytes.Equal(c.Tmb, tmb) {
-			return false, fmt.Errorf("Correct: incorrect given tmb. Current: %s, Calculated: %s", c.Tmb, tmb)
+		if len(givenTmb) != 0 && !bytes.Equal(c.Tmb, givenTmb) {
+			return false, fmt.Errorf("Correct: incorrect tmb; calculated: %s, given: %s", c.Tmb, givenTmb)
 		}
 	}
-	ck.D = c.D
-	return ck.Valid(), nil
+
+	// tmb only key.  (Coze assumes `x` is calculable from `d`, so at this point
+	// `tmb` should always be set. See `checksum_and_seed.md` for exposition.
+	if len(c.Tmb) != c.Alg.Hash().Size() {
+		return false, fmt.Errorf("Correct: incorrect tmb length; expected %d, given %d", c.Alg.Hash().Size(), len(c.Tmb))
+	}
+
+	return true, nil
 }
 
 // Revoke returns a signed revoke coze and sets `rvk` on the key itself.
 func (c *Key) Revoke() (coze *Coze, err error) {
 	correct, err := c.Correct()
 	if !correct || err != nil {
-		return nil, errors.New("revoke: Coze key is not correct")
+		return nil, fmt.Errorf("Revoke: Coze key is not correct; err: %s", err)
 	}
 
 	now := time.Now().Unix()
@@ -416,7 +420,7 @@ func (c Key) IsRevoked() bool {
 // recalcX recalculates 'x' from 'd' and returns 'x'. 'x' will not be set on the
 // key from here. Algorithms are constant-time.
 // https://cs.opensource.google/go/go/+/refs/tags/go1.18.3:src/crypto/elliptic/elliptic.go;l=455;drc=7f9494c277a471f6f47f4af3036285c0b1419816
-func (c *Key) recalcX() B64 {
+func (c *Key) calcX() B64 {
 	switch c.Alg.SigAlg() {
 	default:
 		return nil

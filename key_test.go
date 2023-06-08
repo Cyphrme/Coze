@@ -330,23 +330,29 @@ func ExampleKey_Correct() {
 		p1, _ := gk2.Correct()
 
 		// A key with [alg,tmb,d]
+		gk2 = k
 		gk2.X = []byte{}
 		p2, _ := gk2.Correct()
 
 		// Key with [alg,d].
+		gk2 = k
+		gk2.X = []byte{}
 		gk2.Tmb = []byte{}
 		p3, _ := gk2.Correct()
 
 		// A key with [alg,x,d].
-		gk2.X = k.X
+		gk2 = k
+		gk2.Tmb = []byte{}
 		p4, _ := gk2.Correct()
 
 		// A key with [alg,x,tmb]
+		gk2 = k
 		gk2.D = []byte{}
-		gk2.Tmb = k.Tmb
 		p5, _ := gk2.Correct()
 
 		// Key with [alg,tmb]
+		gk2 = k
+		gk2.D = []byte{}
 		gk2.X = []byte{}
 		p6, _ := gk2.Correct()
 
@@ -555,4 +561,35 @@ func Example_curveOrder() {
 	// 7FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFE3B1A6C0FA1B96EFAC0D06D9245853BD76760CB5666294B9
 	// 00FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFD28C343C1DF97CB35BFE600A47B84D2E81DDAE4DC44CE23D75DB7DB8F489C3204
 
+}
+
+func TestKeyTmb_nilX(t *testing.T) {
+	kb := []byte(`{
+		"alg":"ES256",
+		"iat":1647357960,
+		"kid":"Cyphr.me Dev Test Key 2",
+		"tmb":"e02u-nce-Wdc_xH4-7WRp-4Fr6pKn2oY_8SX3wdT41U"
+	}`)
+	key := new(Key)
+	err := json.Unmarshal(kb, key)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	// Test nil x.
+	err = key.Thumbprint() // Should error since x is nil.
+	if err == nil {
+		t.Fatal("key.Thumbprint() must error when x is nil.")
+	}
+	if len(key.Tmb) != 0 {
+		t.Fatal("key.Thumbprint() must set thumbprint to nil on error.")
+	}
+
+	// Test malformed x.
+	key.X = MustDecode("e02u")   // incorrect x for alg ES256 (known by length)
+	key.Tmb = MustDecode("e02u") // incorrect.  Should be set to nil on Thumbprint error.
+	err = key.Thumbprint()       // Should error
+	if err == nil {
+		t.Fatal("key.Thumbprint() must error when x is incorrect length.")
+	}
 }

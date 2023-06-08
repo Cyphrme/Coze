@@ -109,6 +109,8 @@ func (cz *Coze) UnmarshalJSON(b []byte) error {
 
 	type coze2 Coze // Break infinite unmarshal loop
 	cz2 := new(coze2)
+	cz2.Parsed = cz.Parsed
+	cz2.Key = cz.Key
 	err = json.Unmarshal(b, cz2)
 	if err != nil {
 		return err
@@ -265,23 +267,26 @@ type Marshaler interface {
 	CozeMarshal() ([]byte, error)
 }
 
-// Marshal is a JSON friendly marshaler. The Go team is aware that the existing
-// implementation has issues but hasn't release a new version.  For example,
-// Go's json.Marshal breaking a title: https://play.golang.org/p/o2hiX0c62oN.
-// json.Marshal preemptively replaces the valid JSON and valid UTF-8
-// characters "&". "<", ">" with the "slash u" unicode escapes (e.g. \u0026) in
-// the name of HTML friendliness. JSON is not HTML, and preemptive HTML escaping
-// in JSON is incorrect.  The JSON spec calls for no such measures and other
-// industry adopted encoders do not preemptively escape for HTML.  Where JSON
-// may include these characters, like user arbitrary data, json.Marshal should
-// not be used.
+// Marshal is a JSON friendly marshaler.  json.Marshal preemptively replaces the
+// valid JSON and UTF-8 characters "&". "<", ">" with the "slash u" unicode
+// escapes (e.g. \u0026) in the name of HTML friendliness, for example:
+// https://play.golang.org/p/o2hiX0c62oN. As JSON is not HTML, preemptive HTML
+// escaping is incorrect.  (The JSON spec calls for no such measures and other
+// industry encoders do no such preemptive escaping.)  Where JSON may include
+// these legitimate characters, like sanitized arbitrary user data, json.Marshal
+// should not be used. The Go team is aware that the existing implementation has
+// this and other concerns but has not yet release a new version.  Joe Tsai is
+// working on fixes in a yet-to-be-released Tailscale's "JSONv2" package, which
+// we hope to use upon release:
+// https://pkg.go.dev/github.com/go-json-experiment/json  The package also
+// enumerates other JSON best practices that may be of concern for anyone
+// concerned with the aforementioned issue.
+// https://github.com/go-json-experiment/json#behavior-changes
+//
+// See https://github.com/Cyphrme/Coze/issues/15 for other JSON encoding concerns.
 //
 // Go structs already require unique fields, so unlike coze.UnmarshalJSON or
 // pay.UnmarshalJSON, marshaling will not sanitize for duplicates.
-//
-// Joe Tsai is working on fixes in a yet-to-be-released Tailscale's "JSONv2"
-// package, which we hope to use upon release:
-// https://pkg.go.dev/github.com/go-json-experiment/json
 func Marshal(i any) ([]byte, error) {
 	buffer := &bytes.Buffer{}
 	encoder := json.NewEncoder(buffer)
