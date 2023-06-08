@@ -27,14 +27,26 @@ const GoldenKeyString = `{
 	"x":"2nTOaFVm2QLxmUO_SjgyscVHBtvHEfo2rq65MvgNRjORojq39Haq9rXNxvXxwba_Xj0F5vZibJR3isBdOWbo5g"
 }`
 
-// The very last byte in D was changed from 80, to 81, making it invalid. Base64
-// needs to be to "E", not "B" through "D" for it to be effective:
-// "bNstg4_H3m3SlROufwRSEgibLrBuRq9114OvdapcpVE"
-var GoldenKeyBad = Key{
+// The last byte in D was changed from 80 (base 64 "VA"), to 81 (base 64 "VE),
+// making it invalid. Note that Base64 needs to be to "E", not "B" through "D"
+// for it to be effective as "B" through "D" is non-canonical base64 encoding
+// and may decode to the same byte string.
+var GoldenKeyBadD = Key{
 	Alg: SEAlg(ES256),
-	Kid: "Zami's Majuscule Key.",
+	Kid: "GoldenKeyBadD",
 	Iat: 1623132000,
 	X:   MustDecode("2nTOaFVm2QLxmUO_SjgyscVHBtvHEfo2rq65MvgNRjORojq39Haq9rXNxvXxwba_Xj0F5vZibJR3isBdOWbo5g"),
+	D:   MustDecode("bNstg4_H3m3SlROufwRSEgibLrBuRq9114OvdapcpVE"),
+	Tmb: MustDecode("cLj8vsYtMBwYkzoFVZHBZo6SNL8wSdCIjCKAwXNuhOk"),
+}
+
+// The last byte in X was changed from 230 (base 64 "5g") to 231 (base 64
+// "5w") , making it invalid.
+var GoldenKeyBadX = Key{
+	Alg: SEAlg(ES256),
+	Kid: "GoldenKeyBadX",
+	Iat: 1623132000,
+	X:   MustDecode("2nTOaFVm2QLxmUO_SjgyscVHBtvHEfo2rq65MvgNRjORojq39Haq9rXNxvXxwba_Xj0F5vZibJR3isBdOWbo5w"),
 	D:   MustDecode("bNstg4_H3m3SlROufwRSEgibLrBuRq9114OvdapcpVE"),
 	Tmb: MustDecode("cLj8vsYtMBwYkzoFVZHBZo6SNL8wSdCIjCKAwXNuhOk"),
 }
@@ -262,7 +274,7 @@ func ExampleKey_VerifyCoze() {
 
 // Tests valid on a good Coze key and a bad Coze key
 func ExampleKey_Valid() {
-	fmt.Println(GoldenKey.Valid(), GoldenKeyBad.Valid())
+	fmt.Println(GoldenKey.Valid(), GoldenKeyBadD.Valid())
 
 	// Output: true false
 }
@@ -326,7 +338,7 @@ func ExampleKey_Correct() {
 		}
 	}
 
-	keys := []Key{GoldenKeyBad, GoldenKey}
+	keys := []Key{GoldenKeyBadD, GoldenKeyBadX, GoldenKey}
 	// Test new keys.  These keys should pass every test.
 	algs := []string{"ES224", "ES256", "ES384", "ES512", "Ed25519"}
 	for _, alg := range algs {
@@ -376,6 +388,7 @@ func ExampleKey_Correct() {
 
 	// Output:
 	// false, false, true, false, true, true
+	// false, false, true, false, false, true
 	// true, true, true, true, true, true
 	// true, true, true, true, true, true
 	// true, true, true, true, true, true
