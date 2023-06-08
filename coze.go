@@ -313,7 +313,7 @@ func MarshalPretty(i any) ([]byte, error) {
 }
 
 // Hash hashes msg and returns the digest. Returns nil on error. Errors on
-// invalid HshAlg or if digest is nil.
+// invalid HshAlg or if digest is empty.
 //
 // For algorithms that support arbitrary sized digests, Hash only returns a
 // static size.  SHAKE128 returns 32 bytes. SHAKE256 returns 64 bytes.
@@ -328,7 +328,7 @@ func Hash(h HshAlg, msg []byte) (digest B64, err error) {
 	default:
 		hash := h.goHash()
 		if hash == nil {
-			return nil, fmt.Errorf("coze.Hash invalid HashAlg: %s", h)
+			return nil, fmt.Errorf("Hash: invalid HashAlg: %s", h)
 		}
 		_, err = hash.Write(msg)
 		if err != nil {
@@ -337,10 +337,9 @@ func Hash(h HshAlg, msg []byte) (digest B64, err error) {
 		digest = hash.Sum(nil)
 	}
 
-	if len(digest) == 0 {
-		return nil, fmt.Errorf("coze.Hash digest is empty. Given HashAlg: %s", h)
+	if len(digest) == 0 { // sanity check
+		return nil, fmt.Errorf("Hash: digest is empty; given HashAlg: %s", h)
 	}
-
 	return digest, nil
 }
 
