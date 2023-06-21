@@ -38,14 +38,15 @@ func ExampleCanonicalHash() {
 	// Ie3xL77AsiCcb4r0pbnZJqMcfSBqg5Lk0npNJyJ9BC4
 }
 
+// Demonstrates expected behavior for invalid HashAlgs.
 func ExampleCanonicalHash_invalidAlg() {
 	_, err := CanonicalHash([]byte(GoldenPay), nil, "")
-	if err != nil {
-		fmt.Println(err)
-	}
-
+	fmt.Println(err)
+	_, err = CanonicalHash([]byte(GoldenPay), nil, "test")
+	fmt.Println(err)
 	// Output:
-	// coze.Hash invalid HashAlg:
+	// Hash: invalid HashAlg ""
+	// Hash: invalid HashAlg "test"
 }
 
 // Example CanonicalHash for all hashing algos.

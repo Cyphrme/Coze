@@ -57,7 +57,7 @@ func NewKey(alg SEAlg) (c *Key, err error) {
 
 	switch c.Alg.SigAlg() {
 	default:
-		return nil, fmt.Errorf("NewKey: unsupported alg: %s", alg)
+		return nil, fmt.Errorf("NewKey: unsupported alg %q", alg)
 	case ES224, ES256, ES384, ES512:
 		eck, err := ecdsa.GenerateKey(c.Alg.Curve().EllipticCurve(), rand.Reader)
 		if err != nil {
@@ -93,7 +93,7 @@ func (c *Key) Thumbprint() (err error) {
 // set and be a valid length.  On error, tmb is set to nil.
 func Thumbprint(c *Key) (tmb B64, err error) {
 	if len(c.X) != c.Alg.XSize() {
-		return nil, fmt.Errorf("Thumbprint: incorrect x length for alg %s; expected %d; given %d", c.Alg, c.Alg.Hash().Size(), len(tmb))
+		return nil, fmt.Errorf("Thumbprint: incorrect x length for alg %q; expected %q; given %q", c.Alg, c.Alg.Hash().Size(), len(tmb))
 	}
 	b, err := Marshal(c)
 	if err != nil {
@@ -126,12 +126,12 @@ func (c *Key) UnmarshalJSON(b []byte) error {
 // and/or VerifyCoze if needing Coze validation.
 func (c *Key) Sign(digest B64) (sig B64, err error) {
 	if len(c.D) != c.Alg.DSize() {
-		return nil, fmt.Errorf("Sign: incorrect d length for alg %s; expected: %d, given %d", c.Alg, c.Alg.DSize(), len(c.D))
+		return nil, fmt.Errorf("Sign: incorrect d length for alg %q; expected %q, given %q", c.Alg, c.Alg.DSize(), len(c.D))
 	}
 
 	switch c.Alg.SigAlg().Genus() {
 	default:
-		return nil, fmt.Errorf("Sign: unsupported alg: %s", c.Alg)
+		return nil, fmt.Errorf("Sign: unsupported alg %q", c.Alg)
 	case ECDSA:
 		prk := ecdsa.PrivateKey{
 			// ecdsa.Sign only needs PublicKey.Curve, not it's value.
@@ -168,10 +168,10 @@ func (c *Key) Sign(digest B64) (sig B64, err error) {
 // uses key as a source of truth.
 func (c *Key) SignPay(p *Pay) (coze *Coze, err error) {
 	if p.Alg != "" && c.Alg != p.Alg {
-		return nil, fmt.Errorf("SignPay: key alg %s and coze alg %s do not match", c.Alg, p.Alg)
+		return nil, fmt.Errorf("SignPay: key alg %q and coze alg %q do not match", c.Alg, p.Alg)
 	}
 	if len(p.Tmb) != 0 && !bytes.Equal(c.Tmb, p.Tmb) {
-		return nil, fmt.Errorf("SignPay: key tmb %s and coze tmb %s do not match", c.Tmb, p.Tmb)
+		return nil, fmt.Errorf("SignPay: key tmb %q and coze tmb %q do not match", c.Tmb, p.Tmb)
 	}
 
 	b, err := Marshal(p)
@@ -202,7 +202,7 @@ func (c *Key) SignPayJSON(pay json.RawMessage) (coze *Coze, err error) {
 	}
 
 	if p.Alg != "" && c.Alg != p.Alg {
-		return nil, fmt.Errorf("SignPay: key alg %s and coze alg %s do not match", c.Alg, p.Alg)
+		return nil, fmt.Errorf("SignPay: key.alg %q and coze.alg %q do not match", c.Alg, p.Alg)
 	}
 	if len(p.Tmb) != 0 && !bytes.Equal(c.Tmb, p.Tmb) { // Force correct value for `tmb`.
 		p.Tmb = c.Tmb
@@ -276,10 +276,10 @@ func (c *Key) VerifyCoze(cz *Coze) (bool, error) {
 		return false, err
 	}
 	if p.Alg != "" && c.Alg != p.Alg {
-		return false, fmt.Errorf("VerifyCoze: key alg %s and coze alg %s do not match", c.Alg, p.Alg)
+		return false, fmt.Errorf("VerifyCoze: key.alg %q and coze.alg %q do not match", c.Alg, p.Alg)
 	}
 	if len(p.Tmb) != 0 && !bytes.Equal(c.Tmb, p.Tmb) {
-		return false, fmt.Errorf("VerifyCoze: key tmb %s and coze tmb %s do not match", c.Tmb, p.Tmb)
+		return false, fmt.Errorf("VerifyCoze: key tmb %q and coze tmb %q do not match", c.Tmb, p.Tmb)
 	}
 
 	b, err := compact(cz.Pay)
@@ -349,7 +349,7 @@ func (c *Key) Correct() (err error) {
 		givenX := c.X
 		c.X = c.calcX()
 		if len(givenX) != 0 && !bytes.Equal(c.X, givenX) {
-			return fmt.Errorf("Correct: incorrect X; expected: %s, given: %s, ", c.X, givenX)
+			return fmt.Errorf("Correct: incorrect X; expected %q, given %q, ", c.X, givenX)
 		}
 		if !c.Valid() {
 			return fmt.Errorf("Correct: key is invalid")
@@ -360,7 +360,7 @@ func (c *Key) Correct() (err error) {
 	// Calculate tmb from x and if tmb was given compare.
 	if len(c.X) != 0 {
 		if len(c.X) != c.Alg.XSize() {
-			return fmt.Errorf("Correct: incorrect x length for alg %s; expected: %d, given: %d", c.Alg, c.Alg.XSize(), len(c.X))
+			return fmt.Errorf("Correct: incorrect x length for alg %q; expected %q, given %q", c.Alg, c.Alg.XSize(), len(c.X))
 		}
 		givenTmb := c.Tmb
 		err := c.Thumbprint()
@@ -368,14 +368,14 @@ func (c *Key) Correct() (err error) {
 			return err
 		}
 		if len(givenTmb) != 0 && !bytes.Equal(c.Tmb, givenTmb) {
-			return fmt.Errorf("Correct: incorrect tmb; expected: %s, given: %s", c.Tmb, givenTmb)
+			return fmt.Errorf("Correct: incorrect tmb; expected %q, given %q", c.Tmb, givenTmb)
 		}
 	}
 
 	// tmb only key.  (Coze assumes `x` is calculable from `d`, so at this point
 	// `tmb` should always be set. See `checksum_and_seed.md` for exposition.
 	if len(c.Tmb) != c.Alg.Hash().Size() {
-		return fmt.Errorf("Correct: incorrect tmb length for alg %s; expected: %d, given: %d", c.Alg, c.Alg.Hash().Size(), len(c.Tmb))
+		return fmt.Errorf("Correct: incorrect tmb length for alg %q; expected %q, given %q", c.Alg, c.Alg.Hash().Size(), len(c.Tmb))
 	}
 	return nil
 }
@@ -384,7 +384,7 @@ func (c *Key) Correct() (err error) {
 func (c *Key) Revoke() (coze *Coze, err error) {
 	err = c.Correct()
 	if err != nil {
-		return nil, fmt.Errorf("Revoke: Coze key is not correct; err: %s", err)
+		return nil, fmt.Errorf("Revoke: Coze key is not correct; %s", err)
 	}
 
 	now := time.Now().Unix()
@@ -460,7 +460,7 @@ var curveHalfOrders = map[SigAlg]*big.Int{
 // IsLowS checks if S is a low-S for ECDSA.  See Coze docs on low-S.
 func IsLowS(c *Key, s *big.Int) (bool, error) {
 	if c.Alg.Genus() != ECDSA {
-		return false, fmt.Errorf("IsLowS: alg is not ECDSA: [%s]", c.Alg)
+		return false, fmt.Errorf("IsLowS: alg %q is not ECDSA", c.Alg)
 	}
 	return s.Cmp(curveHalfOrders[c.Alg.SigAlg()]) != 1, nil
 }

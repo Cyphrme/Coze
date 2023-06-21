@@ -144,7 +144,7 @@ applications. The following includes fields that should generally be omitted.
 `key` may be looked up by applications by using `tmb`, `can`, `cad`, and `czd`
 are recalculatable, and the label `coze` may be inferred.  
 
-A tautological coze:
+A tautologic coze:
 
 ```JSON
 {
@@ -492,9 +492,9 @@ cozies**, denoting that additional information is needed for verification.
 Caution is urged when deploying contextual cozies as including the standard
 fields `pay.alg` and `pay.tmb` is preferred.  
 
-An empty `pay` is legitimate and may be verified if `alg`, `tmb` or `key` are
-otherwise known. The following valid "empty coze" was signed with key "cLj8vs"
-which has the `alg` "ES256".   
+An **empty coze**, which has an empty `pay` and populated `sig`, is legitimate.
+It may be verified if `key` is known. The following empty coze was signed with
+the example key "cLj8vs".
 
 ```json
 {

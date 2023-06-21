@@ -44,8 +44,8 @@ func (cz Coze) String() string {
 	return string(b)
 }
 
-// Meta recalculates [can, cad, czd] and sets Coze.Parsed
-// ("alg","iat","tmb","typ") from Pay. Coze.Pay, Coze.Pay.Alg, and Coze.Sig must
+// Meta calculates [can, cad, czd] and sets Coze.Parsed
+// ["alg","iat","tmb","typ"] from Pay. Coze.Pay, Coze.Pay.Alg, and Coze.Sig must
 // be set.  Meta resets Parsed ("alg","iat","tmb","typ") to zero before
 // populating Parsed from Pay. If needing to use for contextual cozies, use
 // "MetaWithAlg".
@@ -63,8 +63,12 @@ func (cz *Coze) Meta() (err error) {
 // MetaWithAlg is for contextual cozies that may be lacking `alg` in `pay`, but
 // `alg` in otherwise known.  MetaWithAlg recalculates [can, cad, czd] and sets
 // Coze.Parsed ("alg","iat","tmb","typ") from Pay.  Will not calculated `czd`
-// if Coze.Sig is empty.  Errors if Pay.Alg is set and doesn't match parameter
-// alg.
+// if Coze.Sig is empty.
+//
+// Errors on
+// 1. Invalid JSON.
+// 2. No alg is given. (both coze.pay.alg and alg are empty).
+// 3. Pay.Alg doesn't match parameter alg if both are set.
 //
 // MetaWithAlg does no cryptographic verification.
 func (cz *Coze) MetaWithAlg(alg SEAlg) (err error) {
@@ -77,17 +81,17 @@ func (cz *Coze) MetaWithAlg(alg SEAlg) (err error) {
 		alg = cz.Parsed.Alg
 	}
 	if cz.Parsed.Alg != "" && alg != cz.Parsed.Alg {
-		return fmt.Errorf("MetaWithAlg: input alg %s doesn't match pay.alg %s", alg, cz.Parsed.Alg)
+		return fmt.Errorf("MetaWithAlg: input alg %q and pay.alg %q are unequal", alg, cz.Parsed.Alg)
 	}
 	b, err := compact(cz.Pay)
 	if err != nil {
 		return err
 	}
-	cz.Can, err = Canon(b)
+	cz.Cad, err = Hash(alg.Hash(), b)
 	if err != nil {
 		return err
 	}
-	cz.Cad, err = Hash(alg.Hash(), b)
+	cz.Can, err = Canon(b)
 	if err != nil {
 		return err
 	}
@@ -198,7 +202,7 @@ func (p *Pay) MarshalJSON() ([]byte, error) {
 
 // UnmarshalJSON unmarshals both Pay and if given custom Pay.Struct.
 //
-// Also, UnmarshalJSON handles deduplicate and will throw an error on duplicate.
+// UnmarshalJSON handles deduplicate and throws an error on duplicate.
 // See the Go issue: https://github.com/golang/go/issues/48298
 func (p *Pay) UnmarshalJSON(b []byte) error {
 	err := checkDuplicate(json.NewDecoder(bytes.NewReader(b)))
@@ -328,7 +332,7 @@ func Hash(h HshAlg, msg []byte) (digest B64, err error) {
 	default:
 		hash := h.goHash()
 		if hash == nil {
-			return nil, fmt.Errorf("Hash: invalid HashAlg: %s", h)
+			return nil, fmt.Errorf("Hash: invalid HashAlg %q", h)
 		}
 		_, err = hash.Write(msg)
 		if err != nil {
@@ -338,7 +342,7 @@ func Hash(h HshAlg, msg []byte) (digest B64, err error) {
 	}
 
 	if len(digest) == 0 { // sanity check
-		return nil, fmt.Errorf("Hash: digest is empty; given HashAlg: %s", h)
+		return nil, fmt.Errorf("Hash: digest is empty; given HashAlg %q", h)
 	}
 	return digest, nil
 }

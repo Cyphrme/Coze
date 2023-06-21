@@ -27,7 +27,7 @@ const GoldenKeyString = `{
 	"x":"2nTOaFVm2QLxmUO_SjgyscVHBtvHEfo2rq65MvgNRjORojq39Haq9rXNxvXxwba_Xj0F5vZibJR3isBdOWbo5g"
 }`
 
-// The last byte in D was changed from 80 (base 64 "VA"), to 81 (base 64 "VE),
+// The last byte in D was changed from 80 (b64ut "VA"), to 81 (b64ut "VE),
 // making it invalid. Note that Base64 needs to be to "E", not "B" through "D"
 // for it to be effective as "B" through "D" is non-canonical base64 encoding
 // and may decode to the same byte string.
@@ -40,8 +40,8 @@ var GoldenKeyBadD = Key{
 	Tmb: MustDecode("cLj8vsYtMBwYkzoFVZHBZo6SNL8wSdCIjCKAwXNuhOk"),
 }
 
-// The last byte in X was changed from 230 (base 64 "5g") to 231 (base 64
-// "5w") , making it invalid.
+// The last byte in X was changed from 230 (b64ut "5g") to 231 (b64ut
+// "5w") , making it invalid. See documentation on GoldenKeyBadD.
 var GoldenKeyBadX = Key{
 	Alg: SEAlg(ES256),
 	Kid: "GoldenKeyBadX",
@@ -86,6 +86,23 @@ var GoldenCozeEmpty = json.RawMessage(`{
 	"pay":{},
 	"sig":"9iesKUSV7L1-xz5yd3A94vCkKLmdOAnrcPXTU3_qeKRRbHuy5EvMMFNRkW_sNLo-vvEPO9BmeUkcNh-ok18I_A"
 }`)
+
+var GoldenCozeNoAlg = json.RawMessage(`{
+	"pay": {
+			"msg": "Coze Rocks",
+			"iat": 1623132000,
+			"tmb": "cLj8vsYtMBwYkzoFVZHBZo6SNL8wSdCIjCKAwXNuhOk",
+			"typ": "cyphr.me/msg"
+	},
+	"sig": "reOiKUO--OwgTNlYpKN60_gZARnW5X6PmQw4zWYbz2QryetRg_qS4KvwEVe1aiSAsWlkVA3MqYuaIM5ihY_8NQ"
+}`)
+
+var GoldenPayNoAlg = json.RawMessage(`{
+			"msg": "Coze Rocks",
+			"iat": 1623132000,
+			"tmb": "cLj8vsYtMBwYkzoFVZHBZo6SNL8wSdCIjCKAwXNuhOk",
+			"typ": "cyphr.me/msg"
+	}`)
 
 // CustomStruct is for examples demonstrating Pay/Coze with custom structs.
 type CustomStruct struct {
@@ -317,7 +334,7 @@ func ExampleNewKey() {
 func ExampleNewKey_bad() {
 	fmt.Println(NewKey(SEAlg(SHA256))) // Invalid signing alg, fails.
 
-	// Output: <nil> NewKey: unsupported alg: SHA-256
+	// Output: <nil> NewKey: unsupported alg "SHA-256"
 }
 
 // ExampleKey_Correct demonstrates the expectations from Correct() when
