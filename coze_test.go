@@ -235,14 +235,14 @@ func ExampleCoze_MetaWithAlg() {
 		panic(err)
 	}
 
-	// coze.pay.alg given and alg given.
+	// coze.pay.alg given and parameter alg given.
 	err = cz.MetaWithAlg(SEAlg(ES256))
 	if err != nil {
 		panic(err)
 	}
 	fmt.Printf("%s\n", cz)
 
-	// coze.pay.alg given and alg not given.  (Alg is parsed from pay).
+	// coze.pay.alg given and parameter alg not given.  (Alg is parsed from pay).
 	err = cz.MetaWithAlg("")
 	if err != nil {
 		panic(err)

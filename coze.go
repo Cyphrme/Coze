@@ -68,7 +68,7 @@ func (cz *Coze) Meta() (err error) {
 // Errors on
 // 1. Invalid JSON.
 // 2. No alg is given. (both coze.pay.alg and alg are empty).
-// 3. Pay.Alg doesn't match parameter alg if both are set.
+// 3. Mismatched Pay.Alg and parameter alg if both are set.
 //
 // MetaWithAlg does no cryptographic verification.
 func (cz *Coze) MetaWithAlg(alg SEAlg) (err error) {

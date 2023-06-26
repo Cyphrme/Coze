@@ -351,12 +351,12 @@ Verifier][Verifier_simple] that has the minimal
 amount of code needed for a basic Coze application.  
 Its [codebase is in the Cozejs repo][CozeJSVerifier] and may be locally hosted.
 
-## Coze CLI
-See the repository for the [Coze CLI][Coze_cli].  
+## CozeCLI
+See the [Coze CLI repository][CozeCLI].  
 
 ## Coze Implementations
  - [Go Coze (this repo)][Coze]
- - [Coze js (Javascript)][Coze_js]
+ - [CozeJS (Javascript)][CozeJS]
 
 See [`docs/development.md`](docs/development.md) for the Go development guide.
 
@@ -377,10 +377,10 @@ Coze core.
 
 Repository structure:
 - [Coze][Coze]              Main specification (core) and the Go Coze reference implementation.  
-- [Coze_x][Coze_x]          Coze extended. Additional documents, discussion, and new algorithms (Not a code repository).
-- [Coze_go_x][Coze_go_x]    Go implementation of extended features.
-- [Coze_js][Coze_js]        Javascript implementation of Coze core.
-- [Coze_js_x][Coze_js_x]    Javascript implementation of extended.
+- [CozeX][CozeX]          Coze extended. Additional documents, discussion, and new algorithms (Not a code repository).
+- [CozeGoX][CozeGoX]    Go implementation of extended features.
+- [CozeJS][CozeJS]        Javascript implementation of Coze core.
+- [CozeJSX][CozeJSX]    Javascript implementation of extended.
 - etc...
 
 
@@ -504,8 +504,9 @@ the example key "cLj8vs".
 ```
 
 #### UTF-8 and B64UT (RFC Base 64 URI canonical Truncated) Encoding
-[Canonical base 64] (sometimes called "strict") encoding is required.  See
-[base64.md][base64.md].  Non-strict encoding of both b64ut and UTF-8 must error. 
+[Canonical base 64][RFC6468Canonical] (sometimes called "strict") encoding is
+required and non-strict encoding of both b64ut and UTF-8 must error.   For the
+initial reason for why Coze uses b64ut see [base64.md][base64.md].
 
 #### Why not PGP/OpenSSL/LibreSSL/SSHSIG/libsodium/JOSE(JWT)/COSE/etc...?
 We respect the various projects in the space.  Other projects have noble goals
@@ -669,8 +670,8 @@ Coze was created by [Cyphr.me](https://cyphr.me).
 
 
 ----------------------------------------------------------------------
-# Attribution, Trademark notice, and License
-Coze is released under The 3-Clause BSD License. 
+# Attribution, Trademark Notice, and License
+Coze is released under The 3-Clause BSD License.
 
 "Cyphr.me" is a trademark of Cypherpunk, LLC. The Cyphr.me logo is all rights
 reserved Cypherpunk, LLC and may not be used without permission.
@@ -689,21 +690,23 @@ reserved Cypherpunk, LLC and may not be used without permission.
 [GithubCozeVerifier]: https://cyphrme.github.io/Cozejs/verifier/coze.html
 
 [Coze]:      https://github.com/Cyphrme/Coze
-[Coze_cli]:  https://github.com/Cyphrme/Coze_cli
-[Coze_x]:    https://github.com/Cyphrme/Coze_x
-[Coze_go_x]: https://github.com/Cyphrme/Coze_go_x
-[Coze_js]:   https://github.com/Cyphrme/Coze_js
-[Coze_js_x]: https://github.com/Cyphrme/Coze_js
+[CozeCLI]:   https://github.com/Cyphrme/CozeCLI
+[CozeX]:     https://github.com/Cyphrme/CozeX
+[CozeGoX]:   https://github.com/Cyphrme/CozeGoX
+[CozeJS]:    https://github.com/Cyphrme/CozeJS
+[CozeJSX]:   https://github.com/Cyphrme/CozeJS
 
-[Normal]:       https://github.com/Cyphrme/Coze_go_x/tree/master/normal
-[checksums]:    https://github.com/Cyphrme/Coze_x/blob/master/proposal/checksum.md
-[coze_vs]:      https://github.com/Cyphrme/Coze_x/blob/master/coze_vs.md
-[http_headers]: https://github.com/Cyphrme/Coze_x/blob/master/http_headers.md
-[low_s]:        https://github.com/Cyphrme/Coze_x/blob/master/implemented/malleability_low_s.md
-[base64.md]:    https://github.com/Cyphrme/Coze_x/blob/master/implemented/base64.md
+[Normal]:           https://github.com/Cyphrme/Coze_go_x/tree/master/normal
+[checksums]:        https://github.com/Cyphrme/Coze_x/blob/master/proposal/checksum.md
+[coze_vs]:          https://github.com/Cyphrme/Coze_x/blob/master/coze_vs.md
+[http_headers]:     https://github.com/Cyphrme/Coze_x/blob/master/http_headers.md
+[low_s]:            https://github.com/Cyphrme/Coze_x/blob/master/implemented/malleability_low_s.md
+[base64.md]:        https://github.com/Cyphrme/Coze_x/blob/master/implemented/base64.md
+[RFC6468Canonical]: https://datatracker.ietf.org/doc/html/rfc4648#section-3.5
 
 
 [RFC4648]: https://datatracker.ietf.org/doc/html/rfc4648
+
 [RFC8259]: https://datatracker.ietf.org/doc/html/rfc8259
 [RFC7159]: https://datatracker.ietf.org/doc/html/rfc7159
 [RFC7158]: https://datatracker.ietf.org/doc/html/rfc7158
@@ -711,4 +714,8 @@ reserved Cypherpunk, LLC and may not be used without permission.
 [RFC7493]: https://datatracker.ietf.org/doc/html/rfc7493
 [JSON5]:   https://github.com/json5/json5-spec
 [FIPS]:    https://csrc.nist.gov/publications/fips
+
+
+
+
 
