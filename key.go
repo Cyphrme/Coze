@@ -160,37 +160,14 @@ func (c *Key) Sign(digest B64) (sig B64, err error) {
 	}
 }
 
-// SignPay signs coze.Pay and returns a new Coze with coze.Sig populated. If set
+// SignPay signs coze.Pay and returns a new Coze with coze.Sig populated. If set,
 // SignPay checks that `pay.alg` and `key.alg` match and that `pay.tmb` is
 // correct according to `key`.
 //
 // SignPay works with contextual cozies that lack pay.alg and/or pay.tmb and
 // uses key as a source of truth.
 func (c *Key) SignPay(p *Pay) (coze *Coze, err error) {
-	if p.Alg != "" && c.Alg != p.Alg {
-		return nil, fmt.Errorf("SignPay: key alg %q and coze alg %q do not match", c.Alg, p.Alg)
-	}
-	if len(p.Tmb) != 0 && !bytes.Equal(c.Tmb, p.Tmb) {
-		return nil, fmt.Errorf("SignPay: key tmb %q and coze tmb %q do not match", c.Tmb, p.Tmb)
-	}
-
-	b, err := Marshal(p)
-	if err != nil {
-		return nil, err
-	}
-
-	coze, err = p.Coze()
-	if err != nil {
-		return nil, err
-	}
-
-	d, err := Hash(c.Alg.Hash(), b)
-	if err != nil {
-		return nil, err
-	}
-
-	coze.Sig, err = c.Sign(d)
-	return coze, err
+	return c.signPayJSON(p, nil)
 }
 
 // SignPayJSON signs a json `coze.pay`.  See documentation on SignPay.
@@ -200,28 +177,45 @@ func (c *Key) SignPayJSON(pay json.RawMessage) (coze *Coze, err error) {
 	if err != nil {
 		return nil, err
 	}
+	return c.signPayJSON(p, pay)
+}
 
+// signPayJSON efficiently consolidates common code between SignPay and
+// SignPayJSON. Parameter p must be given and b is optional.  If b is nil, b is
+// generated from p. If b is not nil b is compacted.
+func (c *Key) signPayJSON(p *Pay, b json.RawMessage) (coze *Coze, err error) {
 	if p.Alg != "" && c.Alg != p.Alg {
-		return nil, fmt.Errorf("SignPay: key.alg %q and coze.alg %q do not match", c.Alg, p.Alg)
+		return nil, fmt.Errorf("SignPay: key alg %q and coze alg %q do not match", c.Alg, p.Alg)
 	}
-	if len(p.Tmb) != 0 && !bytes.Equal(c.Tmb, p.Tmb) { // Force correct value for `tmb`.
-		p.Tmb = c.Tmb
+	if len(p.Tmb) != 0 && !bytes.Equal(c.Tmb, p.Tmb) {
+		return nil, fmt.Errorf("SignPay: key tmb %q and coze tmb %q do not match", c.Tmb, p.Tmb)
 	}
 
-	b, err := compact(pay)
-	if err != nil {
-		return nil, err
+	if b == nil {
+		b, err = Marshal(p)
+		if err != nil {
+			return nil, err
+		}
+	} else {
+		b, err = compact(b)
+		if err != nil {
+			return nil, err
+		}
 	}
 
 	d, err := Hash(c.Alg.Hash(), b)
 	if err != nil {
 		return nil, err
 	}
+	sig, err := c.Sign(d)
+	if err != nil {
+		return nil, err
+	}
 
 	coze = new(Coze)
 	coze.Pay = b
-	coze.Sig, err = c.Sign(d)
-	return coze, err
+	coze.Sig = sig
+	return coze, nil
 }
 
 // SignCoze signs `coze.pay` and sets `coze.sig`.  See documentation on SignPay.
@@ -234,9 +228,9 @@ func (c *Key) SignCoze(cz *Coze) (err error) {
 	return nil
 }
 
-// Verify uses a Coze key to verify a digest.
+// Verify uses a Coze key to verify a digest.  Typically digest is `cad`.
 //
-// Sign() and Verify() do not check if the Coze is correct, such as checking
+// Sign() and Verify() do not check if the coze is correct, such as checking
 // pay.alg and pay.tmb matches with Key.  Use SignPay, SignCoze, SignPayJSON,
 // and/or VerifyCoze if needing Coze validation.
 func (c *Key) Verify(digest, sig B64) (valid bool) {
@@ -387,11 +381,10 @@ func (c *Key) Revoke() (coze *Coze, err error) {
 		return nil, fmt.Errorf("Revoke: Coze key is not correct; %s", err)
 	}
 
-	now := time.Now().Unix()
 	r := new(Pay)
 	r.Alg = c.Alg
-	r.Iat = now
-	r.Rvk = now
+	r.Iat = time.Now().Unix()
+	r.Rvk = r.Iat
 	r.Tmb = c.Tmb
 	// If needing "typ" populated, use Sign.
 
@@ -405,7 +398,7 @@ func (c *Key) Revoke() (coze *Coze, err error) {
 	if err != nil {
 		return nil, err
 	}
-	c.Rvk = now // Sets `Key.Rvk` to the same value as the self-revoke coze.
+	c.Rvk = r.Iat // Sets `Key.Rvk` to the same value as the self-revoke coze.
 	return coze, nil
 }
 

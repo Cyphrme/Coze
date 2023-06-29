@@ -62,7 +62,7 @@ func (cz *Coze) Meta() (err error) {
 
 // MetaWithAlg is for contextual cozies that may be lacking `alg` in `pay`, but
 // `alg` in otherwise known.  MetaWithAlg recalculates [can, cad, czd] and sets
-// Coze.Parsed ("alg","iat","tmb","typ") from Pay.  Will not calculated `czd`
+// Coze.Parsed ("alg","iat","tmb","typ") from Pay.  Does not calculate `czd`
 // if Coze.Sig is empty.
 //
 // Errors on
