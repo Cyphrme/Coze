@@ -143,7 +143,7 @@ func (c *Key) Sign(digest B64) (sig B64, err error) {
 			return nil, err
 		}
 
-		// S canonicalization. Only generate signature with low S.
+		// S canonicalization generates signature with low S.
 		err = ToLowS(c, s)
 		if err != nil {
 			return nil, err
@@ -338,7 +338,7 @@ func (c *Key) Correct() (err error) {
 	}
 
 	// d is set.
-	// Calculate x from d and if x was given compare.
+	// Calculate x from d and compare with given value.
 	if len(c.D) != 0 {
 		givenX := c.X
 		c.X = c.calcX()
@@ -351,7 +351,7 @@ func (c *Key) Correct() (err error) {
 	}
 
 	// x is set.
-	// Calculate tmb from x and if tmb was given compare.
+	// Calculate tmb from x and compare with given value.
 	if len(c.X) != 0 {
 		if len(c.X) != c.Alg.XSize() {
 			return fmt.Errorf("Correct: incorrect x length for alg %q; expected %q, given %q", c.Alg, c.Alg.XSize(), len(c.X))
@@ -443,7 +443,7 @@ var curveOrders = map[SigAlg]*big.Int{
 // curveHalfOrders contains curve group orders halved for ToLowS.  From
 // https://github.com/golang/go/issues/54549
 var curveHalfOrders = map[SigAlg]*big.Int{
-	// Logical right shift divides a number by 2 discretely.
+	// Logical right shift divides a number by 2 discreetly.
 	ES224: new(big.Int).Rsh(elliptic.P224().Params().N, 1),
 	ES256: new(big.Int).Rsh(elliptic.P256().Params().N, 1),
 	ES384: new(big.Int).Rsh(elliptic.P384().Params().N, 1),

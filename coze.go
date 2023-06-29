@@ -140,10 +140,10 @@ func GenCzd(hash HshAlg, cad B64, sig B64) (czd B64, err error) {
 // The JSON tags on [Alg, Iat, Tmb, Typ, Rvk, Struct] are ineffective due to the
 // custom MarshalJSON(), however they are present for documentation.
 //
-// `Struct` will be marshaled when not empty. The custom marshaler promotes
+// `Struct` will be marshaled when not empty. The custom marshaller promotes
 // fields inside `Struct` to be top level fields inside of `pay`. The tag
-// `json:"-"` is ignored by the custom marshaler, and  is set to "-" so that the
-// default marshaler does not include it.
+// `json:"-"` is ignored by the custom marshaller, and  is set to "-" so that the
+// default marshaller does not include it.
 //
 // iat and rvk are type int64 and not uint64 to follow the advised type for
 // third party time fields.
@@ -200,10 +200,9 @@ func (p *Pay) MarshalJSON() ([]byte, error) {
 	return append(pay[:len(pay)-1], s...), nil
 }
 
-// UnmarshalJSON unmarshals both Pay and if given custom Pay.Struct.
-//
-// UnmarshalJSON handles deduplicate and throws an error on duplicate.
-// See the Go issue: https://github.com/golang/go/issues/48298
+// UnmarshalJSON unmarshals both Pay and if given custom Pay.Struct. Throws an
+// error on duplicate. (Duplicate related, see
+// https://github.com/golang/go/issues/48298)
 func (p *Pay) UnmarshalJSON(b []byte) error {
 	err := checkDuplicate(json.NewDecoder(bytes.NewReader(b)))
 	if err != nil {
@@ -236,7 +235,7 @@ func (p *Pay) UnmarshalJSON(b []byte) error {
 // PadInts creates a big-endian byte slice with given size that is the left
 // padded concatenation of two input integers. Parameter `size` must be even.
 // From Go's packages, X, Y, R, and S are type big.Int of varying size. Before
-// encoding to fixed sized string, left padding of bytes is needed.
+// encoding to fixed size string, left padding of bytes is needed.
 //
 // Algorithm notes: EdDSA is little-endian while ECDSA is big-endian. EdDSA
 // should not be used with this function.
@@ -265,29 +264,30 @@ func PadInts(r, s *big.Int, size int) (out B64) {
 	return out
 }
 
-// Marshaler is a UTF-8 marshaler for Go structs. Go's `json.Marshal`
-// removes the valid characters "&". "<", ">". See note on Marshal.
+// Marshaler is a UTF-8 marshaller for Go structs. Go's `json.Marshal`
+// removes the valid characters "&". "<", ">". See note on Marshal.  (Note that
+// Marshaler follows the Go "-er" convention for interfaces while marshaller is
+// spelled with two l's)
 type Marshaler interface {
 	CozeMarshal() ([]byte, error)
 }
 
-// Marshal is a JSON friendly marshaler.  json.Marshal preemptively replaces the
-// valid JSON and UTF-8 characters "&". "<", ">" with the "slash u" unicode
+// Marshal is a JSON friendly marshaller.  json.Marshal preemptively replaces
+// the valid JSON and UTF-8 characters "&". "<", ">" with the "slash u" unicode
 // escapes (e.g. \u0026) in the name of HTML friendliness, for example:
 // https://play.golang.org/p/o2hiX0c62oN. As JSON is not HTML, preemptive HTML
 // escaping is incorrect.  (The JSON spec calls for no such measures and other
 // industry encoders do no such preemptive escaping.)  Where JSON may include
 // these legitimate characters, like sanitized arbitrary user data, json.Marshal
 // should not be used. The Go team is aware that the existing implementation has
-// this and other concerns but has not yet release a new version.  Joe Tsai is
+// this and other concerns but has not yet released a new version.  Joe Tsai is
 // working on fixes in a yet-to-be-released Tailscale's "JSONv2" package, which
-// we hope to use upon release:
-// https://pkg.go.dev/github.com/go-json-experiment/json  The package also
+// we hope to use upon release.
+// https://pkg.go.dev/github.com/go-json-experiment/json.  The package also
 // enumerates other JSON best practices that may be of concern for anyone
 // concerned with the aforementioned issue.
-// https://github.com/go-json-experiment/json#behavior-changes
-//
-// See https://github.com/Cyphrme/Coze/issues/15 for other JSON encoding concerns.
+// https://github.com/go-json-experiment/json#behavior-changes.  See
+// https://github.com/Cyphrme/Coze/issues/15 for other JSON encoding concerns.
 //
 // Go structs already require unique fields, so unlike coze.UnmarshalJSON or
 // pay.UnmarshalJSON, marshaling will not sanitize for duplicates.
@@ -317,10 +317,10 @@ func MarshalPretty(i any) ([]byte, error) {
 }
 
 // Hash hashes msg and returns the digest. Returns nil on error. Errors on
-// invalid HshAlg or if digest is empty.
+// invalid HshAlg or if the resulting digest is empty (as a sanity check).
 //
 // For algorithms that support arbitrary sized digests, Hash only returns a
-// static size.  SHAKE128 returns 32 bytes. SHAKE256 returns 64 bytes.
+// static size.  (SHAKE128 returns 32 bytes and SHAKE256 returns 64 bytes.)
 func Hash(h HshAlg, msg []byte) (digest B64, err error) {
 	switch h {
 	case SHAKE128:
@@ -362,13 +362,7 @@ func isRevoke(rvk int64) bool {
 	return rvk > 0
 }
 
-// checkDuplicate checks if the JSON string has a duplicate. Go has an issue
-// regarding duplicates: https://github.com/golang/go/issues/48298. Another
-// solution is being created by Joe Tsai (see notes on Marshal).  When he's
-// done, we'll take this out and use v2.
-//
-// Inspire by Cerise Limón.
-// https://stackoverflow.com/questions/50107569/detect-duplicate-in-json-string-golang
+// checkDuplicate checks for JSON duplicates. See notes on Marshal.
 func checkDuplicate(d *json.Decoder) error {
 	t, err := d.Token()
 	if err != nil {

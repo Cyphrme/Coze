@@ -12,7 +12,7 @@ import (
 
 // MapSlice is not safe for concurrent use.  See https://github.com/Cyphrme/Coze/issues/10#issuecomment-1498196356
 
-// MapSlice is for setting of a given order for maps map items.  Go maps have an
+// MapSlice sets a given order for map items.  Go maps have an
 // arbitrary order that cannot be (easily) set.
 //
 // This implementation of MapSlice is designed for JSON/Coze. Key is now type
