@@ -80,53 +80,53 @@ type (
 ////////////////
 
 const (
-	UnknownAlg     Alg    = "UnknownAlg"
-	UnknownSigAlg  SigAlg = "UnknownSigAlg"
-	ES224          SigAlg = "ES224"
-	ES256          SigAlg = "ES256"
-	ES384          SigAlg = "ES384"
-	ES512          SigAlg = "ES512"
-	Ed25519        SigAlg = "Ed25519"
-	Ed25519ph      SigAlg = "Ed25519ph"
-	Ed448          SigAlg = "Ed448"
-	UnknownEncAlg  EncAlg = "UnknownEncAlg"
-	UnknownHashAlg HshAlg = "UnknownHashAlg"
-	SHA224         HshAlg = "SHA-224"
-	SHA256         HshAlg = "SHA-256"
-	SHA384         HshAlg = "SHA-384"
-	SHA512         HshAlg = "SHA-512"
-	SHA3224        HshAlg = "SHA3-224"
-	SHA3256        HshAlg = "SHA3-256"
-	SHA3384        HshAlg = "SHA3-384"
-	SHA3512        HshAlg = "SHA3-512"
-	SHAKE128       HshAlg = "SHAKE128"
-	SHAKE256       HshAlg = "SHAKE256"
+	UnknownAlg    Alg    = "UnknownAlg"
+	UnknownSigAlg SigAlg = "UnknownSigAlg"
+	ES224         SigAlg = "ES224"
+	ES256         SigAlg = "ES256"
+	ES384         SigAlg = "ES384"
+	ES512         SigAlg = "ES512"
+	Ed25519       SigAlg = "Ed25519"
+	Ed25519ph     SigAlg = "Ed25519ph"
+	Ed448         SigAlg = "Ed448"
+	UnknownEncAlg EncAlg = "UnknownEncAlg"
+	UnknownHshAlg HshAlg = "UnknownHshAlg"
+	SHA224        HshAlg = "SHA-224"
+	SHA256        HshAlg = "SHA-256"
+	SHA384        HshAlg = "SHA-384"
+	SHA512        HshAlg = "SHA-512"
+	SHA3224       HshAlg = "SHA3-224"
+	SHA3256       HshAlg = "SHA3-256"
+	SHA3384       HshAlg = "SHA3-384"
+	SHA3512       HshAlg = "SHA3-512"
+	SHAKE128      HshAlg = "SHAKE128"
+	SHAKE256      HshAlg = "SHAKE256"
 )
 
 // Algs includes all algs, including
 // unknown algs, SigAlg, EncAlg, and HshAlg.
 var Algs = map[string]Alg{
-	string(UnknownAlg):     Alg(UnknownAlg),
-	string(UnknownSigAlg):  Alg(UnknownSigAlg),
-	string(ES224):          Alg(ES224),
-	string(ES256):          Alg(ES256),
-	string(ES384):          Alg(ES384),
-	string(ES512):          Alg(ES512),
-	string(Ed25519):        Alg(Ed25519),
-	string(Ed25519ph):      Alg(Ed25519ph),
-	string(Ed448):          Alg(Ed448),
-	string(UnknownEncAlg):  Alg(UnknownEncAlg),
-	string(UnknownHashAlg): Alg(UnknownHashAlg),
-	string(SHA224):         Alg(SHA224),
-	string(SHA256):         Alg(SHA256),
-	string(SHA384):         Alg(SHA384),
-	string(SHA512):         Alg(SHA512),
-	string(SHA3224):        Alg(SHA3224),
-	string(SHA3256):        Alg(SHA3256),
-	string(SHA3384):        Alg(SHA3384),
-	string(SHA3512):        Alg(SHA3512),
-	string(SHAKE128):       Alg(SHAKE128),
-	string(SHAKE256):       Alg(SHAKE256),
+	string(UnknownAlg):    Alg(UnknownAlg),
+	string(UnknownSigAlg): Alg(UnknownSigAlg),
+	string(ES224):         Alg(ES224),
+	string(ES256):         Alg(ES256),
+	string(ES384):         Alg(ES384),
+	string(ES512):         Alg(ES512),
+	string(Ed25519):       Alg(Ed25519),
+	string(Ed25519ph):     Alg(Ed25519ph),
+	string(Ed448):         Alg(Ed448),
+	string(UnknownEncAlg): Alg(UnknownEncAlg),
+	string(UnknownHshAlg): Alg(UnknownHshAlg),
+	string(SHA224):        Alg(SHA224),
+	string(SHA256):        Alg(SHA256),
+	string(SHA384):        Alg(SHA384),
+	string(SHA512):        Alg(SHA512),
+	string(SHA3224):       Alg(SHA3224),
+	string(SHA3256):       Alg(SHA3256),
+	string(SHA3384):       Alg(SHA3384),
+	string(SHA3512):       Alg(SHA3512),
+	string(SHAKE128):      Alg(SHAKE128),
+	string(SHAKE256):      Alg(SHAKE256),
 }
 
 var algs []string = maps.Keys(Algs)
@@ -153,7 +153,7 @@ var EncAlgs = []EncAlg{
 
 // Hash algs.
 var HshAlgs = []HshAlg{
-	UnknownHashAlg,
+	UnknownHshAlg,
 	SHA224,
 	SHA256,
 	SHA384,
@@ -396,7 +396,7 @@ func (s SigAlg) Genus() GenAlg {
 func (s SigAlg) Hash() HshAlg {
 	switch s {
 	default:
-		return UnknownHashAlg
+		return UnknownHshAlg
 	case ES224:
 		return SHA224
 	case ES256:
@@ -437,7 +437,7 @@ func (s SigAlg) SigSize() int {
 ////////////////
 
 ////////////////
-//  HashAlg
+//  HshAlg
 ////////////////
 
 func (h *HshAlg) Parse(s string) {

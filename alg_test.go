@@ -44,7 +44,7 @@ func ExampleAlg_Parse() {
 		"Ed25519ph",
 		"Ed448",
 		"UnknownEncAlg",
-		"UnknownHashAlg",
+		"UnknownHshAlg",
 		"SHA-224",
 		"SHA-256",
 		"SHA-384",
@@ -76,7 +76,7 @@ func ExampleAlg_Parse() {
 	// Ed25519ph
 	// Ed448
 	// UnknownEncAlg
-	// UnknownHashAlg
+	// UnknownHshAlg
 	// SHA-224
 	// SHA-256
 	// SHA-384
@@ -99,7 +99,7 @@ func ExampleHshAlg_print() {
 
 func ExampleHshAlg_jsonMarshal() {
 	type testStruct = struct {
-		H HshAlg `json:"hashAlg"`
+		H HshAlg `json:"hshAlg"`
 	}
 	z := testStruct{H: SHA256}
 	jm, err := Marshal(z)
@@ -109,7 +109,7 @@ func ExampleHshAlg_jsonMarshal() {
 	fmt.Printf("%+s\n", jm)
 
 	// Output:
-	// {"hashAlg":"SHA-256"}
+	// {"hshAlg":"SHA-256"}
 }
 
 func ExampleCrv_Parse() {

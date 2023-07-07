@@ -11,7 +11,7 @@ but should not be considered apart of the Coze specification API.
   - MarshalPretty
 
 Other auxiliary types and functions, like B64, are reasonable exports for
-package Coze, especially compatible implementations are absent from the Go
+package Coze, especially since compatible implementations are absent from the Go
 standard library.
 */
 package coze
@@ -348,7 +348,7 @@ func Hash(h HshAlg, msg []byte) (digest B64, err error) {
 	default:
 		hash := h.goHash()
 		if hash == nil {
-			return nil, fmt.Errorf("Hash: invalid HashAlg %q", h)
+			return nil, fmt.Errorf("Hash: invalid HshAlg %q", h)
 		}
 		_, err = hash.Write(msg)
 		if err != nil {
@@ -358,7 +358,7 @@ func Hash(h HshAlg, msg []byte) (digest B64, err error) {
 	}
 
 	if len(digest) == 0 { // sanity check
-		return nil, fmt.Errorf("Hash: digest is empty; given HashAlg %q", h)
+		return nil, fmt.Errorf("Hash: digest is empty; given HshAlg %q", h)
 	}
 	return digest, nil
 }

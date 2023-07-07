@@ -100,7 +100,7 @@ programmatically.
 
 
 ## Coze object
-The JSON name `coze` may be used to wrap Coze objects.  For example:
+The JSON name `coze` may be used to wrap Coze objects.  
 
 ```JSON
 {
@@ -163,7 +163,7 @@ A tautologic coze:
 			"tmb":"cLj8vsYtMBwYkzoFVZHBZo6SNL8wSdCIjCKAwXNuhOk",
 			"x":"2nTOaFVm2QLxmUO_SjgyscVHBtvHEfo2rq65MvgNRjORojq39Haq9rXNxvXxwba_Xj0F5vZibJR3isBdOWbo5g"
 		},
-		"can": ["alg","iat","msg","tmb","typ"],
+		"can": ["msg","alg","iat","tmb","typ"],
 		"cad": "Ie3xL77AsiCcb4r0pbnZJqMcfSBqg5Lk0npNJyJ9BC4",
 		"czd": "TnRe4DRuGJlw280u3pGhMDOIYM7ii7J8_PhNuSScsIU",
 		"sig": "Jl8Kt4nznAf0LGgO5yn_9HkGdY3ulvjg-NyRGzlmJzhncbTkFFn9jrwIwGoRAQYhjc88wmwFNH5u_rO56USo_w"
