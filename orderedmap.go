@@ -73,13 +73,13 @@ func newOrderedMap() *orderedMap {
 }
 
 func (o *orderedMap) Get(key string) (interface{}, bool) {
-	val, exists := o.values[key]
-	return val, exists
+	val, ok := o.values[key]
+	return val, ok
 }
 
 func (o *orderedMap) Set(key string, value interface{}) {
-	_, exists := o.values[key]
-	if !exists {
+	_, ok := o.values[key]
+	if !ok {
 		o.keys = append(o.keys, key)
 	}
 	o.values[key] = value
@@ -106,12 +106,20 @@ func (o *orderedMap) Keys() []string {
 	return o.keys
 }
 
-// SortKeys Sort the map keys using your sort func
+func (o *orderedMap) Values() []any {
+	v := []any{}
+	for _, k := range o.values {
+		v = append(v, k)
+	}
+	return v
+}
+
+// SortKeys sorts the map keys using the provided sort func.
 func (o *orderedMap) SortKeys(sortFunc func(keys []string)) {
 	sortFunc(o.keys)
 }
 
-// Sort Sort the map using your sort func
+// Sort sorts the map using the provided less func.
 func (o *orderedMap) Sort(lessFunc func(a *pair, b *pair) bool) {
 	pairs := make([]*pair, len(o.keys))
 	for i, key := range o.keys {

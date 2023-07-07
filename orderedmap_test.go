@@ -26,6 +26,7 @@ package coze
 import (
 	"encoding/json"
 	"fmt"
+	"reflect"
 	"sort"
 	"strings"
 	"testing"
@@ -88,11 +89,23 @@ func TestOrderedMap(t *testing.T) {
 			t.Error("Keys method", key, "!=", expectedKeys[i])
 		}
 	}
-	for i, key := range expectedKeys {
-		if key != expectedKeys[i] {
-			t.Error("Keys method", key, "!=", expectedKeys[i])
-		}
+
+	values := o.Values()
+	expectedValues := []any{
+		4, // 3 is overwritten
+		"x",
+		[]string{"t", "u"},
+		[]any{1, "1"},
 	}
+	for i, val := range values {
+		if !reflect.DeepEqual(expectedValues[i], val) {
+			t.Error("Values method", expectedValues[i], "!=", val)
+		}
+		// if expectedValues[i] != val { // TODO in the future when GO has comparable working
+		// 	t.Error("Values method", expectedValues[i], "!=", val)
+		// }
+	}
+
 	// delete
 	o.Delete("strings")
 	o.Delete("not a key being used")

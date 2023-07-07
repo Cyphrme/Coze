@@ -15,12 +15,7 @@ func Canon(raw json.RawMessage) (can []string, err error) {
 	if err != nil {
 		return nil, err
 	}
-	keys := o.Keys()
-	can = make([]string, len(keys))
-	for i, k := range keys {
-		can[i] = k
-	}
-	return can, nil
+	return o.Keys(), nil
 }
 
 // Canonical returns the canonical form. Input canon is optional and may be nil.
