@@ -143,7 +143,7 @@ func (c *Key) Sign(digest B64) (sig B64, err error) {
 			return nil, err
 		}
 
-		// S canonicalization generates signature with low S.
+		// S canonicalization generates signature with low-S.
 		err = ToLowS(c, s)
 		if err != nil {
 			return nil, err
@@ -245,7 +245,7 @@ func (c *Key) Verify(digest, sig B64) (valid bool) {
 		r := big.NewInt(0).SetBytes(sig[:size])
 		s := big.NewInt(0).SetBytes(sig[size:])
 
-		// S canonicalization. Only accept low S.
+		// S canonicalization. Only accept low-S.
 		lowS, err := IsLowS(c, s)
 		if !lowS || err != nil {
 			return false
@@ -472,8 +472,8 @@ func ToLowS(c *Key, s *big.Int) error {
 	return nil
 }
 
-// ECDSAToLowSSig generates low s signature from existing ecdsa signatures (high
-// or low s).  This is useful for migrating signatures from non-Coze systems
+// ECDSAToLowSSig generates low-S signature from existing ecdsa signatures (high
+// or low-S).  This is useful for migrating signatures from non-Coze systems
 // that may have high S signatures. See Coze docs on low-S.
 func ECDSAToLowSSig(c *Key, coze *Coze) (err error) {
 	if c.Alg.Genus() != ECDSA {
@@ -483,7 +483,7 @@ func ECDSAToLowSSig(c *Key, coze *Coze) (err error) {
 	r := big.NewInt(0).SetBytes(coze.Sig[:size])
 	s := big.NewInt(0).SetBytes(coze.Sig[size:])
 
-	// Low S
+	// low-S
 	err = ToLowS(c, s)
 	if err != nil {
 		return err

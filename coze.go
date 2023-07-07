@@ -1,3 +1,19 @@
+/*
+See the README on https://github.com/Cyphrme/Coze
+
+This library exports some functions that may be helpful for other applications,
+but should not be considered apart of the Coze specification API.
+
+  - ECDSAToLowSSig
+  - IsLowS
+  - ToLowS
+  - Marshal
+  - MarshalPretty
+
+Other auxiliary types and functions, like B64, are reasonable exports for
+package Coze, especially compatible implementations are absent from the Go
+standard library.
+*/
 package coze
 
 import (
@@ -362,7 +378,8 @@ func isRevoke(rvk int64) bool {
 	return rvk > 0
 }
 
-// checkDuplicate checks for JSON duplicates. See notes on Marshal.
+// checkDuplicate checks for JSON duplicates. See notes on Marshal and the
+// README FAQ on duplicate fields.
 func checkDuplicate(d *json.Decoder) error {
 	t, err := d.Token()
 	if err != nil {

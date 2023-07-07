@@ -466,7 +466,7 @@ func ExampleKey_IsRevoked() {
 }
 
 // Example_ECDSAToLowSSig demonstrates converting non-coze compliant high S
-// signatures to the canonicalized, coze compliant low S form.
+// signatures to the canonicalized, coze compliant low-S form.
 func ExampleECDSAToLowSSig() {
 	highSCozies := []string{
 		`{"pay":{},"sig":"9iesKUSV7L1-xz5yd3A94vCkKLmdOAnrcPXTU3_qeKSuk4RMG7Qz0KyubpATy0XA_fXrcdaxJTvXg6saaQQcVQ"}`,
@@ -493,7 +493,7 @@ func ExampleECDSAToLowSSig() {
 
 		v, _ = GoldenKey.VerifyCoze(cz)
 		if !v {
-			panic("Low S coze should validate.")
+			panic("low-S coze should validate.")
 		}
 
 		fmt.Printf("%s\n", cz)
@@ -506,14 +506,14 @@ func ExampleECDSAToLowSSig() {
 	// {"pay":{"msg":"Coze Rocks","alg":"ES256","iat":1623132000,"tmb":"cLj8vsYtMBwYkzoFVZHBZo6SNL8wSdCIjCKAwXNuhOk","typ":"cyphr.me/msg"},"sig":"9KvWfOSIZUjW8Ie0jbdVdu9UlIP4TT4MXz3YyNW3fCQpo4YwKzwuxfjoQgymyAdjgfP6gis368dCwaNBWS5oeg"}
 }
 
-// Example_lowS tests to make sure generated ECDSA keys are low-s and not high-s.
-func Example_lowS() {
+// Test_lowS tests to make sure generated ECDSA keys are low-s and not high-s.
+func Test_lowS(t *testing.T) {
 	d, err := Hash(SHA512, []byte("7AtyaCHO2BAG06z0W1tOQlZFWbhxGgqej4k9-HWP3DE-zshRbrE-69DIfgY704_FDYez7h_rEI1WQVKhv5Hd5Q"))
 	if err != nil {
 		panic(err)
 	}
 
-	lowS := 0
+	// Tests runs 512 times (4 * 128)
 	algs := []SigAlg{ES224, ES256, ES384, ES512}
 	for i := 0; i < 128; i++ {
 		for _, alg := range algs {
@@ -528,22 +528,21 @@ func Example_lowS() {
 
 			size := ck.Alg.SigAlg().SigSize() / 2
 			s := big.NewInt(0).SetBytes(sig[size:])
-			ls, _ := IsLowS(ck, s)
-
-			if ls {
-				lowS++
+			ls, err := IsLowS(ck, s)
+			if err != nil {
+				panic(err)
+			}
+			if !ls {
+				t.Errorf("Signature was not low-s")
 			}
 		}
 	}
-
-	fmt.Printf("Low s: %d\n", lowS)
-	// Output: Low s: 512
 }
 
-// Example_ed25519Malleability demonstrates that the Go Ed25519 implementation
+// Test_ed25519Malleability demonstrates that the Go Ed25519 implementation
 // is not malleable.  The malleable form was generated using
 // https://slowli.github.io/ed25519-quirks/malleability.
-func Example_ed25519Malleability() {
+func Test_ed25519Malleability(t *testing.T) {
 	msg := []byte("Hello, world!")
 	// Public key b64ut: 6ySOZK7GdGzY-AJvpRwNyWOD4RtWGB4rDJCD0MLCG-M
 	// Public key ub64p: 6ySOZK7GdGzY+AJvpRwNyWOD4RtWGB4rDJCD0MLCG+M=
@@ -564,18 +563,19 @@ func Example_ed25519Malleability() {
 
 	// ub64p: WA8oFP3rnGa/Fbcei89ztetTEJ921iOLgPlUbww2ZbyHq3pYD/ZN5mpUC7iBXMJdzM7zV1nbi0TSzbFpAk4ACA==
 	valid := ed25519.Verify(pub, msg, MustDecode("WA8oFP3rnGa_Fbcei89ztetTEJ921iOLgPlUbww2ZbyHq3pYD_ZN5mpUC7iBXMJdzM7zV1nbi0TSzbFpAk4ACA"))
-	fmt.Println(valid)
+	if !valid {
+		t.Errorf("Example valid b64ut canonical (non-malleable) signature is not valid.")
+	}
 
 	// Alternative, malleable form.
 	valid = ed25519.Verify(pub, msg, MustDecode("WA8oFP3rnGa_Fbcei89ztetTEJ921iOLgPlUbww2Zbx0f3C1KVlgPkHxAltgVqFyzM7zV1nbi0TSzbFpAk4AGA"))
-	fmt.Println(valid)
-
-	// Output:
-	// true
-	// false
+	if valid {
+		t.Errorf("Example invalid b64ut non-canonical (non-malleable) signature is not valid.")
+	}
 }
 
-func Example_curveOrder() {
+// Test_curveOrder tests if the curve order values are correct
+func Test_curveOrder(t *testing.T) {
 	algs := []SigAlg{
 		ES224,
 		ES256,
@@ -583,29 +583,30 @@ func Example_curveOrder() {
 		ES512,
 	}
 
+	s := ""
 	for _, a := range algs {
 		hexSize := Alg(a).Params().XSize
-		fmt.Printf("%0"+strconv.Itoa(hexSize)+"X\n", curveOrders[a])
+		s += fmt.Sprintf("%0"+strconv.Itoa(hexSize)+"X\n", curveOrders[a])
 	}
-	fmt.Println()
+	s += "\n"
 	for _, a := range algs {
-
 		hexSize := Alg(a).Params().XSize
-		fmt.Printf("%0"+strconv.Itoa(hexSize)+"X\n", curveHalfOrders[a])
+		s += fmt.Sprintf("%0"+strconv.Itoa(hexSize)+"X\n", curveHalfOrders[a])
 	}
 
-	// Output:
-	//
-	// FFFFFFFFFFFFFFFFFFFFFFFFFFFF16A2E0B8F03E13DD29455C5C2A3D
-	// FFFFFFFF00000000FFFFFFFFFFFFFFFFBCE6FAADA7179E84F3B9CAC2FC632551
-	// FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFC7634D81F4372DDF581A0DB248B0A77AECEC196ACCC52973
-	// 01FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFA51868783BF2F966B7FCC0148F709A5D03BB5C9B8899C47AEBB6FB71E91386409
-	//
-	// 7FFFFFFFFFFFFFFFFFFFFFFFFFFF8B51705C781F09EE94A2AE2E151E
-	// 7FFFFFFF800000007FFFFFFFFFFFFFFFDE737D56D38BCF4279DCE5617E3192A8
-	// 7FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFE3B1A6C0FA1B96EFAC0D06D9245853BD76760CB5666294B9
-	// 00FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFD28C343C1DF97CB35BFE600A47B84D2E81DDAE4DC44CE23D75DB7DB8F489C3204
+	golden := `FFFFFFFFFFFFFFFFFFFFFFFFFFFF16A2E0B8F03E13DD29455C5C2A3D
+FFFFFFFF00000000FFFFFFFFFFFFFFFFBCE6FAADA7179E84F3B9CAC2FC632551
+FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFC7634D81F4372DDF581A0DB248B0A77AECEC196ACCC52973
+01FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFA51868783BF2F966B7FCC0148F709A5D03BB5C9B8899C47AEBB6FB71E91386409
 
+7FFFFFFFFFFFFFFFFFFFFFFFFFFF8B51705C781F09EE94A2AE2E151E
+7FFFFFFF800000007FFFFFFFFFFFFFFFDE737D56D38BCF4279DCE5617E3192A8
+7FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFE3B1A6C0FA1B96EFAC0D06D9245853BD76760CB5666294B9
+00FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFD28C343C1DF97CB35BFE600A47B84D2E81DDAE4DC44CE23D75DB7DB8F489C3204
+`
+	if s != golden {
+		t.Errorf("incorrect curve order values")
+	}
 }
 
 func TestKeyTmb_nilX(t *testing.T) {
