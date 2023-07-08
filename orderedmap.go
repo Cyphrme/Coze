@@ -1,11 +1,10 @@
 // orderedMap is used because encoding/json has no way to preserve the order of
-// map keys. See golang/go#27179. There's a lot of discussion in that thread,
-// and I'm not a fan of any of the solutions.
+// map keys. See https://github.com/golang/go/issues/27179.
 //
-// The ultimate goal is to use JSONv2, which solves field order, other issues,
-// and has other best practices.
-//
-// See https://github.com/Cyphrme/Coze/issues/15
+// Using JSONv2 is the future goal, which solves field order, other issues,
+// and has other best practices.When Go Coze is migrated to JSONv2, as long as
+// JSONv2 provides ordering, orderedMap will be deprecated. See
+// https://github.com/Cyphrme/Coze/issues/15
 
 // The MIT License (MIT)
 //
