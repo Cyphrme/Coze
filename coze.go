@@ -396,15 +396,14 @@ func checkDuplicate(d *json.Decoder) error {
 	case '{':
 		keys := make(map[string]bool)
 		for d.More() {
-			// Get field key.
-			t, err := d.Token()
+			t, err := d.Token() // Get field key.
 			if err != nil {
 				return err
 			}
 
 			key := t.(string)
 			if keys[key] { // Check for duplicates.
-				return ErrJSONDuplicate
+				return ErrJSONDuplicate(fmt.Errorf("Coze: JSON duplicate field %q", key))
 			}
 			keys[key] = true
 
@@ -433,7 +432,5 @@ func checkDuplicate(d *json.Decoder) error {
 	return nil
 }
 
-// ErrJSONDuplicate is for applications that need to check for the JSON
-// duplicate error.  Alternatively, applications need to check for the error
-// string, which may change.
-var ErrJSONDuplicate = errors.New("Coze: JSON duplicate field name")
+// ErrJSONDuplicate allows applications to check for JSON duplicate error.
+type ErrJSONDuplicate error

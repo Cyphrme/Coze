@@ -258,6 +258,18 @@ func ExampleKey_unmarshal() {
 	//  {"alg":"ES256","iat":1623132000,"kid":"Zami's Majuscule Key.","tmb":"cLj8vsYtMBwYkzoFVZHBZo6SNL8wSdCIjCKAwXNuhOk","x":"2nTOaFVm2QLxmUO_SjgyscVHBtvHEfo2rq65MvgNRjORojq39Haq9rXNxvXxwba_Xj0F5vZibJR3isBdOWbo5g"}
 }
 
+// Example demonstrating that unmarshalling a `pay` that has duplicate field
+// names results in an error.
+func ExampleKey_UnmarshalJSON_duplicate() {
+	k := &Key{}
+	msg := []byte(`{"alg":"ES256","alg":"ES256"}`)
+	err := json.Unmarshal(msg, k)
+	fmt.Println(err)
+
+	// Output:
+	// Coze: JSON duplicate field "alg"
+}
+
 func ExampleKey_SignCoze() {
 	cz := new(Coze)
 	cz.Pay = json.RawMessage(GoldenPay)
