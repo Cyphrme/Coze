@@ -25,7 +25,6 @@ package coze
 
 import (
 	"encoding/json"
-	"fmt"
 	"reflect"
 	"sort"
 	"strings"
@@ -55,15 +54,15 @@ func TestOrderedMap(t *testing.T) {
 	if v.([]string)[1] != "u" {
 		t.Error("Set strings second index")
 	}
-	o.Set("mixed", []interface{}{ // mixed slice
+	o.Set("mixed", []any{ // mixed slice
 		1,
 		"1",
 	})
 	v, _ = o.Get("mixed")
-	if v.([]interface{})[0].(int) != 1 {
+	if v.([]any)[0].(int) != 1 {
 		t.Error("Set mixed int")
 	}
-	if v.([]interface{})[1].(string) != "1" {
+	if v.([]any)[1].(string) != "1" {
 		t.Error("Set mixed string")
 	}
 
@@ -101,15 +100,15 @@ func TestOrderedMap(t *testing.T) {
 			t.Error("Values method", expectedValues[i], "!=", val)
 		}
 	}
+}
 
-	// delete
+func TestOrderedMapDelete(t *testing.T) {
+	o := newOrderedMap()
+	o.Set("strings", "stringValue")
 	o.Delete("strings")
 	o.Delete("not a key being used")
-	if len(o.Keys()) != 3 {
-		t.Error("Delete method")
-	}
 	_, ok := o.Get("strings")
-	if ok {
+	if ok || len(o.Keys()) != 0 { // Demonstrates that delete isn't set to nil, but is removed.
 		t.Error("Delete did not remove 'strings' key")
 	}
 }
@@ -131,57 +130,39 @@ func TestBlankMarshalJSON(t *testing.T) {
 	if err != nil {
 		t.Error("Marshalling indented json for blank map", err)
 	}
-	si := string(bi)
+
 	ei := `{}`
-	if si != ei {
-		fmt.Println(ei)
-		fmt.Println(si)
-		t.Error("JSON MarshalIndent blank map value is incorrect", si)
+	if string(bi) != ei {
+		t.Error("JSON MarshalIndent blank map value is incorrect", ei)
 	}
 }
 
 func TestMarshalJSON(t *testing.T) {
 	o := newOrderedMap()
-	// number
-	o.Set("number", 3)
-	// string
-	o.Set("string", "x")
-	// string
-	o.Set("specialstring", "\\.<>[]{}_-")
-	// new value keeps key in old position
-	o.Set("number", 4)
+	o.Set("number", 3)                    // number
+	o.Set("string", "x")                  // string
+	o.Set("specialstring", "\\.<>[]{}_-") // string
+	o.Set("number", 4)                    // new value keeps key in old position
 	// keys not sorted alphabetically
 	o.Set("z", 1)
 	o.Set("a", 2)
 	o.Set("b", 3)
-	// slice
-	o.Set("slice", []interface{}{
+	o.Set("slice", []any{ // slice
 		"1",
 		1,
 	})
-	// orderedmap
+
 	v := newOrderedMap()
 	v.Set("e", 1)
 	v.Set("a", 2)
 	o.Set("orderedmap", v)
-	// escape key
-	o.Set("test\n\r\t\\\"ing", 9)
-	// convert to json
-	b, err := json.Marshal(o)
-	if err != nil {
-		t.Error("Marshalling json", err)
-	}
-	s := string(b)
-	// check json is correctly ordered
-	if s != `{"number":4,"string":"x","specialstring":"\\.\u003c\u003e[]{}_-","z":1,"a":2,"b":3,"slice":["1",1],"orderedmap":{"e":1,"a":2},"test\n\r\t\\\"ing":9}` {
-		t.Error("JSON Marshal value is incorrect", s)
-	}
+	o.Set("test\n\r\t\\\"ing", 9) // escape key
+
 	// convert to indented json
 	bi, err := json.MarshalIndent(o, "", "  ")
 	if err != nil {
 		t.Error("Marshalling indented json", err)
 	}
-	si := string(bi)
 	ei := `{
   "number": 4,
   "string": "x",
@@ -199,10 +180,8 @@ func TestMarshalJSON(t *testing.T) {
   },
   "test\n\r\t\\\"ing": 9
 }`
-	if si != ei {
-		fmt.Println(ei)
-		fmt.Println(si)
-		t.Error("JSON MarshalIndent value is incorrect", si)
+	if ei != string(bi) {
+		t.Error("JSON MarshalIndent value is incorrect", ei)
 	}
 }
 
@@ -303,7 +282,7 @@ func TestUnmarshalJSON(t *testing.T) {
 	if !ok {
 		t.Error("Missing key for nested map 1 deep")
 	}
-	v := vi.(orderedMap)
+	v := vi.(orderedMap) // panics if not correct type
 	k = v.Keys()
 	for i := range k {
 		if k[i] != expectedKeys[i] {
@@ -318,7 +297,7 @@ func TestUnmarshalJSON(t *testing.T) {
 	if !ok {
 		t.Error("Missing key for nested map 2 deep")
 	}
-	v = vi.(orderedMap)
+	v = vi.(orderedMap) // panics if not correct type
 	k = v.Keys()
 	for i := range k {
 		if k[i] != expectedKeys[i] {
@@ -335,7 +314,7 @@ func TestUnmarshalJSON(t *testing.T) {
 	if !ok {
 		t.Error("Missing key for multitype array")
 	}
-	vslice := vislice.([]interface{})
+	vslice := vislice.([]any) // panics if not correct type
 	vmap := vslice[2].(orderedMap)
 	k = vmap.Keys()
 	for i := range k {
@@ -345,9 +324,9 @@ func TestUnmarshalJSON(t *testing.T) {
 	}
 	// nested map 3 deep
 	vislice, _ = o.Get("multitype_array")
-	vslice = vislice.([]interface{})
+	vslice = vislice.([]any) // panics if not correct type
 	expectedKeys = []string{"inner"}
-	vinnerslice := vslice[3].([]interface{})
+	vinnerslice := vslice[3].([]any)
 	vinnermap := vinnerslice[0].(orderedMap)
 	k = vinnermap.Keys()
 	for i := range k {
@@ -357,73 +336,20 @@ func TestUnmarshalJSON(t *testing.T) {
 	}
 }
 
-func TestUnmarshalJSONDuplicateKeys(t *testing.T) {
+// TestOrderedMapUnmarshalJSONDuplicate tests that orderedMap errors on
+// duplicate JSON fields.
+func TestOrderedMapUnmarshalJSONDuplicate(t *testing.T) {
 	s := `{
 		"a": [{}, []],
 		"b": {"x":[1]},
 		"c": "x",
 		"d": {"x":1},
-		"b": [{"x":[]}],
-		"c": 1,
-		"d": {"y": 2},
-		"e": [{"x":1}],
-		"e": [[]],
-		"e": [{"z":2}],
-		"a": {},
-		"b": [[1]]
+		"b": [{"x":[]}]
 	}`
 	o := newOrderedMap()
 	err := json.Unmarshal([]byte(s), &o)
-	if err != nil {
-		t.Error("JSON Unmarshal error with special chars", err)
-	}
-	expectedKeys := []string{
-		"c",
-		"d",
-		"e",
-		"a",
-		"b",
-	}
-	keys := o.Keys()
-	if len(keys) != len(expectedKeys) {
-		t.Error("Unmarshal key count", len(keys), "!=", len(expectedKeys))
-	}
-	for i, key := range keys {
-		if key != expectedKeys[i] {
-			t.Errorf("Unmarshal root key order: %d, %q != %q", i, key, expectedKeys[i])
-		}
-	}
-	vimap, _ := o.Get("a")
-	_ = vimap.(orderedMap)
-	vislice, _ := o.Get("b")
-	_ = vislice.([]interface{})
-	vival, _ := o.Get("c")
-	_ = vival.(float64)
-
-	vimap, _ = o.Get("d")
-	m := vimap.(orderedMap)
-	expectedKeys = []string{"y"}
-	keys = m.Keys()
-	if len(keys) != len(expectedKeys) {
-		t.Error("Unmarshal key count", len(keys), "!=", len(expectedKeys))
-	}
-	for i, key := range keys {
-		if key != expectedKeys[i] {
-			t.Errorf("Unmarshal key order: %d, %q != %q", i, key, expectedKeys[i])
-		}
-	}
-
-	vislice, _ = o.Get("e")
-	m = vislice.([]interface{})[0].(orderedMap)
-	expectedKeys = []string{"z"}
-	keys = m.Keys()
-	if len(keys) != len(expectedKeys) {
-		t.Error("Unmarshal key count", len(keys), "!=", len(expectedKeys))
-	}
-	for i, key := range keys {
-		if key != expectedKeys[i] {
-			t.Errorf("Unmarshal key order: %d, %q != %q", i, key, expectedKeys[i])
-		}
+	if err == nil {
+		t.Errorf("orderedMap unmarshal did not error on duplicate key")
 	}
 }
 
@@ -502,7 +428,7 @@ func TestUnmarshalJSONArrayOfMaps(t *testing.T) {
 	if !ok {
 		t.Error("Missing key for nested map 1 deep")
 	}
-	vs := vi.([]interface{})
+	vs := vi.([]any)
 	for _, vInterface := range vs {
 		v := vInterface.(orderedMap)
 		k = v.Keys()

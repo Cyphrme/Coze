@@ -39,14 +39,14 @@ import (
 
 type pair struct {
 	key   string
-	value interface{}
+	value any
 }
 
 func (kv *pair) Key() string {
 	return kv.key
 }
 
-func (kv *pair) Value() interface{} {
+func (kv *pair) Value() any {
 	return kv.value
 }
 
@@ -61,22 +61,22 @@ func (a byPair) Less(i, j int) bool { return a.LessFunc(a.Pairs[i], a.Pairs[j]) 
 
 type orderedMap struct {
 	keys   []string
-	values map[string]interface{}
+	values map[string]any
 }
 
 func newOrderedMap() *orderedMap {
 	o := orderedMap{}
 	o.keys = []string{}
-	o.values = map[string]interface{}{}
+	o.values = map[string]any{}
 	return &o
 }
 
-func (o *orderedMap) Get(key string) (interface{}, bool) {
+func (o *orderedMap) Get(key string) (any, bool) {
 	val, ok := o.values[key]
 	return val, ok
 }
 
-func (o *orderedMap) Set(key string, value interface{}) {
+func (o *orderedMap) Set(key string, value any) {
 	_, ok := o.values[key]
 	if !ok {
 		o.keys = append(o.keys, key)
@@ -132,11 +132,45 @@ func (o *orderedMap) Sort(lessFunc func(a *pair, b *pair) bool) {
 	}
 }
 
-func (o *orderedMap) UnmarshalJSON(b []byte) error {
-	if o.values == nil {
-		o.values = map[string]interface{}{}
+// MarshalJSON must return no duplicates, and should since orderedMap keys are
+// unique.
+func (o orderedMap) MarshalJSON() ([]byte, error) {
+	var buf bytes.Buffer
+	buf.WriteByte('{')
+	encoder := json.NewEncoder(&buf)
+	encoder.SetEscapeHTML(false)
+	for i, k := range o.keys {
+		if i > 0 {
+			buf.WriteByte(',')
+		}
+		// add key
+		if err := encoder.Encode(k); err != nil {
+			return nil, err
+		}
+		buf.WriteByte(':')
+		// add value
+		if err := encoder.Encode(o.values[k]); err != nil {
+			return nil, err
+		}
 	}
-	err := json.Unmarshal(b, &o.values)
+	buf.WriteByte('}')
+	return buf.Bytes(), nil
+}
+
+func (o *orderedMap) UnmarshalJSON(b []byte) error {
+	// Ensure that there were no duplicates fields.  JSON should error on
+	// duplicates. "Last value wins" is bad practice.  See
+	// https://esdiscuss.org/topic/json-duplicate-keys and the Coze docs on
+	// duplicate JSON keys.
+	err := checkDuplicate(json.NewDecoder(bytes.NewReader(b)))
+	if err != nil {
+		return err
+	}
+
+	if o.values == nil {
+		o.values = map[string]any{}
+	}
+	err = json.Unmarshal(b, &o.values)
 	if err != nil {
 		return err
 	}
@@ -148,6 +182,7 @@ func (o *orderedMap) UnmarshalJSON(b []byte) error {
 	return decodeOrderedMap(dec, o)
 }
 
+// decodeOrderedMap
 func decodeOrderedMap(dec *json.Decoder, o *orderedMap) error {
 	hasKey := make(map[string]bool, len(o.values))
 	for {
@@ -180,7 +215,7 @@ func decodeOrderedMap(dec *json.Decoder, o *orderedMap) error {
 		if delim, ok := token.(json.Delim); ok {
 			switch delim {
 			case '{':
-				if values, ok := o.values[key].(map[string]interface{}); ok {
+				if values, ok := o.values[key].(map[string]any); ok {
 					newMap := orderedMap{
 						keys:   make([]string, 0, len(values)),
 						values: values,
@@ -202,11 +237,11 @@ func decodeOrderedMap(dec *json.Decoder, o *orderedMap) error {
 					return err
 				}
 			case '[':
-				if values, ok := o.values[key].([]interface{}); ok {
+				if values, ok := o.values[key].([]any); ok {
 					if err = decodeSlice(dec, values); err != nil {
 						return err
 					}
-				} else if err = decodeSlice(dec, []interface{}{}); err != nil {
+				} else if err = decodeSlice(dec, []any{}); err != nil {
 					return err
 				}
 			}
@@ -214,7 +249,7 @@ func decodeOrderedMap(dec *json.Decoder, o *orderedMap) error {
 	}
 }
 
-func decodeSlice(dec *json.Decoder, s []interface{}) error {
+func decodeSlice(dec *json.Decoder, s []any) error {
 	for index := 0; ; index++ {
 		token, err := dec.Token()
 		if err != nil {
@@ -224,7 +259,7 @@ func decodeSlice(dec *json.Decoder, s []interface{}) error {
 			switch delim {
 			case '{':
 				if index < len(s) {
-					if values, ok := s[index].(map[string]interface{}); ok {
+					if values, ok := s[index].(map[string]any); ok {
 						newMap := orderedMap{
 							keys:   make([]string, 0, len(values)),
 							values: values,
@@ -250,14 +285,14 @@ func decodeSlice(dec *json.Decoder, s []interface{}) error {
 				}
 			case '[':
 				if index < len(s) {
-					if values, ok := s[index].([]interface{}); ok {
+					if values, ok := s[index].([]any); ok {
 						if err = decodeSlice(dec, values); err != nil {
 							return err
 						}
-					} else if err = decodeSlice(dec, []interface{}{}); err != nil {
+					} else if err = decodeSlice(dec, []any{}); err != nil {
 						return err
 					}
-				} else if err = decodeSlice(dec, []interface{}{}); err != nil {
+				} else if err = decodeSlice(dec, []any{}); err != nil {
 					return err
 				}
 			case ']':
@@ -265,27 +300,4 @@ func decodeSlice(dec *json.Decoder, s []interface{}) error {
 			}
 		}
 	}
-}
-
-func (o orderedMap) MarshalJSON() ([]byte, error) {
-	var buf bytes.Buffer
-	buf.WriteByte('{')
-	encoder := json.NewEncoder(&buf)
-	encoder.SetEscapeHTML(false)
-	for i, k := range o.keys {
-		if i > 0 {
-			buf.WriteByte(',')
-		}
-		// add key
-		if err := encoder.Encode(k); err != nil {
-			return nil, err
-		}
-		buf.WriteByte(':')
-		// add value
-		if err := encoder.Encode(o.values[k]); err != nil {
-			return nil, err
-		}
-	}
-	buf.WriteByte('}')
-	return buf.Bytes(), nil
 }
