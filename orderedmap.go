@@ -106,9 +106,9 @@ func (o *orderedMap) Keys() []string {
 }
 
 func (o *orderedMap) Values() []any {
-	v := []any{}
-	for _, k := range o.values {
-		v = append(v, k)
+	v := make([]any, len(o.keys))
+	for i, k := range o.keys {
+		v[i] = o.values[k]
 	}
 	return v
 }

@@ -34,20 +34,17 @@ import (
 
 func TestOrderedMap(t *testing.T) {
 	o := newOrderedMap()
-	// number
-	o.Set("number", 3)
+	o.Set("number", 3) // number
 	v, _ := o.Get("number")
 	if v.(int) != 3 {
 		t.Error("Set number")
 	}
-	// string
-	o.Set("string", "x")
+	o.Set("string", "x") // string
 	v, _ = o.Get("string")
 	if v.(string) != "x" {
 		t.Error("Set string")
 	}
-	// string slice
-	o.Set("strings", []string{
+	o.Set("strings", []string{ // string slice
 		"t",
 		"u",
 	})
@@ -58,8 +55,7 @@ func TestOrderedMap(t *testing.T) {
 	if v.([]string)[1] != "u" {
 		t.Error("Set strings second index")
 	}
-	// mixed slice
-	o.Set("mixed", []interface{}{
+	o.Set("mixed", []interface{}{ // mixed slice
 		1,
 		"1",
 	})
@@ -70,12 +66,14 @@ func TestOrderedMap(t *testing.T) {
 	if v.([]interface{})[1].(string) != "1" {
 		t.Error("Set mixed string")
 	}
+
 	// overriding existing key
 	o.Set("number", 4)
 	v, _ = o.Get("number")
 	if v.(int) != 4 {
 		t.Error("Override existing key")
 	}
+
 	// Keys method
 	keys := o.Keys()
 	expectedKeys := []string{
@@ -90,6 +88,7 @@ func TestOrderedMap(t *testing.T) {
 		}
 	}
 
+	// Values method
 	values := o.Values()
 	expectedValues := []any{
 		4, // 3 is overwritten
@@ -101,9 +100,6 @@ func TestOrderedMap(t *testing.T) {
 		if !reflect.DeepEqual(expectedValues[i], val) {
 			t.Error("Values method", expectedValues[i], "!=", val)
 		}
-		// if expectedValues[i] != val { // TODO in the future when GO has comparable working
-		// 	t.Error("Values method", expectedValues[i], "!=", val)
-		// }
 	}
 
 	// delete
