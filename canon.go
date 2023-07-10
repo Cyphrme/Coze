@@ -10,16 +10,12 @@ import (
 // It returns only top level fields with no recursion or promotion of embedded
 // fields.
 func Canon(raw json.RawMessage) (can []string, err error) {
-	ms := MapSlice{}
-	err = json.Unmarshal(raw, &ms)
+	o := newOrderedMap()
+	err = json.Unmarshal(raw, &o)
 	if err != nil {
 		return nil, err
 	}
-	can = make([]string, len(ms))
-	for i, v := range ms {
-		can[i] = v.Key
-	}
-	return can, nil
+	return o.Keys(), nil
 }
 
 // Canonical returns the canonical form. Input canon is optional and may be nil.

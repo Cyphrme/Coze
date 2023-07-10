@@ -104,9 +104,14 @@ func Thumbprint(c *Key) (tmb B64, err error) {
 
 // UnmarshalJSON always populates `tmb` even if it isn't given.
 func (c *Key) UnmarshalJSON(b []byte) error {
+	err := checkDuplicate(json.NewDecoder(bytes.NewReader(b)))
+	if err != nil {
+		return err
+	}
+
 	type key2 Key // Break infinite unmarshal loop
 	czk2 := new(key2)
-	err := json.Unmarshal(b, czk2)
+	err = json.Unmarshal(b, czk2)
 	if err != nil {
 		return err
 	}
@@ -308,17 +313,17 @@ func (c *Key) Valid() (valid bool) {
 }
 
 // Correct is an advanced function for checking for the correct construction of
-// a Coze key if it can be known from the given inputs.  Correct may return no
-// error on cryptographically invalid public keys.  Key must have `alg` and at
-// least one of `tmb`, `x`, and `d`. Using input information, if possible to
-// definitively know the given key is incorrect, Correct returns an error, but
-// if plausibly correct, Correct returns no error. Correct answers the question:
-// "Is the given Coze key reasonable using the information provided?". Correct
-// is useful for sanity checking public keys without signed messages, sanity
-// checking `tmb` only keys, and validating private keys. Use function "Verify"
-// instead for verifying public keys when a signed message is available. Correct
-// is considered an advanced function. Please understand it thoroughly before
-// use.
+// a Coze key if it can be known from the given inputs. Key must have at least
+// one of [`tmb`, `x`,`d`] and `alg` set.  Correct may return no error on
+// cryptographically invalid public keys.  Using input information, if possible
+// to definitively know the given key is incorrect, Correct returns an error,
+// but if plausibly correct, Correct returns no error. Correct answers the
+// question: "Is the given Coze key reasonable using the information provided?".
+// Correct is useful for sanity checking public keys without signed messages,
+// sanity checking `tmb` only keys, and validating private keys. Use function
+// "Verify" instead for verifying public keys when a signed message is
+// available. Correct is considered an advanced function. Please understand it
+// thoroughly before use.
 //
 // Correct:
 //
