@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-// Type B64 is a Coze addition to Go's base64. B64 is useful for marshaling and
+// B64 is a Coze wrapper for encoding/base64. B64 is useful for marshaling and
 // unmarshalling structs. B64's underlying type is []byte and is represented in
 // JSON as "RFC 4648 base 64 URI canonical with padding truncated" (b64ut).
 //

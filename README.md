@@ -1,15 +1,15 @@
 [![pkg.go.dev][GoBadge]][GoDoc]
-#### ⚠️ COZE IS IN ALPHA.  USE AT YOUR OWN RISK ⚠️
+#### ⚠️ Coze is in Alpha and appreciates feedback.  Use at your own risk.
 
 ![Coze][CozeLogo]
 
-[Presentation][Presentation]
 
 # Coze 
-**Coze** is a cryptographic JSON messaging specification designed for human
-readability.
+**Coze** is a cryptographic JSON messaging specification.
 
 [Try Coze out!](https://cyphr.me/coze)
+
+[Presentation][Presentation]
 
 ### Example Coze
 ```JSON
@@ -26,10 +26,10 @@ readability.
 ```
 
 ### Coze Design Goals
-1. Valid and idiomatic JSON. 
-2. Human readable and writable.
-3. Small in scope.
-4. Provide defined cipher suites.
+1. Idiomatic JSON
+2. Human readable
+3. Limited scope
+4. Providing defined cipher suites
 
 ### Coze Fields
 Coze defines standard fields and applications may include additional fields as
@@ -37,7 +37,7 @@ desired.  Coze JSON fields are case sensitive and unique.  All fields are
 optional, but omitting standard fields may limit compatibility. Binary values
 are encoded as [RFC 4648 base 64 URI canonical with padding truncated][RFC4648]
 (b64ut). The Coze objects `pay`, `key`, and `coze` have respective standard
-fields.  Unmarshalling JSON with duplicate fields must error.
+fields.  Unmarshalling JSON with duplicate fields must result in an error.
 
 #### All Coze Standard Fields
 ![Coze Standard Fields](docs/img/coze_standard_fields.png)
@@ -91,7 +91,7 @@ application defined programmatic functions.  In the first example,
 - `kid` - "Key identifier", Human readable, non-programmatic label.  E.g. `"kid":"My Cyphr.me Key"`. 
 - `tmb` - Thumbprint.  E.g. `"cLj8vs..."`
 - `x`   - Public component.  E.g. `"2nTOaF..."`.
-- `typ` - "Type", Additional application information.  E.g. `"cyphr.me/msg"`
+- `typ` - "Type", Application defined label.  E.g. `"cyphr.me/key"`
 - `rvk` - "Revoke", time of key revocation.  See the `rvk` section.  E.g. `1623132000`
 
 Note that the private component `d` is not included in `tmb` generation.   Also
@@ -100,7 +100,7 @@ programmatically.
 
 
 ## Coze object
-The JSON name `coze` may be used to wrap Coze objects.  
+The JSON name `coze` may be used to wrap a coze.  
 
 ```JSON
 {
@@ -138,11 +138,11 @@ perform signature canonicalization that constrains signatures to a non-malleable
 form.  
 
 ### Verbose `coze`
-Including unneeded labels is not recommended. For example, the JSON object
+Including unnecessary labels is not recommended. For example, the JSON object
 `{"pay":{...},"sig":...}` doesn't need the label `coze` if implicitly known by
-applications. The following includes fields that should generally be omitted.
-`key` may be looked up by applications by using `tmb`, `can`, `cad`, and `czd`
-are recalculatable, and the label `coze` may be inferred.  
+applications. The following should generally be omitted: `key` may be looked up
+by applications by using `tmb`, the fields `can`, `cad`, and `czd` are
+recalculatable, and the label `coze` may be inferred.  
 
 A tautologic coze:
 
@@ -193,7 +193,7 @@ objects are canonicalized for creating digests, signing, and verification. The
 canon of `pay` is the currently present fields in order of appearance. The
 following Coze fields have predefined canons:  
 
-- `cad`'s canon is `pay`'s canon. 
+- `cad`'s canon is `pay`'s canon.
 - `tmb`'s canon is `["alg","x"]`.
 - `czd`'s canon is `["cad","sig"]`.
 
@@ -303,8 +303,8 @@ Self-revokes with future times must immediately be considered as revoked.
 
 `rvk` must and `iat` should be a positive integer less than 2^53 – 1
 (9,007,199,254,740,991), which is the integer precision limit specified by
-IEEE754 minus one. Revoke checks must error if `rvk`'s is not an integer or
-larger than 2^53 - 1.
+IEEE754 minus one. Revoke checks must error if `rvk` is not an integer or larger
+than 2^53 - 1.
 
 Key expiration policies, key rotation, and alternative revocation methods are
 outside the scope of Coze.
@@ -396,7 +396,19 @@ coze messages and objects.
 
 #### Why release pre-alpha on 2021/06/08?
 Coze was released on 2021/06/08 (1623132000) since it's 30 years and one day
-after the initial release of PGP 1.0.
+after the initial release of PGP 1.0.  We wrote a blog with more [details of
+Coze's
+genesis](https://cyphr.me/md/xlA-MSFwPxmWED4ZcNdxUy8OA22UPiLWlGQUQik8DwY).  
+
+# What is Coze useful for?
+Coze can be used for anything needing cryptographic signing, such as IoT,
+authentication, sessions, and cookies.  We think most things on the Internet
+should be cryptographically signed.  
+
+As a timely example, reddit.com/u/spez, the CEO of Reddit, [edited people's
+comments on
+Reddit.](https://www.theverge.com/2016/11/23/13739026/reddit-ceo-steve-huffman-edit-comments)
+Coze stops that.  Coze signed messages are impossible to edit by third parties.
 
 #### ASCII/Unicode/UTF-8/UTF-16 and Ordering?
 Although JSON was designed in a Javascript (UTF-16) context, the latest JSON RFC
@@ -475,7 +487,7 @@ respectively.  For ES512, which unlike the other ECDSA algorithms uses the odd
 numbered P-521, X, Y, R, and S are padded before concatenation.  
 
 #### Why use `tmb` and not `x` for references in messages?
-Coze places no limit on public key size which may be large. For example,
+Coze places no limit on public key size, which can be very large. For example,
 GeMSS128 public keys are 352,188 bytes, compared to Ed25519's 32 bytes.  Using
 `tmb` instead of `x` generalizes Coze for present and future algorithm use.
 Additionally, `x` may be cryptographically significant for key security while
@@ -621,8 +633,18 @@ behavior to users. See the article, "[An Exploration of JSON Interoperability
 Vulnerabilities](https://bishopfox.com/blog/json-interoperability-vulnerabilities)"
 
 Disallowing duplicates conforms to the small I-JSON RFC. The author of I-JSON,
-Tim Bray, is also the author of JSON RFC 8259.  See also
-https://github.com/json5/json5-spec/issues/38.
+Tim Bray, is also the author of current JSON specification ([RFC
+8259][RFC8259]).  See also https://github.com/json5/json5-spec/issues/38.
+
+#### Why is human readability a goal?
+Although humans cannot verify a signature without the assistance of tools,
+readability allows humans to visually verify what a message does.
+
+We saw the need for JSON-centric cryptography and idiomatic JSON is human
+readable.  JSON is not a binary format; it is a human readable format and any
+framwork built on JSON should embrace its human readability.  If human
+readability is unneeded, JSON is entirely the wrong message format to employ.
+All else being equal, human readability is better than non-human readability.
 
 #### JSON?
 - [RFC 8259 (2017, Bray)][RFC8259]
@@ -667,6 +689,9 @@ Coze was created by [Cyphr.me](https://cyphr.me).
  - [Coze go.pkg.dev](https://pkg.go.dev/github.com/cyphrme/coze#section-readme)
  - CozeJSON.com (which is currently pointed to the [Coze verifier](https://cyphr.me/coze))
  - Coze Table links: https://docs.google.com/document/d/15_1R7qwfCf-Y3rTamtYS_QXuoTSNrOwbIRopwmv4KOc
+
+#### Keywords
+Coze JSON alg iat tmb typ rvk kid d x coze pay key can cad czd sig Cryptography Crypto authentication auth login hash digest signature Cypherpunk Cyphrme Ed25519 Ed25519ph ES224 ES256 ES384 ES512 SHA-224 SHA-256 SHA-384 SHA512 JOSE JWS JWE JWK JWT PASETO PASERK signify ssh SSHSIG PGP Bitcoin Ethereum base64 b64ut
 
 
 ----------------------------------------------------------------------

@@ -1,5 +1,5 @@
 /*
-See the README on https://github.com/Cyphrme/Coze
+Package coze, see the README at https://github.com/Cyphrme/Coze
 
 This library exports some functions that may be helpful for other applications,
 but should not be considered apart of the Coze specification API.
@@ -142,7 +142,7 @@ func (cz *Coze) UnmarshalJSON(b []byte) error {
 // CzdCanon is the canon for a `czd`.
 var CzdCanon = []string{"cad", "sig"}
 
-const max_safe_integer = 9007199254740991
+const maxSafeInteger = 9007199254740991
 
 // GenCzd generates and returns `czd`.
 func GenCzd(hash HshAlg, cad B64, sig B64) (czd B64, err error) {
@@ -176,7 +176,7 @@ type Pay struct {
 	Struct any `json:"-"`
 }
 
-// Pay.Coze() returns a new Coze with only Pay populated.
+// Coze returns a new coze with only Pay populated.
 func (p *Pay) Coze() (coze *Coze, err error) {
 	coze = new(Coze)
 	coze.Pay, err = Marshal(p)
@@ -240,7 +240,7 @@ func (p *Pay) UnmarshalJSON(b []byte) error {
 		p2.Struct = str
 	}
 
-	if p2.Iat > max_safe_integer || p2.Rvk > max_safe_integer || p2.Iat < 0 || p2.Rvk < 0 {
+	if p2.Iat > maxSafeInteger || p2.Rvk > maxSafeInteger || p2.Iat < 0 || p2.Rvk < 0 {
 		return fmt.Errorf("Pay.UnmarshalJSON: values for iat and rvk must be between 0 and 2^53 - 1")
 	}
 
@@ -372,11 +372,14 @@ func isRevoke(rvk int64) bool {
 	// rvk is not allowed to be larger than 2^53 -1.  This library assumes that
 	// Unmarshal will error on rvk's that do not meet the specification
 	// requirements, so no error is needed here.
-	if rvk > max_safe_integer {
+	if rvk > maxSafeInteger {
 		return false
 	}
 	return rvk > 0
 }
+
+// ErrJSONDuplicate allows applications to check for JSON duplicate error.
+type ErrJSONDuplicate error
 
 // checkDuplicate checks for JSON duplicates. See notes on Marshal and the
 // README FAQ on duplicate fields.
@@ -431,6 +434,3 @@ func checkDuplicate(d *json.Decoder) error {
 	}
 	return nil
 }
-
-// ErrJSONDuplicate allows applications to check for JSON duplicate error.
-type ErrJSONDuplicate error

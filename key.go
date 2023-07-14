@@ -13,7 +13,7 @@ import (
 	"time"
 )
 
-// KeyCanonSlice is the canonical form of a Coze key in slice form.
+// KeyCanon is the canonical form of a Coze key.
 var KeyCanon = []string{"alg", "x"}
 
 // Key is a Coze key. See `README.md` for details on Coze key. Fields `alg` and
@@ -427,7 +427,7 @@ func (c *Key) calcX() B64 {
 	}
 }
 
-// KeyToPubEcdsa converts a Coze Key to ecdsa.PublicKey.
+// ToPubEcdsa converts a Coze Key to ecdsa.PublicKey.
 func (c *Key) ToPubEcdsa() (key *ecdsa.PublicKey) {
 	size := c.Alg.XSize() / 2
 	return &ecdsa.PublicKey{
