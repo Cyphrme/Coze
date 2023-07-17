@@ -255,6 +255,7 @@ func ExampleCoze_MetaWithAlg() {
 	}
 
 	// Test no coze.pay.alg or alg given, which must error.
+	// Will error with Hash: invalid HshAlg "UnknownHshAlg")
 	cz2 := new(Coze)
 	err = json.Unmarshal(GoldenCozeNoAlg, cz2)
 	if err != nil {
