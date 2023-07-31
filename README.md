@@ -32,13 +32,13 @@
 4. Providing defined cipher suites
 
 ### Coze Fields
-Coze defines standard fields and applications may include additional fields as
-desired.  The Coze objects `pay`, `key`, and `coze` have respective standard
-fields. Coze JSON fields are case sensitive and unique.  Unmarshalling JSON with
-duplicate fields must result in an error.  All fields are optional, but omitting
-standard fields may limit compatibility. Binary values are encoded as [RFC 4648
-base 64 URI canonical with padding truncated][RFC4648] (b64ut).  For signing,
-verification, and hashing JSON components are serialized into UTF-8.
+Coze defines standard fields for the objects pay, key, and coze. Applications
+may include additional fields as desired. While all fields are optional,
+omitting standard fields may limit compatibility. Binary values are encoded as
+[RFC 4648 base 64 URI canonical with padding truncated][RFC4648] (b64ut). JSON
+components are serialized into UTF-8 for signing, verification, and hashing. All
+JSON fields must be unique, and unmarshalling JSON with duplicate fields must
+result in an error.
 
 #### All Coze Standard Fields
 ![Coze Standard Fields](docs/img/coze_standard_fields.png)
@@ -48,16 +48,16 @@ verification, and hashing JSON components are serialized into UTF-8.
 additional application fields.  In the first example `msg` is additional.
 
 ### `pay` Standard Fields
-- `alg` - Specific cryptographic algorithm.  E.g. `"ES256"`
-- `iat` - Time of message signature. E.g. `1623132000`
-- `tmb` - Thumbprint of the signature's key..  E.g. `"cLj8vs..."`
-- `typ` - Type of `pay`.
+- `alg` - Specific cryptographic algorithm.   E.g. `"ES256"`
+- `iat` - Unix time of message signature.     E.g. `1623132000`
+- `tmb` - Thumbprint of the signature's key.  E.g. `"cLj8vs..."`
+- `typ` - Type of `pay`.                      E.g. `"cyphr.me/msg"`
 
 `typ`'s value may be used by applications as desired.  The value is recommended
 to denote API information such as versioning, expected fields, and/or other
 application defined programmatic functions.  In the first example,
 `"typ":"cyphr.me/msg"` denotes a `pay` with the fields
-`["msg","alg","iat","tmb","typ"]` as defined by the application.
+`["msg","alg","iat","tmb","typ"]` as defined by an application.
 
 
 ## Coze Key
@@ -85,15 +85,15 @@ application defined programmatic functions.  In the first example,
 ```
 
 ### `key` Standard Fields
-- `key` - Key object.  E.g. `"key":{"alg":"ES256", ...}`
-- `alg` - Algorithm.  E.g. `"ES256"`
-- `d`   - Private component.  E.g. `"bNstg4..."`
-- `iat` - "Issued at", When the key was created.  E.g. `1623132000`
-- `kid` - "Key identifier", Human readable, non-programmatic label.  E.g. `"kid":"My Cyphr.me Key"`. 
-- `tmb` - Thumbprint.  E.g. `"cLj8vs..."`
-- `x`   - Public component.  E.g. `"2nTOaF..."`.
-- `typ` - "Type", Application defined label.  E.g. `"cyphr.me/key"`
-- `rvk` - "Revoke", time of key revocation.  See the `rvk` section.  E.g. `1623132000`
+- `key` - Key object.                                     E.g. `"key":{"alg":"ES256", ...}`
+- `alg` - Algorithm.                                      E.g. `"ES256"`
+- `d`   - Private component.                              E.g. `"bNstg4..."`
+- `iat` - "Issued at", Key creation Unix time.            E.g. `1623132000`
+- `kid` - "Key identifier", Non-programmatic label.       E.g. `"kid":"My Cyphr.me Key"`. 
+- `tmb` - Thumbprint.                                     E.g. `"cLj8vs..."`
+- `x`   - Public component.                               E.g. `"2nTOaF..."`.
+- `typ` - "Type", Application defined label.              E.g. `"cyphr.me/key"`
+- `rvk` - "Revoke", Key revocation Unix time.             E.g. `1623132000`
 
 Note that the private component `d` is not included in `tmb` generation.   Also
 note that `kid` must not be used programmatically while `typ` may be used
@@ -119,12 +119,12 @@ The JSON name `coze` may be used to wrap a coze.
 ```
 
 ### `coze` Standard Fields
-- `coze` (Coze)         Coze object.                E.g. `{"coze":{"pay":..., sig:...}}`
-- `can`  (Canon)        Canon of `pay`.             E.g. `["alg","iat","tmb","typ"]`
-- `cad`  (Canon digest) Digest of `pay`.            E.g. `"LSgWE4v..."`
-- `czd`  (Coze digest)  Digest of `["cad","sig"]`.  E.g. `d0ygwQ...`
-- `pay`  (Payload)      Pay object.                 E.g. `"pay":{"alg":...}`
-- `sig`  (Signature)    Signature over `cad`.       E.g. `"sig":"ywctP6..."`
+- `coze` "Coze"         Coze object.                E.g. `{"coze":{"pay":..., sig:...}}`
+- `can`  "Canon"        Canon of `pay`.             E.g. `["alg","iat","tmb","typ"]`
+- `cad`  "Canon digest" Digest of `pay`.            E.g. `"LSgWE4v..."`
+- `czd`  "Coze digest"  Digest of `["cad","sig"]`.  E.g. `d0ygwQ...`
+- `pay`  "Payload"      Signed payload.             E.g. `"pay":{"alg":...}`
+- `sig`  "Signature"    Signature over `cad`.       E.g. `"sig":"ywctP6..."`
 
 `sig` is the signature over the bytes of `cad`.  `cad` is not rehashed before
 signing. `czd`'s hashing algorithm must align with `alg` in `pay`.  `czd` refers
@@ -203,7 +203,7 @@ fields not appearing in the canon, ordering remaining fields by appearance in
 the canon, and eliding unnecessary whitespace.  The canonical form is serialized
 into UTF-8 for signing, verification, and hashing.
 
-Generation steps for the canonical form:
+Canonical form generation steps:
 
  - Omit fields not present in canon.
  - Order fields by canon.
@@ -276,10 +276,9 @@ to upload a file to a user's account.
 
 
 ## Revoke
-A Coze key may be revoked by signing a self-revoke coze.  A self-revoke coze has
-the field `rvk` with an integer value greater than `0`.  For example, the
-integer value `1` is suitable to denote revocation.  A Unix timestamp of
-revocation is the suggested value for `rvk`.
+A Coze key may be revoked by signing a coze containing the field `rvk` with an
+integer value greater than `0`. The integer value `1` is suitable to denote
+revocation and the current Unix timestamp is the suggested value.
 
 ### Example Self Revoke
 ```JSON
@@ -296,20 +295,20 @@ revocation is the suggested value for `rvk`.
 }
 ```
 
-- `rvk` - Unix timestamp of when the key was revoked.
+- `rvk` - Unix timestamp of key expiry.
 
 Coze explicitly defines a self-revoke method so that third parties may revoke
 leaked keys. Systems storing Coze keys should provide an interface permitting a
-given Coze key to be marked as revoked by receiving a self-revoke message.
-Self-revokes with future times must immediately be considered as revoked.
+given Coze key to be marked as expired by receiving a self-revoke message.
+Self-revokes with future times must immediately be considered as expired.
 
-`rvk` must and `iat` should be a positive integer less than 2^53 – 1
+`rvk` and `iat` must be a positive integer less than 2^53 – 1
 (9,007,199,254,740,991), which is the integer precision limit specified by
 IEEE754 minus one. Revoke checks must error if `rvk` is not an integer or larger
 than 2^53 - 1.
 
-Key expiration policies, key rotation, and alternative revocation methods are
-outside the scope of Coze.
+Key expiration policies, key rotation, backdating, and alternative revocation
+methods are outside the scope of Coze.
 
 
 ## Alg
@@ -325,12 +324,12 @@ cryptographic operations.
 - HashSize:     32 
 - HashSizeB64:  43
 - XSize:        64
-- XSize64:      86
+- XSizeB64:     86
 - DSize:        32
-- DSize64:      43
+- DSizeB64:     43
 - Curve:        P-256
 - SigSize:      64
-- SigSize64:    86
+- SigSizeB64:   86
 
 ### Supported Algorithms 
 - ES224
@@ -353,10 +352,9 @@ Verifier][Verifier_simple] that has the minimal
 amount of code needed for a basic Coze application.
 Its [codebase is in the Cozejs repo][CozeJSVerifier] and may be locally hosted.
 
-## CozeCLI
-See the [Coze CLI repository][CozeCLI].
 
 ## Coze Implementations
+ - [Coze CLI repository][CozeCLI].
  - [Go Coze (this repo)][Coze]
  - [CozeJS (Javascript)][CozeJS]
 
@@ -437,18 +435,15 @@ than to fix a large standard. Coze can be extended and customized for individual
 applications. 
 
 #### Is Coze versioned?
-`alg` refers to a specific set of parameters for all operations.  If an
+`alg` refers to a specific set of parameters for all operations and Coze Core
+"versioning" is accomplished by noting specific algorithm support.  If an
 operation needs a different parameter set, `alg` itself must denote the
-difference.
-
-Implementation releases themselves are versioned. The hope for the specification
-"Coze Core" stays simple and stable enough to preclude versioning. Instead, Coze
-Core "versioning" will be accomplished by noting specific algorithm support.
-Versioning by feature permits Coze implementations to support a subset of
-features while remaining Coze compliant.  In this way libraries may remain
-spartan and avoid feature bloat. Further expansions on Coze may be included in
-"Coze Standard". Further draft, proposals, and extended algorithm support are
-planned in "Coze Experimental".
+difference.  `alg` permits Coze implementations to support a subset of features
+while remaining Coze compliant.  The specification hopes to stay simple and
+stable enough to preclude versioning, however we suspect further tweaks are
+probably warranted, so a long alpha and beta time is planned.  Extension to Coze
+are defined by [CozeX][Cozex] so implementations avoid feature bloat.
+Implementation releases themselves are versioned. 
 
 #### Why does `pay` have cryptographic components?
 Coze's `pay` includes all payload information, a design we've dubbed a "fat
@@ -682,10 +677,10 @@ Coze was created by [Cyphr.me](https://cyphr.me).
  - We have a bridged Matrix and Telegram chat room.  (This is where we are the most active) 
 	- Matrix: https://app.element.io/#/room/#cyphrmepub:matrix.org
 	- PM zamicol for our bridged Telegram group.
- - https://twitter.com/CozeJSON
  - We also hang out in the Go rooms:
    - https://app.element.io/#/room/#go-lang:matrix.org
    - https://t.me/+TgkdqZw0Q-jAkGWS
+ - https://twitter.com/CozeJSON
  - https://old.reddit.com/r/CozeJson
 
 #### Other Resources
@@ -695,7 +690,7 @@ Coze was created by [Cyphr.me](https://cyphr.me).
  - Coze Table links: https://docs.google.com/document/d/15_1R7qwfCf-Y3rTamtYS_QXuoTSNrOwbIRopwmv4KOc
 
 #### Keywords
-Coze JSON alg iat tmb typ rvk kid d x coze pay key can cad czd sig Cryptography Crypto authentication auth login hash digest signature Cypherpunk Cyphrme Ed25519 Ed25519ph ES224 ES256 ES384 ES512 SHA-224 SHA-256 SHA-384 SHA512 JOSE JWS JWE JWK JWT PASETO PASERK signify ssh SSHSIG PGP Bitcoin Ethereum base64 b64ut
+Coze JSON alg iat tmb typ rvk kid d x coze pay key can cad czd sig cryptography crypto authentication auth login hash digest signature Cypherpunk Cyphrme Ed25519 Ed25519ph ES224 ES256 ES384 ES512 SHA-224 SHA-256 SHA-384 SHA512 JOSE JWS JWE JWK JWT PASETO PASERK signify ssh SSHSIG PGP Bitcoin Ethereum base64 b64ut SQRL
 
 
 ----------------------------------------------------------------------
