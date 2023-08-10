@@ -394,34 +394,26 @@ chat" which is the perfect name for a messaging standard.
 We use upper case "Coze" to refer to the specification, and "coze"/"cozies" to
 refer to messages.
 
-#### Why release pre-alpha on 2021/06/08?
-Coze was released on 2021/06/08 (1623132000) since it's 30 years and one day
-after the initial release of PGP 1.0.  We wrote a blog with more [details of
-Coze's
-genesis](https://cyphr.me/md/xlA-MSFwPxmWED4ZcNdxUy8OA22UPiLWlGQUQik8DwY).
-
 # What is Coze useful for?
 Coze's applications are endless as Coze is useful for anything needing
-cryptographic signing. Coze is deployed in various business applications such as
-user authentication (user login), authorization, product tracking, user
-comments, user votes, chain of custody, Internet of things (IoT), sessions, and
-cookies.
+cryptographic signing. Coze is deployed in various applications such as user
+authentication (user login), authorization, product tracking, user comments,
+user votes, chain of custody, Internet of things (IoT), sessions, and cookies.
 
-As a timely example, reddit.com/u/spez, the CEO of Reddit, [edited people's
-comments on
-Reddit.](https://www.theverge.com/2016/11/23/13739026/reddit-ceo-steve-huffman-edit-comments)
-Coze stops that.  Coze signed messages are impossible to edit by third parties.
+As a timely example the CEO of Reddit (reddit.com/u/spez) [edited people's
+comments.](https://www.theverge.com/2016/11/23/13739026/reddit-ceo-steve-huffman-edit-comments)
+Messages signed by Coze prevents tampering by third parties.
 
 #### ASCII/Unicode/UTF-8/UTF-16 and Ordering?
-Although JSON was designed in a Javascript (UTF-16) context, the latest JSON RFC
-requires UTF-8 encoding, a decision that was made because all significant
-existing implementations used UTF-8.  Unicode is a superset of ASCII and UTF-8
-shares sorting order with Unicode. This results in broad, out of the box
-compatibility. Object field order may be denoted by a canon, chaining normal, or
-communicate ordering via other means.  If applications need sorted fields,
-UTF-8/Unicode order is suggested.  Note that UTF-16 (Javascript) has some code
-points out of order and for those systems a small amount of additional logic is
-needed to correct ordering.
+Even though Javascript uses UTF-16 and JSON was designed in a Javascript
+context, JSON implementations rejected the problematic UTF-16, which has some
+code points out of order, in favor of UTF-8.  Requiring JSON UTF-8 encoding was
+formalized by the [JSON RFC 8259 section 8.1][RFC8259-8.1].  Unicode, ASCII, and
+UTF-8 all share sorting order.  
+
+Object field order may be denoted by a canon, [chaining normals][Normal], or
+communicate ordering via other means. 
+
 
 #### Binary? Why not support binary payloads?
 JSON isn't well designed for large binary payloads.  Instead, Coze suggests
@@ -514,7 +506,7 @@ the example key "cLj8vs".
 }
 ```
 
-#### UTF-8 and B64UT (RFC Base 64 URI canonical Truncated) Encoding
+#### UTF-8 and b64ut (RFC base 64 URI canonical truncated) Encoding
 [Canonical base 64][RFC6468Canonical] (sometimes called "strict") encoding is
 required and non-strict encoding of both b64ut and UTF-8 must error.   For the
 initial reason for why Coze uses b64ut see [base64.md][base64.md].
@@ -655,7 +647,6 @@ See also I-JSON and JSON5
  - [RFC 7493 (2015, Bray)][RFC7493]
  - [JSON5][JSON5]
 
-
 #### HTTP?  HTTP Cookies?  HTTP Headers?
 When using Coze with HTTP cookies, Coze messages should be JSON minified.  For
 example, we've encountered no issues using the first example as a cookie:
@@ -665,6 +656,12 @@ token={"pay":{"msg":"Coze Rocks","alg":"ES256","iat":1623132000,"tmb":"cLj8vsYtM
 ```
 
 For more considerations see [http_headers.md][http_headers]
+
+#### Why release pre-alpha on 2021/06/08?
+Coze was released on 2021/06/08 (1623132000) since it's 30 years and one day
+after the initial release of PGP 1.0.  We wrote a blog with more [details of
+Coze's
+genesis](https://cyphr.me/md/xlA-MSFwPxmWED4ZcNdxUy8OA22UPiLWlGQUQik8DwY).
 
 #### Signature Malleability?
 Coze prohibits signature malleability.  See
@@ -731,13 +728,14 @@ reserved Cypherpunk, LLC and may not be used without permission.
 
 [RFC4648]: https://datatracker.ietf.org/doc/html/rfc4648
 
-[RFC8259]: https://datatracker.ietf.org/doc/html/rfc8259
-[RFC7159]: https://datatracker.ietf.org/doc/html/rfc7159
-[RFC7158]: https://datatracker.ietf.org/doc/html/rfc7158
-[RFC4627]: https://datatracker.ietf.org/doc/html/rfc4627
-[RFC7493]: https://datatracker.ietf.org/doc/html/rfc7493
-[JSON5]:   https://github.com/json5/json5-spec
-[FIPS]:    https://csrc.nist.gov/publications/fips
+[RFC8259]:     https://datatracker.ietf.org/doc/html/rfc8259
+[RFC8259-8.1]: https://datatracker.ietf.org/doc/html/rfc8259#section-8.1
+[RFC7159]:     https://datatracker.ietf.org/doc/html/rfc7159
+[RFC7158]:     https://datatracker.ietf.org/doc/html/rfc7158
+[RFC4627]:     https://datatracker.ietf.org/doc/html/rfc4627
+[RFC7493]:     https://datatracker.ietf.org/doc/html/rfc7493
+[JSON5]:       https://github.com/json5/json5-spec
+[FIPS]:        https://csrc.nist.gov/publications/fips
 
 
 
