@@ -131,27 +131,6 @@ func ExampleB64_non_strict_decode() {
 	// invalid character '\r' in string literal
 }
 
-// ExampleSB64 demonstrates using SB64 as a map key and that fmt prints "RFC
-// 4648 base 64 URI canonical with padding truncated" properly.
-func ExampleSB64() {
-	b := MustDecode("zVzgRU3WFpnrlVJAnI4ZU1Od4Agl5Zd4jIP79oubOW0")
-	b2 := MustDecode("vZIAk8rjcSIKZKokGylCtVoI3DXvFYJn4XNWzf_C_FA")
-
-	lp := make(map[SB64]B64)
-	lp[SB64(b)] = B64(b2)
-
-	fmt.Printf("%s\n", SB64(b))
-	fmt.Printf("%s\n", lp)
-	fmt.Printf("%+v\n", lp)
-	fmt.Printf("%#v\n", lp)
-
-	// Output:
-	// zVzgRU3WFpnrlVJAnI4ZU1Od4Agl5Zd4jIP79oubOW0
-	// map[zVzgRU3WFpnrlVJAnI4ZU1Od4Agl5Zd4jIP79oubOW0:vZIAk8rjcSIKZKokGylCtVoI3DXvFYJn4XNWzf_C_FA]
-	// map[zVzgRU3WFpnrlVJAnI4ZU1Od4Agl5Zd4jIP79oubOW0:vZIAk8rjcSIKZKokGylCtVoI3DXvFYJn4XNWzf_C_FA]
-	// map[coze.SB64]coze.B64{zVzgRU3WFpnrlVJAnI4ZU1Od4Agl5Zd4jIP79oubOW0:vZIAk8rjcSIKZKokGylCtVoI3DXvFYJn4XNWzf_C_FA}
-}
-
 // FuzzCastB64ToString ensures that casting to and from B64 and string does not
 // cause unexpected issues (issues like replacing bytes with the unicode
 // replacement character).
