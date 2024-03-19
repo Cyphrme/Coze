@@ -404,15 +404,7 @@ As a timely example the CEO of Reddit (reddit.com/u/spez) [edited people's
 comments.](https://www.theverge.com/2016/11/23/13739026/reddit-ceo-steve-huffman-edit-comments)
 Messages signed by Coze prevents tampering by third parties.
 
-#### ASCII/Unicode/UTF-8/UTF-16 and Ordering?
-Even though Javascript uses UTF-16 and JSON was designed in a Javascript
-context, JSON implementations rejected the problematic UTF-16, which has some
-code points out of order, in favor of UTF-8.  Requiring JSON UTF-8 encoding was
-formalized by the [JSON RFC 8259 section 8.1][RFC8259-8.1].  Unicode, ASCII, and
-UTF-8 all share sorting order.  
 
-Object field order may be denoted by a canon, [chaining normals][Normal], or
-communicate ordering via other means. 
 
 
 #### Binary? Why not support binary payloads?
@@ -511,7 +503,7 @@ the example key "cLj8vs".
 required and non-strict encoding of both b64ut and UTF-8 must error.   For the
 initial reason for why Coze uses b64ut see [base64.md][base64.md].
 
-#### Why not PGP/OpenSSL/LibreSSL/SSHSIG/libsodium/JOSE(JWT)/COSE/etc...?
+#### Why not PGP/OpenSSL/LibreSSL/SSHSIG/libsodium/JOSE(JWT)/COSE/etc...?  How does Coze compare with prior arts?
 We respect the various projects in the space.  Other projects have noble goals
 and we're thankful they exist.  Coze is influenced by ideas from many others.
 However existing solutions were not meeting our particular needs so we created
@@ -553,6 +545,23 @@ dubbed this a "tilde encapsulated payload". For example:
 	}
 }
 ```
+
+#### ASCII/Unicode/UTF-8/UTF-16 and Ordering?
+Even though Javascript uses UTF-16 and JSON was designed in a Javascript
+context, JSON implementations rejected the problematic UTF-16, which has some
+code points out of order, in favor of UTF-8.  Requiring JSON UTF-8 encoding was
+formalized by the [JSON RFC 8259 section 8.1][RFC8259-8.1].  Unicode, ASCII, and
+UTF-8 all share sorting order.  
+
+Although JSON arrays are defined as ordered, JSON objects are defined as
+unordered.  How is `pay`, an unordered JSON object, signed when signing requires
+a static representation? [UTF-8 is the explicitly defined serialization for
+JSON][RFC8259-8.1]. Coze's signing and verification operations are not over
+abstract JSON, but rather the concrete UTF-8.  Coze marshals JSON into UTF-8
+before signing, and Coze verifies UTF-8 before unmarshalling into JSON.  
+
+Additionally, object field order may be denoted by `can`, [chaining
+normals][Normal], or communicate via other means. 
 
 #### Where does the cryptography come from?
 Much of this comes from [NIST FIPS][FIPS].
