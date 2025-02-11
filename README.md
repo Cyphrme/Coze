@@ -31,6 +31,8 @@
 3. Limited scope
 4. Providing defined cipher suites
 
+See also [the Coze philosophy](#the-coze-philosophy-of-abstraction)
+
 ### Coze Fields
 Coze defines standard fields for the objects pay, key, and coze. Applications
 may include additional fields as desired. While all fields are optional,
@@ -38,7 +40,7 @@ omitting standard fields may limit compatibility. Binary values are encoded as
 [RFC 4648 base 64 URI canonical with padding truncated][RFC4648] (b64ut). JSON
 components are serialized into UTF-8 for signing, verification, and hashing. All
 JSON fields must be unique, and unmarshalling JSON with duplicate fields must
-result in an error.
+result in an error. All timestamp values are suggested to be Unix time (UTC).
 
 #### All Coze Standard Fields
 ![Coze Standard Fields](docs/img/coze_standard_fields.png)
@@ -394,7 +396,7 @@ chat" which is the perfect name for a messaging standard.
 We use upper case "Coze" to refer to the specification, and "coze"/"cozies" to
 refer to messages.
 
-# What is Coze useful for?
+### What is Coze useful for?
 Coze's applications are endless as Coze is useful for anything needing
 cryptographic signing. Coze is deployed in various applications such as user
 authentication (user login), authorization, product tracking, user comments,
@@ -405,6 +407,76 @@ comments.](https://www.theverge.com/2016/11/23/13739026/reddit-ceo-steve-huffman
 Messages signed by Coze prevents tampering by third parties.
 
 
+## The Coze Philosophy of Abstraction
+Providing a cryptographic abstraction layer is a key feature of Coze. Coze
+provides gentle standardization that increases compatibility across various
+systems. In this way, Coze is like a simple cryptographic programming language,
+allowing projects to "speak the same language". A much larger strategic benefit
+is that Coze decouples projects from underlying cryptographic primitives. If
+problems are discovered with particular primitives, decoupled architecture is
+simple to change while tightly coupled architecture can be extremely difficult
+to alter.
+
+A prevalent limitation many cryptographic projects face is that they are
+rigidly tied to single primitives. It's hard to overstate the significance of
+this problem. 
+
+Coze takes [Bruce Schneier's](https://www.schneier.com/blog/archives/2022/08/nists-post-quantum-cryptography-standards.html) advice seriously:
+
+> It's not enough to implement a single standard; it's vital that our systems be
+able to easily swap in new algorithms when required. We've learned the hard way
+how algorithms can get so entrenched in systems that it can take many years to
+update them: in the transition from DES to AES, and the transition from MD4 and
+MD5 to SHA, SHA-1, and then SHA-3. 
+
+The consequences of rigidly tying primitives for cryptographic projects are:
+
+ - **Compatibility** - Projects are frequently incompatible because they use
+	 different primitives.
+ - **Standardization** - Even when projects use the same primitives,
+	 implementations vary widely across the industry, leading to incompatibility
+	 between systems.
+- **Implementation** - Projects frequently implement primitives directly
+	resulting in redundant codebases.
+ - **Decoupling** - It is very difficult, if not impossible, for projects to
+	 replace broken or problematic primitives.
+
+Coze provides a standardized abstraction layer, eliminating significant
+redundant effort of implementation, resolving compatibility conflicts,
+establishing implementation standards, and providing the flexibility to use
+various primitives as needed.
+
+##### The Debt of Inflexibility
+The cost of tight coupling to cryptographic primitives has been demonstrated
+repeatedly throughout the industry.  
+
+**Git** - Git was tightly coupled to the questionably secure SHA1 in 2005.
+Upgrading to SHA2 has been a herculean effort requiring many years to implement,
+which is still ongoing in 2025, 20 years later.
+
+**SSL/TLS** prior to TLS 1.2 - When MD5 and SHA1 weaknesses were discovered, it
+required major protocol revisions rather than simple primitive substitution.
+
+**Bitcoin** - Bitcoin is tightly coupled to SHA256, ES256k, and RIPEMD for its
+proof-of-work and transaction verification. While ES256k remains secure, if
+quantum computers eventually threaten it, transitioning would be extremely
+challenging.
+
+**PGP/GPG** - When MD5 was broken, transitioning to newer algorithms required
+significant protocol changes and caused compatibility issues between versions.
+
+**DNSSEC** - Transitioning from RSA and SHA1 to newer algorithms like ECDSA and
+SHA2 required protocol extensions and complex transition mechanisms.
+
+**WPA2** - WPA2 was tightly coupled to RC4 and AES in specific modes. When
+vulnerabilities were found (like KRACK), updating the protocol was complex.
+
+Tight coupling to cryptographic primitives creates significant technical debt
+that becomes increasingly expensive to address over time. Quantum computing and
+other security threats require the ability to adapt cryptographic systems
+quickly. Coze aims to, as an intentional byproduct of standardization, prevent
+projects from accumulating this kind of debt, ensuring they remain adaptable to
+future cryptographic needs.
 
 
 #### Binary? Why not support binary payloads?
@@ -412,6 +484,53 @@ JSON isn't well designed for large binary payloads.  Instead, Coze suggests
 including the digest of a binary file in a coze message while transporting the
 binary separately. There's nothing stopping an application from base 64 encoding
 a binary for transport, although it's not recommended.
+
+#### How Should I Handle Large Text Messages?
+JSON is not ideal for arbitrary text due to escaping, which increases the
+size of arbitrary text and makes human readability difficult. Instead of signing
+text embedded in a JSON field like `msg`, consider hashing the text, signing its
+digest, and transporting the message separately. We consider signing digests
+instead of large messages a best practice, although it may add some complexity
+to services.  
+
+The following example, which signs a portion of this README, isn't ergonomic.
+
+```JSON
+{
+"alg": "ES256",
+"iat": 1623132000,
+"msg": "# Coze \n**Coze** is a cryptographic JSON messaging specification.\n\n[Try Coze out!](https://cyphr.me/coze)",
+"tmb": "cLj8vsYtMBwYkzoFVZHBZo6SNL8wSdCIjCKAwXNuhOk",
+"typ": "cyphr.me/msg/create"
+}
+```
+
+The SHA-256 digest (which aligns with an `alg` of ES256) of the message gives
+`4FO2pB9yGxo8BBW2whULqbL5m7eAfUWOkvgQu7-9h08`, which is then signed.
+
+```JSON
+{
+"alg": "ES256",
+"iat": 1623132000,
+"dig": "4FO2pB9yGxo8BBW2whULqbL5m7eAfUWOkvgQu7-9h08",
+"tmb": "cLj8vsYtMBwYkzoFVZHBZo6SNL8wSdCIjCKAwXNuhOk",
+"typ": "cyphr.me/msg/dig/create"
+}
+```
+
+Like binary, the text is transported independently of the JSON Coze payload.  
+
+```md
+# Coze 
+**Coze** is a cryptographic JSON messaging specification.
+
+[Try Coze out!](https://cyphr.me/coze)
+```
+
+The coze not only digitally signs the message, but also the digest integrity
+protects its value.  An additional benefit of this method is that coze
+signatures are guaranteed to remain a small, constant size regardless of the
+size of the input text.  
 
 #### Why is Coze's scope so limited?
 Coze is intentionally scope limited.  It is easier to extend a limited standard
@@ -460,9 +579,13 @@ For applications, `pay.typ` may denote a canon.  For example, a `typ` with value
 "msg", "tmb", "typ"].  The service may reject a coze that's not canonicalized as
 expected.  For example, the service might reject cozies missing `iat`.
 
-`Key.tmb` ignores `key.typ` because a static canon, `["alg","x"]` is always used
-when producing key's `tmb`. Like `typ` in `pay`, applications may use `key.typ`
-to specify custom fields, e.g. "first_seen" or "account_id" and field order. 
+Like `typ` in `pay`, applications may use `key.typ` to specify custom fields
+(e.g., "first_seen" or "account_id") and field order.
+
+`Key.tmb` ignores `key.typ` because `alg` serves as the key's `typ` so the
+static canon, `["alg","x"]`, is sufficient.  Using `alg` in the generation of
+`tmb` ensures the impossibility of algorithms producing colliding thumbprints
+(where one algorithm could produce `x` values colliding with other algorithms).  
 
 #### ECDSA `x` and `sig` Bytes.
 For ECDSA , (X and Y) and (R and S) are concatenated for `x` and `sig`
@@ -593,14 +716,6 @@ Coze does not currently support encryption.  If or when it ever does it would be
 similar to or simply complement [age](https://github.com/FiloSottile/age).
 
 #### Why define algorithms?
->It’s not enough to implement a single standard; it’s vital that our systems be
-able to easily swap in new algorithms when required. We’ve learned the hard way
-how algorithms can get so entrenched in systems that it can take many years to
-update them: in the transition from DES to AES, and the transition from MD4 and
-MD5 to SHA, SHA-1, and then SHA-3.
-
--- [Bruce Schneier](https://www.schneier.com/blog/archives/2022/08/nists-post-quantum-cryptography-standards.html)
-
 Coze's design is generalized and not overly coupled to any single primitive.
 Because of this, applications that use Coze can easy upgrade cryptographic
 primitives. Using a single primitive is perfectly fine, but tightly coupling
