@@ -1,11 +1,14 @@
 [![pkg.go.dev][GoBadge]][GoDoc]
-#### ⚠️ Coze is in alpha.  We appreciate feedback and contributions.  Use at your own risk.
+
 
 ![Coze][CozeLogo]
 
 
 # Coze 
-**Coze** is a cryptographic JSON messaging specification.
+**Coze** is a cryptographic JSON messaging specification that uses digital
+signatures and hashes to ensure secure, human-readable, and interoperable
+communication.
+
 
 [Try Coze out!](https://cyphr.me/coze)
 
@@ -339,7 +342,8 @@ cryptographic operations.
 - ES384
 - ES512
 - Ed25519 
-- Ed25519ph (planned)
+- Ed25519ph
+- ES256k
 
 
 ## Coze Verifier
@@ -860,6 +864,8 @@ reserved Cypherpunk, LLC and may not be used without permission.
 [RFC7493]:     https://datatracker.ietf.org/doc/html/rfc7493
 [JSON5]:       https://github.com/json5/json5-spec
 [FIPS]:        https://csrc.nist.gov/publications/fips
+
+Coze is released as open source software.  Use at your own risk.  
 
 
 
