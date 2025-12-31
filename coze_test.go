@@ -533,3 +533,36 @@ func Example_now_rvk_too_big() {
 	// Pay.UnmarshalJSON: values for now and rvk must be between 0 and 2^53 - 1
 	// {"rvk":9007199254740991}
 }
+
+// Example demonstrating RVK_MAX_SIZE enforcement for revoke messages.
+func Example_rvk_max_size() {
+	// Save original and restore after test.
+	original := RVK_MAX_SIZE
+	defer func() { RVK_MAX_SIZE = original }()
+
+	// Set a very small limit for testing.
+	RVK_MAX_SIZE = 50
+
+	// A revoke payload that exceeds the limit.
+	p := &Pay{}
+	oversized := []byte(`{"alg":"ES256","now":1623132000,"rvk":1623132000,"tmb":"U5XUZots-WmQYcQWmsO751Xk0yeVi9XUKWQ2mGz6Aqg"}`)
+	err := json.Unmarshal(oversized, p)
+	fmt.Println(err)
+
+	// A normal (non-revoke) payload of the same size should succeed.
+	p2 := &Pay{}
+	normal := []byte(`{"alg":"ES256","now":1623132000,"tmb":"U5XUZots-WmQYcQWmsO751Xk0yeVi9XUKWQ2mGz6Aqg","typ":"cyphr.me/msg"}`)
+	err = json.Unmarshal(normal, p2)
+	fmt.Println(err)
+
+	// Setting RVK_MAX_SIZE to 0 disables the limit.
+	RVK_MAX_SIZE = 0
+	p3 := &Pay{}
+	err = json.Unmarshal(oversized, p3)
+	fmt.Println(err)
+
+	// Output:
+	// Pay.UnmarshalJSON: revoke message size 101 exceeds RVK_MAX_SIZE 50
+	// <nil>
+	// <nil>
+}

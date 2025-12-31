@@ -143,6 +143,11 @@ func (cz *Coze) UnmarshalJSON(b []byte) error {
 // CzdCanon is the canon for a `czd`.
 var CzdCanon = []string{"cad", "sig"}
 
+// RVK_MAX_SIZE is the maximum allowed payload size in bytes for revoke
+// messages. This limit prevents denial-of-service attacks using oversized
+// revoke payloads. Set to 0 to disable the limit. Default is 2048 bytes.
+var RVK_MAX_SIZE = 2048
+
 const maxSafeInteger = 9007199254740991
 
 // GenCzd generates and returns `czd`.
@@ -243,6 +248,11 @@ func (p *Pay) UnmarshalJSON(b []byte) error {
 
 	if p2.Now > maxSafeInteger || p2.Rvk > maxSafeInteger || p2.Now < 0 || p2.Rvk < 0 {
 		return fmt.Errorf("Pay.UnmarshalJSON: values for now and rvk must be between 0 and 2^53 - 1")
+	}
+
+	// Enforce revoke message max size to prevent DoS attacks.
+	if p2.Rvk > 0 && RVK_MAX_SIZE > 0 && len(b) > RVK_MAX_SIZE {
+		return fmt.Errorf("Pay.UnmarshalJSON: revoke message size %d exceeds RVK_MAX_SIZE %d", len(b), RVK_MAX_SIZE)
 	}
 
 	*p = *(*Pay)(p2)
