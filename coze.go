@@ -1,5 +1,5 @@
 /*
-Package coze, see the README at https://github.com/Cyphrme/Coze
+Package coz, see the README at https://github.com/Cyphrme/Coze
 
 This library exports some functions that may be helpful for other applications,
 but should not be considered apart of the Coze specification API.
@@ -11,10 +11,10 @@ but should not be considered apart of the Coze specification API.
   - MarshalPretty
 
 Other auxiliary types and functions, like B64, are reasonable exports for
-package Coze, especially since compatible implementations are absent from the Go
+package coz, especially since compatible implementations are absent from the Go
 standard library.
 */
-package coze
+package coz
 
 import (
 	"bytes"
