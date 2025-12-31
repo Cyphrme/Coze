@@ -11,7 +11,7 @@ import (
 
 var GoldenKey = Key{
 	Alg: SEAlg(ES256),
-	Kid: "Zami's Majuscule Key.",
+	Tag: "Zami's Majuscule Key.",
 	Now: 1623132000,
 	X:   MustDecode("2nTOaFVm2QLxmUO_SjgyscVHBtvHEfo2rq65MvgNRjORojq39Haq9rXNxvXxwba_Xj0F5vZibJR3isBdOWbo5g"),
 	D:   MustDecode("bNstg4_H3m3SlROufwRSEgibLrBuRq9114OvdapcpVA"),
@@ -21,7 +21,7 @@ var GoldenKey = Key{
 const GoldenKeyString = `{
 	"alg":"ES256",
 	"now":1623132000,
-	"kid":"Zami's Majuscule Key.",
+	"tag":"Zami's Majuscule Key.",
 	"d":"bNstg4_H3m3SlROufwRSEgibLrBuRq9114OvdapcpVA",
 	"tmb":"cLj8vsYtMBwYkzoFVZHBZo6SNL8wSdCIjCKAwXNuhOk",
 	"x":"2nTOaFVm2QLxmUO_SjgyscVHBtvHEfo2rq65MvgNRjORojq39Haq9rXNxvXxwba_Xj0F5vZibJR3isBdOWbo5g"
@@ -33,7 +33,7 @@ const GoldenKeyString = `{
 // and may decode to the same byte string.
 var GoldenKeyBadD = Key{
 	Alg: SEAlg(ES256),
-	Kid: "GoldenKeyBadD",
+	Tag: "GoldenKeyBadD",
 	Now: 1623132000,
 	X:   MustDecode("2nTOaFVm2QLxmUO_SjgyscVHBtvHEfo2rq65MvgNRjORojq39Haq9rXNxvXxwba_Xj0F5vZibJR3isBdOWbo5g"),
 	D:   MustDecode("bNstg4_H3m3SlROufwRSEgibLrBuRq9114OvdapcpVE"),
@@ -44,7 +44,7 @@ var GoldenKeyBadD = Key{
 // "5w") , making it invalid. See documentation on GoldenKeyBadD.
 var GoldenKeyBadX = Key{
 	Alg: SEAlg(ES256),
-	Kid: "GoldenKeyBadX",
+	Tag: "GoldenKeyBadX",
 	Now: 1623132000,
 	X:   MustDecode("2nTOaFVm2QLxmUO_SjgyscVHBtvHEfo2rq65MvgNRjORojq39Haq9rXNxvXxwba_Xj0F5vZibJR3isBdOWbo5w"),
 	D:   MustDecode("bNstg4_H3m3SlROufwRSEgibLrBuRq9114OvdapcpVE"),
@@ -113,7 +113,7 @@ func ExampleKey_String() {
 	fmt.Printf("%s\n", GoldenKey)
 
 	// Output:
-	// {"alg":"ES256","d":"bNstg4_H3m3SlROufwRSEgibLrBuRq9114OvdapcpVA","now":1623132000,"kid":"Zami's Majuscule Key.","tmb":"cLj8vsYtMBwYkzoFVZHBZo6SNL8wSdCIjCKAwXNuhOk","x":"2nTOaFVm2QLxmUO_SjgyscVHBtvHEfo2rq65MvgNRjORojq39Haq9rXNxvXxwba_Xj0F5vZibJR3isBdOWbo5g"}
+	// {"alg":"ES256","d":"bNstg4_H3m3SlROufwRSEgibLrBuRq9114OvdapcpVA","now":1623132000,"tag":"Zami's Majuscule Key.","tmb":"cLj8vsYtMBwYkzoFVZHBZo6SNL8wSdCIjCKAwXNuhOk","x":"2nTOaFVm2QLxmUO_SjgyscVHBtvHEfo2rq65MvgNRjORojq39Haq9rXNxvXxwba_Xj0F5vZibJR3isBdOWbo5g"}
 }
 
 // ExampleKey_jsonUnmarshal tests unmarshalling a Coze key.
@@ -126,7 +126,7 @@ func ExampleKey_jsonUnmarshal() {
 	fmt.Printf("%+v\n", Key)
 
 	// Output:
-	//{"alg":"ES256","d":"bNstg4_H3m3SlROufwRSEgibLrBuRq9114OvdapcpVA","now":1623132000,"kid":"Zami's Majuscule Key.","tmb":"cLj8vsYtMBwYkzoFVZHBZo6SNL8wSdCIjCKAwXNuhOk","x":"2nTOaFVm2QLxmUO_SjgyscVHBtvHEfo2rq65MvgNRjORojq39Haq9rXNxvXxwba_Xj0F5vZibJR3isBdOWbo5g"}
+	//{"alg":"ES256","d":"bNstg4_H3m3SlROufwRSEgibLrBuRq9114OvdapcpVA","now":1623132000,"tag":"Zami's Majuscule Key.","tmb":"cLj8vsYtMBwYkzoFVZHBZo6SNL8wSdCIjCKAwXNuhOk","x":"2nTOaFVm2QLxmUO_SjgyscVHBtvHEfo2rq65MvgNRjORojq39Haq9rXNxvXxwba_Xj0F5vZibJR3isBdOWbo5g"}
 }
 
 func ExampleKey_jsonMarshal() {
@@ -137,7 +137,7 @@ func ExampleKey_jsonMarshal() {
 	fmt.Printf("%s\n", string(b))
 
 	// Output:
-	//{"alg":"ES256","d":"bNstg4_H3m3SlROufwRSEgibLrBuRq9114OvdapcpVA","now":1623132000,"kid":"Zami's Majuscule Key.","tmb":"cLj8vsYtMBwYkzoFVZHBZo6SNL8wSdCIjCKAwXNuhOk","x":"2nTOaFVm2QLxmUO_SjgyscVHBtvHEfo2rq65MvgNRjORojq39Haq9rXNxvXxwba_Xj0F5vZibJR3isBdOWbo5g"}
+	//{"alg":"ES256","d":"bNstg4_H3m3SlROufwRSEgibLrBuRq9114OvdapcpVA","now":1623132000,"tag":"Zami's Majuscule Key.","tmb":"cLj8vsYtMBwYkzoFVZHBZo6SNL8wSdCIjCKAwXNuhOk","x":"2nTOaFVm2QLxmUO_SjgyscVHBtvHEfo2rq65MvgNRjORojq39Haq9rXNxvXxwba_Xj0F5vZibJR3isBdOWbo5g"}
 }
 
 func ExampleKey_Thumbprint() {
@@ -245,7 +245,7 @@ func ExampleKey_unmarshal() {
 	var GoldenPukNoTmb = json.RawMessage(`{
 		"alg":"ES256",
 		"now":1623132000,
-		"kid":"Zami's Majuscule Key.",
+		"tag":"Zami's Majuscule Key.",
 		"x":"2nTOaFVm2QLxmUO_SjgyscVHBtvHEfo2rq65MvgNRjORojq39Haq9rXNxvXxwba_Xj0F5vZibJR3isBdOWbo5g"
 	}`)
 	czk := new(Key)
@@ -255,7 +255,7 @@ func ExampleKey_unmarshal() {
 	}
 	fmt.Println(czk)
 	// Output:
-	//  {"alg":"ES256","now":1623132000,"kid":"Zami's Majuscule Key.","tmb":"cLj8vsYtMBwYkzoFVZHBZo6SNL8wSdCIjCKAwXNuhOk","x":"2nTOaFVm2QLxmUO_SjgyscVHBtvHEfo2rq65MvgNRjORojq39Haq9rXNxvXxwba_Xj0F5vZibJR3isBdOWbo5g"}
+	//  {"alg":"ES256","now":1623132000,"tag":"Zami's Majuscule Key.","tmb":"cLj8vsYtMBwYkzoFVZHBZo6SNL8wSdCIjCKAwXNuhOk","x":"2nTOaFVm2QLxmUO_SjgyscVHBtvHEfo2rq65MvgNRjORojq39Haq9rXNxvXxwba_Xj0F5vZibJR3isBdOWbo5g"}
 }
 
 // Example demonstrating that unmarshalling a `pay` that has duplicate field
@@ -621,7 +621,7 @@ func TestKeyTmb_nilX(t *testing.T) {
 	kb := []byte(`{
 		"alg":"ES256",
 		"now":1647357960,
-		"kid":"Cyphr.me Dev Test Key 2",
+		"tag":"Cyphr.me Dev Test Key 2",
 		"tmb":"e02u-nce-Wdc_xH4-7WRp-4Fr6pKn2oY_8SX3wdT41U"
 	}`)
 	key := new(Key)

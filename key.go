@@ -25,7 +25,7 @@ var KeyCanon = []string{"alg", "x"}
 //	`alg` - Specific key algorithm. E.g. "ES256" or "Ed25519".
 //	`d`   - Private component. E.g. "bNstg4_H3m3SlROufwRSEgibLrBuRq9114OvdapcpVA".
 //	`now` - Unix time of when the key was created. E.g. 1626069600.
-//	`kid` - Human readable, non-programmatic label. E.g. "My Coze key".
+//	`tag` - Human readable, non-programmatic label. E.g. "My Coze key".
 //	`rvk` - Unix time of key revocation. See docs on `rvk`. E.g. 1626069601.
 //	`tmb` - Key thumbprint. E.g. "cLj8vsYtMBwYkzoFVZHBZo6SNL8wSdCIjCKAwXNuhOk".
 //	`typ` - Application label for key. E.g. "coze/key".
@@ -34,7 +34,7 @@ type Key struct {
 	Alg SEAlg  `json:"alg,omitempty"`
 	D   B64    `json:"d,omitempty"`
 	Now int64  `json:"now,omitempty"`
-	Kid string `json:"kid,omitempty"`
+	Tag string `json:"tag,omitempty"`
 	Rvk int64  `json:"rvk,omitempty"`
 	Tmb B64    `json:"tmb,omitempty"`
 	Typ string `json:"typ,omitempty"`
