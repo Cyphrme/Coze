@@ -38,7 +38,7 @@ import (
 //	Cad: "Canonical Digest" Pay's compactified form digest.
 //	Sig: Signature over `cad`.
 //	Czd: "Coze digest" with canon ["cad","sig"].
-//	Parsed: The standard Coze pay fields ["alg","iat","tmb","typ"] parsed
+//	Parsed: The standard Coze pay fields ["alg","now","tmb","typ"] parsed
 //	  from `Pay`.  `Parsed` is populated by Meta() and is JSON ignored.
 type Coze struct {
 	Pay json.RawMessage `json:"pay,omitempty"`
@@ -62,8 +62,8 @@ func (cz Coze) String() string {
 }
 
 // Meta calculates [can, cad, czd] and sets Coze.Parsed
-// ["alg","iat","tmb","typ"] from Pay. Coze.Pay, Coze.Pay.Alg, and Coze.Sig must
-// be set.  Meta resets Parsed ("alg","iat","tmb","typ") to zero before
+// ["alg","now","tmb","typ"] from Pay. Coze.Pay, Coze.Pay.Alg, and Coze.Sig must
+// be set.  Meta resets Parsed ("alg","now","tmb","typ") to zero before
 // populating Parsed from Pay. If needing to use for contextual cozies, use
 // "MetaWithAlg".
 //
@@ -79,7 +79,7 @@ func (cz *Coze) Meta() (err error) {
 
 // MetaWithAlg is for contextual cozies that may be lacking `alg` in `pay`, but
 // `alg` in otherwise known.  MetaWithAlg recalculates [can, cad, czd] and sets
-// Coze.Parsed ("alg","iat","tmb","typ") from Pay.  Does not calculate `czd`
+// Coze.Parsed ("alg","now","tmb","typ") from Pay.  Does not calculate `czd`
 // if Coze.Sig is empty.
 //
 // Errors on
@@ -162,11 +162,11 @@ func GenCzd(hash HshAlg, cad B64, sig B64) (czd B64, err error) {
 // `json:"-"` is ignored by the custom marshaller, and  is set to "-" so that the
 // default marshaller does not include it.
 //
-// iat and rvk are type int64 and not uint64 to follow the advised type for
+// now and rvk are type int64 and not uint64 to follow the advised type for
 // third party time fields.
 type Pay struct {
 	Alg SEAlg  `json:"alg,omitempty"` // e.g. "ES256"
-	Iat int64  `json:"iat,omitempty"` // e.g. 1623132000
+	Now int64  `json:"now,omitempty"` // e.g. 1623132000
 	Tmb B64    `json:"tmb,omitempty"` // e.g. "cLj8vsYtMBwYkzoFVZHBZo6SNL8wSdCIjCKAwXNuhOk"
 	Typ string `json:"typ,omitempty"` // e.g. "cyphr.me/msg/create"
 
@@ -241,8 +241,8 @@ func (p *Pay) UnmarshalJSON(b []byte) error {
 		p2.Struct = str
 	}
 
-	if p2.Iat > maxSafeInteger || p2.Rvk > maxSafeInteger || p2.Iat < 0 || p2.Rvk < 0 {
-		return fmt.Errorf("Pay.UnmarshalJSON: values for iat and rvk must be between 0 and 2^53 - 1")
+	if p2.Now > maxSafeInteger || p2.Rvk > maxSafeInteger || p2.Now < 0 || p2.Rvk < 0 {
+		return fmt.Errorf("Pay.UnmarshalJSON: values for now and rvk must be between 0 and 2^53 - 1")
 	}
 
 	*p = *(*Pay)(p2)

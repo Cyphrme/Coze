@@ -19,7 +19,7 @@ func ExampleCanon() {
 
 // ExampleCanonicalHash. See also Example_genCad
 func ExampleCanonicalHash() {
-	canon := []string{"alg", "iat", "msg", "tmb", "typ"}
+	canon := []string{"alg", "now", "msg", "tmb", "typ"}
 	cad, err := CanonicalHash([]byte(GoldenPay), canon, SHA256)
 	if err != nil {
 		panic(err)
@@ -34,8 +34,8 @@ func ExampleCanonicalHash() {
 	fmt.Println(cad.String())
 
 	// Output:
-	// 4bmwgjkxQJIG2jiLiqq6eKptwTs97lYAFUtS25Rc3DU
-	// Ie3xL77AsiCcb4r0pbnZJqMcfSBqg5Lk0npNJyJ9BC4
+	// r8hLiXxSW0I8U-me0duNdodgyVgHPPTatxVAYJYg8BM
+	// Y6e186hFUbPDDjjJxgXuEvsJmX6-lvkeqhzTf1MDQS4
 }
 
 // Demonstrates expected behavior for invalid HshAlgs.
@@ -51,7 +51,7 @@ func ExampleCanonicalHash_invalidAlg() {
 
 // Example CanonicalHash for all hashing algos.
 func ExampleCanonicalHash_permutations() {
-	canon := []string{"alg", "iat", "msg", "tmb", "typ"}
+	canon := []string{"alg", "now", "msg", "tmb", "typ"}
 	algs := []string{"SHA-224", "SHA-256", "SHA-384", "SHA-512", "SHA3-224", "SHA3-256", "SHA3-384", "SHA3-512", "SHAKE128", "SHAKE256"}
 	for _, alg := range algs {
 		cad, err := CanonicalHash([]byte(GoldenPay), canon, ParseHashAlg(alg))
@@ -62,16 +62,16 @@ func ExampleCanonicalHash_permutations() {
 	}
 
 	// Output:
-	// cGCQ6FHj0fjAyYbvxS_8sfC0qTaSLJtcu0Xkhw
-	// 4bmwgjkxQJIG2jiLiqq6eKptwTs97lYAFUtS25Rc3DU
-	// WQiyyY5Ye2Y8vKcbANlmiXJkU-SVEgboYJg-wnrOKJ3v8PcI5XvQu_-C4yyGFrbW
-	// irByY6uGnp6DrPvInvggL0ibo2p5yNvcuMVx1GiZoOArVIp4cGkAfB2FvknV5DyzKMHH-tV6vW8TyW7LZOyVFw
-	// 9YyKIbtFYbSNqdwAXcwV0lwLb-X65k6zTBTWeQ
-	// 8P9aSEJjC8tRKzfLNYBQTTXK-9E-DPlNaH_ikFkYUHQ
-	// suqhBt29HS7c_wwDpcp943h0HlSI_FQdOkiz-Tjf9R_Wegil2pXHVxIFXkpOaceP
-	// dAzMJWHLnGw9kjeo4RbVhzAAL6bwGasQbLFLZ1kHhdhGNNQm5nMib0cAQAAoIwdnKf0L8RADELg1XSFd8aJKww
-	// QzbJ9ONj21KF3Zno1ctdIHfpGqmFGm11tinsAJUkYOg
-	// MFYCTNhmavKZmFk_JNcttN9ccm4MAuYN3T868B2q0olpJ_6po2l98-617RfjnxkVuY2J--JjKt-KGi1S2RL4Bw
+	// XscoLNnxTsPcit0fVgLT90XgDgkxnVBmMEs02w
+	// r8hLiXxSW0I8U-me0duNdodgyVgHPPTatxVAYJYg8BM
+	// VT-K_sJplYTMv2Gi7QyUE0ja9Usgj9YHfGCmDvMqPBDzYDPlGD-55MsLbnPY1pi3
+	// QY0ybderCLD0Lu7w2vXNq4XEtfNVPexphJPoiBet9Ly2vXZibo59fITNG39tL3fIwtjVWqDFB34GOajkeW1g5w
+	// vD-BBNYrBznF6oCL03XZFM3HM4uGZ36KxRolGg
+	// 2sHfdx0Gg83_5vM3WJugtWBLDJdnR2zVAeRZPF6_v-8
+	// g-4N-CIuMcfM8aZIxGVzNmo6QDRVv_NHs-S-8WfNKSyCTjMPE14T02Iyzf52kLdf
+	// ZmUwWY2kyuWJxJLxJHYVDG3Zrt6lcOErVuXKoYxz21AUDqpcGAFzQ_WZZLXIAoQhtuF1XtiIJpmS89KQxWon5A
+	// S6du7_QxmI9_Oqp-iXNKhTST-VdqX4dBZSKp7tl4ktA
+	// fm38qGtplvLccc8_pvHv1wVy16C9mnsj05tsL53Gd7TC89nh6S2NykepY6BeyLMPeMorcOH1X5E5fqkpIjjjvA
 }
 
 // ExampleCanonical.

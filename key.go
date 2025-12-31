@@ -24,7 +24,7 @@ var KeyCanon = []string{"alg", "x"}
 //
 //	`alg` - Specific key algorithm. E.g. "ES256" or "Ed25519".
 //	`d`   - Private component. E.g. "bNstg4_H3m3SlROufwRSEgibLrBuRq9114OvdapcpVA".
-//	`iat` - Unix time of when the key was created. E.g. 1626069600.
+//	`now` - Unix time of when the key was created. E.g. 1626069600.
 //	`kid` - Human readable, non-programmatic label. E.g. "My Coze key".
 //	`rvk` - Unix time of key revocation. See docs on `rvk`. E.g. 1626069601.
 //	`tmb` - Key thumbprint. E.g. "cLj8vsYtMBwYkzoFVZHBZo6SNL8wSdCIjCKAwXNuhOk".
@@ -33,7 +33,7 @@ var KeyCanon = []string{"alg", "x"}
 type Key struct {
 	Alg SEAlg  `json:"alg,omitempty"`
 	D   B64    `json:"d,omitempty"`
-	Iat int64  `json:"iat,omitempty"`
+	Now int64  `json:"now,omitempty"`
 	Kid string `json:"kid,omitempty"`
 	Rvk int64  `json:"rvk,omitempty"`
 	Tmb B64    `json:"tmb,omitempty"`
@@ -78,7 +78,7 @@ func NewKey(alg SEAlg) (c *Key, err error) {
 		c.X = B64(pub)
 	}
 
-	c.Iat = time.Now().Unix()
+	c.Now = time.Now().Unix()
 	return c, c.Thumbprint()
 }
 
@@ -404,8 +404,8 @@ func (c *Key) Revoke() (coze *Coze, err error) {
 
 	r := new(Pay)
 	r.Alg = c.Alg
-	r.Iat = time.Now().Unix()
-	r.Rvk = r.Iat
+	r.Now = time.Now().Unix()
+	r.Rvk = r.Now
 	r.Tmb = c.Tmb
 	// If needing "typ" populated, use Sign.
 
@@ -419,7 +419,7 @@ func (c *Key) Revoke() (coze *Coze, err error) {
 	if err != nil {
 		return nil, err
 	}
-	c.Rvk = r.Iat // Sets `Key.Rvk` to the same value as the self-revoke coze.
+	c.Rvk = r.Now // Sets `Key.Rvk` to the same value as the self-revoke coze.
 	return coze, nil
 }
 
