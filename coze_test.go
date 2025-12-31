@@ -49,6 +49,52 @@ func ExamplePay_embedded() {
 	// {"pay":{"alg":"ES256","tmb":"U5XUZots-WmQYcQWmsO751Xk0yeVi9XUKWQ2mGz6Aqg","DisplayName":"Coze","FirstName":"Foo","LastName":"Bar"}}
 }
 
+// ExamplePay_dig demonstrates using the `dig` (digest) field in a coz payload.
+// `dig` is used to reference external content by its digest. The digest
+// algorithm must match `pay.alg`'s hash (e.g., ES256 uses SHA-256).
+func ExamplePay_dig() {
+	// Content whose digest will be included in the payload.
+	content := "Coz is a cryptographic JSON messaging specification."
+
+	// Calculate the SHA-256 digest of the content.
+	// ES256's hash algorithm is SHA-256, so dig's algorithm matches alg.
+	dig, err := Hash(SHA256, []byte(content))
+	if err != nil {
+		panic(err)
+	}
+
+	// Custom struct with a dig field for the digest.
+	type PayWithDig struct {
+		Dig B64 `json:"dig,omitempty"`
+	}
+
+	pay := Pay{
+		Alg:    GoldenKey.Alg,
+		Tmb:    GoldenKey.Tmb,
+		Typ:    "cyphr.me/file",
+		Struct: &PayWithDig{Dig: dig},
+	}
+
+	coze, err := GoldenKey.SignPay(&pay)
+	if err != nil {
+		panic(err)
+	}
+
+	v, err := GoldenKey.VerifyCoze(coze)
+	if err != nil {
+		panic(err)
+	}
+
+	// Set sig to nil for deterministic printout
+	coze.Sig = nil
+	fmt.Println(v)
+	fmt.Println(coze)
+
+	// Output:
+	// true
+	// {"pay":{"alg":"ES256","tmb":"U5XUZots-WmQYcQWmsO751Xk0yeVi9XUKWQ2mGz6Aqg","typ":"cyphr.me/file","dig":"YBG8cU5hkhPdyEJDhRB0Qk90NZuU0B34dnMQbkFMtBI"}}
+}
+
 // ExamplePay_jsonUnmarshal tests unmarshalling a Pay.
 func ExamplePay_jsonUnmarshal() {
 	h := &Pay{}
