@@ -138,10 +138,26 @@ func (c *Key) Sign(digest B64) (sig B64, err error) {
 	default:
 		return nil, fmt.Errorf("Sign: unsupported alg %q", c.Alg)
 	case ECDSA:
+		curve := c.Alg.Curve().EllipticCurve()
+		d := new(big.Int).SetBytes(c.D)
+		// Go 1.25+ requires PublicKey.X and PublicKey.Y to be populated.
+		var pubX, pubY *big.Int
+		if len(c.X) == c.Alg.XSize() {
+			// Extract X and Y from existing c.X (stored as X||Y concatenation).
+			half := c.Alg.XSize() / 2
+			pubX = new(big.Int).SetBytes(c.X[:half])
+			pubY = new(big.Int).SetBytes(c.X[half:])
+		} else {
+			// Compute public key from private key using scalar base multiplication.
+			pubX, pubY = curve.ScalarBaseMult(c.D)
+		}
 		prk := ecdsa.PrivateKey{
-			// ecdsa.Sign only needs PublicKey.Curve, not it's value.
-			PublicKey: ecdsa.PublicKey{Curve: c.Alg.Curve().EllipticCurve()},
-			D:         new(big.Int).SetBytes(c.D),
+			PublicKey: ecdsa.PublicKey{
+				Curve: curve,
+				X:     pubX,
+				Y:     pubY,
+			},
+			D: d,
 		}
 		r, s, err := ecdsa.Sign(rand.Reader, &prk, digest)
 		if err != nil {
