@@ -167,7 +167,7 @@ func GenCzd(hash HshAlg, cad B64, sig B64) (czd B64, err error) {
 type Pay struct {
 	Alg SEAlg  `json:"alg,omitempty"` // e.g. "ES256"
 	Now int64  `json:"now,omitempty"` // e.g. 1623132000
-	Tmb B64    `json:"tmb,omitempty"` // e.g. "cLj8vsYtMBwYkzoFVZHBZo6SNL8wSdCIjCKAwXNuhOk"
+	Tmb B64    `json:"tmb,omitempty"` // e.g. "U5XUZots-WmQYcQWmsO751Xk0yeVi9XUKWQ2mGz6Aqg"
 	Typ string `json:"typ,omitempty"` // e.g. "cyphr.me/msg/create"
 
 	// Rvk is only for revoke messages.

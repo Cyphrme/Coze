@@ -46,7 +46,7 @@ func ExamplePay_embedded() {
 
 	// Output:
 	// true
-	// {"pay":{"alg":"ES256","tmb":"cLj8vsYtMBwYkzoFVZHBZo6SNL8wSdCIjCKAwXNuhOk","DisplayName":"Coze","FirstName":"Foo","LastName":"Bar"}}
+	// {"pay":{"alg":"ES256","tmb":"U5XUZots-WmQYcQWmsO751Xk0yeVi9XUKWQ2mGz6Aqg","DisplayName":"Coze","FirstName":"Foo","LastName":"Bar"}}
 }
 
 // ExamplePay_jsonUnmarshal tests unmarshalling a Pay.
@@ -65,7 +65,7 @@ func ExamplePay_jsonUnmarshal() {
 	fmt.Printf("%s\n", out)
 
 	// Output:
-	// {"alg":"ES256","now":1623132000,"tmb":"cLj8vsYtMBwYkzoFVZHBZo6SNL8wSdCIjCKAwXNuhOk","typ":"cyphr.me/msg"}
+	// {"alg":"ES256","now":1623132000,"tmb":"U5XUZots-WmQYcQWmsO751Xk0yeVi9XUKWQ2mGz6Aqg","typ":"cyphr.me/msg"}
 }
 
 // ExamplePay_jsonMarshalCustom demonstrates marshalling Pay with a custom
@@ -78,7 +78,7 @@ func ExamplePay_jsonMarshalCustom() {
 	inputPay := Pay{
 		Alg:    SEAlg(ES256),
 		Now:    1623132000, // Static for demonstration.  Use time.Now().Unix().
-		Tmb:    MustDecode("cLj8vsYtMBwYkzoFVZHBZo6SNL8wSdCIjCKAwXNuhOk"),
+		Tmb:    MustDecode("U5XUZots-WmQYcQWmsO751Xk0yeVi9XUKWQ2mGz6Aqg"),
 		Typ:    "cyphr.me/msg",
 		Struct: customStruct,
 	}
@@ -91,7 +91,7 @@ func ExamplePay_jsonMarshalCustom() {
 	fmt.Println(string(s))
 
 	// Output:
-	// {"alg":"ES256","now":1623132000,"tmb":"cLj8vsYtMBwYkzoFVZHBZo6SNL8wSdCIjCKAwXNuhOk","typ":"cyphr.me/msg","msg":"Coze Rocks"}
+	// {"alg":"ES256","now":1623132000,"tmb":"U5XUZots-WmQYcQWmsO751Xk0yeVi9XUKWQ2mGz6Aqg","typ":"cyphr.me/msg","msg":"Coze Rocks"}
 }
 
 // ExamplePay_jsonUnmarshalCustomManual demonstrates "manually" unmarshalling
@@ -112,7 +112,7 @@ func ExamplePay_jsonUnmarshalCustomManual() {
 	fmt.Println(custom)
 
 	// Output:
-	// {"alg":"ES256","now":1623132000,"tmb":"cLj8vsYtMBwYkzoFVZHBZo6SNL8wSdCIjCKAwXNuhOk","typ":"cyphr.me/msg"}
+	// {"alg":"ES256","now":1623132000,"tmb":"U5XUZots-WmQYcQWmsO751Xk0yeVi9XUKWQ2mGz6Aqg","typ":"cyphr.me/msg"}
 	// {Coze Rocks}
 }
 
@@ -130,7 +130,7 @@ func ExamplePay_jsonUnmarshalCustom() {
 	fmt.Println(pay.Struct)
 
 	// Output:
-	// {"alg":"ES256","now":1623132000,"tmb":"cLj8vsYtMBwYkzoFVZHBZo6SNL8wSdCIjCKAwXNuhOk","typ":"cyphr.me/msg","msg":"Coze Rocks"}
+	// {"alg":"ES256","now":1623132000,"tmb":"U5XUZots-WmQYcQWmsO751Xk0yeVi9XUKWQ2mGz6Aqg","typ":"cyphr.me/msg","msg":"Coze Rocks"}
 	// &{Coze Rocks}
 }
 
@@ -144,14 +144,14 @@ func ExamplePay_String_custom() {
 	inputPay := Pay{
 		Alg:    SEAlg(ES256),
 		Now:    1623132000, // Static for demonstration.  Use time.Now().Unix().
-		Tmb:    MustDecode("cLj8vsYtMBwYkzoFVZHBZo6SNL8wSdCIjCKAwXNuhOk"),
+		Tmb:    MustDecode("U5XUZots-WmQYcQWmsO751Xk0yeVi9XUKWQ2mGz6Aqg"),
 		Typ:    "cyphr.me/msg",
 		Struct: customStruct,
 	}
 	fmt.Println(inputPay)
 
 	// Output:
-	// {"alg":"ES256","now":1623132000,"tmb":"cLj8vsYtMBwYkzoFVZHBZo6SNL8wSdCIjCKAwXNuhOk","typ":"cyphr.me/msg","msg":"Coze Rocks"}
+	// {"alg":"ES256","now":1623132000,"tmb":"U5XUZots-WmQYcQWmsO751Xk0yeVi9XUKWQ2mGz6Aqg","typ":"cyphr.me/msg","msg":"Coze Rocks"}
 }
 
 // Example demonstrating that unmarshalling a `pay` that has duplicate field
@@ -195,7 +195,7 @@ func ExampleCoze_embed() {
 	fmt.Printf("%s", b)
 
 	// Output:
-	// {"name":"Bob","coze":{"pay":{"msg":"Coze Rocks","alg":"ES256","now":1623132000,"tmb":"cLj8vsYtMBwYkzoFVZHBZo6SNL8wSdCIjCKAwXNuhOk","typ":"cyphr.me/msg"},"sig":"ZdhToe_e4jNaqmawVWheR1PDheb-u5DG6gL_MlRrfLtwSsLBTaRlp1ciZVSzUEfvXobt31ffHYLCg0aoF1Q0JQ"}}
+	// {"name":"Bob","coze":{"pay":{"msg":"Coze Rocks","alg":"ES256","now":1623132000,"tmb":"U5XUZots-WmQYcQWmsO751Xk0yeVi9XUKWQ2mGz6Aqg","typ":"cyphr.me/msg"},"sig":"bbO49APro9TGzAxDWvyT0a41l2sEFMpYWqC-hvDlJukyXKZ_0TRNsrJNcTIso3b8kh5wbLL2KLvOO4zfsHplwA"}}
 }
 
 func ExampleCoze_String() {
@@ -207,7 +207,7 @@ func ExampleCoze_String() {
 	fmt.Println(cz)
 
 	// Output:
-	// {"pay":{"msg":"Coze Rocks","alg":"ES256","now":1623132000,"tmb":"cLj8vsYtMBwYkzoFVZHBZo6SNL8wSdCIjCKAwXNuhOk","typ":"cyphr.me/msg"},"sig":"ZdhToe_e4jNaqmawVWheR1PDheb-u5DG6gL_MlRrfLtwSsLBTaRlp1ciZVSzUEfvXobt31ffHYLCg0aoF1Q0JQ"}
+	// {"pay":{"msg":"Coze Rocks","alg":"ES256","now":1623132000,"tmb":"U5XUZots-WmQYcQWmsO751Xk0yeVi9XUKWQ2mGz6Aqg","typ":"cyphr.me/msg"},"sig":"bbO49APro9TGzAxDWvyT0a41l2sEFMpYWqC-hvDlJukyXKZ_0TRNsrJNcTIso3b8kh5wbLL2KLvOO4zfsHplwA"}
 }
 
 func ExampleCoze_Meta() {
@@ -224,7 +224,7 @@ func ExampleCoze_Meta() {
 	fmt.Printf("%s\n", cz)
 
 	// Output:
-	//{"pay":{"msg":"Coze Rocks","alg":"ES256","now":1623132000,"tmb":"cLj8vsYtMBwYkzoFVZHBZo6SNL8wSdCIjCKAwXNuhOk","typ":"cyphr.me/msg"},"can":["msg","alg","now","tmb","typ"],"cad":"Y6e186hFUbPDDjjJxgXuEvsJmX6-lvkeqhzTf1MDQS4","sig":"ZdhToe_e4jNaqmawVWheR1PDheb-u5DG6gL_MlRrfLtwSsLBTaRlp1ciZVSzUEfvXobt31ffHYLCg0aoF1Q0JQ","czd":"4FBhc6qp_E52OC9_YabaEwSxnYrlQzyz8TXHaxIXqr8"}
+	//{"pay":{"msg":"Coze Rocks","alg":"ES256","now":1623132000,"tmb":"U5XUZots-WmQYcQWmsO751Xk0yeVi9XUKWQ2mGz6Aqg","typ":"cyphr.me/msg"},"can":["msg","alg","now","tmb","typ"],"cad":"AyVZoWUv_rJf7_KqoeRS5odr8g3MZwBzhtBdSZderxk","sig":"bbO49APro9TGzAxDWvyT0a41l2sEFMpYWqC-hvDlJukyXKZ_0TRNsrJNcTIso3b8kh5wbLL2KLvOO4zfsHplwA","czd":"DHEHV1BZPYMMzZs2auqF5vlvCySOdiOWdPleWHy3Ypg"}
 }
 
 func ExampleCoze_MetaWithAlg() {
@@ -286,10 +286,10 @@ func ExampleCoze_MetaWithAlg() {
 	fmt.Printf("%s\n", cz3)
 
 	// Output:
-	// {"pay":{"msg":"Coze Rocks","alg":"ES256","now":1623132000,"tmb":"cLj8vsYtMBwYkzoFVZHBZo6SNL8wSdCIjCKAwXNuhOk","typ":"cyphr.me/msg"},"can":["msg","alg","now","tmb","typ"],"cad":"Y6e186hFUbPDDjjJxgXuEvsJmX6-lvkeqhzTf1MDQS4","sig":"ZdhToe_e4jNaqmawVWheR1PDheb-u5DG6gL_MlRrfLtwSsLBTaRlp1ciZVSzUEfvXobt31ffHYLCg0aoF1Q0JQ","czd":"4FBhc6qp_E52OC9_YabaEwSxnYrlQzyz8TXHaxIXqr8"}
-	// {"pay":{"msg":"Coze Rocks","alg":"ES256","now":1623132000,"tmb":"cLj8vsYtMBwYkzoFVZHBZo6SNL8wSdCIjCKAwXNuhOk","typ":"cyphr.me/msg"},"can":["msg","alg","now","tmb","typ"],"cad":"Y6e186hFUbPDDjjJxgXuEvsJmX6-lvkeqhzTf1MDQS4","sig":"ZdhToe_e4jNaqmawVWheR1PDheb-u5DG6gL_MlRrfLtwSsLBTaRlp1ciZVSzUEfvXobt31ffHYLCg0aoF1Q0JQ","czd":"4FBhc6qp_E52OC9_YabaEwSxnYrlQzyz8TXHaxIXqr8"}
-	// {"pay":{"msg":"Coze Rocks","now":1623132000,"tmb":"cLj8vsYtMBwYkzoFVZHBZo6SNL8wSdCIjCKAwXNuhOk","typ":"cyphr.me/msg"},"can":["msg","now","tmb","typ"],"cad":"aYJ2GNTX3dLBV3BYTAMR7nvr4-Y7-yoZcOzXOplYj_A","sig":"kIqteQgnb6ZYLOOyaMq7xirVNqeGty-CheY45rcyybw8X5PLojr3MOESSuHgz3sY5tB-J7q1QrrR5X9wWijqFg","czd":"YtnPR6TPslhCDJrxKQjNzMiw7ou9o2VcNXe4kGLfucA"}
-	// {"pay":{"msg":"Coze Rocks","now":1623132000,"tmb":"cLj8vsYtMBwYkzoFVZHBZo6SNL8wSdCIjCKAwXNuhOk","typ":"cyphr.me/msg"},"can":["msg","now","tmb","typ"],"cad":"aYJ2GNTX3dLBV3BYTAMR7nvr4-Y7-yoZcOzXOplYj_A"}
+	// {"pay":{"msg":"Coze Rocks","alg":"ES256","now":1623132000,"tmb":"U5XUZots-WmQYcQWmsO751Xk0yeVi9XUKWQ2mGz6Aqg","typ":"cyphr.me/msg"},"can":["msg","alg","now","tmb","typ"],"cad":"AyVZoWUv_rJf7_KqoeRS5odr8g3MZwBzhtBdSZderxk","sig":"bbO49APro9TGzAxDWvyT0a41l2sEFMpYWqC-hvDlJukyXKZ_0TRNsrJNcTIso3b8kh5wbLL2KLvOO4zfsHplwA","czd":"DHEHV1BZPYMMzZs2auqF5vlvCySOdiOWdPleWHy3Ypg"}
+	// {"pay":{"msg":"Coze Rocks","alg":"ES256","now":1623132000,"tmb":"U5XUZots-WmQYcQWmsO751Xk0yeVi9XUKWQ2mGz6Aqg","typ":"cyphr.me/msg"},"can":["msg","alg","now","tmb","typ"],"cad":"AyVZoWUv_rJf7_KqoeRS5odr8g3MZwBzhtBdSZderxk","sig":"bbO49APro9TGzAxDWvyT0a41l2sEFMpYWqC-hvDlJukyXKZ_0TRNsrJNcTIso3b8kh5wbLL2KLvOO4zfsHplwA","czd":"DHEHV1BZPYMMzZs2auqF5vlvCySOdiOWdPleWHy3Ypg"}
+	// {"pay":{"msg":"Coze Rocks","now":1623132000,"tmb":"U5XUZots-WmQYcQWmsO751Xk0yeVi9XUKWQ2mGz6Aqg","typ":"cyphr.me/msg"},"can":["msg","now","tmb","typ"],"cad":"ywD6jd0t00XECuIG873VWZKXrobsAQz9tHTT8_tOHtg","sig":"rVVX9Px9ZVdU-YQdWTHK-hrgjQZVngztqJq7QlPBw1o9XUhN7GzWRV_0u2s-gP7Z9MHRCicq9j7InhUrg8LNjg","czd":"aDGGb6KlUhcMdufV3lyUxmg9MBbDfe1SvANU5fAME8c"}
+	// {"pay":{"msg":"Coze Rocks","now":1623132000,"tmb":"U5XUZots-WmQYcQWmsO751Xk0yeVi9XUKWQ2mGz6Aqg","typ":"cyphr.me/msg"},"can":["msg","now","tmb","typ"],"cad":"ywD6jd0t00XECuIG873VWZKXrobsAQz9tHTT8_tOHtg"}
 }
 
 func ExampleCoze_MetaWithAlg_contextual() {
@@ -320,7 +320,7 @@ func ExampleCoze_MetaWithAlg_contextual() {
 	fmt.Printf("%s\n", cz)
 
 	// Output:
-	// {"pay":{"msg":"Coze Rocks","alg":"ES256","now":1623132000,"tmb":"cLj8vsYtMBwYkzoFVZHBZo6SNL8wSdCIjCKAwXNuhOk","typ":"cyphr.me/msg"},"can":["msg","alg","now","tmb","typ"],"cad":"Y6e186hFUbPDDjjJxgXuEvsJmX6-lvkeqhzTf1MDQS4"}
+	// {"pay":{"msg":"Coze Rocks","alg":"ES256","now":1623132000,"tmb":"U5XUZots-WmQYcQWmsO751Xk0yeVi9XUKWQ2mGz6Aqg","typ":"cyphr.me/msg"},"can":["msg","alg","now","tmb","typ"],"cad":"AyVZoWUv_rJf7_KqoeRS5odr8g3MZwBzhtBdSZderxk"}
 	// {"pay":{},"cad":"RBNvo1WzZ4oRRq0W9-hknpT7T8If536DEMBg9hyq_4o","sig":"UG0KP-cElD3mPoN8LRVd4_uoNzMwmpUm3pKxt-iy6So8f1JxmxMcO9JFzsmecFXyt5PjsOTZdUKyV6eZRNl-hg","czd":"nib9RLKirNz50PA2Sv6uZnA03_wdMmA1dyAoUi0OhVY"}
 }
 
@@ -340,7 +340,7 @@ func ExampleCoze_jsonUnmarshal() {
 	fmt.Println(string(b))
 
 	// Output:
-	//{"pay":{"msg":"Coze Rocks","alg":"ES256","now":1623132000,"tmb":"cLj8vsYtMBwYkzoFVZHBZo6SNL8wSdCIjCKAwXNuhOk","typ":"cyphr.me/msg"},"sig":"ZdhToe_e4jNaqmawVWheR1PDheb-u5DG6gL_MlRrfLtwSsLBTaRlp1ciZVSzUEfvXobt31ffHYLCg0aoF1Q0JQ"}
+	//{"pay":{"msg":"Coze Rocks","alg":"ES256","now":1623132000,"tmb":"U5XUZots-WmQYcQWmsO751Xk0yeVi9XUKWQ2mGz6Aqg","typ":"cyphr.me/msg"},"sig":"bbO49APro9TGzAxDWvyT0a41l2sEFMpYWqC-hvDlJukyXKZ_0TRNsrJNcTIso3b8kh5wbLL2KLvOO4zfsHplwA"}
 }
 
 func ExampleCoze_jsonMarshal() {
@@ -357,7 +357,7 @@ func ExampleCoze_jsonMarshal() {
 	fmt.Printf("%+s\n", b)
 
 	// Output:
-	//{"pay":{"msg":"Coze Rocks","alg":"ES256","now":1623132000,"tmb":"cLj8vsYtMBwYkzoFVZHBZo6SNL8wSdCIjCKAwXNuhOk","typ":"cyphr.me/msg"},"sig":"ZdhToe_e4jNaqmawVWheR1PDheb-u5DG6gL_MlRrfLtwSsLBTaRlp1ciZVSzUEfvXobt31ffHYLCg0aoF1Q0JQ"}
+	//{"pay":{"msg":"Coze Rocks","alg":"ES256","now":1623132000,"tmb":"U5XUZots-WmQYcQWmsO751Xk0yeVi9XUKWQ2mGz6Aqg","typ":"cyphr.me/msg"},"sig":"bbO49APro9TGzAxDWvyT0a41l2sEFMpYWqC-hvDlJukyXKZ_0TRNsrJNcTIso3b8kh5wbLL2KLvOO4zfsHplwA"}
 }
 
 func ExampleCoze_jsonMarshalPretty() {
@@ -379,10 +379,10 @@ func ExampleCoze_jsonMarshalPretty() {
 	//         "msg": "Coze Rocks",
 	//         "alg": "ES256",
 	//         "now": 1623132000,
-	//         "tmb": "cLj8vsYtMBwYkzoFVZHBZo6SNL8wSdCIjCKAwXNuhOk",
+	//         "tmb": "U5XUZots-WmQYcQWmsO751Xk0yeVi9XUKWQ2mGz6Aqg",
 	//         "typ": "cyphr.me/msg"
 	//     },
-	//     "sig": "ZdhToe_e4jNaqmawVWheR1PDheb-u5DG6gL_MlRrfLtwSsLBTaRlp1ciZVSzUEfvXobt31ffHYLCg0aoF1Q0JQ"
+	//     "sig": "bbO49APro9TGzAxDWvyT0a41l2sEFMpYWqC-hvDlJukyXKZ_0TRNsrJNcTIso3b8kh5wbLL2KLvOO4zfsHplwA"
 	// }
 }
 

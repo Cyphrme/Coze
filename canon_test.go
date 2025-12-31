@@ -34,8 +34,8 @@ func ExampleCanonicalHash() {
 	fmt.Println(cad.String())
 
 	// Output:
-	// r8hLiXxSW0I8U-me0duNdodgyVgHPPTatxVAYJYg8BM
-	// Y6e186hFUbPDDjjJxgXuEvsJmX6-lvkeqhzTf1MDQS4
+	// _OPzRaT0b5iCQUreB4HXLeNZ-zrAmZKwOs2e9AZyH5Q
+	// AyVZoWUv_rJf7_KqoeRS5odr8g3MZwBzhtBdSZderxk
 }
 
 // Demonstrates expected behavior for invalid HshAlgs.
@@ -62,16 +62,16 @@ func ExampleCanonicalHash_permutations() {
 	}
 
 	// Output:
-	// XscoLNnxTsPcit0fVgLT90XgDgkxnVBmMEs02w
-	// r8hLiXxSW0I8U-me0duNdodgyVgHPPTatxVAYJYg8BM
-	// VT-K_sJplYTMv2Gi7QyUE0ja9Usgj9YHfGCmDvMqPBDzYDPlGD-55MsLbnPY1pi3
-	// QY0ybderCLD0Lu7w2vXNq4XEtfNVPexphJPoiBet9Ly2vXZibo59fITNG39tL3fIwtjVWqDFB34GOajkeW1g5w
-	// vD-BBNYrBznF6oCL03XZFM3HM4uGZ36KxRolGg
-	// 2sHfdx0Gg83_5vM3WJugtWBLDJdnR2zVAeRZPF6_v-8
-	// g-4N-CIuMcfM8aZIxGVzNmo6QDRVv_NHs-S-8WfNKSyCTjMPE14T02Iyzf52kLdf
-	// ZmUwWY2kyuWJxJLxJHYVDG3Zrt6lcOErVuXKoYxz21AUDqpcGAFzQ_WZZLXIAoQhtuF1XtiIJpmS89KQxWon5A
-	// S6du7_QxmI9_Oqp-iXNKhTST-VdqX4dBZSKp7tl4ktA
-	// fm38qGtplvLccc8_pvHv1wVy16C9mnsj05tsL53Gd7TC89nh6S2NykepY6BeyLMPeMorcOH1X5E5fqkpIjjjvA
+	// AHp3PJhm7UqvInSyNx979L0UclaHerXpr65_RQ
+	// _OPzRaT0b5iCQUreB4HXLeNZ-zrAmZKwOs2e9AZyH5Q
+	// 2nZLq6SkucLHoQ2uzWsaDxxHqtgUsQuYROh6gLfsHJG4zD3615TchJjx2s53-jF-
+	// DmHMOL8rbl4WREEcI5vZSFmhRLX1doGpXI6ValNwzP8jorZJ3qki5xtFM_0pZOp7tE59I6MM5N8KtMANt7axQw
+	// UOmfhfx7LB_1556F_gql1i7XxK69eZ7lCaVrBQ
+	// 3vcvftqd4lI2bp8s6dEiLVI_M5_4_usBUb9lZFLpm1E
+	// 6sACHpDGK47H8DMh0vt42OkAHoAXZ5lSic0ju1a3UFPt3TcUFWYWM7K62uOjE-zp
+	// uRWmti8R6KnCbmRP3dhrVEsN7daLwvW6Jq21e14_4lnvq2p9futNxoOLW0rL2-1VCJ11SAOoxcBfIgmYv-LFXw
+	// yfPYoA6MT_QoyQGp0DDGRrGP_EHfV4-sojVRtplZmdk
+	// zM8SoNSsYdJoyxW_83tR5L0axAWYvyPkSRWnMDYkEsV9pfSgGhB05BPo5xJyslpCqxnZn9ETxgwuOLvCwBInpg
 }
 
 // ExampleCanonical.
@@ -129,7 +129,7 @@ func ExampleCanonical_struct() {
 	// KeyCanon is the canonical form of a Coze key in struct form.
 	type KeyCanonStruct struct {
 		Alg string `json:"alg"`
-		X   B64    `json:"x"`
+		Pub B64    `json:"pub"`
 	}
 	kcs := new(KeyCanonStruct)
 
@@ -140,7 +140,7 @@ func ExampleCanonical_struct() {
 	fmt.Println(dig)
 
 	// Output:
-	// cLj8vsYtMBwYkzoFVZHBZo6SNL8wSdCIjCKAwXNuhOk
+	// U5XUZots-WmQYcQWmsO751Xk0yeVi9XUKWQ2mGz6Aqg
 }
 
 func ExampleCanonical_slice() {
@@ -150,5 +150,5 @@ func ExampleCanonical_slice() {
 	}
 	fmt.Println(dig)
 
-	// Output: cLj8vsYtMBwYkzoFVZHBZo6SNL8wSdCIjCKAwXNuhOk
+	// Output: U5XUZots-WmQYcQWmsO751Xk0yeVi9XUKWQ2mGz6Aqg
 }

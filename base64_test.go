@@ -40,12 +40,12 @@ func ExampleDecode() {
 		panic(err)
 	}
 	fmt.Println(b)
-	// Output: cLj8vsYtMBwYkzoFVZHBZo6SNL8wSdCIjCKAwXNuhOk
+	// Output: U5XUZots-WmQYcQWmsO751Xk0yeVi9XUKWQ2mGz6Aqg
 }
 
 func ExampleMustDecode() {
 	fmt.Println(MustDecode(GoldenTmb))
-	// Output: cLj8vsYtMBwYkzoFVZHBZo6SNL8wSdCIjCKAwXNuhOk
+	// Output: U5XUZots-WmQYcQWmsO751Xk0yeVi9XUKWQ2mGz6Aqg
 }
 
 type B64Struct struct {
