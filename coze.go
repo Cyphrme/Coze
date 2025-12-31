@@ -29,8 +29,9 @@ import (
 // Coze is for signed Coze objects (cozies).  See the Coze docs (README.md) for
 // more on the construction of `coze`.
 //
-//	Pay: The raw Payload.
-//	Key: Key used to sign the message. Must be pointer, otherwise
+//	Pay: The raw Payload.  The payload can contain any arbitrary fields,
+//	  not just Coze fields.
+//	Key: Key used to sign the message. Must be a pointer, otherwise
 //	  json.Marshal will not marshal on zero type.
 //	  See: https://github.com/golang/go/issues/11939.
 //	Can: "Canon" Pay's fields in order of appearance.

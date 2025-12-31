@@ -27,18 +27,14 @@ workspaces](https://go.dev/doc/tutorial/workspaces) which details "you can tell
 the Go command that you’re writing code in multiple modules at the same time and
 easily build and run code in those modules".
 
-
 We use the module during local development (That should be "no duh", but Go mod
 has a gotcha.)
 
 Add the following line to `go.mod` in your other projects for local changes to
-apply while doing local development.
+apply while doing local development. Alternatively, use Go workspaces. 
 ```go.mod
 replace github.com/cyphrme/coze => ../coze
 ```
-
-Alternatively, use Go workspaces.  
-
 
 Also do a 
 
