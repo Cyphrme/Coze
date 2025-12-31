@@ -185,18 +185,41 @@ func (c *Key) Sign(digest B64) (sig B64, err error) {
 // SignPay checks that `pay.alg` and `key.alg` match and that `pay.tmb` is
 // correct according to `key`.
 //
+// If `pay.Now` is non-zero, SignPay updates it to the current Unix timestamp
+// before signing. This is the recommended behavior for most use cases. To sign
+// without modifying `now`, use SignPayRaw.
+//
 // SignPay works with contextual cozies that lack pay.alg and/or pay.tmb and
 // uses key as a source of truth.
 func (c *Key) SignPay(p *Pay) (coze *Coze, err error) {
+	// Auto-update now if present (non-zero).
+	if p.Now != 0 {
+		p.Now = time.Now().Unix()
+	}
 	return c.signPayJSON(p, nil)
 }
 
-// SignPayJSON signs a json `coze.pay`.  See documentation on SignPay.
+// SignPayRaw signs coze.Pay without modifying any fields. Unlike SignPay,
+// it does not update `pay.Now`. Use this when you need exact control over
+// the payload being signed.
+func (c *Key) SignPayRaw(p *Pay) (coze *Coze, err error) {
+	return c.signPayJSON(p, nil)
+}
+
+// SignPayJSON signs a json `coze.pay`. If the JSON contains a non-zero `now`
+// field, it is updated to the current Unix timestamp before signing. See
+// documentation on SignPay.
 func (c *Key) SignPayJSON(pay json.RawMessage) (coze *Coze, err error) {
 	p := new(Pay)
 	err = json.Unmarshal(pay, p)
 	if err != nil {
 		return nil, err
+	}
+	// Auto-update now if present (non-zero).
+	if p.Now != 0 {
+		p.Now = time.Now().Unix()
+		// Must re-marshal since we modified p.Now and the JSON needs updating.
+		return c.signPayJSON(p, nil)
 	}
 	return c.signPayJSON(p, pay)
 }
@@ -239,12 +262,15 @@ func (c *Key) signPayJSON(p *Pay, b json.RawMessage) (coze *Coze, err error) {
 	return coze, nil
 }
 
-// SignCoze signs `coze.pay` and sets `coze.sig`.  See documentation on SignPay.
+// SignCoze signs `coze.pay` and sets `coze.sig`. Since SignPayJSON may modify
+// `pay.now` if present, SignCoze also updates `cz.Pay` to match the signed
+// payload. See documentation on SignPay.
 func (c *Key) SignCoze(cz *Coze) (err error) {
 	coze, err := c.SignPayJSON(cz.Pay)
 	if err != nil {
 		return err
 	}
+	cz.Pay = coze.Pay // Pay may have been modified (e.g., now updated).
 	cz.Sig = coze.Sig
 	return nil
 }
