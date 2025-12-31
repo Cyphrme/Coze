@@ -239,8 +239,8 @@ type Params struct {
 	HashSizeB64 int    `json:"HashSizeB64,omitempty"`
 	PubSize     int    `json:"PubSize,omitempty"` // Key
 	PubSizeB64  int    `json:"PubSizeB64,omitempty"`
-	DSize       int    `json:"DSize,omitempty"`
-	DSizeB64    int    `json:"DSizeB64,omitempty"`
+	PrvSize     int    `json:"PrvSize,omitempty"`
+	PrvSizeB64  int    `json:"PrvSizeB64,omitempty"`
 	Curve       Crv    `json:"Curve,omitempty"`
 	SigSize     int    `json:"SigSize,omitempty"` // Sig
 	SigSizeB64  int    `json:"SigSizeB64,omitempty"`
@@ -256,7 +256,7 @@ func (a Alg) Params() Params {
 		Hash:     a.Hash(),
 		HashSize: a.Hash().Size(),
 		PubSize:  SEAlg(a).PubSize(),
-		DSize:    SEAlg(a).DSize(),
+		PrvSize:  SEAlg(a).PrvSize(),
 		Curve:    a.Curve(),
 		SigSize:  a.SigAlg().SigSize(),
 	}
@@ -266,7 +266,7 @@ func (a Alg) Params() Params {
 	}
 	p.HashSizeB64 = toB64(p.HashSize)
 	p.PubSizeB64 = toB64(p.PubSize)
-	p.DSizeB64 = toB64(p.DSize)
+	p.PrvSizeB64 = toB64(p.PrvSize)
 	p.SigSizeB64 = toB64(p.SigSize)
 	return p
 }
@@ -351,8 +351,8 @@ func (se SEAlg) PubSize() int {
 	}
 }
 
-// DSize returns the byte size of `d`. Returns 0 on invalid algorithm.
-func (se SEAlg) DSize() int {
+// PrvSize returns the byte size of `prv`. Returns 0 on invalid algorithm.
+func (se SEAlg) PrvSize() int {
 	switch SigAlg(se) {
 	default:
 		return 0

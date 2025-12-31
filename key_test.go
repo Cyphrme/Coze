@@ -14,7 +14,7 @@ var GoldenKey = Key{
 	Tag: "Zami's Majuscule Key.",
 	Now: 1623132000,
 	Pub: MustDecode("2nTOaFVm2QLxmUO_SjgyscVHBtvHEfo2rq65MvgNRjORojq39Haq9rXNxvXxwba_Xj0F5vZibJR3isBdOWbo5g"),
-	D:   MustDecode("bNstg4_H3m3SlROufwRSEgibLrBuRq9114OvdapcpVA"),
+	Prv: MustDecode("bNstg4_H3m3SlROufwRSEgibLrBuRq9114OvdapcpVA"),
 	Tmb: MustDecode("U5XUZots-WmQYcQWmsO751Xk0yeVi9XUKWQ2mGz6Aqg"),
 }
 
@@ -22,12 +22,12 @@ const GoldenKeyString = `{
 	"alg":"ES256",
 	"now":1623132000,
 	"tag":"Zami's Majuscule Key.",
-	"d":"bNstg4_H3m3SlROufwRSEgibLrBuRq9114OvdapcpVA",
+	"prv":"bNstg4_H3m3SlROufwRSEgibLrBuRq9114OvdapcpVA",
 	"tmb":"U5XUZots-WmQYcQWmsO751Xk0yeVi9XUKWQ2mGz6Aqg",
 	"pub":"2nTOaFVm2QLxmUO_SjgyscVHBtvHEfo2rq65MvgNRjORojq39Haq9rXNxvXxwba_Xj0F5vZibJR3isBdOWbo5g"
 }`
 
-// The last byte in D was changed from 80 (b64ut "VA"), to 81 (b64ut "VE),
+// The last byte in Prv was changed from 80 (b64ut "VA"), to 81 (b64ut "VE),
 // making it invalid. Note that Base64 needs to be to "E", not "B" through "D"
 // for it to be effective as "B" through "D" is non-canonical base64 encoding
 // and may decode to the same byte string.
@@ -36,7 +36,7 @@ var GoldenKeyBadD = Key{
 	Tag: "GoldenKeyBadD",
 	Now: 1623132000,
 	Pub: MustDecode("2nTOaFVm2QLxmUO_SjgyscVHBtvHEfo2rq65MvgNRjORojq39Haq9rXNxvXxwba_Xj0F5vZibJR3isBdOWbo5g"),
-	D:   MustDecode("bNstg4_H3m3SlROufwRSEgibLrBuRq9114OvdapcpVE"),
+	Prv: MustDecode("bNstg4_H3m3SlROufwRSEgibLrBuRq9114OvdapcpVE"),
 	Tmb: MustDecode("U5XUZots-WmQYcQWmsO751Xk0yeVi9XUKWQ2mGz6Aqg"),
 }
 
@@ -47,7 +47,7 @@ var GoldenKeyBadX = Key{
 	Tag: "GoldenKeyBadX",
 	Now: 1623132000,
 	Pub: MustDecode("2nTOaFVm2QLxmUO_SjgyscVHBtvHEfo2rq65MvgNRjORojq39Haq9rXNxvXxwba_Xj0F5vZibJR3isBdOWbo5w"),
-	D:   MustDecode("bNstg4_H3m3SlROufwRSEgibLrBuRq9114OvdapcpVE"),
+	Prv: MustDecode("bNstg4_H3m3SlROufwRSEgibLrBuRq9114OvdapcpVE"),
 	Tmb: MustDecode("U5XUZots-WmQYcQWmsO751Xk0yeVi9XUKWQ2mGz6Aqg"),
 }
 
@@ -113,7 +113,7 @@ func ExampleKey_String() {
 	fmt.Printf("%s\n", GoldenKey)
 
 	// Output:
-	// {"alg":"ES256","d":"bNstg4_H3m3SlROufwRSEgibLrBuRq9114OvdapcpVA","now":1623132000,"tag":"Zami's Majuscule Key.","tmb":"U5XUZots-WmQYcQWmsO751Xk0yeVi9XUKWQ2mGz6Aqg","pub":"2nTOaFVm2QLxmUO_SjgyscVHBtvHEfo2rq65MvgNRjORojq39Haq9rXNxvXxwba_Xj0F5vZibJR3isBdOWbo5g"}
+	// {"alg":"ES256","prv":"bNstg4_H3m3SlROufwRSEgibLrBuRq9114OvdapcpVA","now":1623132000,"tag":"Zami's Majuscule Key.","tmb":"U5XUZots-WmQYcQWmsO751Xk0yeVi9XUKWQ2mGz6Aqg","pub":"2nTOaFVm2QLxmUO_SjgyscVHBtvHEfo2rq65MvgNRjORojq39Haq9rXNxvXxwba_Xj0F5vZibJR3isBdOWbo5g"}
 }
 
 // ExampleKey_jsonUnmarshal tests unmarshalling a Coze key.
@@ -126,7 +126,7 @@ func ExampleKey_jsonUnmarshal() {
 	fmt.Printf("%+v\n", Key)
 
 	// Output:
-	//{"alg":"ES256","d":"bNstg4_H3m3SlROufwRSEgibLrBuRq9114OvdapcpVA","now":1623132000,"tag":"Zami's Majuscule Key.","tmb":"U5XUZots-WmQYcQWmsO751Xk0yeVi9XUKWQ2mGz6Aqg","pub":"2nTOaFVm2QLxmUO_SjgyscVHBtvHEfo2rq65MvgNRjORojq39Haq9rXNxvXxwba_Xj0F5vZibJR3isBdOWbo5g"}
+	//{"alg":"ES256","prv":"bNstg4_H3m3SlROufwRSEgibLrBuRq9114OvdapcpVA","now":1623132000,"tag":"Zami's Majuscule Key.","tmb":"U5XUZots-WmQYcQWmsO751Xk0yeVi9XUKWQ2mGz6Aqg","pub":"2nTOaFVm2QLxmUO_SjgyscVHBtvHEfo2rq65MvgNRjORojq39Haq9rXNxvXxwba_Xj0F5vZibJR3isBdOWbo5g"}
 }
 
 func ExampleKey_jsonMarshal() {
@@ -137,7 +137,7 @@ func ExampleKey_jsonMarshal() {
 	fmt.Printf("%s\n", string(b))
 
 	// Output:
-	//{"alg":"ES256","d":"bNstg4_H3m3SlROufwRSEgibLrBuRq9114OvdapcpVA","now":1623132000,"tag":"Zami's Majuscule Key.","tmb":"U5XUZots-WmQYcQWmsO751Xk0yeVi9XUKWQ2mGz6Aqg","pub":"2nTOaFVm2QLxmUO_SjgyscVHBtvHEfo2rq65MvgNRjORojq39Haq9rXNxvXxwba_Xj0F5vZibJR3isBdOWbo5g"}
+	//{"alg":"ES256","prv":"bNstg4_H3m3SlROufwRSEgibLrBuRq9114OvdapcpVA","now":1623132000,"tag":"Zami's Majuscule Key.","tmb":"U5XUZots-WmQYcQWmsO751Xk0yeVi9XUKWQ2mGz6Aqg","pub":"2nTOaFVm2QLxmUO_SjgyscVHBtvHEfo2rq65MvgNRjORojq39Haq9rXNxvXxwba_Xj0F5vZibJR3isBdOWbo5g"}
 }
 
 func ExampleKey_Thumbprint() {
@@ -395,19 +395,19 @@ func ExampleKey_Correct() {
 		gk2.Tmb = []byte{}
 		p3 := gk2.Correct()
 
-		// A key with [alg,x,d].
+		// A key with [alg,pub,prv].
 		gk2 = k
 		gk2.Tmb = []byte{}
 		p4 := gk2.Correct()
 
-		// A key with [alg,x,tmb]
+		// A key with [alg,pub,tmb]
 		gk2 = k
-		gk2.D = []byte{}
+		gk2.Prv = []byte{}
 		p5 := gk2.Correct()
 
 		// Key with [alg,tmb]
 		gk2 = k
-		gk2.D = []byte{}
+		gk2.Prv = []byte{}
 		gk2.Pub = []byte{}
 		p6 := gk2.Correct()
 

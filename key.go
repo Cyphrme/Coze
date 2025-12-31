@@ -23,7 +23,7 @@ var KeyCanon = []string{"alg", "pub"}
 // Standard Coze key Fields
 //
 //	`alg` - Specific key algorithm. E.g. "ES256" or "Ed25519".
-//	`d`   - Private component. E.g. "bNstg4_H3m3SlROufwRSEgibLrBuRq9114OvdapcpVA".
+//	`prv` - Private component. E.g. "bNstg4_H3m3SlROufwRSEgibLrBuRq9114OvdapcpVA".
 //	`now` - Unix time of when the key was created. E.g. 1626069600.
 //	`tag` - Human readable, non-programmatic label. E.g. "My Coze key".
 //	`rvk` - Unix time of key revocation. See docs on `rvk`. E.g. 1626069601.
@@ -32,7 +32,7 @@ var KeyCanon = []string{"alg", "pub"}
 //	`pub` - Public component. E.g. "2nTOaFVm2QLxmUO_SjgyscVHBtvHEfo2rq65MvgNRjORojq39Haq9rXNxvXxwba_Xj0F5vZibJR3isBdOWbo5g".
 type Key struct {
 	Alg SEAlg  `json:"alg,omitempty"`
-	D   B64    `json:"d,omitempty"`
+	Prv B64    `json:"prv,omitempty"`
 	Now int64  `json:"now,omitempty"`
 	Tag string `json:"tag,omitempty"`
 	Rvk int64  `json:"rvk,omitempty"`
@@ -64,8 +64,8 @@ func NewKey(alg SEAlg) (c *Key, err error) {
 			return nil, err
 		}
 
-		d := make([]byte, alg.DSize())
-		c.D = eck.D.FillBytes(d) // Left pads bytes
+		prvBytes := make([]byte, alg.PrvSize())
+		c.Prv = eck.D.FillBytes(prvBytes) // Left pads bytes
 		c.Pub = PadInts(eck.X, eck.Y, alg.PubSize())
 	case Ed25519, Ed25519ph:
 		pub, pri, err := ed25519.GenerateKey(rand.Reader)
@@ -74,7 +74,7 @@ func NewKey(alg SEAlg) (c *Key, err error) {
 		}
 		// ed25519.GenerateKey returns "private key" that is the seed || publicKey.
 		// Remove public key for 32 byte "seed", which is used as the private key.
-		c.D = []byte(pri[:32])
+		c.Prv = []byte(pri[:32])
 		c.Pub = B64(pub)
 	}
 
@@ -130,8 +130,8 @@ func (c *Key) UnmarshalJSON(b []byte) error {
 // pay.alg and pay.tmb matches with Key.  Use SignPay, SignCoze, SignPayJSON,
 // and/or VerifyCoze if needing Coze validation.
 func (c *Key) Sign(digest B64) (sig B64, err error) {
-	if len(c.D) != c.Alg.DSize() {
-		return nil, fmt.Errorf("Sign: incorrect d length for alg %q; expected %q, given %q", c.Alg, c.Alg.DSize(), len(c.D))
+	if len(c.Prv) != c.Alg.PrvSize() {
+		return nil, fmt.Errorf("Sign: incorrect prv length for alg %q; expected %q, given %q", c.Alg, c.Alg.PrvSize(), len(c.Prv))
 	}
 
 	switch c.Alg.SigAlg().Genus() {
@@ -139,7 +139,7 @@ func (c *Key) Sign(digest B64) (sig B64, err error) {
 		return nil, fmt.Errorf("Sign: unsupported alg %q", c.Alg)
 	case ECDSA:
 		curve := c.Alg.Curve().EllipticCurve()
-		d := new(big.Int).SetBytes(c.D)
+		d := new(big.Int).SetBytes(c.Prv)
 		// Go 1.25+ requires PublicKey.X and PublicKey.Y to be populated.
 		var pubX, pubY *big.Int
 		if len(c.Pub) == c.Alg.PubSize() {
@@ -149,7 +149,7 @@ func (c *Key) Sign(digest B64) (sig B64, err error) {
 			pubY = new(big.Int).SetBytes(c.Pub[half:])
 		} else {
 			// Compute public key from private key using scalar base multiplication.
-			pubX, pubY = curve.ScalarBaseMult(c.D)
+			pubX, pubY = curve.ScalarBaseMult(c.Prv)
 		}
 		prk := ecdsa.PrivateKey{
 			PublicKey: ecdsa.PublicKey{
@@ -173,10 +173,10 @@ func (c *Key) Sign(digest B64) (sig B64, err error) {
 		// ECDSA Sig is R || S rounded up to byte left padded.
 		return PadInts(r, s, c.Alg.SigAlg().SigSize()), nil
 	case EdDSA:
-		pk := ed25519.NewKeyFromSeed(c.D)
-		// Alternatively, concat d with pub
+		pk := ed25519.NewKeyFromSeed(c.Prv)
+		// Alternatively, concat prv with pub
 		// b := make([]coze.B64, 64)
-		// d := append(b, c.D, c.Pub)
+		// prv := append(b, c.Prv, c.Pub)
 		return ed25519.Sign(pk, digest), nil
 	}
 }
@@ -330,7 +330,7 @@ func (c *Key) Valid() (valid bool) {
 
 // Correct is an advanced function for checking for the correct construction of
 // a Coze key if it can be known from the given inputs. Key must have at least
-// one of [`tmb`, `pub`,`d`] and `alg` set.  Correct may return no error on
+// one of [`tmb`, `pub`,`prv`] and `alg` set.  Correct may return no error on
 // cryptographically invalid public keys.  Using input information, if possible
 // to definitively know the given key is incorrect, Correct returns an error,
 // but if plausibly correct, Correct returns no error. Correct answers the
@@ -345,7 +345,7 @@ func (c *Key) Valid() (valid bool) {
 //
 //  1. Checks the length of `pub` and/or `tmb` against `alg`.
 //  2. If `pub` and `tmb` are present, verifies correct `tmb`.
-//  3. If `d` is present, verifies correct `tmb` and `pub` if present, and
+//  3. If `prv` is present, verifies correct `tmb` and `pub` if present, and
 //     verifies the key by verifying a generated signature.
 //  4. If possible, sets tmb and/or pub.
 //
@@ -354,13 +354,13 @@ func (c *Key) Correct() (err error) {
 	if c.Alg == "" {
 		return errors.New("Correct: alg must be set")
 	}
-	if len(c.Tmb) == 0 && len(c.Pub) == 0 && len(c.D) == 0 {
-		return errors.New("Correct: at least one of [pub, tmb, d] must be set")
+	if len(c.Tmb) == 0 && len(c.Pub) == 0 && len(c.Prv) == 0 {
+		return errors.New("Correct: at least one of [pub, tmb, prv] must be set")
 	}
 
-	// d is set.
-	// Calculate pub from d and compare with given value.
-	if len(c.D) != 0 {
+	// prv is set.
+	// Calculate pub from prv and compare with given value.
+	if len(c.Prv) != 0 {
 		givenPub := c.Pub
 		c.Pub = c.calcPub()
 		if len(givenPub) != 0 && !bytes.Equal(c.Pub, givenPub) {
@@ -387,7 +387,7 @@ func (c *Key) Correct() (err error) {
 		}
 	}
 
-	// tmb only key.  (Coze assumes `pub` is calculable from `d`, so at this point
+	// tmb only key.  (Coze assumes `pub` is calculable from `prv`, so at this point
 	// `tmb` should always be set. See `checksum_and_seed.md` for exposition.
 	if len(c.Tmb) != c.Alg.Hash().Size() {
 		return fmt.Errorf("Correct: incorrect tmb length for alg %q; expected %q, given %q", c.Alg, c.Alg.Hash().Size(), len(c.Tmb))
@@ -428,7 +428,7 @@ func (c Key) IsRevoked() bool {
 	return isRevoke(c.Rvk)
 }
 
-// calcPub recalculates 'pub' from 'd' and returns 'pub'. 'pub' will not be set on the
+// calcPub recalculates 'pub' from 'prv' and returns 'pub'. 'pub' will not be set on the
 // key from here. Algorithms are constant-time.
 // https://cs.opensource.google/go/go/+/refs/tags/go1.18.3:src/crypto/elliptic/elliptic.go;l=455;drc=7f9494c277a471f6f47f4af3036285c0b1419816
 func (c *Key) calcPub() B64 {
@@ -436,10 +436,10 @@ func (c *Key) calcPub() B64 {
 	default:
 		return nil
 	case ES224, ES256, ES384, ES512:
-		pukx, puky := c.Alg.Curve().EllipticCurve().ScalarBaseMult(c.D)
+		pukx, puky := c.Alg.Curve().EllipticCurve().ScalarBaseMult(c.Prv)
 		return PadInts(pukx, puky, c.Alg.PubSize())
 	case Ed25519, Ed25519ph:
-		return []byte(ed25519.NewKeyFromSeed(c.D)[32:])
+		return []byte(ed25519.NewKeyFromSeed(c.Prv)[32:])
 	}
 }
 
