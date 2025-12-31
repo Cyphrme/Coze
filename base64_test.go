@@ -156,3 +156,32 @@ func FuzzCastB64ToString(f *testing.F) {
 		}
 	})
 }
+
+// ExampleB64s demonstrates using B64s as a map key and that fmt prints "RFC
+// 4648 base 64 URI canonical with padding truncated" properly.
+func ExampleB64s() {
+	b := MustDecode("zVzgRU3WFpnrlVJAnI4ZU1Od4Agl5Zd4jIP79oubOW0")  // Random b64ut value 1
+	b2 := MustDecode("vZIAk8rjcSIKZKokGylCtVoI3DXvFYJn4XNWzf_C_FA") // Random b64ut value 2
+
+	// Insert a B64s value into a map to test correct printing. (The value of the
+	// map already works for B64 as shown in other tests, but here B64s is tested
+	// as a value anyway.)
+	lp := make(map[B64s]B64)
+	lp[B64s(b)] = B64(b2)
+
+	// Test all the variations of printing these values using different fmt
+	// outputs. This ensures that less commons/tricky/confusing interfaces, like
+	// `type GoStringer interface` are implemented correctly.
+	fmt.Printf("%s\n", B64s(b))
+	fmt.Printf("%s\n", B64s(b2))
+	fmt.Printf("%s\n", lp)
+	fmt.Printf("%+v\n", lp)
+	fmt.Printf("%#v\n", lp)
+
+	// Output:
+	// zVzgRU3WFpnrlVJAnI4ZU1Od4Agl5Zd4jIP79oubOW0
+	// vZIAk8rjcSIKZKokGylCtVoI3DXvFYJn4XNWzf_C_FA
+	// map[zVzgRU3WFpnrlVJAnI4ZU1Od4Agl5Zd4jIP79oubOW0:vZIAk8rjcSIKZKokGylCtVoI3DXvFYJn4XNWzf_C_FA]
+	// map[zVzgRU3WFpnrlVJAnI4ZU1Od4Agl5Zd4jIP79oubOW0:vZIAk8rjcSIKZKokGylCtVoI3DXvFYJn4XNWzf_C_FA]
+	// map[coze.B64s]coze.B64{zVzgRU3WFpnrlVJAnI4ZU1Od4Agl5Zd4jIP79oubOW0:vZIAk8rjcSIKZKokGylCtVoI3DXvFYJn4XNWzf_C_FA}
+}

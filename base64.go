@@ -53,3 +53,31 @@ func MustDecode(b64 string) B64 {
 	}
 	return b
 }
+
+// B64s is useful for B64 map keys. Idiomatically, map key type should be `B64`,
+// but currently in Go map keys are only type `string`, not `[]byte`.  Since
+// B64's underlying type is `[]byte` it cannot be used as a map key. See
+// https://github.com/golang/go/issues/283 and
+// https://github.com/google/go-cmp/issues/67.  B64s will be deprecated if/when
+// Go supports []byte keys.
+//
+// This is an acceptable hack because (from https://go.dev/blog/strings)
+//
+//	>[A] string holds arbitrary bytes. It is not required to hold Unicode text,
+//	> UTF-8 text, or any other predefined format. As far as the content of a
+//	> string is concerned, it is exactly equivalent to a slice of bytes.
+//
+// Also, it's important that this package exports this type, because Coze
+// requires canonical base64, which type B64s enforces.  If packages were to
+// implement this on their own, they may forget to have this enforcement.
+type B64s string
+
+// String implements fmt.Stringer
+func (b B64s) String() string {
+	return B64(b).String()
+}
+
+// GoString implements fmt.GoString
+func (b B64s) GoString() string {
+	return b.String()
+}
