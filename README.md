@@ -21,7 +21,7 @@ communication.
 		"msg": "Coz Rocks",
 		"alg": "ES256",
 		"now": 1623132000,
-		"tmb": "cLj8vsYtMBwYkzoFVZHBZo6SNL8wSdCIjCKAwXNuhOk",
+		"tmb": "U5XUZots-WmQYcQWmsO751Xk0yeVi9XUKWQ2mGz6Aqg",
 		"typ": "cyphr.me/msg"
 	},
 	"sig": "Jl8Kt4nznAf0LGgO5yn_9HkGdY3ulvjg-NyRGzlmJzhncbTkFFn9jrwIwGoRAQYhjc88wmwFNH5u_rO56USo_w"
@@ -55,7 +55,7 @@ additional application fields.  In the first example `msg` is additional.
 ### `pay` Standard Fields
 - `alg` - Specific cryptographic algorithm.   E.g. `"ES256"`
 - `now` - Unix time of message signature.     E.g. `1623132000`
-- `tmb` - Thumbprint of the signature's key.  E.g. `"cLj8vs..."`
+- `tmb` - Thumbprint of the signature's key.  E.g. `"U5XUZ..."`
 - `typ` - Type of `pay`.                      E.g. `"cyphr.me/msg"`
 - `msg` - Message payload (string or object). E.g. `"Coz Rocks"`
 - `dig` - Digest of external content.         E.g. `"LSgWE4v..."`
@@ -75,7 +75,7 @@ application defined programmatic functions.  In the first example,
 	"now":1623132000,
 	"pub":"2nTOaFVm2QLxmUO_SjgyscVHBtvHEfo2rq65MvgNRjORojq39Haq9rXNxvXxwba_Xj0F5vZibJR3isBdOWbo5g",
 	"tag":"Zami's Majuscule Key.",
-	"tmb":"cLj8vsYtMBwYkzoFVZHBZo6SNL8wSdCIjCKAwXNuhOk"
+	"tmb":"U5XUZots-WmQYcQWmsO751Xk0yeVi9XUKWQ2mGz6Aqg"
 }
 ```
 
@@ -87,7 +87,7 @@ application defined programmatic functions.  In the first example,
 	"prv":"bNstg4_H3m3SlROufwRSEgibLrBuRq9114OvdapcpVA",
 	"pub":"2nTOaFVm2QLxmUO_SjgyscVHBtvHEfo2rq65MvgNRjORojq39Haq9rXNxvXxwba_Xj0F5vZibJR3isBdOWbo5g",
 	"tag":"Zami's Majuscule Key.",
-	"tmb":"cLj8vsYtMBwYkzoFVZHBZo6SNL8wSdCIjCKAwXNuhOk"
+	"tmb":"U5XUZots-WmQYcQWmsO751Xk0yeVi9XUKWQ2mGz6Aqg"
 }
 ```
 
@@ -98,7 +98,7 @@ application defined programmatic functions.  In the first example,
 - `prv` - Private component.                              E.g. `"bNstg4..."`
 - `pub` - Public component.                               E.g. `"2nTOaF..."`
 - `tag` - Non-programmatic label.                         E.g. `"tag":"My Cyphr.me Key"`
-- `tmb` - Thumbprint.                                     E.g. `"cLj8vs..."`
+- `tmb` - Thumbprint.                                     E.g. `"U5XUZ..."`
 - `typ` - Application defined programmatic type.          E.g. `"cyphr.me/key"`
 - `rvk` - Key revocation Unix time.                       E.g. `1623132000`
 
@@ -117,7 +117,7 @@ The JSON name `coz` may be used to wrap a coz.
 			"msg": "Coz Rocks",
 			"alg": "ES256",
 			"now": 1623132000,
-			"tmb": "cLj8vsYtMBwYkzoFVZHBZo6SNL8wSdCIjCKAwXNuhOk",
+			"tmb": "U5XUZots-WmQYcQWmsO751Xk0yeVi9XUKWQ2mGz6Aqg",
 			"typ": "cyphr.me/msg"
 		},
 		"sig": "Jl8Kt4nznAf0LGgO5yn_9HkGdY3ulvjg-NyRGzlmJzhncbTkFFn9jrwIwGoRAQYhjc88wmwFNH5u_rO56USo_w"
@@ -133,8 +133,8 @@ The JSON name `coz` may be used to wrap a coz.
 - `pay`  "Payload"      Signed payload.             E.g. `"pay":{"alg":...}`
 - `sig`  "Signature"    Signature over `cad`.       E.g. `"sig":"ywctP6..."`
 
-`sig` is the signature over the bytes of `cad`.  `cad` is not rehashed before
-signing. `czd`'s hashing algorithm must align with `alg` in `pay`.  `czd` refers
+`sig` is the signature over the raw bytes of `cad` (the b64ut-decoded digest).
+`cad` is not rehashed before signing. `czd`'s hashing algorithm must align with `alg` in `pay`.  `czd` refers
 to a particular signed message just as `cad` refers to a particular payload.
 `cad` and `czd` are calculated from brace to brace, including the braces. `cad`
 and `czd` are recalculatable and are recommended to be omitted from cozies,
@@ -161,7 +161,7 @@ A tautologic coz:
 			"msg": "Coz Rocks",
 			"alg": "ES256",
 			"now": 1623132000,
-			"tmb": "cLj8vsYtMBwYkzoFVZHBZo6SNL8wSdCIjCKAwXNuhOk",
+			"tmb": "U5XUZots-WmQYcQWmsO751Xk0yeVi9XUKWQ2mGz6Aqg",
 			"typ": "cyphr.me/msg"
 		},
 		"key": {
@@ -169,7 +169,7 @@ A tautologic coz:
 			"now":1623132000,
 			"pub":"2nTOaFVm2QLxmUO_SjgyscVHBtvHEfo2rq65MvgNRjORojq39Haq9rXNxvXxwba_Xj0F5vZibJR3isBdOWbo5g",
 			"tag":"Zami's Majuscule Key.",
-			"tmb":"cLj8vsYtMBwYkzoFVZHBZo6SNL8wSdCIjCKAwXNuhOk"
+			"tmb":"U5XUZots-WmQYcQWmsO751Xk0yeVi9XUKWQ2mGz6Aqg"
 		},
 		"can": ["msg","alg","now","tmb","typ"],
 		"cad": "Ie3xL77AsiCcb4r0pbnZJqMcfSBqg5Lk0npNJyJ9BC4",
@@ -187,7 +187,7 @@ Simplified:
 		"msg": "Coz Rocks",
 		"alg": "ES256",
 		"now": 1623132000,
-		"tmb": "cLj8vsYtMBwYkzoFVZHBZo6SNL8wSdCIjCKAwXNuhOk",
+		"tmb": "U5XUZots-WmQYcQWmsO751Xk0yeVi9XUKWQ2mGz6Aqg",
 		"typ": "cyphr.me/msg"
 	},
 	"sig": "Jl8Kt4nznAf0LGgO5yn_9HkGdY3ulvjg-NyRGzlmJzhncbTkFFn9jrwIwGoRAQYhjc88wmwFNH5u_rO56USo_w"
@@ -230,11 +230,11 @@ form of the example key is:
 ```
 
 Hashing this canonical form results in the following digest, which is `tmb`:
-`cLj8vsYtMBwYkzoFVZHBZo6SNL8wSdCIjCKAwXNuhOk`. 
+`U5XUZots-WmQYcQWmsO751Xk0yeVi9XUKWQ2mGz6Aqg`. 
 
 `czd` is the canonical digest of `coz` with the canon `["cad","sig"]`, which
-results in the JSON `{"cad":"...",sig:"..."}`.  `czd`'s hash must align with
-`alg` in `pay`. 
+results in the JSON `{"cad":"...","sig":"..."}`.  `czd`'s hash must align with
+`alg` in `pay`.
 
 The canonical digest of 
  - `pay` is `cad`, 
@@ -242,7 +242,7 @@ The canonical digest of
  - `["cad","sig"]` is `czd`.
 
 Using the first example, the following canonical digests are calculated:
-- `tmb` is `cLj8vsYtMBwYkzoFVZHBZo6SNL8wSdCIjCKAwXNuhOk`
+- `tmb` is `U5XUZots-WmQYcQWmsO751Xk0yeVi9XUKWQ2mGz6Aqg`
 - `cad` is `LSgWE4vEfyxJZUTFaRaB2JdEclORdZcm4UVH9D8vVto`.
 - `czd` is `d0ygwQCGzuxqgUq1KsuAtJ8IBu0mkgAcKpUJzuX075M`.
 
@@ -253,7 +253,7 @@ is the present fields, no fields are removed when canonicalizing `pay`.
 ### Coz and Binaries
 The canonical digest of a binary file may simply be the digest of the file. The
 hashing algorithm and any other metadata may be denoted by an accompanying coz.
-For example, an image (\"coz_logo_icon_256.png\") may be referred to by its
+For example, an image ("coz_logo_icon_256.png") may be referred to by its
 digest. 
 
 ```JSON
@@ -274,11 +274,33 @@ to upload a file to a user's account.
   "file_name": "coz_logo_icon_256.png",
   "id": "oDBDAg4xplHQby6iQ2lZMS1Jz4Op0bNoD5LK3KxEUZo",
   "now": 1623132000,
-  "tmb": "cLj8vsYtMBwYkzoFVZHBZo6SNL8wSdCIjCKAwXNuhOk",
+  "tmb": "U5XUZots-WmQYcQWmsO751Xk0yeVi9XUKWQ2mGz6Aqg",
   "typ": "cyphr.me/file/create"
  },
  "sig": "DgJb6Qb81uhC-ulZJlIIj8ahi0b5rAbtnkQhiEH1FB0HeNiACVh_Deo6a22OkK2tr0UcDOiIRY1X-BUriw03Mg"
 }
+```
+
+
+## External Digest Serialization
+
+When Coz digest values (such as `tmb`, `dig`, `cad`, or `czd`) are stored
+outside of a coz and `alg` is not otherwise available, implementations should
+use the following self-describing, non-JSON format in order to preserve the
+cryptographic binding: the name of the algorithm, followed by the delimiter `:`,
+followed by the b64ut value.
+
+Examples:
+
+```text
+ES256:U5XUZots-WmQYcQWmsO751Xk0yeVi9XUKWQ2mGz6Aqg
+SHA-256:zxcLp3BEYYoAZxM9QlV7lS4o3Jn1T0dz9L0pWPZJnIs
+```
+
+Optionally, for additional disambiguation, the prefix `coz:` may be prepended to the serialized form:
+
+```text
+coz:ES256:U5XUZots-WmQYcQWmsO751Xk0yeVi9XUKWQ2mGz6Aqg
 ```
 
 
@@ -295,7 +317,7 @@ revocation and the current Unix timestamp is the suggested value.
   "msg": "Posted my private key online",
   "now": 1623132000,
   "rvk": 1623132000,
-  "tmb": "cLj8vsYtMBwYkzoFVZHBZo6SNL8wSdCIjCKAwXNuhOk",
+  "tmb": "U5XUZots-WmQYcQWmsO751Xk0yeVi9XUKWQ2mGz6Aqg",
   "typ": "cyphr.me/key/revoke"
  },
  "sig": "KVjPjMVHoL828WyAH5biqIOt-IOaQ5EBtN_7eQifP2w3agUHu6KfqO40_oqQ5GE_BShgXvhbK0O6Z2h5YPNAcw"
@@ -304,15 +326,15 @@ revocation and the current Unix timestamp is the suggested value.
 
 - `rvk` - Unix timestamp of key expiry.
 
-Coz explicitly defines a self-revoke method so that third parties may revoke
-leaked keys. Systems storing Coz keys should provide an interface permitting a
-given Coz key to be marked as expired by receiving a self-revoke message.
-Self-revokes with future times must immediately be considered as expired.
-
 `rvk` and `now` must be a positive integer less than 2^53 – 1
 (9,007,199,254,740,991), which is the integer precision limit specified by
 IEEE754 minus one. Revoke checks must error if `rvk` is not an integer or larger
 than 2^53 - 1.
+
+Coz explicitly defines a self-revoke method so that third parties may revoke
+leaked keys. Systems storing Coz keys must accept valid revoke cozies where pay
+is under 2048 bytes and must immediately mark the associated key as revoked,
+even if a future revocation time is specified.
 
 Key expiration policies, key rotation, backdating, and alternative revocation
 methods are outside the scope of Coz.
@@ -320,7 +342,9 @@ methods are outside the scope of Coz.
 
 ## Alg
 `alg` specifies a parameter set and is a single source of truth for Coz
-cryptographic operations. 
+cryptographic operations. Since the delimiter `:` is used for serialization,
+future Coz `alg` labels must never use the character `:`. Coz assumes `pub` can
+be deterministically derived from `prv` for all supported algorithms.
 
 ### Example - "alg":"ES256"
 - Name:         ES256
@@ -330,10 +354,10 @@ cryptographic operations.
 - Hash:         SHA-256
 - HashSize:     32 
 - HashSizeB64:  43
-- XSize:        64
-- XSizeB64:     86
-- DSize:        32
-- DSizeB64:     43
+- PubSize:      64
+- PubSizeB64:   86
+- PrvSize:      32
+- PrvSizeB64:   43
 - Curve:        P-256
 - SigSize:      64
 - SigSizeB64:   86
@@ -346,6 +370,15 @@ cryptographic operations.
 - Ed25519 
 - Ed25519ph
 - ES256k
+
+----------------------------------------------------------------------
+## End of Coz Specification
+
+The above sections starting at [# Coz](#coz) constitute the Coz specification.
+The following sections contain additional guidance, examples, philosophy, and
+implementation notes that are informative but not normative.
+
+----------------------------------------------------------------------
 
 
 ## Coz Verifier
@@ -480,7 +513,7 @@ vulnerabilities were found (like KRACK), updating the protocol was complex.
 Tight coupling to cryptographic primitives creates significant technical debt
 that becomes increasingly expensive to address over time. Quantum computing and
 other security threats require the ability to adapt cryptographic systems
-quickly. Coze aims to, as an intentional byproduct of standardization, prevent
+quickly. Coz aims to, as an intentional byproduct of standardization, prevent
 projects from accumulating this kind of debt, ensuring they remain adaptable to
 future cryptographic needs.
 
@@ -506,7 +539,7 @@ The following example, which signs a portion of this README, isn't ergonomic.
 "alg": "ES256",
 "now": 1623132000,
 "msg": "# Coz \n**Coz** is a cryptographic JSON messaging specification.\n\n[Try Coz out!](https://cyphr.me/coz)",
-"tmb": "cLj8vsYtMBwYkzoFVZHBZo6SNL8wSdCIjCKAwXNuhOk",
+"tmb": "U5XUZots-WmQYcQWmsO751Xk0yeVi9XUKWQ2mGz6Aqg",
 "typ": "cyphr.me/msg/create"
 }
 ```
@@ -519,7 +552,7 @@ The SHA-256 digest (which aligns with an `alg` of ES256) of the message gives
 "alg": "ES256",
 "now": 1623132000,
 "dig": "4FO2pB9yGxo8BBW2whULqbL5m7eAfUWOkvgQu7-9h08",
-"tmb": "cLj8vsYtMBwYkzoFVZHBZo6SNL8wSdCIjCKAwXNuhOk",
+"tmb": "U5XUZots-WmQYcQWmsO751Xk0yeVi9XUKWQ2mGz6Aqg",
 "typ": "cyphr.me/msg/dig/create"
 }
 ```
@@ -542,6 +575,21 @@ size of the input text.
 Coz is intentionally scope limited.  It is easier to extend a limited standard
 than to fix a large standard. Coz can be extended and customized for individual
 applications. 
+
+#### Why does Coz have a revoke size limit?
+Revoke coz messages, simply "revokes" or "revoke cozies", are limited to protect
+services from DoS/DDoS attacks using excessively large payloads. Services may
+safely ignore any revoke where `pay` exceeds 2048 bytes (2 KiB). The revoke
+example in the README is only 172 bytes, leaving ample room for metadata. Since
+revokes reference keys via `tmb`, not `pub`, this is suitable for even
+post-quantum. We also assume that future hash sizes used by Coz for addressing
+will not be much larger than 512 bits. The Go Coz library enforces this limit by
+default, with a configurable global variable available for custom needs (though
+increasing it is discouraged). Services may set stricter limits but must still
+handle valid revokes up to 2048 bytes. Services are not required to store the
+revoke message itself and are only required to mark the referenced key as
+revoked. The requirement applies only to keys the service already hosts, not
+unknown keys.
 
 #### Is Coz versioned?
 `alg` refers to a specific set of parameters for all operations and Coz Core
@@ -667,7 +715,7 @@ dubbed this a "tilde encapsulated payload". For example:
 {
 	"alg": "ES256",
 	"now": 1623132000,
-	"tmb": "cLj8vsYtMBwYkzoFVZHBZo6SNL8wSdCIjCKAwXNuhOk",
+	"tmb": "U5XUZots-WmQYcQWmsO751Xk0yeVi9XUKWQ2mGz6Aqg",
 	"typ": "cyphr.me/msg/create",
 	"~": {
 		"msg": "tilde encapsulated payload"
@@ -782,7 +830,7 @@ When using Coz with HTTP cookies, Coz messages should be JSON minified.  For
 example, we've encountered no issues using the first example as a cookie:
 
 ```
-token={"pay":{"msg":"Coz Rocks","alg":"ES256","now":1623132000,"tmb":"cLj8vsYtMBwYkzoFVZHBZo6SNL8wSdCIjCKAwXNuhOk","typ":"cyphr.me/msg"},"sig":"Jl8Kt4nznAf0LGgO5yn_9HkGdY3ulvjg-NyRGzlmJzhncbTkFFn9jrwIwGoRAQYhjc88wmwFNH5u_rO56USo_w"}; Path=/;  Secure; Max-Age=999999999; SameSite=None
+token={"pay":{"msg":"Coz Rocks","alg":"ES256","now":1623132000,"tmb":"U5XUZots-WmQYcQWmsO751Xk0yeVi9XUKWQ2mGz6Aqg","typ":"cyphr.me/msg"},"sig":"Jl8Kt4nznAf0LGgO5yn_9HkGdY3ulvjg-NyRGzlmJzhncbTkFFn9jrwIwGoRAQYhjc88wmwFNH5u_rO56USo_w"}; Path=/;  Secure; Max-Age=999999999; SameSite=None
 ```
 
 For more considerations see [http_headers.md][http_headers]

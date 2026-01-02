@@ -482,6 +482,9 @@ func ExampleKey_IsRevoked() {
 func ExampleECDSAToLowSSig() {
 	highSCozies := []string{
 		`{"pay":{},"sig":"qHnpghmFC8B0wnyT960gX6r3dtGt6DRzSL4REMOQuqK2RPE6s4QUKbq7iC-1lJXPLuCBT0cKhnOhXJ_YtFKqPQ"}`,
+		`{"pay":{"msg":"Coz Rocks","alg":"ES256","now":1623132000,"tmb":"U5XUZots-WmQYcQWmsO751Xk0yeVi9XUKWQ2mGz6Aqg","typ":"cyphr.me/msg"},"sig":"Q0c6YIUnxAahyINIkh-S2RF1-HaGcbD_L2KjI5KZvzuMeNdJnKXl8-m8QJnvhDVoe9C3-D3Q3yW3fmeDokemJA"}`,
+		`{"pay":{"msg":"Coz Rocks","alg":"ES256","now":1623132000,"tmb":"U5XUZots-WmQYcQWmsO751Xk0yeVi9XUKWQ2mGz6Aqg","typ":"cyphr.me/msg"},"sig":"xIRTBFC7xL3tRP-_ZRi5h8M7OspG9swY4CjSy8U-ogPaMb25f6SL6qByN9yir47SlRz05Muor61ZYekayKPVQg"}`,
+		`{"pay":{"msg":"Coz Rocks","alg":"ES256","now":1623132000,"tmb":"U5XUZots-WmQYcQWmsO751Xk0yeVi9XUKWQ2mGz6Aqg","typ":"cyphr.me/msg"},"sig":"oGZC7aBVSrGdJDFrnK3J7qncsmy4QaTgXGQ1kZGt__7kNWlXgIWLSnl7nXeeyMGZKuUHCsCoRg7cvzkv5aE-CA"}`,
 	}
 
 	for _, s := range highSCozies {
@@ -510,6 +513,9 @@ func ExampleECDSAToLowSSig() {
 
 	// Output:
 	// {"pay":{},"sig":"qHnpghmFC8B0wnyT960gX6r3dtGt6DRzSL4REMOQuqJJuw7ETHvr10VEd9BKa2owjgZ5XmANGBFSXSrqSBB7FA"}
+	// {"pay":{"msg":"Coz Rocks","alg":"ES256","now":1623132000,"tmb":"U5XUZots-WmQYcQWmsO751Xk0yeVi9XUKWQ2mGz6Aqg","typ":"cyphr.me/msg"},"sig":"Q0c6YIUnxAahyINIkh-S2RF1-HaGcbD_L2KjI5KZvztzhyi1Y1oaDRZDv2YQe8qXQRZCtWlGv188O2M_Wht_LQ"}
+	// {"pay":{"msg":"Coz Rocks","alg":"ES256","now":1623132000,"tmb":"U5XUZots-WmQYcQWmsO751Xk0yeVi9XUKWQ2mGz6Aqg","typ":"cyphr.me/msg"},"sig":"xIRTBFC7xL3tRP-_ZRi5h8M7OspG9swY4CjSy8U-ogMlzkJFgFt0Fl-NyCNdUHEtJ8oFyNtu7teaV-GoM79QDw"}
+	// {"pay":{"msg":"Coz Rocks","alg":"ES256","now":1623132000,"tmb":"U5XUZots-WmQYcQWmsO751Xk0yeVi9XUKWQ2mGz6Aqg","typ":"cyphr.me/msg"},"sig":"oGZC7aBVSrGdJDFrnK3J7qncsmy4QaTgXGQ1kZGt__4bypanf3p0toaEYohhNz5mkgHzouZvWHYW-pGTFsHnSQ"}
 }
 
 // Test_lowS tests to make sure generated ECDSA keys are low-s and not high-s.
