@@ -104,7 +104,6 @@ application defined programmatic functions. In the first example,
 - `now` - Key creation Unix time. E.g. `1623132000`
 - `prv` - Private component. E.g. `"bNstg4..."`
 - `pub` - Public component. E.g. `"2nTOaF..."`
-- `tag` - Non-programmatic label. E.g. `"tag":"My Cyphr.me Key"`
 - `tmb` - Thumbprint. E.g. `"U5XUZ..."`
 - `typ` - Application defined programmatic type. E.g. `"cyphr.me/key"`
 - `rvk` - Key revocation Unix time. E.g. `1623132000`
@@ -289,7 +288,7 @@ to upload a file to a user's account.
   "tmb": "U5XUZots-WmQYcQWmsO751Xk0yeVi9XUKWQ2mGz6Aqg",
   "typ": "cyphr.me/file/create"
  },
- "sig": "DgJb6Qb81uhC-ulZJlIIj8ahi0b5rAbtnkQhiEH1FB0HeNiACVh_Deo6a22OkK2tr0UcDOiIRY1X-BUriw03Mg"
+ "sig": "AV_gPaDCEd9OEyA1oZPo7LwpypzXkk2htmA-bEobpmcA4Vc7xNcaFPVaEBgU8DDCAZcQZcBHgRlOIjNk9g-Mkw"
 }
 ```
 
@@ -411,7 +410,7 @@ Its [codebase is in the CozJS repo][CozeJSVerifier] and may be locally hosted.
 ## Coz Implementations
 
 - [Coz CLI repository][CozeCLI].
-- [Go Coz (this repo)][Coze]
+- [Go coz (this repo)][Coze]
 - [CozJS (Javascript)][CozeJS]
 
 See [`docs/development.md`](docs/development.md) for the Go development guide.
