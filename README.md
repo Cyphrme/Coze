@@ -17,13 +17,13 @@ communication.
 ```JSON
 {
 	"pay": {
-		"msg": "Coz is a cryptographic JSON messaging specification",
+		"msg": "Coz is a cryptographic JSON messaging specification.",
 		"alg": "ES256",
 		"now": 1623132000,
 		"tmb": "U5XUZots-WmQYcQWmsO751Xk0yeVi9XUKWQ2mGz6Aqg",
-		"typ": "cyphr.me/msg"
+		"typ": "cyphr.me/msg/create"
 	},
-	"sig": "MdCVzTcAL09VbATeM4apMW5HhuGLJCbMvmjlhknabjxDIyDJizNHBC4bpbnW_Fl8_KEPhTNSr5222yYnTGq9yw"
+	"sig": "OJ4_timgp-wxpLF3hllrbe55wdjhzGOLgRYsGO1BmIMYbo4VKAdgZHnYyIU907ZTJkVr8B81A2K8U4nQA6ONEg"
 }
 ```
 
@@ -61,7 +61,7 @@ additional application fields. In the first example `msg` is additional.
 - `now` - Unix time of message signature. E.g. `1623132000`
 - `tmb` - Thumbprint of the signature's key. E.g. `"U5XUZ..."`
 - `typ` - Type of `pay`. E.g. `"cyphr.me/msg"`
-- `msg` - Message payload (string or object). E.g. `"Coz is a cryptographic JSON messaging specification"`
+- `msg` - Message payload (string). E.g. `"Coz is a cryptographic JSON messaging specification."`
 - `dig` - Digest of external content. E.g. `"LSgWE4v..."`
 
 `typ`'s value may be used by applications as desired. The value is recommended
@@ -121,13 +121,13 @@ The JSON name `coz` may be used to wrap a coz.
 {
 	"coz":{
 		"pay": {
-			"msg": "Coz is a cryptographic JSON messaging specification",
+			"msg": "Coz is a cryptographic JSON messaging specification.",
 			"alg": "ES256",
 			"now": 1623132000,
 			"tmb": "U5XUZots-WmQYcQWmsO751Xk0yeVi9XUKWQ2mGz6Aqg",
-			"typ": "cyphr.me/msg"
+			"typ": "cyphr.me/msg/create"
 		},
-		"sig": "MdCVzTcAL09VbATeM4apMW5HhuGLJCbMvmjlhknabjxDIyDJizNHBC4bpbnW_Fl8_KEPhTNSr5222yYnTGq9yw"
+		"sig": "OJ4_timgp-wxpLF3hllrbe55wdjhzGOLgRYsGO1BmIMYbo4VKAdgZHnYyIU907ZTJkVr8B81A2K8U4nQA6ONEg"
 	}
 }
 ```
@@ -167,11 +167,11 @@ A tautologic coz:
 {
 	"coz": {
 		"pay": {
-			"msg": "Coz is a cryptographic JSON messaging specification",
+			"msg": "Coz is a cryptographic JSON messaging specification.",
 			"alg": "ES256",
 			"now": 1623132000,
 			"tmb": "U5XUZots-WmQYcQWmsO751Xk0yeVi9XUKWQ2mGz6Aqg",
-			"typ": "cyphr.me/msg"
+			"typ": "cyphr.me/msg/create"
 		},
 		"key": {
 			"alg":"ES256",
@@ -181,9 +181,9 @@ A tautologic coz:
 			"tmb":"U5XUZots-WmQYcQWmsO751Xk0yeVi9XUKWQ2mGz6Aqg"
 		},
 		"can": ["msg","alg","now","tmb","typ"],
-		"cad": "a8F9GN4e-969D50wdqJGJ7CzIymKlJahc7WUJzYJ0Ew",
-		"czd": "hfACHYu_QvKgnFMI0ZpA3doJix6oVUqwgiOeZB0oksg",
-		"sig": "MdCVzTcAL09VbATeM4apMW5HhuGLJCbMvmjlhknabjxDIyDJizNHBC4bpbnW_Fl8_KEPhTNSr5222yYnTGq9yw"
+		"cad": "XzrXMGnY0QFwAKkr43Hh-Ku3yUS8NVE0BdzSlMLSuTU",
+		"czd": "xrYMu87EXes58PnEACcDW1t0jF2ez4FCN-njTF0MHNo",
+		"sig": "OJ4_timgp-wxpLF3hllrbe55wdjhzGOLgRYsGO1BmIMYbo4VKAdgZHnYyIU907ZTJkVr8B81A2K8U4nQA6ONEg"
 	}
 }
 ```
@@ -193,13 +193,13 @@ Simplified:
 ```JSON
 {
 	"pay": {
-		"msg": "Coz is a cryptographic JSON messaging specification",
+		"msg": "Coz is a cryptographic JSON messaging specification.",
 		"alg": "ES256",
 		"now": 1623132000,
 		"tmb": "U5XUZots-WmQYcQWmsO751Xk0yeVi9XUKWQ2mGz6Aqg",
-		"typ": "cyphr.me/msg"
+		"typ": "cyphr.me/msg/create"
 	},
-	"sig": "MdCVzTcAL09VbATeM4apMW5HhuGLJCbMvmjlhknabjxDIyDJizNHBC4bpbnW_Fl8_KEPhTNSr5222yYnTGq9yw"
+	"sig": "OJ4_timgp-wxpLF3hllrbe55wdjhzGOLgRYsGO1BmIMYbo4VKAdgZHnYyIU907ZTJkVr8B81A2K8U4nQA6ONEg"
 }
 ```
 
@@ -254,8 +254,8 @@ The canonical digest of
 Using the first example, the following canonical digests are calculated:
 
 - `tmb` is `U5XUZots-WmQYcQWmsO751Xk0yeVi9XUKWQ2mGz6Aqg`
-- `cad` is `a8F9GN4e-969D50wdqJGJ7CzIymKlJahc7WUJzYJ0Ew`.
-- `czd` is `hfACHYu_QvKgnFMI0ZpA3doJix6oVUqwgiOeZB0oksg`.
+- `cad` is `XzrXMGnY0QFwAKkr43Hh-Ku3yUS8NVE0BdzSlMLSuTU`.
+- `czd` is `xrYMu87EXes58PnEACcDW1t0jF2ez4FCN-njTF0MHNo`.
 
 Signing and verification functions must not mutate `pay`. Any mutation of `pay`
 via `can` must occur by canon related functions. Note that's since `pay`'s canon
@@ -316,19 +316,19 @@ coz:ES256:U5XUZots-WmQYcQWmsO751Xk0yeVi9XUKWQ2mGz6Aqg
 
 ## Revoke
 
-A Coz key may be revoked by signing a coze containing the field `rvk` with an integer value greater than
+A Coz key may be revoked by signing a coz containing the field `rvk` with an integer value greater than
 `0`. The integer value `1` is suitable to denote revocation and the current Unix timestamp is the suggested value.
 
 - `rvk` - Unix timestamp of key expiry.
 
-`rvk` and `iat` must be a positive integer less than 2^53 – 1 (9,007,199,254,740,991), which is the integer
+`rvk` and `now` must be a positive integer less than 2^53 – 1 (9,007,199,254,740,991), which is the integer
 precision limit specified by IEEE754 minus one. Revoke checks must error if `rvk` is not an integer or larger than 2^53 - 1.
 
 Coz explicitly defines a self-revoke method so that third parties may revoke leaked keys. Systems storing Coz keys must
 accept valid revoke cozies where pay is under 2048 bytes and must immediately mark the associated key as revoked, even if a
 future revocation time is specified.
 
-Key expiration policies, key rotation, backdating, and alternative revocation methods are outside the scope of Coze.
+Key expiration policies, key rotation, backdating, and alternative revocation methods are outside the scope of Coz.
 
 ### Example Self Revoke
 
@@ -336,17 +336,15 @@ Key expiration policies, key rotation, backdating, and alternative revocation me
 {
   "pay": {
     "alg": "ES256",
-    "iat": 1623132000,
     "msg": "Posted my private key online",
+    "now": 1623132000,
     "rvk": 1623132000,
-    "tmb": "cLj8vsYtMBwYkzoFVZHBZo6SNL8wSdCIjCKAwXNuhOk",
+    "tmb": "U5XUZots-WmQYcQWmsO751Xk0yeVi9XUKWQ2mGz6Aqg",
     "typ": "cyphr.me/key/revoke"
   },
-  "sig": "KVjPjMVHoL828WyAH5biqIOt-IOaQ5EBtN_7eQifP2w3agUHu6KfqO40_oqQ5GE_BShgXvhbK0O6Z2h5YPNAcw"
+  "sig": "EhAsIL_w51NbCtzxFUcJiRMb1KmlxFSD-g7M-9wgqH9nnVHaEHiNyecfvfkrNf--KnfZyrsDIyWuT86MLNozQg"
 }
 ```
-
-jk
 
 ## Alg
 
@@ -880,7 +878,7 @@ When using Coz with HTTP cookies, Coz messages should be JSON minified. For
 example, we've encountered no issues using the first example as a cookie:
 
 ```
-token={"pay":{"msg":"Coz is a cryptographic JSON messaging specification","alg":"ES256","now":1623132000,"tmb":"U5XUZots-WmQYcQWmsO751Xk0yeVi9XUKWQ2mGz6Aqg","typ":"cyphr.me/msg"},"sig":"MdCVzTcAL09VbATeM4apMW5HhuGLJCbMvmjlhknabjxDIyDJizNHBC4bpbnW_Fl8_KEPhTNSr5222yYnTGq9yw"}; Path=/;  Secure; Max-Age=999999999; SameSite=None
+token={"pay":{"msg":"Coz is a cryptographic JSON messaging specification.","alg":"ES256","now":1623132000,"tmb":"U5XUZots-WmQYcQWmsO751Xk0yeVi9XUKWQ2mGz6Aqg","typ":"cyphr.me/msg/create"},"sig":"OJ4_timgp-wxpLF3hllrbe55wdjhzGOLgRYsGO1BmIMYbo4VKAdgZHnYyIU907ZTJkVr8B81A2K8U4nQA6ONEg"}; Path=/;  Secure; Max-Age=999999999; SameSite=None
 ```
 
 For more considerations see [http_headers.md][http_headers]
