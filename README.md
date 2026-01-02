@@ -316,40 +316,37 @@ coz:ES256:U5XUZots-WmQYcQWmsO751Xk0yeVi9XUKWQ2mGz6Aqg
 
 ## Revoke
 
-A Coz key may be revoked by signing a coz containing the field `rvk` with an
-integer value greater than `0`. The integer value `1` is suitable to denote
-revocation and the current Unix timestamp is the suggested value.
-
-### Example Self Revoke
-
-```JSON
-{
- "pay": {
-  "alg": "ES256",
-  "msg": "Posted my private key online",
-  "now": 1623132000,
-  "rvk": 1623132000,
-  "tmb": "U5XUZots-WmQYcQWmsO751Xk0yeVi9XUKWQ2mGz6Aqg",
-  "typ": "cyphr.me/key/revoke"
- },
- "sig": "KVjPjMVHoL828WyAH5biqIOt-IOaQ5EBtN_7eQifP2w3agUHu6KfqO40_oqQ5GE_BShgXvhbK0O6Z2h5YPNAcw"
-}
-```
+A Coz key may be revoked by signing a coze containing the field `rvk` with an integer value greater than
+`0`. The integer value `1` is suitable to denote revocation and the current Unix timestamp is the suggested value.
 
 - `rvk` - Unix timestamp of key expiry.
 
-`rvk` and `now` must be a positive integer less than 2^53 – 1
-(9,007,199,254,740,991), which is the integer precision limit specified by
-IEEE754 minus one. Revoke checks must error if `rvk` is not an integer or larger
-than 2^53 - 1.
+`rvk` and `iat` must be a positive integer less than 2^53 – 1 (9,007,199,254,740,991), which is the integer
+precision limit specified by IEEE754 minus one. Revoke checks must error if `rvk` is not an integer or larger than 2^53 - 1.
 
-Coz explicitly defines a self-revoke method so that third parties may revoke
-leaked keys. Systems storing Coz keys must accept valid revoke cozies where pay
-is under 2048 bytes and must immediately mark the associated key as revoked,
-even if a future revocation time is specified.
+Coz explicitly defines a self-revoke method so that third parties may revoke leaked keys. Systems storing Coz keys must
+accept valid revoke cozies where pay is under 2048 bytes and must immediately mark the associated key as revoked, even if a
+future revocation time is specified.
 
-Key expiration policies, key rotation, backdating, and alternative revocation
-methods are outside the scope of Coz.
+Key expiration policies, key rotation, backdating, and alternative revocation methods are outside the scope of Coze.
+
+### Example Self Revoke
+
+```json
+{
+  "pay": {
+    "alg": "ES256",
+    "iat": 1623132000,
+    "msg": "Posted my private key online",
+    "rvk": 1623132000,
+    "tmb": "cLj8vsYtMBwYkzoFVZHBZo6SNL8wSdCIjCKAwXNuhOk",
+    "typ": "cyphr.me/key/revoke"
+  },
+  "sig": "KVjPjMVHoL828WyAH5biqIOt-IOaQ5EBtN_7eQifP2w3agUHu6KfqO40_oqQ5GE_BShgXvhbK0O6Z2h5YPNAcw"
+}
+```
+
+jk
 
 ## Alg
 
