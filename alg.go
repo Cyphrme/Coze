@@ -1,4 +1,4 @@
-package coze
+package coz
 
 import (
 	"crypto/elliptic"
@@ -72,7 +72,7 @@ type (
 
 	// SEAlg is the Signing or Encryption alg. Super type of SigAlg and EncAlg and
 	// is itself not a specific algorithm and is not included in `Alg`.  It is
-	// useful for algorithms that need `x` and/or `d` and related functions.
+	// useful for algorithms that need `pub` and/or `d` and related functions.
 	SEAlg Alg
 )
 
@@ -237,10 +237,10 @@ type Params struct {
 	Hash        HshAlg `json:"Hash,omitempty"` // Hash
 	HashSize    int    `json:"HashSize,omitempty"`
 	HashSizeB64 int    `json:"HashSizeB64,omitempty"`
-	XSize       int    `json:"XSize,omitempty"` // Key
-	XSizeB64    int    `json:"XSizeB64,omitempty"`
-	DSize       int    `json:"DSize,omitempty"`
-	DSizeB64    int    `json:"DSizeB64,omitempty"`
+	PubSize     int    `json:"PubSize,omitempty"` // Key
+	PubSizeB64  int    `json:"PubSizeB64,omitempty"`
+	PrvSize     int    `json:"PrvSize,omitempty"`
+	PrvSizeB64  int    `json:"PrvSizeB64,omitempty"`
 	Curve       Crv    `json:"Curve,omitempty"`
 	SigSize     int    `json:"SigSize,omitempty"` // Sig
 	SigSizeB64  int    `json:"SigSizeB64,omitempty"`
@@ -255,8 +255,8 @@ func (a Alg) Params() Params {
 		Use:      a.Use(),
 		Hash:     a.Hash(),
 		HashSize: a.Hash().Size(),
-		XSize:    SEAlg(a).XSize(),
-		DSize:    SEAlg(a).DSize(),
+		PubSize:  SEAlg(a).PubSize(),
+		PrvSize:  SEAlg(a).PrvSize(),
 		Curve:    a.Curve(),
 		SigSize:  a.SigAlg().SigSize(),
 	}
@@ -265,8 +265,8 @@ func (a Alg) Params() Params {
 		return int(math.Ceil(float64(4*sizeInBytes) / 3))
 	}
 	p.HashSizeB64 = toB64(p.HashSize)
-	p.XSizeB64 = toB64(p.XSize)
-	p.DSizeB64 = toB64(p.DSize)
+	p.PubSizeB64 = toB64(p.PubSize)
+	p.PrvSizeB64 = toB64(p.PrvSize)
 	p.SigSizeB64 = toB64(p.SigSize)
 	return p
 }
@@ -329,10 +329,10 @@ func (se SEAlg) SigSize() int {
 	return SigAlg(se).SigSize()
 }
 
-// XSize returns the byte size of `x`.  Returns 0 on invalid algorithm.
+// PubSize returns the byte size of `pub`.  Returns 0 on invalid algorithm.
 //
-// For ECDSA `x` is the concatenation of X and Y.
-func (se SEAlg) XSize() int {
+// For ECDSA `pub` is the concatenation of X and Y.
+func (se SEAlg) PubSize() int {
 	switch SigAlg(se) {
 	default:
 		return 0
@@ -351,8 +351,8 @@ func (se SEAlg) XSize() int {
 	}
 }
 
-// DSize returns the byte size of `d`. Returns 0 on invalid algorithm.
-func (se SEAlg) DSize() int {
+// PrvSize returns the byte size of `prv`. Returns 0 on invalid algorithm.
+func (se SEAlg) PrvSize() int {
 	switch SigAlg(se) {
 	default:
 		return 0

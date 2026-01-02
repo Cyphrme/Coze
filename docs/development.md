@@ -1,7 +1,7 @@
 # Install
 
 ```
-go get github.com/cyphrme/coze@master
+go get github.com/cyphrme/coz@master
 ```
 
 # Go Development
@@ -33,7 +33,7 @@ has a gotcha.)
 Add the following line to `go.mod` in your other projects for local changes to
 apply while doing local development. Alternatively, use Go workspaces. 
 ```go.mod
-replace github.com/cyphrme/coze => ../coze
+replace github.com/cyphrme/coz => ../coz
 ```
 
 Also do a 
@@ -45,9 +45,9 @@ go get
 For development on untagged commit or a particular branch:
 
 ```sh
-go get github.com/cyphrme/coze@master
+go get github.com/cyphrme/coz@master
 # Or
-go get github.com/cyphrme/coze@base64
+go get github.com/cyphrme/coz@base64
 ```
 
 ## gofumpt and go-critic for linting
@@ -74,7 +74,7 @@ golangci-lint run
 godoc -http=:6060
 ```
 
-http://localhost:6060/pkg/github.com/cyphrme/coze/
+http://localhost:6060/pkg/github.com/cyphrme/coz/
 
 
 ## Visualizer

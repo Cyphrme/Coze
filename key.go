@@ -1,4 +1,4 @@
-package coze
+package coz
 
 import (
 	"bytes"
@@ -14,7 +14,7 @@ import (
 )
 
 // KeyCanon is the canonical form of a Coze key.
-var KeyCanon = []string{"alg", "x"}
+var KeyCanon = []string{"alg", "pub"}
 
 // Key is a Coze key. See `README.md` for details on Coze key. Fields `alg` and
 // `tmb` must be in correct relative order for thumbprint canon because JSON
@@ -23,22 +23,22 @@ var KeyCanon = []string{"alg", "x"}
 // Standard Coze key Fields
 //
 //	`alg` - Specific key algorithm. E.g. "ES256" or "Ed25519".
-//	`d`   - Private component. E.g. "bNstg4_H3m3SlROufwRSEgibLrBuRq9114OvdapcpVA".
-//	`iat` - Unix time of when the key was created. E.g. 1626069600.
-//	`kid` - Human readable, non-programmatic label. E.g. "My Coze key".
+//	`prv` - Private component. E.g. "bNstg4_H3m3SlROufwRSEgibLrBuRq9114OvdapcpVA".
+//	`now` - Unix time of when the key was created. E.g. 1626069600.
+//	`tag` - Human readable, non-programmatic label. E.g. "My Coze key".
 //	`rvk` - Unix time of key revocation. See docs on `rvk`. E.g. 1626069601.
-//	`tmb` - Key thumbprint. E.g. "cLj8vsYtMBwYkzoFVZHBZo6SNL8wSdCIjCKAwXNuhOk".
+//	`tmb` - Key thumbprint. E.g. "U5XUZots-WmQYcQWmsO751Xk0yeVi9XUKWQ2mGz6Aqg".
 //	`typ` - Application label for key. E.g. "coze/key".
-//	`x`   - Public component. E.g. "2nTOaFVm2QLxmUO_SjgyscVHBtvHEfo2rq65MvgNRjORojq39Haq9rXNxvXxwba_Xj0F5vZibJR3isBdOWbo5g".
+//	`pub` - Public component. E.g. "2nTOaFVm2QLxmUO_SjgyscVHBtvHEfo2rq65MvgNRjORojq39Haq9rXNxvXxwba_Xj0F5vZibJR3isBdOWbo5g".
 type Key struct {
 	Alg SEAlg  `json:"alg,omitempty"`
-	D   B64    `json:"d,omitempty"`
-	Iat int64  `json:"iat,omitempty"`
-	Kid string `json:"kid,omitempty"`
+	Prv B64    `json:"prv,omitempty"`
+	Now int64  `json:"now,omitempty"`
+	Tag string `json:"tag,omitempty"`
 	Rvk int64  `json:"rvk,omitempty"`
 	Tmb B64    `json:"tmb,omitempty"`
 	Typ string `json:"typ,omitempty"`
-	X   B64    `json:"x,omitempty"`
+	Pub B64    `json:"pub,omitempty"`
 }
 
 // String implements Stringer. Returns empty on error.
@@ -64,9 +64,9 @@ func NewKey(alg SEAlg) (c *Key, err error) {
 			return nil, err
 		}
 
-		d := make([]byte, alg.DSize())
-		c.D = eck.D.FillBytes(d) // Left pads bytes
-		c.X = PadInts(eck.X, eck.Y, alg.XSize())
+		prvBytes := make([]byte, alg.PrvSize())
+		c.Prv = eck.D.FillBytes(prvBytes) // Left pads bytes
+		c.Pub = PadInts(eck.X, eck.Y, alg.PubSize())
 	case Ed25519, Ed25519ph:
 		pub, pri, err := ed25519.GenerateKey(rand.Reader)
 		if err != nil {
@@ -74,26 +74,26 @@ func NewKey(alg SEAlg) (c *Key, err error) {
 		}
 		// ed25519.GenerateKey returns "private key" that is the seed || publicKey.
 		// Remove public key for 32 byte "seed", which is used as the private key.
-		c.D = []byte(pri[:32])
-		c.X = B64(pub)
+		c.Prv = []byte(pri[:32])
+		c.Pub = B64(pub)
 	}
 
-	c.Iat = time.Now().Unix()
+	c.Now = time.Now().Unix()
 	return c, c.Thumbprint()
 }
 
-// Thumbprint generates `tmb` which is the digest of canon [alg, x].  X must be
+// Thumbprint generates `tmb` which is the digest of canon [alg, pub].  Pub must be
 // set and be a valid length.  On error, tmb is set to nil.
 func (c *Key) Thumbprint() (err error) {
 	c.Tmb, err = Thumbprint(c)
 	return err
 }
 
-// Thumbprint generates `tmb` which is the digest of canon [alg, x].  X must be
+// Thumbprint generates `tmb` which is the digest of canon [alg, pub].  Pub must be
 // set and be a valid length.  On error, tmb is set to nil.
 func Thumbprint(c *Key) (tmb B64, err error) {
-	if len(c.X) != c.Alg.XSize() {
-		return nil, fmt.Errorf("Thumbprint: incorrect x length for alg %q; expected %q; given %q", c.Alg, c.Alg.Hash().Size(), len(tmb))
+	if len(c.Pub) != c.Alg.PubSize() {
+		return nil, fmt.Errorf("Thumbprint: incorrect pub length for alg %q; expected %q; given %q", c.Alg, c.Alg.Hash().Size(), len(tmb))
 	}
 	b, err := Marshal(c)
 	if err != nil {
@@ -130,8 +130,8 @@ func (c *Key) UnmarshalJSON(b []byte) error {
 // pay.alg and pay.tmb matches with Key.  Use SignPay, SignCoze, SignPayJSON,
 // and/or VerifyCoze if needing Coze validation.
 func (c *Key) Sign(digest B64) (sig B64, err error) {
-	if len(c.D) != c.Alg.DSize() {
-		return nil, fmt.Errorf("Sign: incorrect d length for alg %q; expected %q, given %q", c.Alg, c.Alg.DSize(), len(c.D))
+	if len(c.Prv) != c.Alg.PrvSize() {
+		return nil, fmt.Errorf("Sign: incorrect prv length for alg %q; expected %q, given %q", c.Alg, c.Alg.PrvSize(), len(c.Prv))
 	}
 
 	switch c.Alg.SigAlg().Genus() {
@@ -139,17 +139,17 @@ func (c *Key) Sign(digest B64) (sig B64, err error) {
 		return nil, fmt.Errorf("Sign: unsupported alg %q", c.Alg)
 	case ECDSA:
 		curve := c.Alg.Curve().EllipticCurve()
-		d := new(big.Int).SetBytes(c.D)
+		d := new(big.Int).SetBytes(c.Prv)
 		// Go 1.25+ requires PublicKey.X and PublicKey.Y to be populated.
 		var pubX, pubY *big.Int
-		if len(c.X) == c.Alg.XSize() {
-			// Extract X and Y from existing c.X (stored as X||Y concatenation).
-			half := c.Alg.XSize() / 2
-			pubX = new(big.Int).SetBytes(c.X[:half])
-			pubY = new(big.Int).SetBytes(c.X[half:])
+		if len(c.Pub) == c.Alg.PubSize() {
+			// Extract X and Y from existing c.Pub (stored as X||Y concatenation).
+			half := c.Alg.PubSize() / 2
+			pubX = new(big.Int).SetBytes(c.Pub[:half])
+			pubY = new(big.Int).SetBytes(c.Pub[half:])
 		} else {
 			// Compute public key from private key using scalar base multiplication.
-			pubX, pubY = curve.ScalarBaseMult(c.D)
+			pubX, pubY = curve.ScalarBaseMult(c.Prv)
 		}
 		prk := ecdsa.PrivateKey{
 			PublicKey: ecdsa.PublicKey{
@@ -173,10 +173,10 @@ func (c *Key) Sign(digest B64) (sig B64, err error) {
 		// ECDSA Sig is R || S rounded up to byte left padded.
 		return PadInts(r, s, c.Alg.SigAlg().SigSize()), nil
 	case EdDSA:
-		pk := ed25519.NewKeyFromSeed(c.D)
-		// Alternatively, concat d with x
+		pk := ed25519.NewKeyFromSeed(c.Prv)
+		// Alternatively, concat prv with pub
 		// b := make([]coze.B64, 64)
-		// d := append(b, c.D, c.X)
+		// prv := append(b, c.Prv, c.Pub)
 		return ed25519.Sign(pk, digest), nil
 	}
 }
@@ -185,18 +185,41 @@ func (c *Key) Sign(digest B64) (sig B64, err error) {
 // SignPay checks that `pay.alg` and `key.alg` match and that `pay.tmb` is
 // correct according to `key`.
 //
+// If `pay.Now` is non-zero, SignPay updates it to the current Unix timestamp
+// before signing. This is the recommended behavior for most use cases. To sign
+// without modifying `now`, use SignPayRaw.
+//
 // SignPay works with contextual cozies that lack pay.alg and/or pay.tmb and
 // uses key as a source of truth.
 func (c *Key) SignPay(p *Pay) (coze *Coze, err error) {
+	// Auto-update now if present (non-zero).
+	if p.Now != 0 {
+		p.Now = time.Now().Unix()
+	}
 	return c.signPayJSON(p, nil)
 }
 
-// SignPayJSON signs a json `coze.pay`.  See documentation on SignPay.
+// SignPayRaw signs coze.Pay without modifying any fields. Unlike SignPay,
+// it does not update `pay.Now`. Use this when you need exact control over
+// the payload being signed.
+func (c *Key) SignPayRaw(p *Pay) (coze *Coze, err error) {
+	return c.signPayJSON(p, nil)
+}
+
+// SignPayJSON signs a json `coze.pay`. If the JSON contains a non-zero `now`
+// field, it is updated to the current Unix timestamp before signing. See
+// documentation on SignPay.
 func (c *Key) SignPayJSON(pay json.RawMessage) (coze *Coze, err error) {
 	p := new(Pay)
 	err = json.Unmarshal(pay, p)
 	if err != nil {
 		return nil, err
+	}
+	// Auto-update now if present (non-zero).
+	if p.Now != 0 {
+		p.Now = time.Now().Unix()
+		// Must re-marshal since we modified p.Now and the JSON needs updating.
+		return c.signPayJSON(p, nil)
 	}
 	return c.signPayJSON(p, pay)
 }
@@ -239,12 +262,15 @@ func (c *Key) signPayJSON(p *Pay, b json.RawMessage) (coze *Coze, err error) {
 	return coze, nil
 }
 
-// SignCoze signs `coze.pay` and sets `coze.sig`.  See documentation on SignPay.
+// SignCoze signs `coze.pay` and sets `coze.sig`. Since SignPayJSON may modify
+// `pay.now` if present, SignCoze also updates `cz.Pay` to match the signed
+// payload. See documentation on SignPay.
 func (c *Key) SignCoze(cz *Coze) (err error) {
 	coze, err := c.SignPayJSON(cz.Pay)
 	if err != nil {
 		return err
 	}
+	cz.Pay = coze.Pay // Pay may have been modified (e.g., now updated).
 	cz.Sig = coze.Sig
 	return nil
 }
@@ -255,7 +281,7 @@ func (c *Key) SignCoze(cz *Coze) (err error) {
 // pay.alg and pay.tmb matches with Key.  Use SignPay, SignCoze, SignPayJSON,
 // and/or VerifyCoze if needing Coze validation.
 func (c *Key) Verify(digest, sig B64) (valid bool) {
-	if len(c.X) != c.Alg.XSize() {
+	if len(c.Pub) != c.Alg.PubSize() {
 		return false
 	}
 	switch c.Alg.SigAlg() {
@@ -274,7 +300,7 @@ func (c *Key) Verify(digest, sig B64) (valid bool) {
 
 		return ecdsa.Verify(c.ToPubEcdsa(), digest, r, s)
 	case Ed25519, Ed25519ph:
-		return ed25519.Verify(ed25519.PublicKey(c.X), digest, sig)
+		return ed25519.Verify(ed25519.PublicKey(c.Pub), digest, sig)
 	}
 }
 
@@ -311,7 +337,7 @@ func (c *Key) VerifyCoze(cz *Coze) (bool, error) {
 }
 
 // Valid cryptographically validates a private Coze Key by signing a message and
-// verifying the resulting signature with the given "x".
+// verifying the resulting signature with the given "pub".
 //
 // Valid always returns false on public keys.  Use function "Verify" for public
 // keys with signed message.  See also function Correct.
@@ -330,7 +356,7 @@ func (c *Key) Valid() (valid bool) {
 
 // Correct is an advanced function for checking for the correct construction of
 // a Coze key if it can be known from the given inputs. Key must have at least
-// one of [`tmb`, `x`,`d`] and `alg` set.  Correct may return no error on
+// one of [`tmb`, `pub`,`prv`] and `alg` set.  Correct may return no error on
 // cryptographically invalid public keys.  Using input information, if possible
 // to definitively know the given key is incorrect, Correct returns an error,
 // but if plausibly correct, Correct returns no error. Correct answers the
@@ -343,39 +369,39 @@ func (c *Key) Valid() (valid bool) {
 //
 // Correct:
 //
-//  1. Checks the length of `x` and/or `tmb` against `alg`.
-//  2. If `x` and `tmb` are present, verifies correct `tmb`.
-//  3. If `d` is present, verifies correct `tmb` and `x` if present, and
+//  1. Checks the length of `pub` and/or `tmb` against `alg`.
+//  2. If `pub` and `tmb` are present, verifies correct `tmb`.
+//  3. If `prv` is present, verifies correct `tmb` and `pub` if present, and
 //     verifies the key by verifying a generated signature.
-//  4. If possible, sets tmb and/or x.
+//  4. If possible, sets tmb and/or pub.
 //
 // Functions that call correct can check for correctness by `if key.Correct() != nil`
 func (c *Key) Correct() (err error) {
 	if c.Alg == "" {
 		return errors.New("Correct: alg must be set")
 	}
-	if len(c.Tmb) == 0 && len(c.X) == 0 && len(c.D) == 0 {
-		return errors.New("Correct: at least one of [x, tmb, d] must be set")
+	if len(c.Tmb) == 0 && len(c.Pub) == 0 && len(c.Prv) == 0 {
+		return errors.New("Correct: at least one of [pub, tmb, prv] must be set")
 	}
 
-	// d is set.
-	// Calculate x from d and compare with given value.
-	if len(c.D) != 0 {
-		givenX := c.X
-		c.X = c.calcX()
-		if len(givenX) != 0 && !bytes.Equal(c.X, givenX) {
-			return fmt.Errorf("Correct: incorrect X; expected %q, given %q, ", c.X, givenX)
+	// prv is set.
+	// Calculate pub from prv and compare with given value.
+	if len(c.Prv) != 0 {
+		givenPub := c.Pub
+		c.Pub = c.calcPub()
+		if len(givenPub) != 0 && !bytes.Equal(c.Pub, givenPub) {
+			return fmt.Errorf("Correct: incorrect Pub; expected %q, given %q, ", c.Pub, givenPub)
 		}
 		if !c.Valid() {
 			return fmt.Errorf("Correct: key is invalid")
 		}
 	}
 
-	// x is set.
-	// Calculate tmb from x and compare with given value.
-	if len(c.X) != 0 {
-		if len(c.X) != c.Alg.XSize() {
-			return fmt.Errorf("Correct: incorrect x length for alg %q; expected %q, given %q", c.Alg, c.Alg.XSize(), len(c.X))
+	// pub is set.
+	// Calculate tmb from pub and compare with given value.
+	if len(c.Pub) != 0 {
+		if len(c.Pub) != c.Alg.PubSize() {
+			return fmt.Errorf("Correct: incorrect pub length for alg %q; expected %q, given %q", c.Alg, c.Alg.PubSize(), len(c.Pub))
 		}
 		givenTmb := c.Tmb
 		err := c.Thumbprint()
@@ -387,7 +413,7 @@ func (c *Key) Correct() (err error) {
 		}
 	}
 
-	// tmb only key.  (Coze assumes `x` is calculable from `d`, so at this point
+	// tmb only key.  (Coze assumes `pub` is calculable from `prv`, so at this point
 	// `tmb` should always be set. See `checksum_and_seed.md` for exposition.
 	if len(c.Tmb) != c.Alg.Hash().Size() {
 		return fmt.Errorf("Correct: incorrect tmb length for alg %q; expected %q, given %q", c.Alg, c.Alg.Hash().Size(), len(c.Tmb))
@@ -404,8 +430,8 @@ func (c *Key) Revoke() (coze *Coze, err error) {
 
 	r := new(Pay)
 	r.Alg = c.Alg
-	r.Iat = time.Now().Unix()
-	r.Rvk = r.Iat
+	r.Now = time.Now().Unix()
+	r.Rvk = r.Now
 	r.Tmb = c.Tmb
 	// If needing "typ" populated, use Sign.
 
@@ -419,7 +445,7 @@ func (c *Key) Revoke() (coze *Coze, err error) {
 	if err != nil {
 		return nil, err
 	}
-	c.Rvk = r.Iat // Sets `Key.Rvk` to the same value as the self-revoke coze.
+	c.Rvk = r.Now // Sets `Key.Rvk` to the same value as the self-revoke coze.
 	return coze, nil
 }
 
@@ -428,28 +454,28 @@ func (c Key) IsRevoked() bool {
 	return isRevoke(c.Rvk)
 }
 
-// recalcX recalculates 'x' from 'd' and returns 'x'. 'x' will not be set on the
+// calcPub recalculates 'pub' from 'prv' and returns 'pub'. 'pub' will not be set on the
 // key from here. Algorithms are constant-time.
 // https://cs.opensource.google/go/go/+/refs/tags/go1.18.3:src/crypto/elliptic/elliptic.go;l=455;drc=7f9494c277a471f6f47f4af3036285c0b1419816
-func (c *Key) calcX() B64 {
+func (c *Key) calcPub() B64 {
 	switch c.Alg.SigAlg() {
 	default:
 		return nil
 	case ES224, ES256, ES384, ES512:
-		pukx, puky := c.Alg.Curve().EllipticCurve().ScalarBaseMult(c.D)
-		return PadInts(pukx, puky, c.Alg.XSize())
+		pukx, puky := c.Alg.Curve().EllipticCurve().ScalarBaseMult(c.Prv)
+		return PadInts(pukx, puky, c.Alg.PubSize())
 	case Ed25519, Ed25519ph:
-		return []byte(ed25519.NewKeyFromSeed(c.D)[32:])
+		return []byte(ed25519.NewKeyFromSeed(c.Prv)[32:])
 	}
 }
 
 // ToPubEcdsa converts a Coze Key to ecdsa.PublicKey.
 func (c *Key) ToPubEcdsa() (key *ecdsa.PublicKey) {
-	size := c.Alg.XSize() / 2
+	size := c.Alg.PubSize() / 2
 	return &ecdsa.PublicKey{
 		Curve: c.Alg.Curve().EllipticCurve(),
-		X:     new(big.Int).SetBytes(c.X[:size]),
-		Y:     new(big.Int).SetBytes(c.X[size:]),
+		X:     new(big.Int).SetBytes(c.Pub[:size]),
+		Y:     new(big.Int).SetBytes(c.Pub[size:]),
 	}
 }
 

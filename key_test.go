@@ -1,4 +1,4 @@
-package coze
+package coz
 
 import (
 	"crypto/ed25519"
@@ -11,58 +11,58 @@ import (
 
 var GoldenKey = Key{
 	Alg: SEAlg(ES256),
-	Kid: "Zami's Majuscule Key.",
-	Iat: 1623132000,
-	X:   MustDecode("2nTOaFVm2QLxmUO_SjgyscVHBtvHEfo2rq65MvgNRjORojq39Haq9rXNxvXxwba_Xj0F5vZibJR3isBdOWbo5g"),
-	D:   MustDecode("bNstg4_H3m3SlROufwRSEgibLrBuRq9114OvdapcpVA"),
-	Tmb: MustDecode("cLj8vsYtMBwYkzoFVZHBZo6SNL8wSdCIjCKAwXNuhOk"),
+	Tag: "Zami's Majuscule Key.",
+	Now: 1623132000,
+	Pub: MustDecode("2nTOaFVm2QLxmUO_SjgyscVHBtvHEfo2rq65MvgNRjORojq39Haq9rXNxvXxwba_Xj0F5vZibJR3isBdOWbo5g"),
+	Prv: MustDecode("bNstg4_H3m3SlROufwRSEgibLrBuRq9114OvdapcpVA"),
+	Tmb: MustDecode("U5XUZots-WmQYcQWmsO751Xk0yeVi9XUKWQ2mGz6Aqg"),
 }
 
 const GoldenKeyString = `{
 	"alg":"ES256",
-	"iat":1623132000,
-	"kid":"Zami's Majuscule Key.",
-	"d":"bNstg4_H3m3SlROufwRSEgibLrBuRq9114OvdapcpVA",
-	"tmb":"cLj8vsYtMBwYkzoFVZHBZo6SNL8wSdCIjCKAwXNuhOk",
-	"x":"2nTOaFVm2QLxmUO_SjgyscVHBtvHEfo2rq65MvgNRjORojq39Haq9rXNxvXxwba_Xj0F5vZibJR3isBdOWbo5g"
+	"now":1623132000,
+	"tag":"Zami's Majuscule Key.",
+	"prv":"bNstg4_H3m3SlROufwRSEgibLrBuRq9114OvdapcpVA",
+	"tmb":"U5XUZots-WmQYcQWmsO751Xk0yeVi9XUKWQ2mGz6Aqg",
+	"pub":"2nTOaFVm2QLxmUO_SjgyscVHBtvHEfo2rq65MvgNRjORojq39Haq9rXNxvXxwba_Xj0F5vZibJR3isBdOWbo5g"
 }`
 
-// The last byte in D was changed from 80 (b64ut "VA"), to 81 (b64ut "VE),
+// The last byte in Prv was changed from 80 (b64ut "VA"), to 81 (b64ut "VE),
 // making it invalid. Note that Base64 needs to be to "E", not "B" through "D"
 // for it to be effective as "B" through "D" is non-canonical base64 encoding
 // and may decode to the same byte string.
 var GoldenKeyBadD = Key{
 	Alg: SEAlg(ES256),
-	Kid: "GoldenKeyBadD",
-	Iat: 1623132000,
-	X:   MustDecode("2nTOaFVm2QLxmUO_SjgyscVHBtvHEfo2rq65MvgNRjORojq39Haq9rXNxvXxwba_Xj0F5vZibJR3isBdOWbo5g"),
-	D:   MustDecode("bNstg4_H3m3SlROufwRSEgibLrBuRq9114OvdapcpVE"),
-	Tmb: MustDecode("cLj8vsYtMBwYkzoFVZHBZo6SNL8wSdCIjCKAwXNuhOk"),
+	Tag: "GoldenKeyBadD",
+	Now: 1623132000,
+	Pub: MustDecode("2nTOaFVm2QLxmUO_SjgyscVHBtvHEfo2rq65MvgNRjORojq39Haq9rXNxvXxwba_Xj0F5vZibJR3isBdOWbo5g"),
+	Prv: MustDecode("bNstg4_H3m3SlROufwRSEgibLrBuRq9114OvdapcpVE"),
+	Tmb: MustDecode("U5XUZots-WmQYcQWmsO751Xk0yeVi9XUKWQ2mGz6Aqg"),
 }
 
 // The last byte in X was changed from 230 (b64ut "5g") to 231 (b64ut
 // "5w") , making it invalid. See documentation on GoldenKeyBadD.
 var GoldenKeyBadX = Key{
 	Alg: SEAlg(ES256),
-	Kid: "GoldenKeyBadX",
-	Iat: 1623132000,
-	X:   MustDecode("2nTOaFVm2QLxmUO_SjgyscVHBtvHEfo2rq65MvgNRjORojq39Haq9rXNxvXxwba_Xj0F5vZibJR3isBdOWbo5w"),
-	D:   MustDecode("bNstg4_H3m3SlROufwRSEgibLrBuRq9114OvdapcpVE"),
-	Tmb: MustDecode("cLj8vsYtMBwYkzoFVZHBZo6SNL8wSdCIjCKAwXNuhOk"),
+	Tag: "GoldenKeyBadX",
+	Now: 1623132000,
+	Pub: MustDecode("2nTOaFVm2QLxmUO_SjgyscVHBtvHEfo2rq65MvgNRjORojq39Haq9rXNxvXxwba_Xj0F5vZibJR3isBdOWbo5w"),
+	Prv: MustDecode("bNstg4_H3m3SlROufwRSEgibLrBuRq9114OvdapcpVE"),
+	Tmb: MustDecode("U5XUZots-WmQYcQWmsO751Xk0yeVi9XUKWQ2mGz6Aqg"),
 }
 
 var (
-	GoldenTmb = "cLj8vsYtMBwYkzoFVZHBZo6SNL8wSdCIjCKAwXNuhOk"
-	GoldenCad = "Ie3xL77AsiCcb4r0pbnZJqMcfSBqg5Lk0npNJyJ9BC4"
-	GoldenCzd = "TnRe4DRuGJlw280u3pGhMDOIYM7ii7J8_PhNuSScsIU"
-	GoldenSig = "Jl8Kt4nznAf0LGgO5yn_9HkGdY3ulvjg-NyRGzlmJzhncbTkFFn9jrwIwGoRAQYhjc88wmwFNH5u_rO56USo_w"
+	GoldenTmb = "U5XUZots-WmQYcQWmsO751Xk0yeVi9XUKWQ2mGz6Aqg"
+	GoldenCad = "AyVZoWUv_rJf7_KqoeRS5odr8g3MZwBzhtBdSZderxk"
+	GoldenCzd = "DHEHV1BZPYMMzZs2auqF5vlvCySOdiOWdPleWHy3Ypg"
+	GoldenSig = "bbO49APro9TGzAxDWvyT0a41l2sEFMpYWqC-hvDlJukyXKZ_0TRNsrJNcTIso3b8kh5wbLL2KLvOO4zfsHplwA"
 )
 
 var GoldenPay = `{
 	"msg": "Coze Rocks",
 	"alg": "ES256",
-	"iat": 1623132000,
-	"tmb": "cLj8vsYtMBwYkzoFVZHBZo6SNL8wSdCIjCKAwXNuhOk",
+	"now": 1623132000,
+	"tmb": "U5XUZots-WmQYcQWmsO751Xk0yeVi9XUKWQ2mGz6Aqg",
 	"typ": "cyphr.me/msg"
  }`
 
@@ -84,23 +84,23 @@ var GoldenCozeWKey = `{
 
 var GoldenCozeEmpty = json.RawMessage(`{
 	"pay":{},
-	"sig":"9iesKUSV7L1-xz5yd3A94vCkKLmdOAnrcPXTU3_qeKRRbHuy5EvMMFNRkW_sNLo-vvEPO9BmeUkcNh-ok18I_A"
+	"sig":"UG0KP-cElD3mPoN8LRVd4_uoNzMwmpUm3pKxt-iy6So8f1JxmxMcO9JFzsmecFXyt5PjsOTZdUKyV6eZRNl-hg"
 }`)
 
 var GoldenCozeNoAlg = json.RawMessage(`{
 	"pay": {
 			"msg": "Coze Rocks",
-			"iat": 1623132000,
-			"tmb": "cLj8vsYtMBwYkzoFVZHBZo6SNL8wSdCIjCKAwXNuhOk",
+			"now": 1623132000,
+			"tmb": "U5XUZots-WmQYcQWmsO751Xk0yeVi9XUKWQ2mGz6Aqg",
 			"typ": "cyphr.me/msg"
 	},
-	"sig": "reOiKUO--OwgTNlYpKN60_gZARnW5X6PmQw4zWYbz2QryetRg_qS4KvwEVe1aiSAsWlkVA3MqYuaIM5ihY_8NQ"
+	"sig": "rVVX9Px9ZVdU-YQdWTHK-hrgjQZVngztqJq7QlPBw1o9XUhN7GzWRV_0u2s-gP7Z9MHRCicq9j7InhUrg8LNjg"
 }`)
 
 var GoldenPayNoAlg = json.RawMessage(`{
 			"msg": "Coze Rocks",
-			"iat": 1623132000,
-			"tmb": "cLj8vsYtMBwYkzoFVZHBZo6SNL8wSdCIjCKAwXNuhOk",
+			"now": 1623132000,
+			"tmb": "U5XUZots-WmQYcQWmsO751Xk0yeVi9XUKWQ2mGz6Aqg",
 			"typ": "cyphr.me/msg"
 	}`)
 
@@ -113,7 +113,7 @@ func ExampleKey_String() {
 	fmt.Printf("%s\n", GoldenKey)
 
 	// Output:
-	// {"alg":"ES256","d":"bNstg4_H3m3SlROufwRSEgibLrBuRq9114OvdapcpVA","iat":1623132000,"kid":"Zami's Majuscule Key.","tmb":"cLj8vsYtMBwYkzoFVZHBZo6SNL8wSdCIjCKAwXNuhOk","x":"2nTOaFVm2QLxmUO_SjgyscVHBtvHEfo2rq65MvgNRjORojq39Haq9rXNxvXxwba_Xj0F5vZibJR3isBdOWbo5g"}
+	// {"alg":"ES256","prv":"bNstg4_H3m3SlROufwRSEgibLrBuRq9114OvdapcpVA","now":1623132000,"tag":"Zami's Majuscule Key.","tmb":"U5XUZots-WmQYcQWmsO751Xk0yeVi9XUKWQ2mGz6Aqg","pub":"2nTOaFVm2QLxmUO_SjgyscVHBtvHEfo2rq65MvgNRjORojq39Haq9rXNxvXxwba_Xj0F5vZibJR3isBdOWbo5g"}
 }
 
 // ExampleKey_jsonUnmarshal tests unmarshalling a Coze key.
@@ -126,7 +126,7 @@ func ExampleKey_jsonUnmarshal() {
 	fmt.Printf("%+v\n", Key)
 
 	// Output:
-	//{"alg":"ES256","d":"bNstg4_H3m3SlROufwRSEgibLrBuRq9114OvdapcpVA","iat":1623132000,"kid":"Zami's Majuscule Key.","tmb":"cLj8vsYtMBwYkzoFVZHBZo6SNL8wSdCIjCKAwXNuhOk","x":"2nTOaFVm2QLxmUO_SjgyscVHBtvHEfo2rq65MvgNRjORojq39Haq9rXNxvXxwba_Xj0F5vZibJR3isBdOWbo5g"}
+	//{"alg":"ES256","prv":"bNstg4_H3m3SlROufwRSEgibLrBuRq9114OvdapcpVA","now":1623132000,"tag":"Zami's Majuscule Key.","tmb":"U5XUZots-WmQYcQWmsO751Xk0yeVi9XUKWQ2mGz6Aqg","pub":"2nTOaFVm2QLxmUO_SjgyscVHBtvHEfo2rq65MvgNRjORojq39Haq9rXNxvXxwba_Xj0F5vZibJR3isBdOWbo5g"}
 }
 
 func ExampleKey_jsonMarshal() {
@@ -137,7 +137,7 @@ func ExampleKey_jsonMarshal() {
 	fmt.Printf("%s\n", string(b))
 
 	// Output:
-	//{"alg":"ES256","d":"bNstg4_H3m3SlROufwRSEgibLrBuRq9114OvdapcpVA","iat":1623132000,"kid":"Zami's Majuscule Key.","tmb":"cLj8vsYtMBwYkzoFVZHBZo6SNL8wSdCIjCKAwXNuhOk","x":"2nTOaFVm2QLxmUO_SjgyscVHBtvHEfo2rq65MvgNRjORojq39Haq9rXNxvXxwba_Xj0F5vZibJR3isBdOWbo5g"}
+	//{"alg":"ES256","prv":"bNstg4_H3m3SlROufwRSEgibLrBuRq9114OvdapcpVA","now":1623132000,"tag":"Zami's Majuscule Key.","tmb":"U5XUZots-WmQYcQWmsO751Xk0yeVi9XUKWQ2mGz6Aqg","pub":"2nTOaFVm2QLxmUO_SjgyscVHBtvHEfo2rq65MvgNRjORojq39Haq9rXNxvXxwba_Xj0F5vZibJR3isBdOWbo5g"}
 }
 
 func ExampleKey_Thumbprint() {
@@ -147,12 +147,12 @@ func ExampleKey_Thumbprint() {
 	fmt.Println(gk2.Tmb, err)
 
 	// Output:
-	// cLj8vsYtMBwYkzoFVZHBZo6SNL8wSdCIjCKAwXNuhOk <nil>
+	// U5XUZots-WmQYcQWmsO751Xk0yeVi9XUKWQ2mGz6Aqg <nil>
 }
 
 func ExampleThumbprint() {
 	fmt.Println(Thumbprint(&GoldenKey))
-	// Output: cLj8vsYtMBwYkzoFVZHBZo6SNL8wSdCIjCKAwXNuhOk <nil>
+	// Output: U5XUZots-WmQYcQWmsO751Xk0yeVi9XUKWQ2mGz6Aqg <nil>
 }
 
 func ExampleKey_Sign() {
@@ -190,8 +190,8 @@ func ExampleKey_SignPay() {
 
 	pay := Pay{
 		Alg:    SEAlg(ES256),
-		Iat:    1623132000, // Static for demonstration.  Use time.Now().Unix().
-		Tmb:    MustDecode("cLj8vsYtMBwYkzoFVZHBZo6SNL8wSdCIjCKAwXNuhOk"),
+		Now:    1623132000, // Static for demonstration.  Use time.Now().Unix().
+		Tmb:    MustDecode("U5XUZots-WmQYcQWmsO751Xk0yeVi9XUKWQ2mGz6Aqg"),
 		Typ:    "cyphr.me/msg",
 		Struct: customStruct,
 	}
@@ -240,13 +240,13 @@ func ExampleKey_Verify_empty() {
 	// Output: true <nil>
 }
 
-// Example demonstrating that unmarshal generates `tmb` from x,
+// Example demonstrating that unmarshal generates `tmb` from pub,
 func ExampleKey_unmarshal() {
 	var GoldenPukNoTmb = json.RawMessage(`{
 		"alg":"ES256",
-		"iat":1623132000,
-		"kid":"Zami's Majuscule Key.",
-		"x":"2nTOaFVm2QLxmUO_SjgyscVHBtvHEfo2rq65MvgNRjORojq39Haq9rXNxvXxwba_Xj0F5vZibJR3isBdOWbo5g"
+		"now":1623132000,
+		"tag":"Zami's Majuscule Key.",
+		"pub":"2nTOaFVm2QLxmUO_SjgyscVHBtvHEfo2rq65MvgNRjORojq39Haq9rXNxvXxwba_Xj0F5vZibJR3isBdOWbo5g"
 	}`)
 	czk := new(Key)
 	err := json.Unmarshal(GoldenPukNoTmb, czk)
@@ -255,7 +255,7 @@ func ExampleKey_unmarshal() {
 	}
 	fmt.Println(czk)
 	// Output:
-	//  {"alg":"ES256","iat":1623132000,"kid":"Zami's Majuscule Key.","tmb":"cLj8vsYtMBwYkzoFVZHBZo6SNL8wSdCIjCKAwXNuhOk","x":"2nTOaFVm2QLxmUO_SjgyscVHBtvHEfo2rq65MvgNRjORojq39Haq9rXNxvXxwba_Xj0F5vZibJR3isBdOWbo5g"}
+	//  {"alg":"ES256","now":1623132000,"tag":"Zami's Majuscule Key.","tmb":"U5XUZots-WmQYcQWmsO751Xk0yeVi9XUKWQ2mGz6Aqg","pub":"2nTOaFVm2QLxmUO_SjgyscVHBtvHEfo2rq65MvgNRjORojq39Haq9rXNxvXxwba_Xj0F5vZibJR3isBdOWbo5g"}
 }
 
 // Example demonstrating that unmarshalling a `pay` that has duplicate field
@@ -386,29 +386,29 @@ func ExampleKey_Correct() {
 
 		// A key with [alg,tmb,d]
 		gk2 = k
-		gk2.X = []byte{}
+		gk2.Pub = []byte{}
 		p2 := gk2.Correct()
 
 		// Key with [alg,d].
 		gk2 = k
-		gk2.X = []byte{}
+		gk2.Pub = []byte{}
 		gk2.Tmb = []byte{}
 		p3 := gk2.Correct()
 
-		// A key with [alg,x,d].
+		// A key with [alg,pub,prv].
 		gk2 = k
 		gk2.Tmb = []byte{}
 		p4 := gk2.Correct()
 
-		// A key with [alg,x,tmb]
+		// A key with [alg,pub,tmb]
 		gk2 = k
-		gk2.D = []byte{}
+		gk2.Prv = []byte{}
 		p5 := gk2.Correct()
 
 		// Key with [alg,tmb]
 		gk2 = k
-		gk2.D = []byte{}
-		gk2.X = []byte{}
+		gk2.Prv = []byte{}
+		gk2.Pub = []byte{}
 		p6 := gk2.Correct()
 
 		tf(p1, p2, p3, p4, p5, p6)
@@ -430,7 +430,7 @@ func ExampleKey_Correct() {
 func ExampleCanonicalHash_genCad() {
 	fmt.Println(CanonicalHash([]byte(GoldenPay), nil, GoldenKey.Alg.Hash()))
 
-	// Output: Ie3xL77AsiCcb4r0pbnZJqMcfSBqg5Lk0npNJyJ9BC4 <nil>
+	// Output: AyVZoWUv_rJf7_KqoeRS5odr8g3MZwBzhtBdSZderxk <nil>
 }
 
 // BenchmarkNSV benchmarks several methods on a Coze key. (NSV = New, Sign,
@@ -481,10 +481,10 @@ func ExampleKey_IsRevoked() {
 // signatures to the canonicalized, coze compliant low-S form.
 func ExampleECDSAToLowSSig() {
 	highSCozies := []string{
-		`{"pay":{},"sig":"9iesKUSV7L1-xz5yd3A94vCkKLmdOAnrcPXTU3_qeKSuk4RMG7Qz0KyubpATy0XA_fXrcdaxJTvXg6saaQQcVQ"}`,
-		`{"pay":{"msg":"Coze Rocks","alg":"ES256","iat":1623132000,"tmb":"cLj8vsYtMBwYkzoFVZHBZo6SNL8wSdCIjCKAwXNuhOk","typ":"cyphr.me/msg"},"sig":"mVw8N6ZncWcObVGvnwUMRIC6m2fbX3Sr1LlHMbj_tZ3ji1rNL-00pVaB12_fmlK3d_BVDipNQUsaRyIlGJudtg"}`,
-		`{"pay":{"msg":"Coze Rocks","alg":"ES256","iat":1623132000,"tmb":"cLj8vsYtMBwYkzoFVZHBZo6SNL8wSdCIjCKAwXNuhOk","typ":"cyphr.me/msg"},"sig":"cn6KNl4VQlk5MzmhYFVyyJoTOU57O5Bq-8r-yXXR6Ojfs0-6LFGd8j1Y6wiJAQrGpWj_RptsiEg49v95FsVWMQ"}`,
-		`{"pay":{"msg":"Coze Rocks","alg":"ES256","iat":1623132000,"tmb":"cLj8vsYtMBwYkzoFVZHBZo6SNL8wSdCIjCKAwXNuhOk","typ":"cyphr.me/msg"},"sig":"9KvWfOSIZUjW8Ie0jbdVdu9UlIP4TT4MXz3YyNW3fCTWXHnO1MPROwcXvfNZN_icOvMAK3vfsr2w-CeBozS81w"}`,
+		`{"pay":{},"sig":"qHnpghmFC8B0wnyT960gX6r3dtGt6DRzSL4REMOQuqK2RPE6s4QUKbq7iC-1lJXPLuCBT0cKhnOhXJ_YtFKqPQ"}`,
+		`{"pay":{"msg":"Coz Rocks","alg":"ES256","now":1623132000,"tmb":"U5XUZots-WmQYcQWmsO751Xk0yeVi9XUKWQ2mGz6Aqg","typ":"cyphr.me/msg"},"sig":"Q0c6YIUnxAahyINIkh-S2RF1-HaGcbD_L2KjI5KZvzuMeNdJnKXl8-m8QJnvhDVoe9C3-D3Q3yW3fmeDokemJA"}`,
+		`{"pay":{"msg":"Coz Rocks","alg":"ES256","now":1623132000,"tmb":"U5XUZots-WmQYcQWmsO751Xk0yeVi9XUKWQ2mGz6Aqg","typ":"cyphr.me/msg"},"sig":"xIRTBFC7xL3tRP-_ZRi5h8M7OspG9swY4CjSy8U-ogPaMb25f6SL6qByN9yir47SlRz05Muor61ZYekayKPVQg"}`,
+		`{"pay":{"msg":"Coz Rocks","alg":"ES256","now":1623132000,"tmb":"U5XUZots-WmQYcQWmsO751Xk0yeVi9XUKWQ2mGz6Aqg","typ":"cyphr.me/msg"},"sig":"oGZC7aBVSrGdJDFrnK3J7qncsmy4QaTgXGQ1kZGt__7kNWlXgIWLSnl7nXeeyMGZKuUHCsCoRg7cvzkv5aE-CA"}`,
 	}
 
 	for _, s := range highSCozies {
@@ -512,10 +512,10 @@ func ExampleECDSAToLowSSig() {
 	}
 
 	// Output:
-	// {"pay":{},"sig":"9iesKUSV7L1-xz5yd3A94vCkKLmdOAnrcPXTU3_qeKRRbHuy5EvMMFNRkW_sNLo-vvEPO9BmeUkcNh-ok18I_A"}
-	// {"pay":{"msg":"Coze Rocks","alg":"ES256","iat":1623132000,"tmb":"cLj8vsYtMBwYkzoFVZHBZo6SNL8wSdCIjCKAwXNuhOk","typ":"cyphr.me/msg"},"sig":"mVw8N6ZncWcObVGvnwUMRIC6m2fbX3Sr1LlHMbj_tZ0cdKUx0BLLW6l-KJAgZa1IRPaln3zKXTnZcqid48eHmw"}
-	// {"pay":{"msg":"Coze Rocks","alg":"ES256","iat":1623132000,"tmb":"cLj8vsYtMBwYkzoFVZHBZo6SNL8wSdCIjCKAwXNuhOk","typ":"cyphr.me/msg"},"sig":"cn6KNl4VQlk5MzmhYFVyyJoTOU57O5Bq-8r-yXXR6OggTLBE065iDsKnFPd2_vU5F337ZwurFjy6wstJ5Z3PIA"}
-	// {"pay":{"msg":"Coze Rocks","alg":"ES256","iat":1623132000,"tmb":"cLj8vsYtMBwYkzoFVZHBZo6SNL8wSdCIjCKAwXNuhOk","typ":"cyphr.me/msg"},"sig":"9KvWfOSIZUjW8Ie0jbdVdu9UlIP4TT4MXz3YyNW3fCQpo4YwKzwuxfjoQgymyAdjgfP6gis368dCwaNBWS5oeg"}
+	// {"pay":{},"sig":"qHnpghmFC8B0wnyT960gX6r3dtGt6DRzSL4REMOQuqJJuw7ETHvr10VEd9BKa2owjgZ5XmANGBFSXSrqSBB7FA"}
+	// {"pay":{"msg":"Coz Rocks","alg":"ES256","now":1623132000,"tmb":"U5XUZots-WmQYcQWmsO751Xk0yeVi9XUKWQ2mGz6Aqg","typ":"cyphr.me/msg"},"sig":"Q0c6YIUnxAahyINIkh-S2RF1-HaGcbD_L2KjI5KZvztzhyi1Y1oaDRZDv2YQe8qXQRZCtWlGv188O2M_Wht_LQ"}
+	// {"pay":{"msg":"Coz Rocks","alg":"ES256","now":1623132000,"tmb":"U5XUZots-WmQYcQWmsO751Xk0yeVi9XUKWQ2mGz6Aqg","typ":"cyphr.me/msg"},"sig":"xIRTBFC7xL3tRP-_ZRi5h8M7OspG9swY4CjSy8U-ogMlzkJFgFt0Fl-NyCNdUHEtJ8oFyNtu7teaV-GoM79QDw"}
+	// {"pay":{"msg":"Coz Rocks","alg":"ES256","now":1623132000,"tmb":"U5XUZots-WmQYcQWmsO751Xk0yeVi9XUKWQ2mGz6Aqg","typ":"cyphr.me/msg"},"sig":"oGZC7aBVSrGdJDFrnK3J7qncsmy4QaTgXGQ1kZGt__4bypanf3p0toaEYohhNz5mkgHzouZvWHYW-pGTFsHnSQ"}
 }
 
 // Test_lowS tests to make sure generated ECDSA keys are low-s and not high-s.
@@ -597,12 +597,12 @@ func Test_curveOrder(t *testing.T) {
 
 	s := ""
 	for _, a := range algs {
-		hexSize := Alg(a).Params().XSize
+		hexSize := Alg(a).Params().PubSize
 		s += fmt.Sprintf("%0"+strconv.Itoa(hexSize)+"X\n", curveOrders[a])
 	}
 	s += "\n"
 	for _, a := range algs {
-		hexSize := Alg(a).Params().XSize
+		hexSize := Alg(a).Params().PubSize
 		s += fmt.Sprintf("%0"+strconv.Itoa(hexSize)+"X\n", curveHalfOrders[a])
 	}
 
@@ -624,8 +624,8 @@ FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFC7634D81F4372DDF581A0DB248B0A77A
 func TestKeyTmb_nilX(t *testing.T) {
 	kb := []byte(`{
 		"alg":"ES256",
-		"iat":1647357960,
-		"kid":"Cyphr.me Dev Test Key 2",
+		"now":1647357960,
+		"tag":"Cyphr.me Dev Test Key 2",
 		"tmb":"e02u-nce-Wdc_xH4-7WRp-4Fr6pKn2oY_8SX3wdT41U"
 	}`)
 	key := new(Key)
@@ -634,20 +634,20 @@ func TestKeyTmb_nilX(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	// Test nil x.
-	err = key.Thumbprint() // Should error since x is nil.
+	// Test nil pub.
+	err = key.Thumbprint() // Should error since pub is nil.
 	if err == nil {
-		t.Fatal("key.Thumbprint() must error when x is nil.")
+		t.Fatal("key.Thumbprint() must error when pub is nil.")
 	}
 	if len(key.Tmb) != 0 {
 		t.Fatal("key.Thumbprint() must set thumbprint to nil on error.")
 	}
 
-	// Test malformed x.
-	key.X = MustDecode("e02u")   // incorrect x for alg ES256 (known by length)
+	// Test malformed pub.
+	key.Pub = MustDecode("e02u") // incorrect pub for alg ES256 (known by length)
 	key.Tmb = MustDecode("e02u") // incorrect.  Should be set to nil on Thumbprint error.
 	err = key.Thumbprint()       // Should error
 	if err == nil {
-		t.Fatal("key.Thumbprint() must error when x is incorrect length.")
+		t.Fatal("key.Thumbprint() must error when pub is incorrect length.")
 	}
 }

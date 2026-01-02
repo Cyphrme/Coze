@@ -1,4 +1,4 @@
-module github.com/cyphrme/coze
+module github.com/cyphrme/coz
 
 go 1.18
 

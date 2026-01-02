@@ -1,4 +1,4 @@
-package coze
+package coz
 
 import (
 	"bytes"
