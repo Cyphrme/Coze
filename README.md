@@ -2,15 +2,15 @@
 
 ![Coze][CozeLogo]
 
+[Try Coze out!](https://cyphr.me/coze)
+
+[Presentation][Presentation]
+
 # Coz
 
 **Coz** is a cryptographic JSON messaging specification that uses digital
 signatures and hashes to ensure secure, human-readable, and interoperable
 communication.
-
-[Try Coze out!](https://cyphr.me/coze)
-
-[Presentation][Presentation]
 
 ### Example Coz
 
@@ -141,11 +141,11 @@ The JSON name `coz` may be used to wrap a coz.
 - `sig` "Signature" Signature over `cad`. E.g. `"sig":"ywctP6..."`
 
 `sig` is the signature over the raw bytes of `cad` (the b64ut-decoded digest).
-`cad` is not rehashed before signing. `czd`'s hashing algorithm must align with `alg` in `pay`. `czd` refers
-to a particular signed message just as `cad` refers to a particular payload.
-`cad` and `czd` are calculated from brace to brace, including the braces. `cad`
-and `czd` are recalculatable and are recommended to be omitted from cozies,
-although they may be useful for reference.
+`cad` is not rehashed before signing. `czd`'s hashing algorithm must align with
+`alg` in `pay`. `czd` refers to a particular signed message just as `cad` refers
+to a particular payload. `cad` and `czd` are calculated from brace to brace,
+including the braces. `cad` and `czd` are recalculatable and are recommended to
+be omitted from cozies, although they may be useful for reference.
 
 As an added technical constraint, because `sig` and `czd` are used as
 identifiers, `sig` must be non-malleable. Malleable schemes like ECDSA must
@@ -204,9 +204,9 @@ Simplified:
 
 ## Canon
 
-A **canon** is a list of fields used for normalization, e.g. `["alg","pub"]`. Coz
-objects are canonicalized for creating digests, signing, and verification. The
-canon of `pay` is the currently present fields in order of appearance. The
+A **canon** is a list of fields used for normalization, e.g. `["alg","pub"]`.
+Coz objects are canonicalized for creating digests, signing, and verification.
+The canon of `pay` is the currently present fields in order of appearance. The
 following Coz fields have predefined canons:
 
 - `cad`'s canon is `pay`'s canon.
@@ -307,27 +307,32 @@ ES256:U5XUZots-WmQYcQWmsO751Xk0yeVi9XUKWQ2mGz6Aqg
 SHA-256:zxcLp3BEYYoAZxM9QlV7lS4o3Jn1T0dz9L0pWPZJnIs
 ```
 
-Optionally, for additional disambiguation, the prefix `coz:` may be prepended to the serialized form:
+Optionally, for additional disambiguation, the prefix `coz:` may be prepended to
+the serialized form:
 
 ```text
 coz:ES256:U5XUZots-WmQYcQWmsO751Xk0yeVi9XUKWQ2mGz6Aqg
 ```
 
 ## Revoke
-
-A Coz key may be revoked by signing a coz containing the field `rvk` with an integer value greater than
-`0`. The integer value `1` is suitable to denote revocation and the current Unix timestamp is the suggested value.
+A Coz key may be revoked by signing a coz containing the field `rvk` with an
+integer value greater than `0`. The integer value `1` is suitable to denote
+revocation and the current Unix timestamp is the suggested value.
 
 - `rvk` - Unix timestamp of key expiry.
 
-`rvk` and `now` must be a positive integer less than 2^53 – 1 (9,007,199,254,740,991), which is the integer
-precision limit specified by IEEE754 minus one. Revoke checks must error if `rvk` is not an integer or larger than 2^53 - 1.
+`rvk` and `now` must be a positive integer less than 2^53 – 1
+(9,007,199,254,740,991), which is the integer precision limit specified by
+IEEE754 minus one. Revoke checks must error if `rvk` is not an integer or larger
+than 2^53 - 1.
 
-Coz explicitly defines a self-revoke method so that third parties may revoke leaked keys. Systems storing Coz keys must
-accept valid revoke cozies where pay is under 2048 bytes and must immediately mark the associated key as revoked, even if a
-future revocation time is specified.
+Coz explicitly defines a self-revoke method so that third parties may revoke
+leaked keys. Systems storing Coz keys must accept valid revoke cozies where pay
+is under 2048 bytes and must immediately mark the associated key as revoked,
+even if a future revocation time is specified.
 
-Key expiration policies, key rotation, backdating, and alternative revocation methods are outside the scope of Coz.
+Key expiration policies, key rotation, backdating, and alternative revocation
+methods are outside the scope of Coz.
 
 ### Example Self Revoke
 
@@ -346,6 +351,13 @@ Key expiration policies, key rotation, backdating, and alternative revocation me
 ```
 
 ## Alg
+`alg` specifies a parameter set and is a single source of truth for Coze
+ cryptographic operations.
+
+Instead of a registry, supported algorithms and their exact parameters are
+defined in the reference implementation (Go). Implementations must match these
+parameters for interoperability and correctness.
+
 
 ### Example - "alg":"ES256"
 
@@ -380,9 +392,7 @@ never use the character `:`.
 Coz assumes `pub` can be deterministically derived from `prv` for all supported
 algorithms.
 
-Instead of a registry, supported algorithms and their exact parameters are
-defined in the reference implementation (Go). Implementations must match these
-parameters for interoperability and correctness.
+
 
 ---
 
@@ -439,21 +449,20 @@ Repository structure:
 - [CozJSX][CozeJSX] Javascript implementation of extended.
 - etc...
 
+
 # FAQ
-
 #### Pronunciation? What does "Coz" mean?
-
 We say "Co-zee" like a comfy cozy couch. Jared suggested Coz because it's
 funny. The English word Coze is pronounced "kohz" and means "a friendly talk; a
 chat" which is the perfect name for a messaging standard.
 
-#### "Coz" vs "coz"?
 
+#### "Coz" vs "coz"?
 We use upper case "Coz" to refer to the specification, and "coz"/"cozies" to
 refer to messages.
 
-### What is Coz useful for?
 
+### What is Coz useful for?
 Coz's applications are endless as Coz is useful for anything needing
 cryptographic signing. Coz is deployed in various applications such as user
 authentication (user login), authorization, product tracking, user comments,
@@ -463,8 +472,8 @@ As a timely example the CEO of Reddit (reddit.com/u/spez) [edited people's
 comments.](https://www.theverge.com/2016/11/23/13739026/reddit-ceo-steve-huffman-edit-comments)
 Messages signed by Coz prevents tampering by third parties.
 
-## The Coz Philosophy of Abstraction
 
+## The Coz Philosophy of Abstraction
 Providing a cryptographic abstraction layer is a key feature of Coz. Coz
 provides gentle standardization that increases compatibility across various
 systems. In this way, Coz is like a simple cryptographic programming language,
@@ -504,7 +513,6 @@ establishing implementation standards, and providing the flexibility to use
 various primitives as needed.
 
 ##### The Debt of Inflexibility
-
 The cost of tight coupling to cryptographic primitives has been demonstrated
 repeatedly throughout the industry.
 
@@ -536,15 +544,15 @@ quickly. Coz aims to, as an intentional byproduct of standardization, prevent
 projects from accumulating this kind of debt, ensuring they remain adaptable to
 future cryptographic needs.
 
-#### Binary? Why not support binary payloads?
 
+#### Binary? Why not support binary payloads?
 JSON isn't well designed for large binary payloads. Instead, Coz suggests
 including the digest of a binary file in a coz message while transporting the
 binary separately. There's nothing stopping an application from base 64 encoding
 a binary for transport, although it's not recommended.
 
-#### How Should I Handle Large Text Messages?
 
+#### How Should I Handle Large Text Messages?
 JSON is not ideal for arbitrary text due to escaping, which increases the
 size of arbitrary text and makes human readability difficult. Instead of signing
 text embedded in a JSON field like `msg`, consider hashing the text, signing its
@@ -592,14 +600,14 @@ protects its value. An additional benefit of this method is that coz
 signatures are guaranteed to remain a small, constant size regardless of the
 size of the input text.
 
-#### Why is Coz's scope so limited?
 
+#### Why is Coz's scope so limited?
 Coz is intentionally scope limited. It is easier to extend a limited standard
 than to fix a large standard. Coz can be extended and customized for individual
 applications.
 
-#### Why does Coz have a revoke size limit?
 
+#### Why does Coz have a revoke size limit?
 Revoke coz messages, simply "revokes" or "revoke cozies", are limited to protect
 services from DoS/DDoS attacks using excessively large payloads. Services may
 safely ignore any revoke where `pay` exceeds 2048 bytes (2 KiB). The revoke
@@ -614,8 +622,8 @@ revoke message itself and are only required to mark the referenced key as
 revoked. The requirement applies only to keys the service already hosts, not
 unknown keys.
 
-#### Is Coz versioned?
 
+#### Is Coz versioned?
 `alg` refers to a specific set of parameters for all operations and Coz Core
 "versioning" is accomplished by noting specific algorithm support. If an
 operation needs a different parameter set, `alg` itself must denote the
@@ -626,8 +634,8 @@ probably warranted, so a long alpha and beta time is planned. Extension to Coz
 are defined by [CozX][Cozex] so implementations avoid feature bloat.
 Implementation releases themselves are versioned.
 
-#### Why does `pay` have cryptographic components?
 
+#### Why does `pay` have cryptographic components?
 Coz's `pay` includes all payload information, a design we've dubbed a "fat
 payload". We consider single pass hashing critical for Coz's simple design.
 
@@ -640,22 +648,22 @@ concatenation like `digest(head) || digest(pay)`. By hashing only `pay`, the
 Verifying a coz already requires hashing `pay`. Parsing `alg` from `pay` is a
 small additional cost.
 
-#### JSON APIs? Can my API do versioning?
 
+#### JSON APIs? Can my API do versioning?
 Coz is well suited for JSON APIs. API versioning may be handled by applications
 however desired. A suggested way of incorporating API versioning in Coz is to
 use `typ`, e.g. `"typ":"cyphr.me/v1/msg/create"`, where "v1" is the api version.
 
-#### Can my application use Canon/Canonicalization?
 
+#### Can my application use Canon/Canonicalization?
 Yes, canon is suitable for general purpose application. Applications may
 specify canon expectations in API documentation, if using Coz denoted by "typ"
 or explicitly specified by `can`, or implicitly known and pre-established. Coz
 Core contains simple canonicalization functions, or for more expressive
 capabilities see [Normal][Normal].
 
-#### `pay.typ` vs `key.typ`.
 
+#### `pay.typ` vs `key.typ`.
 For applications, `pay.typ` may denote a canon. For example, a `typ` with value
 `cyphr.me/msg/create` has a canon, as defined by the service, of ["alg", "now",
 "msg", "tmb", "typ"]. The service may reject a coz that's not canonicalized as
@@ -669,22 +677,22 @@ static canon, `["alg","pub"]`, is sufficient. Using `alg` in the generation of
 `tmb` ensures the impossibility of algorithms producing colliding thumbprints
 (where one algorithm could produce `pub` values colliding with other algorithms).
 
-#### ECDSA `pub` and `sig` Bytes.
 
+#### ECDSA `pub` and `sig` Bytes.
 For ECDSA , (X and Y) and (R and S) are concatenated for `pub` and `sig`
 respectively. For ES512, which unlike the other ECDSA algorithms uses the odd
 numbered P-521, X, Y, R, and S are padded before concatenation.
 
-#### Why use `tmb` and not `pub` for references in messages?
 
+#### Why use `tmb` and not `pub` for references in messages?
 Coz places no limit on public key size, which can be very large. For example,
 GeMSS128 public keys are 352,188 bytes, compared to Ed25519's 32 bytes. Using
 `tmb` instead of `pub` generalizes Coz for present and future algorithm use.
 Additionally, `pub` may be cryptographically significant for key security while
 `tmb` is not.
 
-#### Required Coz Fields, Contextual Cozies, and the Empty Coz.
 
+#### Required Coz Fields, Contextual Cozies, and the Empty Coz.
 The standard fields provide Coz and applications fields with known types since
 JSON has limited type identifiers. Coz has no required fields, however omitting
 standard fields limits interoperability among applications, so it is suggested
@@ -706,14 +714,13 @@ the example key "cLj8vs".
 }
 ```
 
-#### UTF-8 and b64ut (RFC base 64 URI canonical truncated) Encoding
 
+#### UTF-8 and b64ut (RFC base 64 URI canonical truncated) Encoding
 [Canonical base 64][RFC6468Canonical] (sometimes called "strict") encoding is
 required and non-strict encoding of both b64ut and UTF-8 must error. For the
 initial reason for why Coz uses b64ut see [base64.md][base64.md].
 
 #### Why not PGP/OpenSSL/LibreSSL/SSHSIG/libsodium/JOSE(JWT)/COSE/etc...? How does Coz compare with prior arts?
-
 We respect the various projects in the space. Other projects have noble goals
 and we're thankful they exist. Coz is influenced by ideas from many others.
 However existing solutions were not meeting our particular needs so we created
@@ -723,8 +730,8 @@ See [coz_vs.md][coze_vs] and the [introduction
 presentation](https://docs.google.com/presentation/d/1bVojfkDs7K9hRwjr8zMW-AoHv5yAZjKL9Z3Bicz5Too/edit#slide=id.g1367bc4eb0f_0_6)
 for more.
 
-#### Does Coz have checksums?
 
+#### Does Coz have checksums?
 `pub`, `tmb`,`cad`, `czd`, and `sig` may be used for integrity checking.
 
 Systems may use `sig` as an integrity check via cryptographic verification. If
@@ -735,14 +742,14 @@ cannot be integrity checked when `prv`, `pub`, or `tmb` are presented alone. In
 situations needing integrity checking, we recommend including at least two
 components. See [checksums.md][checksums] for more.
 
-#### Performance hacks?
 
+#### Performance hacks?
 Coz is not optimized for long messages, but if early knowledge of Coz standard
 fields is critical for application performance, put the Coz standard fields
 first, e.g. `{"alg", "tmb", ...}`
 
-#### I need to keep my JSON separate but inside a coz.
 
+#### I need to keep my JSON separate but inside a coz.
 If appending custom fields after the standard Coz fields isn't sufficient, we
 suggest encapsulating custom JSON in "~", the last ASCII character. We've
 dubbed this a "tilde encapsulated payload". For example:
@@ -759,8 +766,8 @@ dubbed this a "tilde encapsulated payload". For example:
 }
 ```
 
-#### ASCII/Unicode/UTF-8/UTF-16 and Ordering?
 
+#### ASCII/Unicode/UTF-8/UTF-16 and Ordering?
 Even though Javascript uses UTF-16 and JSON was designed in a Javascript
 context, JSON implementations rejected the problematic UTF-16, which has some
 code points out of order, in favor of UTF-8. Requiring JSON UTF-8 encoding was
@@ -777,16 +784,16 @@ before signing, and Coz verifies UTF-8 before unmarshalling into JSON.
 Additionally, object field order may be denoted by `can`, [chaining
 normals][Normal], or communicate via other means.
 
-#### Where does the cryptography come from?
 
+#### Where does the cryptography come from?
 Much of this comes from [NIST FIPS][FIPS].
 
 For example, FIPS PUB 186-3 defines P-224, P-256, P-384, and P-521.
 
 To learn more see this [walkthrough of ECDSA](https://learnmeabitcoin.com/technical/ecdsa).
 
-#### Unsupported Things?
 
+#### Unsupported Things?
 The following are out of scope or redundant.
 
 - `ES192`, `P-192` - Not implemented anywhere and dropped from later FIPS.
@@ -804,27 +811,27 @@ The following are out of scope or redundant.
 - `jti` - "Token ID/JWT ID". Redundant by `czd`, `cad`, or an application
   specified field.
 
-#### Encryption?
 
+#### Encryption?
 Coz does not currently support encryption. If or when it ever does it would be
 similar to or simply complement [age](https://github.com/FiloSottile/age).
 
-#### Why define algorithms?
 
+#### Why define algorithms?
 Coz's design is generalized and not overly coupled to any single primitive.
 Because of this, applications that use Coz can easy upgrade cryptographic
 primitives. Using a single primitive is perfectly fine, but tightly coupling
 systems to a single primitive is not. Simultaneous support for multiple
 primitives is a secondary, and optional, perk.
 
-#### JSON "Name", "Key", "Field Name", "Member Name"?
 
+#### JSON "Name", "Key", "Field Name", "Member Name"?
 They're all synonyms. A JSON name is a JSON key is a JSON field name is a JSON
 member name. In this document we use "field name" to avoid confusion with Coz
 key.
 
-#### Why are duplicate field names prohibited?
 
+#### Why are duplicate field names prohibited?
 Coz explicitly requires that implementations disallow duplicate field names in
 `coz`, `pay`, and `key`. Existing JSON implementations have varying behavior.
 Douglas Crockford, JSON's inventor, [tried to fix this but it was decided it
@@ -848,8 +855,8 @@ Disallowing duplicates conforms to the small I-JSON RFC. The author of I-JSON,
 Tim Bray, is also the author of current JSON specification ([RFC
 8259][RFC8259]). See also https://github.com/json5/json5-spec/issues/38.
 
-#### Why is human readability a goal?
 
+#### Why is human readability a goal?
 Although humans cannot verify a signature without the assistance of tools,
 readability allows humans to visually verify what a message does.
 
@@ -859,8 +866,8 @@ framwork built on JSON should embrace its human readability. If human
 readability is unneeded, JSON is entirely the wrong message format to employ.
 All else being equal, human readability is better than non-human readability.
 
-#### JSON?
 
+#### JSON?
 - [RFC 8259 (2017, Bray)][RFC8259]
 - [RFC 7159 (2014, Bray)][RFC7159]
 - [RFC 7158 (2013, Bray)][RFC7158]
@@ -871,8 +878,8 @@ See also I-JSON and JSON5
 - [RFC 7493 (2015, Bray)][RFC7493]
 - [JSON5][JSON5]
 
-#### HTTP? HTTP Cookies? HTTP Headers?
 
+#### HTTP? HTTP Cookies? HTTP Headers?
 When using Coz with HTTP cookies, Coz messages should be JSON minified. For
 example, we've encountered no issues using the first example as a cookie:
 
@@ -882,24 +889,24 @@ token={"pay":{"msg":"Coz is a cryptographic JSON messaging specification.","alg"
 
 For more considerations see [http_headers.md][http_headers]
 
-#### Why release pre-alpha on 2021/06/08?
 
+#### Why release pre-alpha on 2021/06/08?
 Coz was released on 2021/06/08 (1623132000) since it's 30 years and one day
 after the initial release of PGP 1.0. We wrote a blog with more [details of
 Coz's
 genesis](https://cyphr.me/md/xlA-MSFwPxmWED4ZcNdxUy8OA22UPiLWlGQUQik8DwY).
 
-#### Signature Malleability?
 
+#### Signature Malleability?
 Coz prohibits signature malleability. See
 [malleability_low_s.md][low_s].
 
-#### Who created Coz?
 
+#### Who created Coz?
 Coz was created by [Cyphr.me](https://cyphr.me).
 
-#### Discussion? Social Media?
 
+#### Discussion? Social Media?
 - We have a bridged Matrix and Telegram chat room. (This is where we are the most active)
   - Matrix: https://app.element.io/#/room/#cyphrmepub:matrix.org
   - PM zamicol for our bridged Telegram group.
@@ -909,21 +916,20 @@ Coz was created by [Cyphr.me](https://cyphr.me).
 - https://twitter.com/CozeJSON
 - https://old.reddit.com/r/CozeJson
 
-#### Other Resources
 
+#### Other Resources
 - This README as a page: https://cyphrme.github.io/Coze/
 - [Coz go.pkg.dev](https://pkg.go.dev/github.com/cyphrme/coz#section-readme)
 - CozJSON.com (which is currently pointed to the [Coz verifier](https://cyphr.me/coz))
 - Coze Table links: https://docs.google.com/document/d/15_1R7qwfCf-Y3rTamtYS_QXuoTSNrOwbIRopwmv4KOc
 
-#### Keywords
 
+#### Keywords
 Coz JSON alg now tmb typ rvk tag prv pub coz pay key can cad czd sig cryptography crypto authentication auth login hash digest signature Cypherpunk Cyphrme Ed25519 Ed25519ph ES224 ES256 ES384 ES512 SHA-224 SHA-256 SHA-384 SHA512 JOSE JWS JWE JWK JWT PASETO PASERK signify ssh SSHSIG PGP Bitcoin Ethereum base64 b64ut SQRL
 
 ---
 
 # Attribution, Trademark Notice, and License
-
 Coz is released under The 3-Clause BSD License.
 
 "Cyphr.me" is a trademark of Cypherpunk, LLC. The Cyphr.me logo is all rights
