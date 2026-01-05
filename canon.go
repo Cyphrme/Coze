@@ -25,7 +25,7 @@ func Canon(raw json.RawMessage) (can []string, err error) {
 // struct or slice it must be properly ordered.  If canon is nil, json.Unmarshal
 // will place the input into a UTF-8 ordered map.
 //
-// In the Go version of Coze, the canonical form of a struct is (currently)
+// In the Go version of Coz, the canonical form of a struct is (currently)
 // achieved by unmarshalling and remarshalling.
 func Canonical(input []byte, canon any) (b []byte, err error) {
 	if canon == nil {

@@ -2,7 +2,7 @@
 Package coz, see the README at https://github.com/Cyphrme/Coze
 
 This library exports some functions that may be helpful for other applications,
-but should not be considered apart of the Coze specification API.
+but should not be considered apart of the Coz specification API.
 
   - ECDSAToLowSSig
   - IsLowS
@@ -26,21 +26,21 @@ import (
 	"golang.org/x/crypto/sha3"
 )
 
-// Coze is for signed Coze objects (cozies).  See the Coze docs (README.md) for
-// more on the construction of `coze`.
+// Coz is for signed Coz objects (cozies).  See the Coz docs (README.md) for
+// more on the construction of `coz`.
 //
 //	Pay: The raw Payload.  The payload can contain any arbitrary fields,
-//	  not just Coze fields.
+//	  not just Coz fields.
 //	Key: Key used to sign the message. Must be a pointer, otherwise
 //	  json.Marshal will not marshal on zero type.
 //	  See: https://github.com/golang/go/issues/11939.
 //	Can: "Canon" Pay's fields in order of appearance.
 //	Cad: "Canonical Digest" Pay's compactified form digest.
 //	Sig: Signature over `cad`.
-//	Czd: "Coze digest" with canon ["cad","sig"].
-//	Parsed: The standard Coze pay fields ["alg","now","tmb","typ"] parsed
+//	Czd: "Coz digest" with canon ["cad","sig"].
+//	Parsed: The standard Coz pay fields ["alg","now","tmb","typ"] parsed
 //	  from `Pay`.  `Parsed` is populated by Meta() and is JSON ignored.
-type Coze struct {
+type Coz struct {
 	Pay json.RawMessage `json:"pay,omitempty"`
 	Key *Key            `json:"key,omitempty"`
 	Can []string        `json:"can,omitempty"`
@@ -53,7 +53,7 @@ type Coze struct {
 
 // String implements fmt.Stringer.  Without this method `pay` prints as bytes.
 // On error, returns the error as a string.
-func (cz Coze) String() string {
+func (cz Coz) String() string {
 	b, err := Marshal(cz)
 	if err != nil {
 		return err.Error()
@@ -61,34 +61,34 @@ func (cz Coze) String() string {
 	return string(b)
 }
 
-// Meta calculates [can, cad, czd] and sets Coze.Parsed
-// ["alg","now","tmb","typ"] from Pay. Coze.Pay, Coze.Pay.Alg, and Coze.Sig must
+// Meta calculates [can, cad, czd] and sets Coz.Parsed
+// ["alg","now","tmb","typ"] from Pay. Coz.Pay, Coz.Pay.Alg, and Coz.Sig must
 // be set.  Meta resets Parsed ("alg","now","tmb","typ") to zero before
 // populating Parsed from Pay. If needing to use for contextual cozies, use
 // "MetaWithAlg".
 //
 // Meta does no cryptographic verification.
-func (cz *Coze) Meta() (err error) {
+func (cz *Coz) Meta() (err error) {
 	if cz.Pay == nil || cz.Sig == nil {
 		return errors.New("Meta: pay and/or sig is nil")
 	}
-	// Reset coze.parsed to zero.
+	// Reset coz.parsed to zero.
 	cz.Parsed = new(Pay)
 	return cz.MetaWithAlg("")
 }
 
 // MetaWithAlg is for contextual cozies that may be lacking `alg` in `pay`, but
 // `alg` in otherwise known.  MetaWithAlg recalculates [can, cad, czd] and sets
-// Coze.Parsed ("alg","now","tmb","typ") from Pay.  Does not calculate `czd`
-// if Coze.Sig is empty.
+// Coz.Parsed ("alg","now","tmb","typ") from Pay.  Does not calculate `czd`
+// if Coz.Sig is empty.
 //
 // Errors on
 // 1. Invalid JSON.
-// 2. No alg is given. (both coze.pay.alg and alg are empty).
+// 2. No alg is given. (both coz.pay.alg and alg are empty).
 // 3. Mismatched Pay.Alg and parameter alg if both are set.
 //
 // MetaWithAlg does no cryptographic verification.
-func (cz *Coze) MetaWithAlg(alg SEAlg) (err error) {
+func (cz *Coz) MetaWithAlg(alg SEAlg) (err error) {
 	// Set Parsed from Pay.
 	err = json.Unmarshal(cz.Pay, &cz.Parsed)
 	if err != nil {
@@ -112,7 +112,7 @@ func (cz *Coze) MetaWithAlg(alg SEAlg) (err error) {
 	if err != nil {
 		return err
 	}
-	cz.Czd = []byte{} // Zero `czd` in case Coze.Sig is not set.
+	cz.Czd = []byte{} // Zero `czd` in case Coz.Sig is not set.
 	if len(cz.Sig) != 0 {
 		cz.Czd, err = GenCzd(alg.Hash(), cz.Cad, cz.Sig)
 		return err
@@ -120,23 +120,23 @@ func (cz *Coze) MetaWithAlg(alg SEAlg) (err error) {
 	return nil
 }
 
-// UnmarshalJSON unmarshals checks for duplicates and unmarshals `coze`.
+// UnmarshalJSON unmarshals checks for duplicates and unmarshals `coz`.
 // See notes on Pay.UnmarshalJSON.
-func (cz *Coze) UnmarshalJSON(b []byte) error {
+func (cz *Coz) UnmarshalJSON(b []byte) error {
 	err := checkDuplicate(json.NewDecoder(bytes.NewReader(b)))
 	if err != nil {
 		return err
 	}
 
-	type coze2 Coze // Break infinite unmarshal loop
-	cz2 := new(coze2)
+	type coz2 Coz // Break infinite unmarshal loop
+	cz2 := new(coz2)
 	cz2.Parsed = cz.Parsed
 	cz2.Key = cz.Key
 	err = json.Unmarshal(b, cz2)
 	if err != nil {
 		return err
 	}
-	*cz = *(*Coze)(cz2)
+	*cz = *(*Coz)(cz2)
 	return nil
 }
 
@@ -155,7 +155,7 @@ func GenCzd(hash HshAlg, cad B64, sig B64) (czd B64, err error) {
 	return Hash(hash, []byte(fmt.Sprintf(`{"cad":%q,"sig":%q}`, cad, sig)))
 }
 
-// Pay contains the standard Coze pay fields as well as custom struct given by
+// Pay contains the standard Coz pay fields as well as custom struct given by
 // third party applications.  This allows embedding third party structs into Pay
 // for creating custom cozies (see example ExampleKey_SignPay).
 //
@@ -182,11 +182,11 @@ type Pay struct {
 	Struct any `json:"-"`
 }
 
-// Coze returns a new coze with only Pay populated.
-func (p *Pay) Coze() (coze *Coze, err error) {
-	coze = new(Coze)
-	coze.Pay, err = Marshal(p)
-	return coze, err
+// Coz returns a new coz with only Pay populated.
+func (p *Pay) Coz() (coz *Coz, err error) {
+	coz = new(Coz)
+	coz.Pay, err = Marshal(p)
+	return coz, err
 }
 
 // String implements fmt.Stringer.
@@ -267,7 +267,7 @@ func (p *Pay) UnmarshalJSON(b []byte) error {
 // Algorithm notes: EdDSA is little-endian while ECDSA is big-endian. EdDSA
 // should not be used with this function.
 //
-// For ECDSA, Coze's `x` and `sig` is left padded concatenation of X || Y and R
+// For ECDSA, Coz's `x` and `sig` is left padded concatenation of X || Y and R
 // || S respectively.
 //
 // Note: ES512's signature size is 132 bytes (and not 128, 131, or 130.25),
@@ -296,7 +296,7 @@ func PadInts(r, s *big.Int, size int) (out B64) {
 // Marshaler follows the Go "-er" convention for interfaces while marshaller is
 // spelled with two l's)
 type Marshaler interface {
-	CozeMarshal() ([]byte, error)
+	CozMarshal() ([]byte, error)
 }
 
 // Marshal is a JSON friendly marshaller.  json.Marshal preemptively replaces
@@ -316,7 +316,7 @@ type Marshaler interface {
 // https://github.com/go-json-experiment/json#behavior-changes.  See
 // https://github.com/Cyphrme/Coze/issues/15 for other JSON encoding concerns.
 //
-// Go structs already require unique fields, so unlike coze.UnmarshalJSON or
+// Go structs already require unique fields, so unlike coz.UnmarshalJSON or
 // pay.UnmarshalJSON, marshaling will not sanitize for duplicates.
 func Marshal(i any) ([]byte, error) {
 	buffer := &bytes.Buffer{}
@@ -417,7 +417,7 @@ func checkDuplicate(d *json.Decoder) error {
 
 			key := t.(string)
 			if keys[key] { // Check for duplicates.
-				return ErrJSONDuplicate(fmt.Errorf("Coze: JSON duplicate field %q", key))
+				return ErrJSONDuplicate(fmt.Errorf("Coz: JSON duplicate field %q", key))
 			}
 			keys[key] = true
 

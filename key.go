@@ -13,22 +13,22 @@ import (
 	"time"
 )
 
-// KeyCanon is the canonical form of a Coze key.
+// KeyCanon is the canonical form of a Coz key.
 var KeyCanon = []string{"alg", "pub"}
 
-// Key is a Coze key. See `README.md` for details on Coze key. Fields `alg` and
+// Key is a Coz key. See `README.md` for details on Coz key. Fields `alg` and
 // `tmb` must be in correct relative order for thumbprint canon because JSON
 // marshal uses struct order.
 //
-// Standard Coze key Fields
+// Standard Coz key Fields
 //
 //	`alg` - Specific key algorithm. E.g. "ES256" or "Ed25519".
 //	`prv` - Private component. E.g. "bNstg4_H3m3SlROufwRSEgibLrBuRq9114OvdapcpVA".
 //	`now` - Unix time of when the key was created. E.g. 1626069600.
-//	`tag` - Human readable, non-programmatic label. E.g. "My Coze key".
+//	`tag` - Human readable, non-programmatic label. E.g. "My Coz key".
 //	`rvk` - Unix time of key revocation. See docs on `rvk`. E.g. 1626069601.
 //	`tmb` - Key thumbprint. E.g. "U5XUZots-WmQYcQWmsO751Xk0yeVi9XUKWQ2mGz6Aqg".
-//	`typ` - Application label for key. E.g. "coze/key".
+//	`typ` - Application label for key. E.g. "coz/key".
 //	`pub` - Public component. E.g. "2nTOaFVm2QLxmUO_SjgyscVHBtvHEfo2rq65MvgNRjORojq39Haq9rXNxvXxwba_Xj0F5vZibJR3isBdOWbo5g".
 type Key struct {
 	Alg SEAlg  `json:"alg,omitempty"`
@@ -50,7 +50,7 @@ func (c Key) String() string {
 	return string(b)
 }
 
-// NewKey generates a new Coze key.
+// NewKey generates a new Coz key.
 func NewKey(alg SEAlg) (c *Key, err error) {
 	c = new(Key)
 	c.Alg = alg
@@ -124,11 +124,11 @@ func (c *Key) UnmarshalJSON(b []byte) error {
 	return nil
 }
 
-// Sign uses a private Coze key to sign a digest.
+// Sign uses a private Coz key to sign a digest.
 //
-// Sign() and Verify() do not check if the Coze is correct, such as checking
-// pay.alg and pay.tmb matches with Key.  Use SignPay, SignCoze, SignPayJSON,
-// and/or VerifyCoze if needing Coze validation.
+// Sign() and Verify() do not check if the Coz is correct, such as checking
+// pay.alg and pay.tmb matches with Key.  Use SignPay, SignCoz, SignPayJSON,
+// and/or VerifyCoz if needing Coz validation.
 func (c *Key) Sign(digest B64) (sig B64, err error) {
 	if len(c.Prv) != c.Alg.PrvSize() {
 		return nil, fmt.Errorf("Sign: incorrect prv length for alg %q; expected %q, given %q", c.Alg, c.Alg.PrvSize(), len(c.Prv))
@@ -175,13 +175,13 @@ func (c *Key) Sign(digest B64) (sig B64, err error) {
 	case EdDSA:
 		pk := ed25519.NewKeyFromSeed(c.Prv)
 		// Alternatively, concat prv with pub
-		// b := make([]coze.B64, 64)
+		// b := make([]coz.B64, 64)
 		// prv := append(b, c.Prv, c.Pub)
 		return ed25519.Sign(pk, digest), nil
 	}
 }
 
-// SignPay signs coze.Pay and returns a new Coze with coze.Sig populated. If set,
+// SignPay signs coz.Pay and returns a new Coz with coz.Sig populated. If set,
 // SignPay checks that `pay.alg` and `key.alg` match and that `pay.tmb` is
 // correct according to `key`.
 //
@@ -191,7 +191,7 @@ func (c *Key) Sign(digest B64) (sig B64, err error) {
 //
 // SignPay works with contextual cozies that lack pay.alg and/or pay.tmb and
 // uses key as a source of truth.
-func (c *Key) SignPay(p *Pay) (coze *Coze, err error) {
+func (c *Key) SignPay(p *Pay) (coz *Coz, err error) {
 	// Auto-update now if present (non-zero).
 	if p.Now != 0 {
 		p.Now = time.Now().Unix()
@@ -199,17 +199,17 @@ func (c *Key) SignPay(p *Pay) (coze *Coze, err error) {
 	return c.signPayJSON(p, nil)
 }
 
-// SignPayRaw signs coze.Pay without modifying any fields. Unlike SignPay,
+// SignPayRaw signs coz.Pay without modifying any fields. Unlike SignPay,
 // it does not update `pay.Now`. Use this when you need exact control over
 // the payload being signed.
-func (c *Key) SignPayRaw(p *Pay) (coze *Coze, err error) {
+func (c *Key) SignPayRaw(p *Pay) (coz *Coz, err error) {
 	return c.signPayJSON(p, nil)
 }
 
-// SignPayJSON signs a json `coze.pay`. If the JSON contains a non-zero `now`
+// SignPayJSON signs a json `coz.pay`. If the JSON contains a non-zero `now`
 // field, it is updated to the current Unix timestamp before signing. See
 // documentation on SignPay.
-func (c *Key) SignPayJSON(pay json.RawMessage) (coze *Coze, err error) {
+func (c *Key) SignPayJSON(pay json.RawMessage) (coz *Coz, err error) {
 	p := new(Pay)
 	err = json.Unmarshal(pay, p)
 	if err != nil {
@@ -227,12 +227,12 @@ func (c *Key) SignPayJSON(pay json.RawMessage) (coze *Coze, err error) {
 // signPayJSON efficiently consolidates common code between SignPay and
 // SignPayJSON. Parameter p must be given and b is optional.  If b is nil, b is
 // generated from p. If b is not nil b is compacted.
-func (c *Key) signPayJSON(p *Pay, b json.RawMessage) (coze *Coze, err error) {
+func (c *Key) signPayJSON(p *Pay, b json.RawMessage) (coz *Coz, err error) {
 	if p.Alg != "" && c.Alg != p.Alg {
-		return nil, fmt.Errorf("SignPay: key alg %q and coze alg %q do not match", c.Alg, p.Alg)
+		return nil, fmt.Errorf("SignPay: key alg %q and coz alg %q do not match", c.Alg, p.Alg)
 	}
 	if len(p.Tmb) != 0 && !bytes.Equal(c.Tmb, p.Tmb) {
-		return nil, fmt.Errorf("SignPay: key tmb %q and coze tmb %q do not match", c.Tmb, p.Tmb)
+		return nil, fmt.Errorf("SignPay: key tmb %q and coz tmb %q do not match", c.Tmb, p.Tmb)
 	}
 
 	if b == nil {
@@ -256,30 +256,30 @@ func (c *Key) signPayJSON(p *Pay, b json.RawMessage) (coze *Coze, err error) {
 		return nil, err
 	}
 
-	coze = new(Coze)
-	coze.Pay = b
-	coze.Sig = sig
-	return coze, nil
+	coz = new(Coz)
+	coz.Pay = b
+	coz.Sig = sig
+	return coz, nil
 }
 
-// SignCoze signs `coze.pay` and sets `coze.sig`. Since SignPayJSON may modify
-// `pay.now` if present, SignCoze also updates `cz.Pay` to match the signed
+// SignCoz signs `coz.pay` and sets `coz.sig`. Since SignPayJSON may modify
+// `pay.now` if present, SignCoz also updates `cz.Pay` to match the signed
 // payload. See documentation on SignPay.
-func (c *Key) SignCoze(cz *Coze) (err error) {
-	coze, err := c.SignPayJSON(cz.Pay)
+func (c *Key) SignCoz(cz *Coz) (err error) {
+	coz, err := c.SignPayJSON(cz.Pay)
 	if err != nil {
 		return err
 	}
-	cz.Pay = coze.Pay // Pay may have been modified (e.g., now updated).
-	cz.Sig = coze.Sig
+	cz.Pay = coz.Pay // Pay may have been modified (e.g., now updated).
+	cz.Sig = coz.Sig
 	return nil
 }
 
-// Verify uses a Coze key to verify a digest.  Typically digest is `cad`.
+// Verify uses a Coz key to verify a digest.  Typically digest is `cad`.
 //
-// Sign() and Verify() do not check if the coze is correct, such as checking
-// pay.alg and pay.tmb matches with Key.  Use SignPay, SignCoze, SignPayJSON,
-// and/or VerifyCoze if needing Coze validation.
+// Sign() and Verify() do not check if the coz is correct, such as checking
+// pay.alg and pay.tmb matches with Key.  Use SignPay, SignCoz, SignPayJSON,
+// and/or VerifyCoz if needing Coz validation.
 func (c *Key) Verify(digest, sig B64) (valid bool) {
 	if len(c.Pub) != c.Alg.PubSize() {
 		return false
@@ -304,23 +304,23 @@ func (c *Key) Verify(digest, sig B64) (valid bool) {
 	}
 }
 
-// VerifyCoze cryptographically verifies `pay` with given `sig`.  If set
-// VerifyCoze checks that `pay.alg` and `key.alg` match and that `pay.tmb` is
+// VerifyCoz cryptographically verifies `pay` with given `sig`.  If set
+// VerifyCoz checks that `pay.alg` and `key.alg` match and that `pay.tmb` is
 // correct according to `key`. Always returns false on error.
 //
-// VerifyCoze works with contextual cozies that lack pay.alg and/or
+// VerifyCoz works with contextual cozies that lack pay.alg and/or
 // pay.tmb and uses key as a source of truth.
-func (c *Key) VerifyCoze(cz *Coze) (bool, error) {
+func (c *Key) VerifyCoz(cz *Coz) (bool, error) {
 	p := new(Pay)
 	err := json.Unmarshal(cz.Pay, p)
 	if err != nil {
 		return false, err
 	}
 	if p.Alg != "" && c.Alg != p.Alg {
-		return false, fmt.Errorf("VerifyCoze: key.alg %q and coze.alg %q do not match", c.Alg, p.Alg)
+		return false, fmt.Errorf("VerifyCoz: key.alg %q and coz.alg %q do not match", c.Alg, p.Alg)
 	}
 	if len(p.Tmb) != 0 && !bytes.Equal(c.Tmb, p.Tmb) {
-		return false, fmt.Errorf("VerifyCoze: key tmb %q and coze tmb %q do not match", c.Tmb, p.Tmb)
+		return false, fmt.Errorf("VerifyCoz: key tmb %q and coz tmb %q do not match", c.Tmb, p.Tmb)
 	}
 
 	b, err := compact(cz.Pay)
@@ -336,7 +336,7 @@ func (c *Key) VerifyCoze(cz *Coze) (bool, error) {
 	return c.Verify(d, cz.Sig), nil
 }
 
-// Valid cryptographically validates a private Coze Key by signing a message and
+// Valid cryptographically validates a private Coz Key by signing a message and
 // verifying the resulting signature with the given "pub".
 //
 // Valid always returns false on public keys.  Use function "Verify" for public
@@ -355,12 +355,12 @@ func (c *Key) Valid() (valid bool) {
 }
 
 // Correct is an advanced function for checking for the correct construction of
-// a Coze key if it can be known from the given inputs. Key must have at least
+// a Coz key if it can be known from the given inputs. Key must have at least
 // one of [`tmb`, `pub`,`prv`] and `alg` set.  Correct may return no error on
 // cryptographically invalid public keys.  Using input information, if possible
 // to definitively know the given key is incorrect, Correct returns an error,
 // but if plausibly correct, Correct returns no error. Correct answers the
-// question: "Is the given Coze key reasonable using the information provided?".
+// question: "Is the given Coz key reasonable using the information provided?".
 // Correct is useful for sanity checking public keys without signed messages,
 // sanity checking `tmb` only keys, and validating private keys. Use function
 // "Verify" instead for verifying public keys when a signed message is
@@ -413,7 +413,7 @@ func (c *Key) Correct() (err error) {
 		}
 	}
 
-	// tmb only key.  (Coze assumes `pub` is calculable from `prv`, so at this point
+	// tmb only key.  (Coz assumes `pub` is calculable from `prv`, so at this point
 	// `tmb` should always be set. See `checksum_and_seed.md` for exposition.
 	if len(c.Tmb) != c.Alg.Hash().Size() {
 		return fmt.Errorf("Correct: incorrect tmb length for alg %q; expected %q, given %q", c.Alg, c.Alg.Hash().Size(), len(c.Tmb))
@@ -421,11 +421,11 @@ func (c *Key) Correct() (err error) {
 	return nil
 }
 
-// Revoke returns a signed revoke coze and sets `rvk` on the key itself.
-func (c *Key) Revoke() (coze *Coze, err error) {
+// Revoke returns a signed revoke coz and sets `rvk` on the key itself.
+func (c *Key) Revoke() (coz *Coz, err error) {
 	err = c.Correct()
 	if err != nil {
-		return nil, fmt.Errorf("Revoke: Coze key is not correct; %s", err)
+		return nil, fmt.Errorf("Revoke: Coz key is not correct; %s", err)
 	}
 
 	r := new(Pay)
@@ -435,18 +435,18 @@ func (c *Key) Revoke() (coze *Coze, err error) {
 	r.Tmb = c.Tmb
 	// If needing "typ" populated, use Sign.
 
-	coze = new(Coze)
-	coze.Pay, err = r.MarshalJSON()
+	coz = new(Coz)
+	coz.Pay, err = r.MarshalJSON()
 	if err != nil {
 		return
 	}
 
-	err = c.SignCoze(coze)
+	err = c.SignCoz(coz)
 	if err != nil {
 		return nil, err
 	}
-	c.Rvk = r.Now // Sets `Key.Rvk` to the same value as the self-revoke coze.
-	return coze, nil
+	c.Rvk = r.Now // Sets `Key.Rvk` to the same value as the self-revoke coz.
+	return coz, nil
 }
 
 // IsRevoked returns true if the given Key is marked as revoked.
@@ -469,7 +469,7 @@ func (c *Key) calcPub() B64 {
 	}
 }
 
-// ToPubEcdsa converts a Coze Key to ecdsa.PublicKey.
+// ToPubEcdsa converts a Coz Key to ecdsa.PublicKey.
 func (c *Key) ToPubEcdsa() (key *ecdsa.PublicKey) {
 	size := c.Alg.PubSize() / 2
 	return &ecdsa.PublicKey{
@@ -497,7 +497,7 @@ var curveHalfOrders = map[SigAlg]*big.Int{
 	ES512: new(big.Int).Rsh(elliptic.P521().Params().N, 1),
 }
 
-// IsLowS checks if S is a low-S for ECDSA.  See Coze docs on low-S.
+// IsLowS checks if S is a low-S for ECDSA.  See Coz docs on low-S.
 func IsLowS(c *Key, s *big.Int) (bool, error) {
 	if c.Alg.Genus() != ECDSA {
 		return false, fmt.Errorf("IsLowS: alg %q is not ECDSA", c.Alg)
@@ -506,7 +506,7 @@ func IsLowS(c *Key, s *big.Int) (bool, error) {
 }
 
 // ToLowS converts high-S to low-S or if already low-S returns itself.
-// It does this by (N - S) where N is the order.  See Coze docs on low-S.
+// It does this by (N - S) where N is the order.  See Coz docs on low-S.
 func ToLowS(c *Key, s *big.Int) error {
 	lowS, err := IsLowS(c, s)
 	if err != nil {
@@ -520,25 +520,25 @@ func ToLowS(c *Key, s *big.Int) error {
 }
 
 // ECDSAToLowSSig generates low-S signature from existing ecdsa signatures (high
-// or low-S).  This is useful for migrating signatures from non-Coze systems
-// that may have high S signatures. See Coze docs on low-S.
-func ECDSAToLowSSig(c *Key, coze *Coze) (err error) {
+// or low-S).  This is useful for migrating signatures from non-Coz systems
+// that may have high S signatures. See Coz docs on low-S.
+func ECDSAToLowSSig(c *Key, coz *Coz) (err error) {
 	if c.Alg.Genus() != ECDSA {
 		return nil
 	}
 	size := c.Alg.SigAlg().SigSize() / 2
-	r := big.NewInt(0).SetBytes(coze.Sig[:size])
-	s := big.NewInt(0).SetBytes(coze.Sig[size:])
+	r := big.NewInt(0).SetBytes(coz.Sig[:size])
+	s := big.NewInt(0).SetBytes(coz.Sig[size:])
 
 	// low-S
 	err = ToLowS(c, s)
 	if err != nil {
 		return err
 	}
-	coze.Sig = PadInts(r, s, c.Alg.SigSize())
+	coz.Sig = PadInts(r, s, c.Alg.SigSize())
 
 	// Make sure the possible mutation of the signature is valid.
-	valid, err := c.VerifyCoze(coze)
+	valid, err := c.VerifyCoz(coz)
 	if !valid {
 		return err
 	}

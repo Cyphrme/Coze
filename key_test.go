@@ -53,58 +53,58 @@ var GoldenKeyBadX = Key{
 
 var (
 	GoldenTmb = "U5XUZots-WmQYcQWmsO751Xk0yeVi9XUKWQ2mGz6Aqg"
-	GoldenCad = "AyVZoWUv_rJf7_KqoeRS5odr8g3MZwBzhtBdSZderxk"
-	GoldenCzd = "DHEHV1BZPYMMzZs2auqF5vlvCySOdiOWdPleWHy3Ypg"
-	GoldenSig = "bbO49APro9TGzAxDWvyT0a41l2sEFMpYWqC-hvDlJukyXKZ_0TRNsrJNcTIso3b8kh5wbLL2KLvOO4zfsHplwA"
+	GoldenCad = "XzrXMGnY0QFwAKkr43Hh-Ku3yUS8NVE0BdzSlMLSuTU"
+	GoldenCzd = "k0-4mPqRJkY3g0pX14wLiIpZkTsVv453xJ4vYZKcLJE"
+	GoldenSig = "1EWsiwvnrjAODbiWH1WLwjSY5Go89KnvyJLjB5gWlSF9l0-3xXdZ1jcq7AHcSfiazAf-lquI_okZ48uPSBPRpg"
 )
 
 var GoldenPay = `{
-	"msg": "Coze Rocks",
+	"msg": "Coz is a cryptographic JSON messaging specification.",
 	"alg": "ES256",
 	"now": 1623132000,
 	"tmb": "U5XUZots-WmQYcQWmsO751Xk0yeVi9XUKWQ2mGz6Aqg",
-	"typ": "cyphr.me/msg"
+	"typ": "cyphr.me/msg/create"
  }`
 
-var GoldenCoze = `{
+var GoldenCoz = `{
 	"pay":` + GoldenPay + `,
 	"sig": "` + GoldenSig + `"
  }`
 
-// Encapsulated coze.
-var GoldenCozeE = `{
-	"coze":` + GoldenCoze + `
+// Encapsulated coz.
+var GoldenCozE = `{
+	"coz":` + GoldenCoz + `
 }`
 
-var GoldenCozeWKey = `{
+var GoldenCozWKey = `{
 	"pay": ` + GoldenPay + `,
 	"key": ` + GoldenKeyString + `,
 	"sig": "` + GoldenSig + `"
  }`
 
-var GoldenCozeEmpty = json.RawMessage(`{
+var GoldenCozEmpty = json.RawMessage(`{
 	"pay":{},
 	"sig":"UG0KP-cElD3mPoN8LRVd4_uoNzMwmpUm3pKxt-iy6So8f1JxmxMcO9JFzsmecFXyt5PjsOTZdUKyV6eZRNl-hg"
 }`)
 
-var GoldenCozeNoAlg = json.RawMessage(`{
+var GoldenCozNoAlg = json.RawMessage(`{
 	"pay": {
-			"msg": "Coze Rocks",
+			"msg": "Coz is a cryptographic JSON messaging specification.",
 			"now": 1623132000,
 			"tmb": "U5XUZots-WmQYcQWmsO751Xk0yeVi9XUKWQ2mGz6Aqg",
-			"typ": "cyphr.me/msg"
+			"typ": "cyphr.me/msg/create"
 	},
-	"sig": "rVVX9Px9ZVdU-YQdWTHK-hrgjQZVngztqJq7QlPBw1o9XUhN7GzWRV_0u2s-gP7Z9MHRCicq9j7InhUrg8LNjg"
+	"sig": "37R-VP0BaR31_vjtOgdZP7lpanTMdQy07xz83o_I7mFMMt2BdoZwdXOAn0dxtKpPrhPPNxBTe-O12ifeiCnONQ"
 }`)
 
 var GoldenPayNoAlg = json.RawMessage(`{
-			"msg": "Coze Rocks",
+			"msg": "Coz is a cryptographic JSON messaging specification.",
 			"now": 1623132000,
 			"tmb": "U5XUZots-WmQYcQWmsO751Xk0yeVi9XUKWQ2mGz6Aqg",
-			"typ": "cyphr.me/msg"
+			"typ": "cyphr.me/msg/create"
 	}`)
 
-// CustomStruct is for examples demonstrating Pay/Coze with custom structs.
+// CustomStruct is for examples demonstrating Pay/Coz with custom structs.
 type CustomStruct struct {
 	Msg string `json:"msg,omitempty"`
 }
@@ -116,7 +116,7 @@ func ExampleKey_String() {
 	// {"alg":"ES256","prv":"bNstg4_H3m3SlROufwRSEgibLrBuRq9114OvdapcpVA","now":1623132000,"tag":"Zami's Majuscule Key.","tmb":"U5XUZots-WmQYcQWmsO751Xk0yeVi9XUKWQ2mGz6Aqg","pub":"2nTOaFVm2QLxmUO_SjgyscVHBtvHEfo2rq65MvgNRjORojq39Haq9rXNxvXxwba_Xj0F5vZibJR3isBdOWbo5g"}
 }
 
-// ExampleKey_jsonUnmarshal tests unmarshalling a Coze key.
+// ExampleKey_jsonUnmarshal tests unmarshalling a Coz key.
 func ExampleKey_jsonUnmarshal() {
 	Key := new(Key)
 	err := json.Unmarshal([]byte(GoldenKeyString), Key)
@@ -156,8 +156,8 @@ func ExampleThumbprint() {
 }
 
 func ExampleKey_Sign() {
-	// Manual signing of empty Coze, `{"pay":{},"sig":"9iesKU..."}`, is a valid
-	// Coze.  In this case, it would be better to use SignPayJSON.
+	// Manual signing of empty Coz, `{"pay":{},"sig":"9iesKU..."}`, is a valid
+	// Coz.  In this case, it would be better to use SignPayJSON.
 	d, err := Hash(GoldenKey.Alg.Hash(), []byte("{}"))
 	if err != nil {
 		panic(err)
@@ -182,10 +182,10 @@ func ExampleKey_Sign() {
 }
 
 // ExampleKey_SignPay demonstrates converting a custom data structure into a
-// coze, signing it, and verifying the results.
+// coz, signing it, and verifying the results.
 func ExampleKey_SignPay() {
 	customStruct := CustomStruct{
-		Msg: "Coze Rocks",
+		Msg: "Coz is a cryptographic JSON messaging specification.",
 	}
 
 	pay := Pay{
@@ -196,46 +196,46 @@ func ExampleKey_SignPay() {
 		Struct: customStruct,
 	}
 
-	coze, err := GoldenKey.SignPay(&pay)
+	coz, err := GoldenKey.SignPay(&pay)
 	if err != nil {
 		panic(err)
 	}
 
-	fmt.Println(GoldenKey.VerifyCoze(coze))
+	fmt.Println(GoldenKey.VerifyCoz(coz))
 
 	// Output: true <nil>
 }
 
 func ExampleKey_SignPayJSON() {
-	coze, err := GoldenKey.SignPayJSON(json.RawMessage(GoldenPay))
+	coz, err := GoldenKey.SignPayJSON(json.RawMessage(GoldenPay))
 	if err != nil {
 		panic(err)
 	}
-	fmt.Println(GoldenKey.VerifyCoze(coze))
+	fmt.Println(GoldenKey.VerifyCoz(coz))
 
 	// Output: true <nil>
 }
 
-// ExampleKey_Sign_empty demonstrates signing of empty Coze,
+// ExampleKey_Sign_empty demonstrates signing of empty Coz,
 // `{"pay":{},"sig":"9iesKU..."}`, is valid.
 func ExampleKey_SignPayJSON_empty() {
-	coze, err := GoldenKey.SignPayJSON([]byte("{}"))
+	coz, err := GoldenKey.SignPayJSON([]byte("{}"))
 	if err != nil {
 		panic(err)
 	}
-	fmt.Println(GoldenKey.VerifyCoze(coze))
+	fmt.Println(GoldenKey.VerifyCoz(coz))
 
 	// Output: true <nil>
 }
 
-// Example demonstrating the verification of the empty coze from the README.
+// Example demonstrating the verification of the empty coz from the README.
 func ExampleKey_Verify_empty() {
-	cz := new(Coze)
-	err := json.Unmarshal(GoldenCozeEmpty, cz)
+	cz := new(Coz)
+	err := json.Unmarshal(GoldenCozEmpty, cz)
 	if err != nil {
 		panic(err)
 	}
-	fmt.Println(GoldenKey.VerifyCoze(cz))
+	fmt.Println(GoldenKey.VerifyCoz(cz))
 
 	// Output: true <nil>
 }
@@ -267,18 +267,18 @@ func ExampleKey_UnmarshalJSON_duplicate() {
 	fmt.Println(err)
 
 	// Output:
-	// Coze: JSON duplicate field "alg"
+	// Coz: JSON duplicate field "alg"
 }
 
-func ExampleKey_SignCoze() {
-	cz := new(Coze)
+func ExampleKey_SignCoz() {
+	cz := new(Coz)
 	cz.Pay = json.RawMessage(GoldenPay)
-	err := GoldenKey.SignCoze(cz)
+	err := GoldenKey.SignCoz(cz)
 	if err != nil {
 		panic(err)
 	}
 
-	fmt.Println(GoldenKey.VerifyCoze(cz))
+	fmt.Println(GoldenKey.VerifyCoz(cz))
 
 	// Output: true <nil>
 }
@@ -289,19 +289,19 @@ func ExampleKey_Verify() {
 	// Output: true
 }
 
-func ExampleKey_VerifyCoze() {
-	cz := new(Coze)
-	err := json.Unmarshal([]byte(GoldenCoze), cz)
+func ExampleKey_VerifyCoz() {
+	cz := new(Coz)
+	err := json.Unmarshal([]byte(GoldenCoz), cz)
 	if err != nil {
 		panic(err)
 	}
 
-	fmt.Println(GoldenKey.VerifyCoze(cz))
+	fmt.Println(GoldenKey.VerifyCoz(cz))
 
 	// Output: true <nil>
 }
 
-// Tests valid on a good Coze key and a bad Coze key
+// Tests valid on a good Coz key and a bad Coz key
 func ExampleKey_Valid() {
 	fmt.Println(GoldenKey.Valid(), GoldenKeyBadD.Valid())
 
@@ -430,11 +430,11 @@ func ExampleKey_Correct() {
 func ExampleCanonicalHash_genCad() {
 	fmt.Println(CanonicalHash([]byte(GoldenPay), nil, GoldenKey.Alg.Hash()))
 
-	// Output: AyVZoWUv_rJf7_KqoeRS5odr8g3MZwBzhtBdSZderxk <nil>
+	// Output: XzrXMGnY0QFwAKkr43Hh-Ku3yUS8NVE0BdzSlMLSuTU <nil>
 }
 
-// BenchmarkNSV benchmarks several methods on a Coze key. (NSV = New, Sign,
-// Verify) It generates a new Coze key, signs a message, and verifies the
+// BenchmarkNSV benchmarks several methods on a Coz key. (NSV = New, Sign,
+// Verify) It generates a new Coz key, signs a message, and verifies the
 // signature.
 // go test -bench=.
 // go test -bench=BenchmarkNSV -benchtime=30s
@@ -444,7 +444,7 @@ func BenchmarkNSV(b *testing.B) {
 		for _, alg := range algs {
 			ck, err := NewKey(SEAlg(alg))
 			if err != nil {
-				b.Fatal("Could not generate Coze Key.")
+				b.Fatal("Could not generate Coz Key.")
 			}
 
 			if !ck.Valid() {
@@ -457,17 +457,17 @@ func BenchmarkNSV(b *testing.B) {
 func ExampleKey_IsRevoked() {
 	gk2 := GoldenKey // Make a copy
 	fmt.Println(gk2.IsRevoked())
-	coze, err := gk2.Revoke()
+	coz, err := gk2.Revoke()
 	if err != nil {
 		panic(err)
 	}
 
 	pay := new(Pay)
-	err = pay.UnmarshalJSON(coze.Pay)
+	err = pay.UnmarshalJSON(coz.Pay)
 	if err != nil {
 		panic(err)
 	}
-	// Both the revoke coze and the key should be interpreted as revoked.
+	// Both the revoke coz and the key should be interpreted as revoked.
 	fmt.Println(pay.IsRevoke())
 	fmt.Println(gk2.IsRevoked())
 
@@ -477,25 +477,23 @@ func ExampleKey_IsRevoked() {
 	// true
 }
 
-// Example_ECDSAToLowSSig demonstrates converting non-coze compliant high S
-// signatures to the canonicalized, coze compliant low-S form.
+// Example_ECDSAToLowSSig demonstrates converting non-coz compliant high S
+// signatures to the canonicalized, coz compliant low-S form.
 func ExampleECDSAToLowSSig() {
 	highSCozies := []string{
-		`{"pay":{},"sig":"qHnpghmFC8B0wnyT960gX6r3dtGt6DRzSL4REMOQuqK2RPE6s4QUKbq7iC-1lJXPLuCBT0cKhnOhXJ_YtFKqPQ"}`,
-		`{"pay":{"msg":"Coz Rocks","alg":"ES256","now":1623132000,"tmb":"U5XUZots-WmQYcQWmsO751Xk0yeVi9XUKWQ2mGz6Aqg","typ":"cyphr.me/msg"},"sig":"Q0c6YIUnxAahyINIkh-S2RF1-HaGcbD_L2KjI5KZvzuMeNdJnKXl8-m8QJnvhDVoe9C3-D3Q3yW3fmeDokemJA"}`,
-		`{"pay":{"msg":"Coz Rocks","alg":"ES256","now":1623132000,"tmb":"U5XUZots-WmQYcQWmsO751Xk0yeVi9XUKWQ2mGz6Aqg","typ":"cyphr.me/msg"},"sig":"xIRTBFC7xL3tRP-_ZRi5h8M7OspG9swY4CjSy8U-ogPaMb25f6SL6qByN9yir47SlRz05Muor61ZYekayKPVQg"}`,
-		`{"pay":{"msg":"Coz Rocks","alg":"ES256","now":1623132000,"tmb":"U5XUZots-WmQYcQWmsO751Xk0yeVi9XUKWQ2mGz6Aqg","typ":"cyphr.me/msg"},"sig":"oGZC7aBVSrGdJDFrnK3J7qncsmy4QaTgXGQ1kZGt__7kNWlXgIWLSnl7nXeeyMGZKuUHCsCoRg7cvzkv5aE-CA"}`,
+		`{"pay":{},"sig":"nN7tddth3aiSHaEh0WfhFzXFSSWuAfB7wdS_fUAc9kai2fBx9jXY8j-MWDZW-5Pm4AsX7ed5UQ9MAStNOMNa8g"}`,
+		`{"pay":{"msg":"Coz is a cryptographic JSON messaging specification.","alg":"ES256","now":1623132000,"tmb":"U5XUZots-WmQYcQWmsO751Xk0yeVi9XUKWQ2mGz6Aqg","typ":"cyphr.me/msg"},"sig":"fGNQ_xCWAlvSjuNZdh6Suam7_O7-LdoKmC8LAjPawRv7XciadwUmLXGom6StDQKpY5ue0gXuLz3xk-_jhaq_tg"}`,
 	}
 
 	for _, s := range highSCozies {
-		cz := new(Coze)
+		cz := new(Coz)
 		err := json.Unmarshal([]byte(s), cz)
 		if err != nil {
 			panic(err)
 		}
-		v, _ := GoldenKey.VerifyCoze(cz)
+		v, _ := GoldenKey.VerifyCoz(cz)
 		if v {
-			panic("High S coze should not validate.")
+			panic("High S coz should not validate.")
 		}
 
 		err = ECDSAToLowSSig(&GoldenKey, cz)
@@ -503,19 +501,17 @@ func ExampleECDSAToLowSSig() {
 			panic(err)
 		}
 
-		v, _ = GoldenKey.VerifyCoze(cz)
+		v, _ = GoldenKey.VerifyCoz(cz)
 		if !v {
-			panic("low-S coze should validate.")
+			panic("low-S coz should validate.")
 		}
 
 		fmt.Printf("%s\n", cz)
 	}
 
 	// Output:
-	// {"pay":{},"sig":"qHnpghmFC8B0wnyT960gX6r3dtGt6DRzSL4REMOQuqJJuw7ETHvr10VEd9BKa2owjgZ5XmANGBFSXSrqSBB7FA"}
-	// {"pay":{"msg":"Coz Rocks","alg":"ES256","now":1623132000,"tmb":"U5XUZots-WmQYcQWmsO751Xk0yeVi9XUKWQ2mGz6Aqg","typ":"cyphr.me/msg"},"sig":"Q0c6YIUnxAahyINIkh-S2RF1-HaGcbD_L2KjI5KZvztzhyi1Y1oaDRZDv2YQe8qXQRZCtWlGv188O2M_Wht_LQ"}
-	// {"pay":{"msg":"Coz Rocks","alg":"ES256","now":1623132000,"tmb":"U5XUZots-WmQYcQWmsO751Xk0yeVi9XUKWQ2mGz6Aqg","typ":"cyphr.me/msg"},"sig":"xIRTBFC7xL3tRP-_ZRi5h8M7OspG9swY4CjSy8U-ogMlzkJFgFt0Fl-NyCNdUHEtJ8oFyNtu7teaV-GoM79QDw"}
-	// {"pay":{"msg":"Coz Rocks","alg":"ES256","now":1623132000,"tmb":"U5XUZots-WmQYcQWmsO751Xk0yeVi9XUKWQ2mGz6Aqg","typ":"cyphr.me/msg"},"sig":"oGZC7aBVSrGdJDFrnK3J7qncsmy4QaTgXGQ1kZGt__4bypanf3p0toaEYohhNz5mkgHzouZvWHYW-pGTFsHnSQ"}
+	// {"pay":{},"sig":"nN7tddth3aiSHaEh0WfhFzXFSSWuAfB7wdS_fUAc9kZdJg-NCconDsBzp8mpBGwY3Nviv7-eTXWnuJ91w5_KXw"}
+	// {"pay":{"msg":"Coz is a cryptographic JSON messaging specification.","alg":"ES256","now":1623132000,"tmb":"U5XUZots-WmQYcQWmsO751Xk0yeVi9XUKWQ2mGz6Aqg","typ":"cyphr.me/msg"},"sig":"fGNQ_xCWAlvSjuNZdh6Suam7_O7-LdoKmC8LAjPawRsEojdkiPrZ045XZFtS8v1WWUtb26Epb0cCJdrfdrhlmw"}
 }
 
 // Test_lowS tests to make sure generated ECDSA keys are low-s and not high-s.

@@ -17,36 +17,36 @@ func ExamplePay_embedded() {
 	}
 
 	user := User{
-		DisplayName: "Coze",
+		DisplayName: "Coz",
 		FirstName:   "Foo",
 		LastName:    "Bar",
 	}
 
-	// Example of converting a custom struct to a coze.
+	// Example of converting a custom struct to a coz.
 	pay := Pay{
 		Alg:    GoldenKey.Alg,
 		Tmb:    GoldenKey.Tmb,
 		Struct: &user,
 	}
 
-	coze, err := GoldenKey.SignPay(&pay)
+	coz, err := GoldenKey.SignPay(&pay)
 	if err != nil {
 		panic(err)
 	}
 
-	v, err := GoldenKey.VerifyCoze(coze)
+	v, err := GoldenKey.VerifyCoz(coz)
 	if err != nil {
 		panic(err)
 	}
 
 	// Set sig to nil for deterministic printout
-	coze.Sig = nil
+	coz.Sig = nil
 	fmt.Println(v)
-	fmt.Printf("%+v\n", coze)
+	fmt.Printf("%+v\n", coz)
 
 	// Output:
 	// true
-	// {"pay":{"alg":"ES256","tmb":"U5XUZots-WmQYcQWmsO751Xk0yeVi9XUKWQ2mGz6Aqg","DisplayName":"Coze","FirstName":"Foo","LastName":"Bar"}}
+	// {"pay":{"alg":"ES256","tmb":"U5XUZots-WmQYcQWmsO751Xk0yeVi9XUKWQ2mGz6Aqg","DisplayName":"Coz","FirstName":"Foo","LastName":"Bar"}}
 }
 
 // ExamplePay_dig demonstrates using the `dig` (digest) field in a coz payload.
@@ -75,20 +75,20 @@ func ExamplePay_dig() {
 		Struct: &PayWithDig{Dig: dig},
 	}
 
-	coze, err := GoldenKey.SignPay(&pay)
+	coz, err := GoldenKey.SignPay(&pay)
 	if err != nil {
 		panic(err)
 	}
 
-	v, err := GoldenKey.VerifyCoze(coze)
+	v, err := GoldenKey.VerifyCoz(coz)
 	if err != nil {
 		panic(err)
 	}
 
 	// Set sig to nil for deterministic printout
-	coze.Sig = nil
+	coz.Sig = nil
 	fmt.Println(v)
-	fmt.Println(coze)
+	fmt.Println(coz)
 
 	// Output:
 	// true
@@ -111,21 +111,21 @@ func ExamplePay_jsonUnmarshal() {
 	fmt.Printf("%s\n", out)
 
 	// Output:
-	// {"alg":"ES256","now":1623132000,"tmb":"U5XUZots-WmQYcQWmsO751Xk0yeVi9XUKWQ2mGz6Aqg","typ":"cyphr.me/msg"}
+	// {"alg":"ES256","now":1623132000,"tmb":"U5XUZots-WmQYcQWmsO751Xk0yeVi9XUKWQ2mGz6Aqg","typ":"cyphr.me/msg/create"}
 }
 
 // ExamplePay_jsonMarshalCustom demonstrates marshalling Pay with a custom
 // structure.
 func ExamplePay_jsonMarshalCustom() {
 	customStruct := CustomStruct{
-		Msg: "Coze Rocks",
+		Msg: "Coz is a cryptographic JSON messaging specification.",
 	}
 
 	inputPay := Pay{
 		Alg:    SEAlg(ES256),
 		Now:    1623132000, // Static for demonstration.  Use time.Now().Unix().
 		Tmb:    MustDecode("U5XUZots-WmQYcQWmsO751Xk0yeVi9XUKWQ2mGz6Aqg"),
-		Typ:    "cyphr.me/msg",
+		Typ:    "cyphr.me/msg/create",
 		Struct: customStruct,
 	}
 
@@ -137,7 +137,7 @@ func ExamplePay_jsonMarshalCustom() {
 	fmt.Println(string(s))
 
 	// Output:
-	// {"alg":"ES256","now":1623132000,"tmb":"U5XUZots-WmQYcQWmsO751Xk0yeVi9XUKWQ2mGz6Aqg","typ":"cyphr.me/msg","msg":"Coze Rocks"}
+	// {"alg":"ES256","now":1623132000,"tmb":"U5XUZots-WmQYcQWmsO751Xk0yeVi9XUKWQ2mGz6Aqg","typ":"cyphr.me/msg/create","msg":"Coz is a cryptographic JSON messaging specification."}
 }
 
 // ExamplePay_jsonUnmarshalCustomManual demonstrates "manually" unmarshalling
@@ -158,8 +158,8 @@ func ExamplePay_jsonUnmarshalCustomManual() {
 	fmt.Println(custom)
 
 	// Output:
-	// {"alg":"ES256","now":1623132000,"tmb":"U5XUZots-WmQYcQWmsO751Xk0yeVi9XUKWQ2mGz6Aqg","typ":"cyphr.me/msg"}
-	// {Coze Rocks}
+	// {"alg":"ES256","now":1623132000,"tmb":"U5XUZots-WmQYcQWmsO751Xk0yeVi9XUKWQ2mGz6Aqg","typ":"cyphr.me/msg/create"}
+	// {Coz is a cryptographic JSON messaging specification.}
 }
 
 // ExamplePay_jsonUnmarshalCustom demonstrates unmarshalling Pay with a custom
@@ -176,28 +176,28 @@ func ExamplePay_jsonUnmarshalCustom() {
 	fmt.Println(pay.Struct)
 
 	// Output:
-	// {"alg":"ES256","now":1623132000,"tmb":"U5XUZots-WmQYcQWmsO751Xk0yeVi9XUKWQ2mGz6Aqg","typ":"cyphr.me/msg","msg":"Coze Rocks"}
-	// &{Coze Rocks}
+	// {"alg":"ES256","now":1623132000,"tmb":"U5XUZots-WmQYcQWmsO751Xk0yeVi9XUKWQ2mGz6Aqg","typ":"cyphr.me/msg/create","msg":"Coz is a cryptographic JSON messaging specification."}
+	// &{Coz is a cryptographic JSON messaging specification.}
 }
 
 // ExamplePay_String_custom demonstrates fmt.Stringer on Pay with a custom
 // structure.
 func ExamplePay_String_custom() {
 	customStruct := CustomStruct{
-		Msg: "Coze Rocks",
+		Msg: "Coz is a cryptographic JSON messaging specification.",
 	}
 
 	inputPay := Pay{
 		Alg:    SEAlg(ES256),
 		Now:    1623132000, // Static for demonstration.  Use time.Now().Unix().
 		Tmb:    MustDecode("U5XUZots-WmQYcQWmsO751Xk0yeVi9XUKWQ2mGz6Aqg"),
-		Typ:    "cyphr.me/msg",
+		Typ:    "cyphr.me/msg/create",
 		Struct: customStruct,
 	}
 	fmt.Println(inputPay)
 
 	// Output:
-	// {"alg":"ES256","now":1623132000,"tmb":"U5XUZots-WmQYcQWmsO751Xk0yeVi9XUKWQ2mGz6Aqg","typ":"cyphr.me/msg","msg":"Coze Rocks"}
+	// {"alg":"ES256","now":1623132000,"tmb":"U5XUZots-WmQYcQWmsO751Xk0yeVi9XUKWQ2mGz6Aqg","typ":"cyphr.me/msg/create","msg":"Coz is a cryptographic JSON messaging specification."}
 }
 
 // Example demonstrating that unmarshalling a `pay` that has duplicate field
@@ -209,56 +209,56 @@ func ExamplePay_UnmarshalJSON_duplicate() {
 	fmt.Println(err)
 
 	// Output:
-	// Coze: JSON duplicate field "alg"
+	// Coz: JSON duplicate field "alg"
 }
 
-// Example demonstrating that unmarshalling a `coze` that has duplicate field
+// Example demonstrating that unmarshalling a `coz` that has duplicate field
 // names results in an error.
-func ExampleCoze_UnmarshalJSON_duplicate() {
+func ExampleCoz_UnmarshalJSON_duplicate() {
 	h := &Pay{}
-	msg := []byte(`{"coze":{"pay":"ES256","pay":"ES384"}}`)
+	msg := []byte(`{"coz":{"pay":"ES256","pay":"ES384"}}`)
 	err := json.Unmarshal(msg, h)
 	fmt.Println(err)
 
 	// Output:
-	// Coze: JSON duplicate field "pay"
+	// Coz: JSON duplicate field "pay"
 }
 
-// ExampleCoze_embed demonstrates how to embed a JSON `coze` into a third party
+// ExampleCoz_embed demonstrates how to embed a JSON `coz` into a third party
 // JSON structure.
-func ExampleCoze_embed() {
-	cz := new(Coze)
-	err := json.Unmarshal([]byte(GoldenCoze), cz)
+func ExampleCoz_embed() {
+	cz := new(Coz)
+	err := json.Unmarshal([]byte(GoldenCoz), cz)
 	if err != nil {
 		panic(err)
 	}
 
 	type Outer struct {
 		Name string `json:"name"`
-		Coze Coze   `json:"coze"` // Embed a Coze into a larger, application defined JSON structure.
+		Coz  Coz    `json:"coz"` // Embed a Coz into a larger, application defined JSON structure.
 	}
-	b, _ := json.Marshal(Outer{Name: "Bob", Coze: *cz})
+	b, _ := json.Marshal(Outer{Name: "Bob", Coz: *cz})
 	fmt.Printf("%s", b)
 
 	// Output:
-	// {"name":"Bob","coze":{"pay":{"msg":"Coze Rocks","alg":"ES256","now":1623132000,"tmb":"U5XUZots-WmQYcQWmsO751Xk0yeVi9XUKWQ2mGz6Aqg","typ":"cyphr.me/msg"},"sig":"bbO49APro9TGzAxDWvyT0a41l2sEFMpYWqC-hvDlJukyXKZ_0TRNsrJNcTIso3b8kh5wbLL2KLvOO4zfsHplwA"}}
+	// {"name":"Bob","coz":{"pay":{"msg":"Coz is a cryptographic JSON messaging specification.","alg":"ES256","now":1623132000,"tmb":"U5XUZots-WmQYcQWmsO751Xk0yeVi9XUKWQ2mGz6Aqg","typ":"cyphr.me/msg/create"},"sig":"1EWsiwvnrjAODbiWH1WLwjSY5Go89KnvyJLjB5gWlSF9l0-3xXdZ1jcq7AHcSfiazAf-lquI_okZ48uPSBPRpg"}}
 }
 
-func ExampleCoze_String() {
-	cz := new(Coze)
-	err := json.Unmarshal([]byte(GoldenCoze), cz)
+func ExampleCoz_String() {
+	cz := new(Coz)
+	err := json.Unmarshal([]byte(GoldenCoz), cz)
 	if err != nil {
 		panic(err)
 	}
 	fmt.Println(cz)
 
 	// Output:
-	// {"pay":{"msg":"Coze Rocks","alg":"ES256","now":1623132000,"tmb":"U5XUZots-WmQYcQWmsO751Xk0yeVi9XUKWQ2mGz6Aqg","typ":"cyphr.me/msg"},"sig":"bbO49APro9TGzAxDWvyT0a41l2sEFMpYWqC-hvDlJukyXKZ_0TRNsrJNcTIso3b8kh5wbLL2KLvOO4zfsHplwA"}
+	// {"pay":{"msg":"Coz is a cryptographic JSON messaging specification.","alg":"ES256","now":1623132000,"tmb":"U5XUZots-WmQYcQWmsO751Xk0yeVi9XUKWQ2mGz6Aqg","typ":"cyphr.me/msg/create"},"sig":"1EWsiwvnrjAODbiWH1WLwjSY5Go89KnvyJLjB5gWlSF9l0-3xXdZ1jcq7AHcSfiazAf-lquI_okZ48uPSBPRpg"}
 }
 
-func ExampleCoze_Meta() {
-	cz := new(Coze)
-	err := json.Unmarshal([]byte(GoldenCoze), cz)
+func ExampleCoz_Meta() {
+	cz := new(Coz)
+	err := json.Unmarshal([]byte(GoldenCoz), cz)
 	if err != nil {
 		panic(err)
 	}
@@ -270,24 +270,24 @@ func ExampleCoze_Meta() {
 	fmt.Printf("%s\n", cz)
 
 	// Output:
-	//{"pay":{"msg":"Coze Rocks","alg":"ES256","now":1623132000,"tmb":"U5XUZots-WmQYcQWmsO751Xk0yeVi9XUKWQ2mGz6Aqg","typ":"cyphr.me/msg"},"can":["msg","alg","now","tmb","typ"],"cad":"AyVZoWUv_rJf7_KqoeRS5odr8g3MZwBzhtBdSZderxk","sig":"bbO49APro9TGzAxDWvyT0a41l2sEFMpYWqC-hvDlJukyXKZ_0TRNsrJNcTIso3b8kh5wbLL2KLvOO4zfsHplwA","czd":"DHEHV1BZPYMMzZs2auqF5vlvCySOdiOWdPleWHy3Ypg"}
+	//{"pay":{"msg":"Coz is a cryptographic JSON messaging specification.","alg":"ES256","now":1623132000,"tmb":"U5XUZots-WmQYcQWmsO751Xk0yeVi9XUKWQ2mGz6Aqg","typ":"cyphr.me/msg/create"},"can":["msg","alg","now","tmb","typ"],"cad":"XzrXMGnY0QFwAKkr43Hh-Ku3yUS8NVE0BdzSlMLSuTU","sig":"1EWsiwvnrjAODbiWH1WLwjSY5Go89KnvyJLjB5gWlSF9l0-3xXdZ1jcq7AHcSfiazAf-lquI_okZ48uPSBPRpg","czd":"k0-4mPqRJkY3g0pX14wLiIpZkTsVv453xJ4vYZKcLJE"}
 }
 
-func ExampleCoze_MetaWithAlg() {
-	cz := new(Coze)
-	err := json.Unmarshal([]byte(GoldenCoze), cz)
+func ExampleCoz_MetaWithAlg() {
+	cz := new(Coz)
+	err := json.Unmarshal([]byte(GoldenCoz), cz)
 	if err != nil {
 		panic(err)
 	}
 
-	// coze.pay.alg given and parameter alg given.
+	// coz.pay.alg given and parameter alg given.
 	err = cz.MetaWithAlg(SEAlg(ES256))
 	if err != nil {
 		panic(err)
 	}
 	fmt.Printf("%s\n", cz)
 
-	// coze.pay.alg given and parameter alg not given.  (Alg is parsed from pay).
+	// coz.pay.alg given and parameter alg not given.  (Alg is parsed from pay).
 	err = cz.MetaWithAlg("")
 	if err != nil {
 		panic(err)
@@ -300,10 +300,10 @@ func ExampleCoze_MetaWithAlg() {
 		fmt.Println("Test must error")
 	}
 
-	// Test no coze.pay.alg or alg given, which must error.
+	// Test no coz.pay.alg or alg given, which must error.
 	// Will error with Hash: invalid HshAlg "UnknownHshAlg")
-	cz2 := new(Coze)
-	err = json.Unmarshal(GoldenCozeNoAlg, cz2)
+	cz2 := new(Coz)
+	err = json.Unmarshal(GoldenCozNoAlg, cz2)
 	if err != nil {
 		panic(err)
 	}
@@ -312,15 +312,15 @@ func ExampleCoze_MetaWithAlg() {
 		fmt.Println("Test must error")
 	}
 
-	// Test no coze.pay.alg but alg is given (contextual coze)
+	// Test no coz.pay.alg but alg is given (contextual coz)
 	err = cz2.MetaWithAlg(SEAlg(ES256))
 	if err != nil {
 		panic(err)
 	}
 	fmt.Printf("%s\n", cz2)
 
-	// Test no coze.pay.alg or coze.sig, so czd should not be calculated
-	cz3 := new(Coze)
+	// Test no coz.pay.alg or coz.sig, so czd should not be calculated
+	cz3 := new(Coz)
 	err = json.Unmarshal(GoldenPayNoAlg, &cz3.Pay)
 	if err != nil {
 		panic(err)
@@ -332,16 +332,16 @@ func ExampleCoze_MetaWithAlg() {
 	fmt.Printf("%s\n", cz3)
 
 	// Output:
-	// {"pay":{"msg":"Coze Rocks","alg":"ES256","now":1623132000,"tmb":"U5XUZots-WmQYcQWmsO751Xk0yeVi9XUKWQ2mGz6Aqg","typ":"cyphr.me/msg"},"can":["msg","alg","now","tmb","typ"],"cad":"AyVZoWUv_rJf7_KqoeRS5odr8g3MZwBzhtBdSZderxk","sig":"bbO49APro9TGzAxDWvyT0a41l2sEFMpYWqC-hvDlJukyXKZ_0TRNsrJNcTIso3b8kh5wbLL2KLvOO4zfsHplwA","czd":"DHEHV1BZPYMMzZs2auqF5vlvCySOdiOWdPleWHy3Ypg"}
-	// {"pay":{"msg":"Coze Rocks","alg":"ES256","now":1623132000,"tmb":"U5XUZots-WmQYcQWmsO751Xk0yeVi9XUKWQ2mGz6Aqg","typ":"cyphr.me/msg"},"can":["msg","alg","now","tmb","typ"],"cad":"AyVZoWUv_rJf7_KqoeRS5odr8g3MZwBzhtBdSZderxk","sig":"bbO49APro9TGzAxDWvyT0a41l2sEFMpYWqC-hvDlJukyXKZ_0TRNsrJNcTIso3b8kh5wbLL2KLvOO4zfsHplwA","czd":"DHEHV1BZPYMMzZs2auqF5vlvCySOdiOWdPleWHy3Ypg"}
-	// {"pay":{"msg":"Coze Rocks","now":1623132000,"tmb":"U5XUZots-WmQYcQWmsO751Xk0yeVi9XUKWQ2mGz6Aqg","typ":"cyphr.me/msg"},"can":["msg","now","tmb","typ"],"cad":"ywD6jd0t00XECuIG873VWZKXrobsAQz9tHTT8_tOHtg","sig":"rVVX9Px9ZVdU-YQdWTHK-hrgjQZVngztqJq7QlPBw1o9XUhN7GzWRV_0u2s-gP7Z9MHRCicq9j7InhUrg8LNjg","czd":"aDGGb6KlUhcMdufV3lyUxmg9MBbDfe1SvANU5fAME8c"}
-	// {"pay":{"msg":"Coze Rocks","now":1623132000,"tmb":"U5XUZots-WmQYcQWmsO751Xk0yeVi9XUKWQ2mGz6Aqg","typ":"cyphr.me/msg"},"can":["msg","now","tmb","typ"],"cad":"ywD6jd0t00XECuIG873VWZKXrobsAQz9tHTT8_tOHtg"}
+	// {"pay":{"msg":"Coz is a cryptographic JSON messaging specification.","alg":"ES256","now":1623132000,"tmb":"U5XUZots-WmQYcQWmsO751Xk0yeVi9XUKWQ2mGz6Aqg","typ":"cyphr.me/msg/create"},"can":["msg","alg","now","tmb","typ"],"cad":"XzrXMGnY0QFwAKkr43Hh-Ku3yUS8NVE0BdzSlMLSuTU","sig":"1EWsiwvnrjAODbiWH1WLwjSY5Go89KnvyJLjB5gWlSF9l0-3xXdZ1jcq7AHcSfiazAf-lquI_okZ48uPSBPRpg","czd":"k0-4mPqRJkY3g0pX14wLiIpZkTsVv453xJ4vYZKcLJE"}
+	// {"pay":{"msg":"Coz is a cryptographic JSON messaging specification.","alg":"ES256","now":1623132000,"tmb":"U5XUZots-WmQYcQWmsO751Xk0yeVi9XUKWQ2mGz6Aqg","typ":"cyphr.me/msg/create"},"can":["msg","alg","now","tmb","typ"],"cad":"XzrXMGnY0QFwAKkr43Hh-Ku3yUS8NVE0BdzSlMLSuTU","sig":"1EWsiwvnrjAODbiWH1WLwjSY5Go89KnvyJLjB5gWlSF9l0-3xXdZ1jcq7AHcSfiazAf-lquI_okZ48uPSBPRpg","czd":"k0-4mPqRJkY3g0pX14wLiIpZkTsVv453xJ4vYZKcLJE"}
+	// {"pay":{"msg":"Coz is a cryptographic JSON messaging specification.","now":1623132000,"tmb":"U5XUZots-WmQYcQWmsO751Xk0yeVi9XUKWQ2mGz6Aqg","typ":"cyphr.me/msg/create"},"can":["msg","now","tmb","typ"],"cad":"BZxsmjnmvPrvEQHZ6Ux0IR1QPFRhpjSmkpAjKvUMtfc","sig":"37R-VP0BaR31_vjtOgdZP7lpanTMdQy07xz83o_I7mFMMt2BdoZwdXOAn0dxtKpPrhPPNxBTe-O12ifeiCnONQ","czd":"NShGQ0KdJ4Bnx6TlXyKCaYG-4Q_Pxf3IK61_lLG0VxE"}
+	// {"pay":{"msg":"Coz is a cryptographic JSON messaging specification.","now":1623132000,"tmb":"U5XUZots-WmQYcQWmsO751Xk0yeVi9XUKWQ2mGz6Aqg","typ":"cyphr.me/msg/create"},"can":["msg","now","tmb","typ"],"cad":"BZxsmjnmvPrvEQHZ6Ux0IR1QPFRhpjSmkpAjKvUMtfc"}
 }
 
-func ExampleCoze_MetaWithAlg_contextual() {
+func ExampleCoz_MetaWithAlg_contextual() {
 	// Test MetaWithAlg using no sig, which should calc what it can.
-	cz := new(Coze)
-	err := json.Unmarshal([]byte(GoldenCoze), cz)
+	cz := new(Coz)
+	err := json.Unmarshal([]byte(GoldenCoz), cz)
 	if err != nil {
 		panic(err)
 	}
@@ -352,9 +352,9 @@ func ExampleCoze_MetaWithAlg_contextual() {
 	}
 	fmt.Printf("%s\n", cz)
 
-	// Empty coze with coze.parsed.alg
-	cz = new(Coze)
-	err = json.Unmarshal(GoldenCozeEmpty, cz)
+	// Empty coz with coz.parsed.alg
+	cz = new(Coz)
+	err = json.Unmarshal(GoldenCozEmpty, cz)
 	if err != nil {
 		panic(err)
 	}
@@ -366,14 +366,14 @@ func ExampleCoze_MetaWithAlg_contextual() {
 	fmt.Printf("%s\n", cz)
 
 	// Output:
-	// {"pay":{"msg":"Coze Rocks","alg":"ES256","now":1623132000,"tmb":"U5XUZots-WmQYcQWmsO751Xk0yeVi9XUKWQ2mGz6Aqg","typ":"cyphr.me/msg"},"can":["msg","alg","now","tmb","typ"],"cad":"AyVZoWUv_rJf7_KqoeRS5odr8g3MZwBzhtBdSZderxk"}
+	// {"pay":{"msg":"Coz is a cryptographic JSON messaging specification.","alg":"ES256","now":1623132000,"tmb":"U5XUZots-WmQYcQWmsO751Xk0yeVi9XUKWQ2mGz6Aqg","typ":"cyphr.me/msg/create"},"can":["msg","alg","now","tmb","typ"],"cad":"XzrXMGnY0QFwAKkr43Hh-Ku3yUS8NVE0BdzSlMLSuTU"}
 	// {"pay":{},"cad":"RBNvo1WzZ4oRRq0W9-hknpT7T8If536DEMBg9hyq_4o","sig":"UG0KP-cElD3mPoN8LRVd4_uoNzMwmpUm3pKxt-iy6So8f1JxmxMcO9JFzsmecFXyt5PjsOTZdUKyV6eZRNl-hg","czd":"nib9RLKirNz50PA2Sv6uZnA03_wdMmA1dyAoUi0OhVY"}
 }
 
-// ExampleCoze_jsonUnmarshal tests unmarshalling a coze.
-func ExampleCoze_jsonUnmarshal() {
-	cz := new(Coze)
-	err := json.Unmarshal([]byte(GoldenCoze), cz)
+// ExampleCoz_jsonUnmarshal tests unmarshalling a coz.
+func ExampleCoz_jsonUnmarshal() {
+	cz := new(Coz)
+	err := json.Unmarshal([]byte(GoldenCoz), cz)
 	if err != nil {
 		panic(err)
 	}
@@ -386,12 +386,12 @@ func ExampleCoze_jsonUnmarshal() {
 	fmt.Println(string(b))
 
 	// Output:
-	//{"pay":{"msg":"Coze Rocks","alg":"ES256","now":1623132000,"tmb":"U5XUZots-WmQYcQWmsO751Xk0yeVi9XUKWQ2mGz6Aqg","typ":"cyphr.me/msg"},"sig":"bbO49APro9TGzAxDWvyT0a41l2sEFMpYWqC-hvDlJukyXKZ_0TRNsrJNcTIso3b8kh5wbLL2KLvOO4zfsHplwA"}
+	//{"pay":{"msg":"Coz is a cryptographic JSON messaging specification.","alg":"ES256","now":1623132000,"tmb":"U5XUZots-WmQYcQWmsO751Xk0yeVi9XUKWQ2mGz6Aqg","typ":"cyphr.me/msg/create"},"sig":"1EWsiwvnrjAODbiWH1WLwjSY5Go89KnvyJLjB5gWlSF9l0-3xXdZ1jcq7AHcSfiazAf-lquI_okZ48uPSBPRpg"}
 }
 
-func ExampleCoze_jsonMarshal() {
-	cz := new(Coze)
-	err := json.Unmarshal([]byte(GoldenCoze), cz)
+func ExampleCoz_jsonMarshal() {
+	cz := new(Coz)
+	err := json.Unmarshal([]byte(GoldenCoz), cz)
 	if err != nil {
 		panic(err)
 	}
@@ -403,12 +403,12 @@ func ExampleCoze_jsonMarshal() {
 	fmt.Printf("%+s\n", b)
 
 	// Output:
-	//{"pay":{"msg":"Coze Rocks","alg":"ES256","now":1623132000,"tmb":"U5XUZots-WmQYcQWmsO751Xk0yeVi9XUKWQ2mGz6Aqg","typ":"cyphr.me/msg"},"sig":"bbO49APro9TGzAxDWvyT0a41l2sEFMpYWqC-hvDlJukyXKZ_0TRNsrJNcTIso3b8kh5wbLL2KLvOO4zfsHplwA"}
+	//{"pay":{"msg":"Coz is a cryptographic JSON messaging specification.","alg":"ES256","now":1623132000,"tmb":"U5XUZots-WmQYcQWmsO751Xk0yeVi9XUKWQ2mGz6Aqg","typ":"cyphr.me/msg/create"},"sig":"1EWsiwvnrjAODbiWH1WLwjSY5Go89KnvyJLjB5gWlSF9l0-3xXdZ1jcq7AHcSfiazAf-lquI_okZ48uPSBPRpg"}
 }
 
-func ExampleCoze_jsonMarshalPretty() {
-	cz := new(Coze)
-	err := json.Unmarshal([]byte(GoldenCoze), cz)
+func ExampleCoz_jsonMarshalPretty() {
+	cz := new(Coz)
+	err := json.Unmarshal([]byte(GoldenCoz), cz)
 	if err != nil {
 		panic(err)
 	}
@@ -422,13 +422,13 @@ func ExampleCoze_jsonMarshalPretty() {
 	// Output:
 	// 	{
 	//     "pay": {
-	//         "msg": "Coze Rocks",
+	//         "msg": "Coz is a cryptographic JSON messaging specification.",
 	//         "alg": "ES256",
 	//         "now": 1623132000,
 	//         "tmb": "U5XUZots-WmQYcQWmsO751Xk0yeVi9XUKWQ2mGz6Aqg",
-	//         "typ": "cyphr.me/msg"
+	//         "typ": "cyphr.me/msg/create"
 	//     },
-	//     "sig": "bbO49APro9TGzAxDWvyT0a41l2sEFMpYWqC-hvDlJukyXKZ_0TRNsrJNcTIso3b8kh5wbLL2KLvOO4zfsHplwA"
+	//     "sig": "1EWsiwvnrjAODbiWH1WLwjSY5Go89KnvyJLjB5gWlSF9l0-3xXdZ1jcq7AHcSfiazAf-lquI_okZ48uPSBPRpg"
 	// }
 }
 
@@ -551,7 +551,7 @@ func Example_rvk_max_size() {
 
 	// A normal (non-revoke) payload of the same size should succeed.
 	p2 := &Pay{}
-	normal := []byte(`{"alg":"ES256","now":1623132000,"tmb":"U5XUZots-WmQYcQWmsO751Xk0yeVi9XUKWQ2mGz6Aqg","typ":"cyphr.me/msg"}`)
+	normal := []byte(`{"alg":"ES256","now":1623132000,"tmb":"U5XUZots-WmQYcQWmsO751Xk0yeVi9XUKWQ2mGz6Aqg","typ":"cyphr.me/msg/create"}`)
 	err = json.Unmarshal(normal, p2)
 	fmt.Println(err)
 

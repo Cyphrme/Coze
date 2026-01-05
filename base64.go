@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-// B64 is a Coze wrapper for encoding/base64. B64 is useful for marshaling and
+// B64 is a Coz wrapper for encoding/base64. B64 is useful for marshaling and
 // unmarshalling structs. B64's underlying type is []byte and is represented in
 // JSON as "RFC 4648 base 64 URI canonical with padding truncated" (b64ut).
 //
@@ -67,7 +67,7 @@ func MustDecode(b64 string) B64 {
 //	> UTF-8 text, or any other predefined format. As far as the content of a
 //	> string is concerned, it is exactly equivalent to a slice of bytes.
 //
-// Also, it's important that this package exports this type, because Coze
+// Also, it's important that this package exports this type, because Coz
 // requires canonical base64, which type B64s enforces.  If packages were to
 // implement this on their own, they may forget to have this enforcement.
 type B64s string

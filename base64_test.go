@@ -69,7 +69,7 @@ func ExampleB64_unmarshalJSON() {
 	// {"B":"AP8"},eyJCIjoiQVA4In0
 }
 
-// Demonstrates that Coze Go will error on non-canonical base 64 encoding.  See
+// Demonstrates that Coz Go will error on non-canonical base 64 encoding.  See
 // https://github.com/Cyphrme/Coze/issues/18. The last three characters of
 // example `tmb` is `hOk`, but `hOl` also decodes to the same byte value (in
 // Hex, `84E9`) even though they are different UTF-8 values. Tool for decoding
@@ -77,8 +77,8 @@ func ExampleB64_unmarshalJSON() {
 // [hOl](https://convert.zamicol.com/#?inAlph=base64&in=hOl&outAlph=Hex).
 //
 // As an added concern, Go's base64 ignores new line and carriage return.
-// Thankfully, JSON unmarshal does not, making Coze's interpretation of base 64
-// non-malleable since Coze is JSON.
+// Thankfully, JSON unmarshal does not, making Coz's interpretation of base 64
+// non-malleable since Coz is JSON.
 func ExampleB64_non_strict_decode() {
 	// Canonical
 	f := new(B64Struct)

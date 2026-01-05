@@ -2,7 +2,7 @@
 // map keys. See https://github.com/golang/go/issues/27179.
 //
 // Using JSONv2 is the future goal, which solves field order, other issues,
-// and has other best practices.When Go Coze is migrated to JSONv2, as long as
+// and has other best practices.When Go Coz is migrated to JSONv2, as long as
 // JSONv2 provides ordering, orderedMap will be deprecated. See
 // https://github.com/Cyphrme/Coze/issues/15
 
@@ -160,7 +160,7 @@ func (o orderedMap) MarshalJSON() ([]byte, error) {
 func (o *orderedMap) UnmarshalJSON(b []byte) error {
 	// Ensure that there were no duplicates fields.  JSON should error on
 	// duplicates. "Last value wins" is bad practice.  See
-	// https://esdiscuss.org/topic/json-duplicate-keys and the Coze docs on
+	// https://esdiscuss.org/topic/json-duplicate-keys and the Coz docs on
 	// duplicate JSON keys.
 	err := checkDuplicate(json.NewDecoder(bytes.NewReader(b)))
 	if err != nil {

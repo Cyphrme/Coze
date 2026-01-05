@@ -14,8 +14,8 @@ import (
 )
 
 type (
-	// Alg is a declarative abstraction for cryptographic functions for Coze.
-	// For more on Alg, see the main Coze README.
+	// Alg is a declarative abstraction for cryptographic functions for Coz.
+	// For more on Alg, see the main Coz README.
 	//
 	// Hierarchy for signing and hashing cryptographic functions. Naming is
 	// inspired by taxonomic rank.
@@ -24,7 +24,7 @@ type (
 	//  - Level 1 genus   - "GenAlg"  (e.g.: ECDSA) (genus)
 	//  - Level 2 family  - "FamAlg"  (e.g.: EC)    (family)
 	//
-	// The value for a Coze `alg` is always a specific (species) algorithm, e.g.
+	// The value for a Coz `alg` is always a specific (species) algorithm, e.g.
 	// "ES256", and never any other rank, e.g. "ECDSA". The type `Alg` in this
 	// package may be any algorithm of any rank.
 	//
@@ -58,7 +58,7 @@ type (
 	// "SE" (singing, encryption) is the super type of signing and encryption and
 	// excludes hashing.
 	//
-	// See the main Coze README for Coze supported and unsupported things.
+	// See the main Coz README for Coz supported and unsupported things.
 	Alg    string // Alg is for all "SpcAlg" cryptographic algorithms.
 	GenAlg string // Algorithm genus.
 	FamAlg string // Algorithm family

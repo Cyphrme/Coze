@@ -34,8 +34,8 @@ func ExampleCanonicalHash() {
 	fmt.Println(cad.String())
 
 	// Output:
-	// _OPzRaT0b5iCQUreB4HXLeNZ-zrAmZKwOs2e9AZyH5Q
-	// AyVZoWUv_rJf7_KqoeRS5odr8g3MZwBzhtBdSZderxk
+	// RbiD-Xsi0UoKI0YyDRysM6n7_hRHEOMHcE3WbmgWPxg
+	// XzrXMGnY0QFwAKkr43Hh-Ku3yUS8NVE0BdzSlMLSuTU
 }
 
 // Demonstrates expected behavior for invalid HshAlgs.
@@ -62,16 +62,16 @@ func ExampleCanonicalHash_permutations() {
 	}
 
 	// Output:
-	// AHp3PJhm7UqvInSyNx979L0UclaHerXpr65_RQ
-	// _OPzRaT0b5iCQUreB4HXLeNZ-zrAmZKwOs2e9AZyH5Q
-	// 2nZLq6SkucLHoQ2uzWsaDxxHqtgUsQuYROh6gLfsHJG4zD3615TchJjx2s53-jF-
-	// DmHMOL8rbl4WREEcI5vZSFmhRLX1doGpXI6ValNwzP8jorZJ3qki5xtFM_0pZOp7tE59I6MM5N8KtMANt7axQw
-	// UOmfhfx7LB_1556F_gql1i7XxK69eZ7lCaVrBQ
-	// 3vcvftqd4lI2bp8s6dEiLVI_M5_4_usBUb9lZFLpm1E
-	// 6sACHpDGK47H8DMh0vt42OkAHoAXZ5lSic0ju1a3UFPt3TcUFWYWM7K62uOjE-zp
-	// uRWmti8R6KnCbmRP3dhrVEsN7daLwvW6Jq21e14_4lnvq2p9futNxoOLW0rL2-1VCJ11SAOoxcBfIgmYv-LFXw
-	// yfPYoA6MT_QoyQGp0DDGRrGP_EHfV4-sojVRtplZmdk
-	// zM8SoNSsYdJoyxW_83tR5L0axAWYvyPkSRWnMDYkEsV9pfSgGhB05BPo5xJyslpCqxnZn9ETxgwuOLvCwBInpg
+	// srWf7I1Pbi8seVq2kMqit400wFrUxKTynfGyJg
+	// RbiD-Xsi0UoKI0YyDRysM6n7_hRHEOMHcE3WbmgWPxg
+	// WjLurqzLxPCLtjfTY2GXoCO9YnaMQv-1_6hzMkWN1UNULxLC1jidFqBIFupItTZf
+	// 42XMUM7-vA2qfFdpf3aQ8Qf1d0pf3mCWtxDJHcrgu9JunN-KQjWhmhTd9LzEl4APMSE0_OvZZa2c80mWAzGr1w
+	// 0DSloPImruVlJ1j7_f99HdtyTzqzQ-QOXmHcVw
+	// QSxrw98yTsbWJkl2oB_n3dlxfBLhkazFnlwoLdLtjGA
+	// G6Jpl9JmOlyXe_-oOJxXexvblftekqeU0fEl-7Q9JB-96JgpjXqprHjVlE0TJnaH
+	// XuaKEaN9dcfLkMBqcbhdHCPST5jeykrACQ01uWvgjF0AIaE71wcDyA1DVoOcdiolpITPiNc_aSMDe7vP82cBnw
+	// KlK05pQJJJVRFbEL6ux3Z3BfAXJ7932gjJwlE_GPqNE
+	// bRiwjhCdHUmbnpujKtCT9QqJmKPjmK9J44UACMIgSf2lwqw_qxsxD-Xyir7IoWjuBlN24NzpvfTvV_NRSYgO3Q
 }
 
 // ExampleCanonical.
@@ -126,7 +126,7 @@ func ExampleCanonical() {
 
 // ExampleCanonical_struct demonstrates using a given struct as a canon.
 func ExampleCanonical_struct() {
-	// KeyCanon is the canonical form of a Coze key in struct form.
+	// KeyCanon is the canonical form of a Coz key in struct form.
 	type KeyCanonStruct struct {
 		Alg string `json:"alg"`
 		Pub B64    `json:"pub"`
