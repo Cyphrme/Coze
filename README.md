@@ -1,8 +1,8 @@
 [![pkg.go.dev][GoBadge]][GoDoc]
 
-![Coze][CozeLogo]
+![Coz][CozLogo]
 
-[Try Coze out!](https://cyphr.me/coze)
+[Try Coz out!](https://cyphr.me/coz)
 
 [Presentation][Presentation]
 
@@ -48,7 +48,7 @@ result in an error. All timestamp values are suggested to be Unix time (UTC).
 
 #### All Coz Standard Fields
 
-![Coz Standard Fields](docs/img/coze_standard_fields.png)
+![Coz Standard Fields](docs/img/coz_standard_fields.png)
 
 ## Pay
 
@@ -270,7 +270,7 @@ digest.
 ```JSON
 {
 	"alg":"SHA-256",
-	"file_name":"coze_logo_icon_256.png",
+	"file_name":"coz_logo_icon_256.png",
 	"id":"oDBDAg4xplHQby6iQ2lZMS1Jz4Op0bNoD5LK3KxEUZo"
 }
 ```
@@ -351,7 +351,7 @@ methods are outside the scope of Coz.
 ```
 
 ## Alg
-`alg` specifies a parameter set and is a single source of truth for Coze
+`alg` specifies a parameter set and is a single source of truth for Coz
  cryptographic operations.
 
 Instead of a registry, supported algorithms and their exact parameters are
@@ -933,7 +933,7 @@ reserved Cypherpunk, LLC and may not be used without permission.
 
 [GoBadge]: https://pkg.go.dev/badge/github.com/github.com/cyphrme/coz
 [GoDoc]: https://pkg.go.dev/github.com/cyphrme/coz
-[CozeLogo]: docs/img/coze_logo_zami_white_450x273.png
+[CozLogo]: docs/img/coz_logo_zami_white_450x273.png
 [Presentation]: https://docs.google.com/presentation/d/1bVojfkDs7K9hRwjr8zMW-AoHv5yAZjKL9Z3Bicz5Too
 [Verifier]: https://cyphr.me/coze
 [Verifier_simple]: https://cyphr.me/coze_verifier_simple/coze.html

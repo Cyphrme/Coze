@@ -354,7 +354,7 @@ func ExampleCoz_MetaWithAlg_contextual() {
 
 	// Empty coz with coz.parsed.alg
 	cz = new(Coz)
-	err = json.Unmarshal(GoldenCozEmpty, cz)
+	err = json.Unmarshal(GoldenEmptyCoz, cz)
 	if err != nil {
 		panic(err)
 	}

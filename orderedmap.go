@@ -4,7 +4,7 @@
 // Using JSONv2 is the future goal, which solves field order, other issues,
 // and has other best practices.When Go Coz is migrated to JSONv2, as long as
 // JSONv2 provides ordering, orderedMap will be deprecated. See
-// https://github.com/Cyphrme/Coze/issues/15
+// https://github.com/Cyphrme/Coz/issues/15
 
 // The MIT License (MIT)
 //

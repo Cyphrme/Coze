@@ -72,7 +72,7 @@ var GoldenCoz = `{
  }`
 
 // Encapsulated coz.
-var GoldenCozE = `{
+var GoldenECoz = `{
 	"coz":` + GoldenCoz + `
 }`
 
@@ -82,7 +82,7 @@ var GoldenCozWKey = `{
 	"sig": "` + GoldenSig + `"
  }`
 
-var GoldenCozEmpty = json.RawMessage(`{
+var GoldenEmptyCoz = json.RawMessage(`{
 	"pay":{},
 	"sig":"UG0KP-cElD3mPoN8LRVd4_uoNzMwmpUm3pKxt-iy6So8f1JxmxMcO9JFzsmecFXyt5PjsOTZdUKyV6eZRNl-hg"
 }`)
@@ -231,7 +231,7 @@ func ExampleKey_SignPayJSON_empty() {
 // Example demonstrating the verification of the empty coz from the README.
 func ExampleKey_Verify_empty() {
 	cz := new(Coz)
-	err := json.Unmarshal(GoldenCozEmpty, cz)
+	err := json.Unmarshal(GoldenEmptyCoz, cz)
 	if err != nil {
 		panic(err)
 	}
