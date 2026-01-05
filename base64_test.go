@@ -97,9 +97,9 @@ func ExampleB64_non_strict_decode() {
 	}
 
 	// Print Unicode to show that Go is interpreting the string below correctly.
-	b1 := []byte(fmt.Sprintf(`{"B":"hOk"}`))
-	b2 := []byte(fmt.Sprintf("{\"B\":\"hOk\n\"}")) // Unicode U+000A is line feed.
-	b3 := []byte(fmt.Sprintf("{\"B\":\"hOk\r\"}")) // Unicode U+000D is line feed.
+	b1 := fmt.Appendf(nil, `{"B":"hOk"}`)
+	b2 := fmt.Appendf(nil, "{\"B\":\"hOk\n\"}") // Unicode U+000A is line feed.
+	b3 := fmt.Appendf(nil, "{\"B\":\"hOk\r\"}") // Unicode U+000D is line feed.
 
 	fmt.Printf("%U\n", b1)
 	fmt.Printf("%U\n", b2)
@@ -141,7 +141,7 @@ func FuzzCastB64ToString(f *testing.F) {
 	f.Fuzz(func(t *testing.T, a int) {
 		var b B64
 		var err error
-		for i := 0; i < a; i++ {
+		for range a {
 			b = make([]byte, 32)
 			_, err = rand.Read(b)
 			if err != nil {

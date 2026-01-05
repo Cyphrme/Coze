@@ -152,7 +152,7 @@ const maxSafeInteger = 9007199254740991
 
 // GenCzd generates and returns `czd`.
 func GenCzd(hash HshAlg, cad B64, sig B64) (czd B64, err error) {
-	return Hash(hash, []byte(fmt.Sprintf(`{"cad":%q,"sig":%q}`, cad, sig)))
+	return Hash(hash, fmt.Appendf(nil, `{"cad":%q,"sig":%q}`, cad, sig))
 }
 
 // Pay contains the standard Coz pay fields as well as custom struct given by
