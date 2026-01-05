@@ -451,15 +451,11 @@ Repository structure:
 
 
 # FAQ
-#### Pronunciation? What does "Coz" mean?
-We say "Co-zee" like a comfy cozy couch. Jared suggested Coz because it's
-funny. The English word Coze is pronounced "kohz" and means "a friendly talk; a
-chat" which is the perfect name for a messaging standard.
-
-
-#### "Coz" vs "coz"?
-We use upper case "Coz" to refer to the specification, and "coz"/"cozies" to
-refer to messages.
+#### Pronunciation? What does "Coz" mean? "Coz" vs "coz"?
+We say "Co-zee" like a comfy cozy couch. Jared suggested Coz because it's funny.
+The English word coze (pronounced "kohz") and means "a friendly talk; a chat"
+which is the perfect name for a messaging standard. We use upper case "Coz" to
+refer to the specification, and "coz"/"cozies" to refer to messages.
 
 
 ### What is Coz useful for?
