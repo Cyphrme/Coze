@@ -64,7 +64,7 @@ It can be installed with Go:
 
 ```sh
 go install github.com/golangci/golangci-lint/cmd/golangci-lint@v1.46.2
-cd $COZE
+cd $COZ
 golangci-lint run
 ```
 

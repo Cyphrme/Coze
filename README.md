@@ -917,7 +917,7 @@ Coz was created by [Cyphr.me](https://cyphr.me).
 - This README as a page: https://cyphrme.github.io/Coze/
 - [Coz go.pkg.dev](https://pkg.go.dev/github.com/cyphrme/coz#section-readme)
 - CozJSON.com (which is currently pointed to the [Coz verifier](https://cyphr.me/coz))
-- Coze Table links: https://docs.google.com/document/d/15_1R7qwfCf-Y3rTamtYS_QXuoTSNrOwbIRopwmv4KOc
+- Coz Table links: https://docs.google.com/document/d/15_1R7qwfCf-Y3rTamtYS_QXuoTSNrOwbIRopwmv4KOc
 
 
 #### Keywords

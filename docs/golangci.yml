@@ -1,6 +1,6 @@
 # Thanks Oleg
 # https://gist.github.com/cristaloleg/dc29ca0ef2fb554de28d94c3c6f6dc88
-# $ golangci-lint run --config=$COZE/docs/golangci.yml
+# $ golangci-lint run --config=$COZ/docs/golangci.yml
 
 run:
   # default concurrency is a available CPU number
