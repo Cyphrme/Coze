@@ -38,13 +38,13 @@ See also [the Coz philosophy](#the-coz-philosophy-of-abstraction)
 
 ### Coz Fields
 
-Coz defines standard fields for the objects pay, key, and coz. Applications
+Coz defines standard fields for the objects `pay`, `key`, and `coz`. Applications
 may include additional fields as desired. While all fields are optional,
 omitting standard fields may limit compatibility. Binary values are encoded as
 [RFC 4648 base 64 URI canonical with padding truncated][RFC4648] (b64ut). JSON
 components are serialized into UTF-8 for signing, verification, and hashing. All
 JSON fields must be unique, and unmarshalling JSON with duplicate fields must
-result in an error. All timestamp values are suggested to be Unix time (UTC).
+result in an error. All timestamp values should be UTC Unix time.
 
 #### All Coz Standard Fields
 
@@ -108,8 +108,8 @@ application defined programmatic functions. In the first example,
 - `typ` - Application defined programmatic type. E.g. `"cyphr.me/key"`
 - `rvk` - Key revocation Unix time. E.g. `1623132000`
 
-Note that the private component `prv` is not included in `tmb` generation. Also
-note that `tag` must not be used programmatically while `typ` may be used
+The private component `prv` is not included in `tmb` generation. Also note that
+`tag` must not be used programmatically while `typ` may be used
 programmatically.
 
 ## Coz object
@@ -156,7 +156,7 @@ form.
 
 Including unnecessary labels is not recommended. For example, the JSON object
 `{"pay":{...},"sig":...}` doesn't need the label `coz` if implicitly known by
-applications. The following should generally be omitted: `key` may be looked up
+applications. The following may generally be omitted: `key` may be looked up
 by applications by using `tmb`, the fields `can`, `cad`, and `czd` are
 recalculatable, and the label `coz` may be inferred.
 
@@ -256,9 +256,9 @@ Using the first example, the following canonical digests are calculated:
 - `cad` is `XzrXMGnY0QFwAKkr43Hh-Ku3yUS8NVE0BdzSlMLSuTU`.
 - `czd` is `xrYMu87EXes58PnEACcDW1t0jF2ez4FCN-njTF0MHNo`.
 
-Signing and verification functions must not mutate `pay`. Any mutation of `pay`
-via `can` must occur by canon related functions. Note that's since `pay`'s canon
-is the present fields, no fields are removed when canonicalizing `pay`.
+Signing and verification functions must not mutate `pay`. Since `pay`'s canon is
+the present fields, no fields are removed when canonicalizing `pay`.  Any
+mutation of `pay` via `can` must occur by canon related functions.
 
 ### Coz and Binaries
 
@@ -276,7 +276,8 @@ digest.
 ```
 
 For example, a file's digest, denoted by `id`, may represent the authorization
-to upload a file to a user's account.
+to upload a file to a user's account. Note that Coz associates the signature
+`alg` `ES256` to hashing `alg` `SHA-256`.
 
 ```JSON
 {
@@ -304,7 +305,7 @@ Examples:
 
 ```text
 ES256:U5XUZots-WmQYcQWmsO751Xk0yeVi9XUKWQ2mGz6Aqg
-SHA-256:zxcLp3BEYYoAZxM9QlV7lS4o3Jn1T0dz9L0pWPZJnIs
+SHA-256:oDBDAg4xplHQby6iQ2lZMS1Jz4Op0bNoD5LK3KxEUZo
 ```
 
 Optionally, for additional disambiguation, the prefix `coz:` may be prepended to

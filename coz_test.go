@@ -7,6 +7,32 @@ import (
 	"testing"
 )
 
+// ExampleCoz_verifyBinary demonstrates verifying the README's example coz where
+// there is a reference to an external binary payload.
+func ExampleCoz_verifyBinary() {
+	var goldenVerifyBinary = json.RawMessage(`{
+ "pay": {
+  "alg": "ES256",
+  "file_name": "coz_logo_icon_256.png",
+  "id": "oDBDAg4xplHQby6iQ2lZMS1Jz4Op0bNoD5LK3KxEUZo",
+  "now": 1623132000,
+  "tmb": "U5XUZots-WmQYcQWmsO751Xk0yeVi9XUKWQ2mGz6Aqg",
+  "typ": "cyphr.me/file/create"
+ },
+ "sig": "AV_gPaDCEd9OEyA1oZPo7LwpypzXkk2htmA-bEobpmcA4Vc7xNcaFPVaEBgU8DDCAZcQZcBHgRlOIjNk9g-Mkw"
+}`)
+
+	coz := new(Coz)
+	err := json.Unmarshal(goldenVerifyBinary, coz)
+	if err != nil {
+		panic(err)
+	}
+
+	fmt.Println(GoldenKey.VerifyCoz(coz))
+	// Output:
+	// true <nil>
+}
+
 func ExamplePay_embedded() {
 	// Example custom struct.
 	type User struct {
@@ -241,7 +267,7 @@ func ExampleCoz_embed() {
 	fmt.Printf("%s", b)
 
 	// Output:
-	// {"name":"Bob","coz":{"pay":{"msg":"Coz is a cryptographic JSON messaging specification.","alg":"ES256","now":1623132000,"tmb":"U5XUZots-WmQYcQWmsO751Xk0yeVi9XUKWQ2mGz6Aqg","typ":"cyphr.me/msg/create"},"sig":"1EWsiwvnrjAODbiWH1WLwjSY5Go89KnvyJLjB5gWlSF9l0-3xXdZ1jcq7AHcSfiazAf-lquI_okZ48uPSBPRpg"}}
+	// {"name":"Bob","coz":{"pay":{"msg":"Coz is a cryptographic JSON messaging specification.","alg":"ES256","now":1623132000,"tmb":"U5XUZots-WmQYcQWmsO751Xk0yeVi9XUKWQ2mGz6Aqg","typ":"cyphr.me/msg/create"},"sig":"OJ4_timgp-wxpLF3hllrbe55wdjhzGOLgRYsGO1BmIMYbo4VKAdgZHnYyIU907ZTJkVr8B81A2K8U4nQA6ONEg"}}
 }
 
 func ExampleCoz_String() {
@@ -253,7 +279,7 @@ func ExampleCoz_String() {
 	fmt.Println(cz)
 
 	// Output:
-	// {"pay":{"msg":"Coz is a cryptographic JSON messaging specification.","alg":"ES256","now":1623132000,"tmb":"U5XUZots-WmQYcQWmsO751Xk0yeVi9XUKWQ2mGz6Aqg","typ":"cyphr.me/msg/create"},"sig":"1EWsiwvnrjAODbiWH1WLwjSY5Go89KnvyJLjB5gWlSF9l0-3xXdZ1jcq7AHcSfiazAf-lquI_okZ48uPSBPRpg"}
+	// {"pay":{"msg":"Coz is a cryptographic JSON messaging specification.","alg":"ES256","now":1623132000,"tmb":"U5XUZots-WmQYcQWmsO751Xk0yeVi9XUKWQ2mGz6Aqg","typ":"cyphr.me/msg/create"},"sig":"OJ4_timgp-wxpLF3hllrbe55wdjhzGOLgRYsGO1BmIMYbo4VKAdgZHnYyIU907ZTJkVr8B81A2K8U4nQA6ONEg"}
 }
 
 func ExampleCoz_Meta() {
@@ -270,7 +296,7 @@ func ExampleCoz_Meta() {
 	fmt.Printf("%s\n", cz)
 
 	// Output:
-	//{"pay":{"msg":"Coz is a cryptographic JSON messaging specification.","alg":"ES256","now":1623132000,"tmb":"U5XUZots-WmQYcQWmsO751Xk0yeVi9XUKWQ2mGz6Aqg","typ":"cyphr.me/msg/create"},"can":["msg","alg","now","tmb","typ"],"cad":"XzrXMGnY0QFwAKkr43Hh-Ku3yUS8NVE0BdzSlMLSuTU","sig":"1EWsiwvnrjAODbiWH1WLwjSY5Go89KnvyJLjB5gWlSF9l0-3xXdZ1jcq7AHcSfiazAf-lquI_okZ48uPSBPRpg","czd":"k0-4mPqRJkY3g0pX14wLiIpZkTsVv453xJ4vYZKcLJE"}
+	//{"pay":{"msg":"Coz is a cryptographic JSON messaging specification.","alg":"ES256","now":1623132000,"tmb":"U5XUZots-WmQYcQWmsO751Xk0yeVi9XUKWQ2mGz6Aqg","typ":"cyphr.me/msg/create"},"can":["msg","alg","now","tmb","typ"],"cad":"XzrXMGnY0QFwAKkr43Hh-Ku3yUS8NVE0BdzSlMLSuTU","sig":"OJ4_timgp-wxpLF3hllrbe55wdjhzGOLgRYsGO1BmIMYbo4VKAdgZHnYyIU907ZTJkVr8B81A2K8U4nQA6ONEg","czd":"xrYMu87EXes58PnEACcDW1t0jF2ez4FCN-njTF0MHNo"}
 }
 
 func ExampleCoz_MetaWithAlg() {
@@ -332,8 +358,8 @@ func ExampleCoz_MetaWithAlg() {
 	fmt.Printf("%s\n", cz3)
 
 	// Output:
-	// {"pay":{"msg":"Coz is a cryptographic JSON messaging specification.","alg":"ES256","now":1623132000,"tmb":"U5XUZots-WmQYcQWmsO751Xk0yeVi9XUKWQ2mGz6Aqg","typ":"cyphr.me/msg/create"},"can":["msg","alg","now","tmb","typ"],"cad":"XzrXMGnY0QFwAKkr43Hh-Ku3yUS8NVE0BdzSlMLSuTU","sig":"1EWsiwvnrjAODbiWH1WLwjSY5Go89KnvyJLjB5gWlSF9l0-3xXdZ1jcq7AHcSfiazAf-lquI_okZ48uPSBPRpg","czd":"k0-4mPqRJkY3g0pX14wLiIpZkTsVv453xJ4vYZKcLJE"}
-	// {"pay":{"msg":"Coz is a cryptographic JSON messaging specification.","alg":"ES256","now":1623132000,"tmb":"U5XUZots-WmQYcQWmsO751Xk0yeVi9XUKWQ2mGz6Aqg","typ":"cyphr.me/msg/create"},"can":["msg","alg","now","tmb","typ"],"cad":"XzrXMGnY0QFwAKkr43Hh-Ku3yUS8NVE0BdzSlMLSuTU","sig":"1EWsiwvnrjAODbiWH1WLwjSY5Go89KnvyJLjB5gWlSF9l0-3xXdZ1jcq7AHcSfiazAf-lquI_okZ48uPSBPRpg","czd":"k0-4mPqRJkY3g0pX14wLiIpZkTsVv453xJ4vYZKcLJE"}
+	// {"pay":{"msg":"Coz is a cryptographic JSON messaging specification.","alg":"ES256","now":1623132000,"tmb":"U5XUZots-WmQYcQWmsO751Xk0yeVi9XUKWQ2mGz6Aqg","typ":"cyphr.me/msg/create"},"can":["msg","alg","now","tmb","typ"],"cad":"XzrXMGnY0QFwAKkr43Hh-Ku3yUS8NVE0BdzSlMLSuTU","sig":"OJ4_timgp-wxpLF3hllrbe55wdjhzGOLgRYsGO1BmIMYbo4VKAdgZHnYyIU907ZTJkVr8B81A2K8U4nQA6ONEg","czd":"xrYMu87EXes58PnEACcDW1t0jF2ez4FCN-njTF0MHNo"}
+	// {"pay":{"msg":"Coz is a cryptographic JSON messaging specification.","alg":"ES256","now":1623132000,"tmb":"U5XUZots-WmQYcQWmsO751Xk0yeVi9XUKWQ2mGz6Aqg","typ":"cyphr.me/msg/create"},"can":["msg","alg","now","tmb","typ"],"cad":"XzrXMGnY0QFwAKkr43Hh-Ku3yUS8NVE0BdzSlMLSuTU","sig":"OJ4_timgp-wxpLF3hllrbe55wdjhzGOLgRYsGO1BmIMYbo4VKAdgZHnYyIU907ZTJkVr8B81A2K8U4nQA6ONEg","czd":"xrYMu87EXes58PnEACcDW1t0jF2ez4FCN-njTF0MHNo"}
 	// {"pay":{"msg":"Coz is a cryptographic JSON messaging specification.","now":1623132000,"tmb":"U5XUZots-WmQYcQWmsO751Xk0yeVi9XUKWQ2mGz6Aqg","typ":"cyphr.me/msg/create"},"can":["msg","now","tmb","typ"],"cad":"BZxsmjnmvPrvEQHZ6Ux0IR1QPFRhpjSmkpAjKvUMtfc","sig":"37R-VP0BaR31_vjtOgdZP7lpanTMdQy07xz83o_I7mFMMt2BdoZwdXOAn0dxtKpPrhPPNxBTe-O12ifeiCnONQ","czd":"NShGQ0KdJ4Bnx6TlXyKCaYG-4Q_Pxf3IK61_lLG0VxE"}
 	// {"pay":{"msg":"Coz is a cryptographic JSON messaging specification.","now":1623132000,"tmb":"U5XUZots-WmQYcQWmsO751Xk0yeVi9XUKWQ2mGz6Aqg","typ":"cyphr.me/msg/create"},"can":["msg","now","tmb","typ"],"cad":"BZxsmjnmvPrvEQHZ6Ux0IR1QPFRhpjSmkpAjKvUMtfc"}
 }
@@ -386,7 +412,7 @@ func ExampleCoz_jsonUnmarshal() {
 	fmt.Println(string(b))
 
 	// Output:
-	//{"pay":{"msg":"Coz is a cryptographic JSON messaging specification.","alg":"ES256","now":1623132000,"tmb":"U5XUZots-WmQYcQWmsO751Xk0yeVi9XUKWQ2mGz6Aqg","typ":"cyphr.me/msg/create"},"sig":"1EWsiwvnrjAODbiWH1WLwjSY5Go89KnvyJLjB5gWlSF9l0-3xXdZ1jcq7AHcSfiazAf-lquI_okZ48uPSBPRpg"}
+	//{"pay":{"msg":"Coz is a cryptographic JSON messaging specification.","alg":"ES256","now":1623132000,"tmb":"U5XUZots-WmQYcQWmsO751Xk0yeVi9XUKWQ2mGz6Aqg","typ":"cyphr.me/msg/create"},"sig":"OJ4_timgp-wxpLF3hllrbe55wdjhzGOLgRYsGO1BmIMYbo4VKAdgZHnYyIU907ZTJkVr8B81A2K8U4nQA6ONEg"}
 }
 
 func ExampleCoz_jsonMarshal() {
@@ -403,7 +429,7 @@ func ExampleCoz_jsonMarshal() {
 	fmt.Printf("%+s\n", b)
 
 	// Output:
-	//{"pay":{"msg":"Coz is a cryptographic JSON messaging specification.","alg":"ES256","now":1623132000,"tmb":"U5XUZots-WmQYcQWmsO751Xk0yeVi9XUKWQ2mGz6Aqg","typ":"cyphr.me/msg/create"},"sig":"1EWsiwvnrjAODbiWH1WLwjSY5Go89KnvyJLjB5gWlSF9l0-3xXdZ1jcq7AHcSfiazAf-lquI_okZ48uPSBPRpg"}
+	//{"pay":{"msg":"Coz is a cryptographic JSON messaging specification.","alg":"ES256","now":1623132000,"tmb":"U5XUZots-WmQYcQWmsO751Xk0yeVi9XUKWQ2mGz6Aqg","typ":"cyphr.me/msg/create"},"sig":"OJ4_timgp-wxpLF3hllrbe55wdjhzGOLgRYsGO1BmIMYbo4VKAdgZHnYyIU907ZTJkVr8B81A2K8U4nQA6ONEg"}
 }
 
 func ExampleCoz_jsonMarshalPretty() {
@@ -428,7 +454,7 @@ func ExampleCoz_jsonMarshalPretty() {
 	//         "tmb": "U5XUZots-WmQYcQWmsO751Xk0yeVi9XUKWQ2mGz6Aqg",
 	//         "typ": "cyphr.me/msg/create"
 	//     },
-	//     "sig": "1EWsiwvnrjAODbiWH1WLwjSY5Go89KnvyJLjB5gWlSF9l0-3xXdZ1jcq7AHcSfiazAf-lquI_okZ48uPSBPRpg"
+	//     "sig": "OJ4_timgp-wxpLF3hllrbe55wdjhzGOLgRYsGO1BmIMYbo4VKAdgZHnYyIU907ZTJkVr8B81A2K8U4nQA6ONEg"
 	// }
 }
 

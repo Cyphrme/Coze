@@ -55,7 +55,7 @@ var (
 	GoldenTmb = "U5XUZots-WmQYcQWmsO751Xk0yeVi9XUKWQ2mGz6Aqg"
 	GoldenCad = "XzrXMGnY0QFwAKkr43Hh-Ku3yUS8NVE0BdzSlMLSuTU"
 	GoldenCzd = "k0-4mPqRJkY3g0pX14wLiIpZkTsVv453xJ4vYZKcLJE"
-	GoldenSig = "1EWsiwvnrjAODbiWH1WLwjSY5Go89KnvyJLjB5gWlSF9l0-3xXdZ1jcq7AHcSfiazAf-lquI_okZ48uPSBPRpg"
+	GoldenSig = "OJ4_timgp-wxpLF3hllrbe55wdjhzGOLgRYsGO1BmIMYbo4VKAdgZHnYyIU907ZTJkVr8B81A2K8U4nQA6ONEg"
 )
 
 var GoldenPay = `{
@@ -475,6 +475,31 @@ func ExampleKey_IsRevoked() {
 	// false
 	// true
 	// true
+}
+
+// ExampleCoz_Revoke demonstrates the validity of the the README's revoke example.
+func ExampleCoz_verifyRevoke() {
+	var goldenVerifyBinary = json.RawMessage(`{
+  "pay": {
+    "alg": "ES256",
+    "msg": "Posted my private key online",
+    "now": 1623132000,
+    "rvk": 1623132000,
+    "tmb": "U5XUZots-WmQYcQWmsO751Xk0yeVi9XUKWQ2mGz6Aqg",
+    "typ": "cyphr.me/key/revoke"
+  },
+  "sig": "EhAsIL_w51NbCtzxFUcJiRMb1KmlxFSD-g7M-9wgqH9nnVHaEHiNyecfvfkrNf--KnfZyrsDIyWuT86MLNozQg"
+}`)
+
+	coz := new(Coz)
+	err := json.Unmarshal(goldenVerifyBinary, coz)
+	if err != nil {
+		panic(err)
+	}
+
+	fmt.Println(GoldenKey.VerifyCoz(coz))
+	// Output:
+	// true <nil>
 }
 
 // Example_ECDSAToLowSSig demonstrates converting non-coz compliant high S
