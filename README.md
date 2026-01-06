@@ -396,17 +396,15 @@ algorithms.
 
 
 ---
-
 ## End of Coz Specification
 
 The above sections starting at [# Coz](#coz) constitute the Coz specification.
 The following sections contain additional guidance, examples, philosophy, and
 implementation notes that are informative but not normative.
-
 ---
 
-## Coz Verifier
 
+## Coz Verifier
 The Coz verifier is an in-browser tool for signing and verifying.
 
 [Coz Verifier][Verifier]
@@ -418,16 +416,17 @@ Verifier][Verifier_simple] that has the minimal
 amount of code needed for a basic Coz application.
 Its [codebase is in the CozJS repo][CozeJSVerifier] and may be locally hosted.
 
-## Coz Implementations
 
-- [Coz CLI repository][CozeCLI].
-- [Go coz (this repo)][Coze]
-- [CozJS (Javascript)][CozeJS]
+## Current Coz Implementations
+- [Coz Go][Coz] (this repo)
+- [Coz Rust][CozRust] Official Rust implementation.
+- [Coz JS (Javascript)][CozeJS] Official Javascript implementation.
+- [Coz CLI repository][CozeCLI]. Coz command line interface application using Go Coz.
 
-See [`docs/development.md`](docs/development.md) for the Go development guide.
+See [`docs/development.md`](docs/development.md) for the development guide.
+
 
 ## Coz Core and Coz X
-
 The sections above are defined as the main Coz specification, Coz core. There
 are no plans to increase Coz's scope or features in core other than additional
 algorithm support. This will be especially true after Coz is out of Alpha/Beta.
@@ -443,10 +442,11 @@ Coz core.
 
 Repository structure:
 
-- [Coz][Coze] Main specification (core) and the Go Coz reference implementation.
+- [Coz][Coz] Main specification, Go reference implementation, and Go Coz core implementation.
+- [CozRust][CozRust] Rust core implementation.
+- [CozJS][CozeJS] Javascript core implementation.
 - [CozX][CozeX] Coz extended. Additional documents, discussion, and new algorithms (Not a code repository).
 - [CozGoX][CozeGoX] Go implementation of extended features.
-- [CozJS][CozeJS] Javascript implementation of Coz core.
 - [CozJSX][CozeJSX] Javascript implementation of extended.
 - etc...
 
@@ -915,7 +915,7 @@ Coz was created by [Cyphr.me](https://cyphr.me).
 
 
 #### Other Resources
-- This README as a page: https://cyphrme.github.io/Coze/
+- This README as a page: https://cyphrme.github.io/Coz
 - [Coz go.pkg.dev](https://pkg.go.dev/github.com/cyphrme/coz#section-readme)
 - CozJSON.com (which is currently pointed to the [Coz verifier](https://cyphr.me/coz))
 - Coz Table links: https://docs.google.com/document/d/15_1R7qwfCf-Y3rTamtYS_QXuoTSNrOwbIRopwmv4KOc
@@ -940,7 +940,8 @@ reserved Cypherpunk, LLC and may not be used without permission.
 [Verifier_simple]: https://cyphr.me/coze_verifier_simple/coze.html
 [CozeJSVerifier]: https://github.com/Cyphrme/Cozejs/tree/master/verifier
 [GithubCozeVerifier]: https://cyphrme.github.io/Cozejs/verifier/coze.html
-[Coze]: https://github.com/Cyphrme/Coze
+[Coz]: https://github.com/Cyphrme/Coz
+[CozRust]: https://github.com/Cyphrme/coz-rust
 [CozeCLI]: https://github.com/Cyphrme/CozeCLI
 [CozeX]: https://github.com/Cyphrme/CozeX
 [CozeGoX]: https://github.com/Cyphrme/CozeGoX
