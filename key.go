@@ -10,7 +10,6 @@ import (
 	"errors"
 	"fmt"
 	"math/big"
-	"time"
 )
 
 // KeyCanon is the canonical form of a Coz key.
@@ -31,14 +30,14 @@ var KeyCanon = []string{"alg", "pub"}
 //	`typ` - Application label for key. E.g. "coz/key".
 //	`pub` - Public component. E.g. "2nTOaFVm2QLxmUO_SjgyscVHBtvHEfo2rq65MvgNRjORojq39Haq9rXNxvXxwba_Xj0F5vZibJR3isBdOWbo5g".
 type Key struct {
-	Alg SEAlg  `json:"alg,omitempty"`
-	Prv B64    `json:"prv,omitempty"`
-	Now int64  `json:"now,omitempty"`
-	Tag string `json:"tag,omitempty"`
-	Rvk int64  `json:"rvk,omitempty"`
-	Tmb B64    `json:"tmb,omitempty"`
-	Typ string `json:"typ,omitempty"`
-	Pub B64    `json:"pub,omitempty"`
+	Alg SEAlg     `json:"alg,omitempty"`
+	Prv B64       `json:"prv,omitempty"`
+	Now Timestamp `json:"now,omitempty"`
+	Tag string    `json:"tag,omitempty"`
+	Rvk Timestamp `json:"rvk,omitempty"`
+	Tmb B64       `json:"tmb,omitempty"`
+	Typ string    `json:"typ,omitempty"`
+	Pub B64       `json:"pub,omitempty"`
 }
 
 // String implements Stringer. Returns empty on error.
@@ -78,7 +77,7 @@ func NewKey(alg SEAlg) (c *Key, err error) {
 		c.Pub = B64(pub)
 	}
 
-	c.Now = time.Now().Unix()
+	c.Now = Now()
 	return c, c.Thumbprint()
 }
 
@@ -140,7 +139,7 @@ func (c *Key) Sign(digest B64) (sig B64, err error) {
 	case ECDSA:
 		curve := c.Alg.Curve().EllipticCurve()
 		d := new(big.Int).SetBytes(c.Prv)
-		// Go 1.25+ requires PublicKey.X and PublicKey.Y to be populated.
+		// Go 1.24+ requires PublicKey.X and PublicKey.Y to be populated.
 		var pubX, pubY *big.Int
 		if len(c.Pub) == c.Alg.PubSize() {
 			// Extract X and Y from existing c.Pub (stored as X||Y concatenation).
@@ -194,7 +193,7 @@ func (c *Key) Sign(digest B64) (sig B64, err error) {
 func (c *Key) SignPay(p *Pay) (coz *Coz, err error) {
 	// Auto-update now if present (non-zero).
 	if p.Now != 0 {
-		p.Now = time.Now().Unix()
+		p.Now = Now()
 	}
 	return c.signPayJSON(p, nil)
 }
@@ -217,7 +216,7 @@ func (c *Key) SignPayJSON(pay json.RawMessage) (coz *Coz, err error) {
 	}
 	// Auto-update now if present (non-zero).
 	if p.Now != 0 {
-		p.Now = time.Now().Unix()
+		p.Now = Now()
 		// Must re-marshal since we modified p.Now and the JSON needs updating.
 		return c.signPayJSON(p, nil)
 	}
@@ -430,7 +429,7 @@ func (c *Key) Revoke() (coz *Coz, err error) {
 
 	r := new(Pay)
 	r.Alg = c.Alg
-	r.Now = time.Now().Unix()
+	r.Now = Now()
 	r.Rvk = r.Now
 	r.Tmb = c.Tmb
 	// If needing "typ" populated, use Sign.

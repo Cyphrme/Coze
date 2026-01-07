@@ -523,43 +523,6 @@ func Test_checkDuplicate(t *testing.T) {
 	}
 }
 
-// Demonstrates expectations for values that are non-integer, negative, or too
-// large for rvk.
-func Example_now_rvk_too_big() {
-	p := &Pay{}
-
-	//  2^53 - 1 as a string which must error.
-	err := json.Unmarshal([]byte(`{"rvk":"9007199254740991"}`), p)
-	if err != nil {
-		fmt.Println(err)
-	}
-
-	// 2^53
-	err = json.Unmarshal([]byte(`{"rvk":9007199254740992}`), p)
-	if err != nil {
-		fmt.Println(err)
-	}
-
-	//  Negative 2^53 + 1 must error as rvk must be positive.
-	err = json.Unmarshal([]byte(`{"rvk":-9007199254740991}`), p)
-	if err != nil {
-		fmt.Println(err)
-	}
-
-	// Finally, 2^53 - 1 as an integer which is okay.
-	err = json.Unmarshal([]byte(`{"rvk":9007199254740991}`), p)
-	if err != nil {
-		fmt.Println(err)
-	}
-	fmt.Println(p)
-
-	// Output:
-	// json: cannot unmarshal string into Go struct field pay2.rvk of type int64
-	// Pay.UnmarshalJSON: values for now and rvk must be between 0 and 2^53 - 1
-	// Pay.UnmarshalJSON: values for now and rvk must be between 0 and 2^53 - 1
-	// {"rvk":9007199254740991}
-}
-
 // Example demonstrating RVK_MAX_SIZE enforcement for revoke messages.
 func Example_rvk_max_size() {
 	// Save original and restore after test.
@@ -591,4 +554,148 @@ func Example_rvk_max_size() {
 	// Pay.UnmarshalJSON: revoke message size 101 exceeds RVK_MAX_SIZE 50
 	// <nil>
 	// <nil>
+}
+
+// Demonstrates expectations for values that are non-integer, negative, too
+// large, and normal values for `rvk` and `now`.  Because this is so critical,
+// tests are exhaustive for every condition for both `now` and `rvk`.
+func Example_now_rvk_correct_incorrect() {
+	p := &Pay{}
+
+	// Try 2^53 - 1 as type string which must error since `rvk`/`now` is of type integer. (Errors.)
+	err := json.Unmarshal([]byte(`{"rvk":"9007199254740991"}`), p)
+	if err != nil {
+		fmt.Println(err)
+	}
+
+	err = json.Unmarshal([]byte(`{"now":"9007199254740991"}`), p)
+	if err != nil {
+		fmt.Println(err)
+	}
+
+	// 2^53 which is too big.
+	err = json.Unmarshal([]byte(`{"rvk":9007199254740992}`), p)
+	if err != nil {
+		fmt.Println(err)
+	}
+
+	err = json.Unmarshal([]byte(`{"now":9007199254740992}`), p)
+	if err != nil {
+		fmt.Println(err)
+	}
+
+	//  Negative 2^53 + 1 must error as rvk must be positive. (Errors.)
+	err = json.Unmarshal([]byte(`{"rvk":-9007199254740991}`), p)
+	if err != nil {
+		fmt.Println(err)
+	}
+
+	err = json.Unmarshal([]byte(`{"now":-9007199254740991}`), p)
+	if err != nil {
+		fmt.Println(err)
+	}
+
+	//  Negative 1 must error as rvk must be positive. (Errors.)
+	err = json.Unmarshal([]byte(`{"rvk":-1}`), p)
+	if err != nil {
+		fmt.Println(err)
+	}
+
+	err = json.Unmarshal([]byte(`{"now":-1}`), p)
+	if err != nil {
+		fmt.Println(err)
+	}
+
+	// Finally, 2^53 - 1 as an integer, the largest valid rvk value, which is
+	// okay. (Passes)
+	err = json.Unmarshal([]byte(`{"rvk":9007199254740991}`), p)
+	if err != nil {
+		fmt.Println(err)
+	}
+	fmt.Println(p)
+
+	err = json.Unmarshal([]byte(`{"now":9007199254740991}`), p)
+	if err != nil {
+		fmt.Println(err)
+	}
+	fmt.Println(p)
+
+	// 0 is okay.  Not revoked. Go omits zero value for JSON. (Passes)
+	err = json.Unmarshal([]byte(`{"rvk":0}`), p)
+	if err != nil {
+		fmt.Println(err)
+	}
+	fmt.Println(p)
+
+	err = json.Unmarshal([]byte(`{"now":0}`), p)
+	if err != nil {
+		fmt.Println(err)
+	}
+	fmt.Println(p)
+
+	// 1 is okay. Revoked. (Passes)
+	err = json.Unmarshal([]byte(`{"rvk":1}`), p)
+	if err != nil {
+		fmt.Println(err)
+	}
+	fmt.Println(p)
+
+	err = json.Unmarshal([]byte(`{"now":1}`), p)
+	if err != nil {
+		fmt.Println(err)
+	}
+	fmt.Println(p)
+
+	// Output:
+	// coz.Timestamp.UnmarshalJSON: json: cannot unmarshal string into Go value of type int64
+	// coz.Timestamp.UnmarshalJSON: json: cannot unmarshal string into Go value of type int64
+	// coz.Timestamp: value given 9007199254740992 is invalid. Must be between 0 and 9007199254740991 inclusive
+	// coz.Timestamp: value given 9007199254740992 is invalid. Must be between 0 and 9007199254740991 inclusive
+	// coz.Timestamp: value given -9007199254740991 is invalid. Must be between 0 and 9007199254740991 inclusive
+	// coz.Timestamp: value given -9007199254740991 is invalid. Must be between 0 and 9007199254740991 inclusive
+	// coz.Timestamp: value given -1 is invalid. Must be between 0 and 9007199254740991 inclusive
+	// coz.Timestamp: value given -1 is invalid. Must be between 0 and 9007199254740991 inclusive
+	// {"rvk":9007199254740991}
+	// {"now":9007199254740991}
+	// {}
+	// {}
+	// {"rvk":1}
+	// {"now":1}
+}
+
+// ExampleTimestamp_marshal tests JSON.Marshaler.  This is not exhaustive as
+// Example_now_rvk_correct_incorrect is assumed to be exhaustive.
+func ExampleTimestamp_marshal() {
+	// Max safe value (passes)
+	p := Pay{
+		Now: 1623132000,
+		Rvk: 9007199254740991, // Max safe value
+	}
+	_, err := Marshal(p)
+	if err != nil {
+		fmt.Println(err)
+	}
+	fmt.Println(p)
+
+	// Above max safe value (errors)
+	p = Pay{
+		Now: 9007199254740992, // Max safe value +1
+	}
+
+	_, err = Marshal(p)
+	if err != nil {
+		fmt.Println(err)
+	}
+
+	// Negative value (errors)
+	p = Pay{Now: -1}
+	_, err = Marshal(p)
+	if err != nil {
+		fmt.Println(err)
+	}
+
+	// Output:
+	// {"now":1623132000,"rvk":9007199254740991}
+	// json: error calling MarshalJSON for type coz.Timestamp: coz.Timestamp: value given 9007199254740992 is invalid. Must be between 0 and 9007199254740991 inclusive
+	// json: error calling MarshalJSON for type coz.Timestamp: coz.Timestamp: value given -1 is invalid. Must be between 0 and 9007199254740991 inclusive
 }

@@ -22,6 +22,8 @@ import (
 	"errors"
 	"fmt"
 	"math/big"
+	"strconv"
+	"time"
 
 	"golang.org/x/crypto/sha3"
 )
@@ -148,8 +150,6 @@ var CzdCanon = []string{"cad", "sig"}
 // revoke payloads. Set to 0 to disable the limit. Default is 2048 bytes.
 var RVK_MAX_SIZE = 2048
 
-const maxSafeInteger = 9007199254740991
-
 // GenCzd generates and returns `czd`.
 func GenCzd(hash HshAlg, cad B64, sig B64) (czd B64, err error) {
 	return Hash(hash, fmt.Appendf(nil, `{"cad":%q,"sig":%q}`, cad, sig))
@@ -166,17 +166,14 @@ func GenCzd(hash HshAlg, cad B64, sig B64) (czd B64, err error) {
 // fields inside `Struct` to be top level fields inside of `pay`. The tag
 // `json:"-"` is ignored by the custom marshaller, and  is set to "-" so that the
 // default marshaller does not include it.
-//
-// now and rvk are type int64 and not uint64 to follow the advised type for
-// third party time fields.
 type Pay struct {
-	Alg SEAlg  `json:"alg,omitempty"` // e.g. "ES256"
-	Now int64  `json:"now,omitempty"` // e.g. 1623132000
-	Tmb B64    `json:"tmb,omitempty"` // e.g. "U5XUZots-WmQYcQWmsO751Xk0yeVi9XUKWQ2mGz6Aqg"
-	Typ string `json:"typ,omitempty"` // e.g. "cyphr.me/msg/create"
+	Alg SEAlg     `json:"alg,omitempty"` // e.g. "ES256"
+	Now Timestamp `json:"now,omitempty"` // e.g. 1623132000
+	Tmb B64       `json:"tmb,omitempty"` // e.g. "U5XUZots-WmQYcQWmsO751Xk0yeVi9XUKWQ2mGz6Aqg"
+	Typ string    `json:"typ,omitempty"` // e.g. "cyphr.me/msg/create"
 
 	// Rvk is only for revoke messages.
-	Rvk int64 `json:"rvk,omitempty"` // e.g. 1623132000
+	Rvk Timestamp `json:"rvk,omitempty"` // e.g. 1623132000
 
 	// Custom arbitrary struct given by application.
 	Struct any `json:"-"`
@@ -246,9 +243,13 @@ func (p *Pay) UnmarshalJSON(b []byte) error {
 		p2.Struct = str
 	}
 
-	if p2.Now > maxSafeInteger || p2.Rvk > maxSafeInteger || p2.Now < 0 || p2.Rvk < 0 {
-		return fmt.Errorf("Pay.UnmarshalJSON: values for now and rvk must be between 0 and 2^53 - 1")
-	}
+	// if p2.Now > MaxSafeTimestamp || p2.Now < 0 {
+	// 	return fmt.Errorf("Pay.UnmarshalJSON: values for now must be between 0 and 2^53 - 1")
+	// }
+
+	// if p2.Rvk > MaxSafeTimestamp || p2.Rvk < 0 {
+	// 	return fmt.Errorf("Pay.UnmarshalJSON: values for rvk must be between 0 and 2^53 - 1")
+	// }
 
 	// Enforce revoke message max size to prevent DoS attacks.
 	if p2.Rvk > 0 && RVK_MAX_SIZE > 0 && len(b) > RVK_MAX_SIZE {
@@ -379,11 +380,11 @@ func (p *Pay) IsRevoke() bool {
 	return isRevoke(p.Rvk)
 }
 
-func isRevoke(rvk int64) bool {
+func isRevoke(rvk Timestamp) bool {
 	// rvk is not allowed to be larger than 2^53 -1.  This library assumes that
 	// Unmarshal will error on rvk's that do not meet the specification
 	// requirements, so no error is needed here.
-	if rvk > maxSafeInteger {
+	if rvk > MaxSafeTimestamp {
 		return false
 	}
 	return rvk > 0
@@ -444,4 +445,75 @@ func checkDuplicate(d *json.Decoder) error {
 		}
 	}
 	return nil
+}
+
+// Timestamp is positive UTC Unix time in seconds with a max value of 2^53 - 1.
+// This ensures safe round-trip representation in environments like JavaScript
+// that use IEEE 754 double-precision floats for numbers couldn't just be like
+// Unix and use int64.
+//
+// Timestamp is exported for external libraries. Go's Time.time is overqualified
+// for Coz's use, and type int64 isn't specific to "positive UTC Unix Timestamp
+// with max value 2^53 -1".  (Also note that int64 is signed, not just positive.)
+//
+// This library assumes that the json.Unmarshal interface is extended by this
+// library, for Timestamp and Pay, and will error on timestamps that do not meet
+// the specification requirements, so no error is needed specifically on this
+// type.
+//
+// To keep the ability to detect negative inputs early, instead of wrapping
+// around to huge positive numbers, for validation purposes, signed int64 +
+// explicit t < 0 check is safer and clearer than uint64.
+type Timestamp int64
+
+func Now() Timestamp {
+	return Timestamp(time.Now().Unix())
+}
+
+// MaxSafeTimestamp is the value of 2^53 - 1
+const MaxSafeTimestamp Timestamp = 9007199254740991
+
+// Valid checks whether the timestamp is within the allowed range.
+// Returns an error if invalid, nil if valid.
+//
+// This is useful for validation outside of JSON unmarshaling
+// (e.g. manual construction, tests, or custom serialization).
+func (t Timestamp) Valid() error {
+	if t < 0 || t > MaxSafeTimestamp {
+		return fmt.Errorf("coz.Timestamp: value given %d is invalid. Must be between 0 and %d inclusive", t, MaxSafeTimestamp)
+	}
+	return nil
+}
+
+// MarshalJSON implements json.Marshaler with range validation.
+func (t Timestamp) MarshalJSON() ([]byte, error) {
+	if err := t.Valid(); err != nil {
+		return nil, err
+	}
+	return json.Marshal(int64(t))
+}
+
+// UnmarshalJSON implements json.Unmarshaler with range validation.
+func (t *Timestamp) UnmarshalJSON(data []byte) error {
+	var i int64
+	if err := json.Unmarshal(data, &i); err != nil {
+		return fmt.Errorf("coz.Timestamp.UnmarshalJSON: %w", err)
+	}
+
+	tmp := Timestamp(i)
+	if err := tmp.Valid(); err != nil {
+		return err
+	}
+	*t = tmp
+	return nil
+}
+
+// String implements fmt.Strings so it prints the number cleanly, without needing casts.
+func (t Timestamp) String() string {
+	return strconv.FormatInt(int64(t), 10)
+}
+
+// Time returns a time.Time
+func (t Timestamp) Time() time.Time {
+	return time.Unix(int64(t), 0).UTC()
 }
