@@ -16,14 +16,14 @@ communication.
 
 ```JSON
 {
-	"pay": {
-		"msg": "Coz is a cryptographic JSON messaging specification.",
-		"alg": "ES256",
-		"now": 1623132000,
-		"tmb": "U5XUZots-WmQYcQWmsO751Xk0yeVi9XUKWQ2mGz6Aqg",
-		"typ": "cyphr.me/msg/create"
-	},
-	"sig": "OJ4_timgp-wxpLF3hllrbe55wdjhzGOLgRYsGO1BmIMYbo4VKAdgZHnYyIU907ZTJkVr8B81A2K8U4nQA6ONEg"
+  "pay": {
+    "msg": "Coz is a cryptographic JSON messaging specification.",
+    "alg": "ES256",
+    "now": 1623132000,
+    "tmb": "U5XUZots-WmQYcQWmsO751Xk0yeVi9XUKWQ2mGz6Aqg",
+    "typ": "cyphr.me/msg/create"
+  },
+  "sig": "OJ4_timgp-wxpLF3hllrbe55wdjhzGOLgRYsGO1BmIMYbo4VKAdgZHnYyIU907ZTJkVr8B81A2K8U4nQA6ONEg"
 }
 ```
 
@@ -76,11 +76,11 @@ application defined programmatic functions. In the first example,
 
 ```JSON
 {
-	"alg":"ES256",
-	"now":1623132000,
-	"pub":"2nTOaFVm2QLxmUO_SjgyscVHBtvHEfo2rq65MvgNRjORojq39Haq9rXNxvXxwba_Xj0F5vZibJR3isBdOWbo5g",
-	"tag":"Zami's Majuscule Key.",
-	"tmb":"U5XUZots-WmQYcQWmsO751Xk0yeVi9XUKWQ2mGz6Aqg"
+  "alg":"ES256",
+  "now":1623132000,
+  "pub":"2nTOaFVm2QLxmUO_SjgyscVHBtvHEfo2rq65MvgNRjORojq39Haq9rXNxvXxwba_Xj0F5vZibJR3isBdOWbo5g",
+  "tag":"Zami's Majuscule Key.",
+  "tmb":"U5XUZots-WmQYcQWmsO751Xk0yeVi9XUKWQ2mGz6Aqg"
 }
 ```
 
@@ -88,12 +88,12 @@ application defined programmatic functions. In the first example,
 
 ```JSON
 {
-	"alg":"ES256",
-	"now":1623132000,
-	"prv":"bNstg4_H3m3SlROufwRSEgibLrBuRq9114OvdapcpVA",
-	"pub":"2nTOaFVm2QLxmUO_SjgyscVHBtvHEfo2rq65MvgNRjORojq39Haq9rXNxvXxwba_Xj0F5vZibJR3isBdOWbo5g",
-	"tag":"Zami's Majuscule Key.",
-	"tmb":"U5XUZots-WmQYcQWmsO751Xk0yeVi9XUKWQ2mGz6Aqg"
+  "alg":"ES256",
+  "now":1623132000,
+  "prv":"bNstg4_H3m3SlROufwRSEgibLrBuRq9114OvdapcpVA",
+  "pub":"2nTOaFVm2QLxmUO_SjgyscVHBtvHEfo2rq65MvgNRjORojq39Haq9rXNxvXxwba_Xj0F5vZibJR3isBdOWbo5g",
+  "tag":"Zami's Majuscule Key.",
+  "tmb":"U5XUZots-WmQYcQWmsO751Xk0yeVi9XUKWQ2mGz6Aqg"
 }
 ```
 
@@ -118,16 +118,16 @@ The JSON name `coz` may be used to wrap a coz.
 
 ```JSON
 {
-	"coz":{
-		"pay": {
-			"msg": "Coz is a cryptographic JSON messaging specification.",
-			"alg": "ES256",
-			"now": 1623132000,
-			"tmb": "U5XUZots-WmQYcQWmsO751Xk0yeVi9XUKWQ2mGz6Aqg",
-			"typ": "cyphr.me/msg/create"
-		},
-		"sig": "OJ4_timgp-wxpLF3hllrbe55wdjhzGOLgRYsGO1BmIMYbo4VKAdgZHnYyIU907ZTJkVr8B81A2K8U4nQA6ONEg"
-	}
+  "coz":{
+    "pay": {
+      "msg": "Coz is a cryptographic JSON messaging specification.",
+      "alg": "ES256",
+      "now": 1623132000,
+      "tmb": "U5XUZots-WmQYcQWmsO751Xk0yeVi9XUKWQ2mGz6Aqg",
+      "typ": "cyphr.me/msg/create"
+    },
+    "sig": "OJ4_timgp-wxpLF3hllrbe55wdjhzGOLgRYsGO1BmIMYbo4VKAdgZHnYyIU907ZTJkVr8B81A2K8U4nQA6ONEg"
+  }
 }
 ```
 
@@ -164,26 +164,26 @@ A tautologic coz:
 
 ```JSON
 {
-	"coz": {
-		"pay": {
-			"msg": "Coz is a cryptographic JSON messaging specification.",
-			"alg": "ES256",
-			"now": 1623132000,
-			"tmb": "U5XUZots-WmQYcQWmsO751Xk0yeVi9XUKWQ2mGz6Aqg",
-			"typ": "cyphr.me/msg/create"
-		},
-		"key": {
-			"alg":"ES256",
-			"now":1623132000,
-			"pub":"2nTOaFVm2QLxmUO_SjgyscVHBtvHEfo2rq65MvgNRjORojq39Haq9rXNxvXxwba_Xj0F5vZibJR3isBdOWbo5g",
-			"tag":"Zami's Majuscule Key.",
-			"tmb":"U5XUZots-WmQYcQWmsO751Xk0yeVi9XUKWQ2mGz6Aqg"
-		},
-		"can": ["msg","alg","now","tmb","typ"],
-		"cad": "XzrXMGnY0QFwAKkr43Hh-Ku3yUS8NVE0BdzSlMLSuTU",
-		"czd": "xrYMu87EXes58PnEACcDW1t0jF2ez4FCN-njTF0MHNo",
-		"sig": "OJ4_timgp-wxpLF3hllrbe55wdjhzGOLgRYsGO1BmIMYbo4VKAdgZHnYyIU907ZTJkVr8B81A2K8U4nQA6ONEg"
-	}
+  "coz": {
+    "pay": {
+      "msg": "Coz is a cryptographic JSON messaging specification.",
+      "alg": "ES256",
+      "now": 1623132000,
+      "tmb": "U5XUZots-WmQYcQWmsO751Xk0yeVi9XUKWQ2mGz6Aqg",
+      "typ": "cyphr.me/msg/create"
+    },
+    "key": {
+      "alg":"ES256",
+      "now":1623132000,
+      "pub":"2nTOaFVm2QLxmUO_SjgyscVHBtvHEfo2rq65MvgNRjORojq39Haq9rXNxvXxwba_Xj0F5vZibJR3isBdOWbo5g",
+      "tag":"Zami's Majuscule Key.",
+      "tmb":"U5XUZots-WmQYcQWmsO751Xk0yeVi9XUKWQ2mGz6Aqg"
+    },
+    "can": ["msg","alg","now","tmb","typ"],
+    "cad": "XzrXMGnY0QFwAKkr43Hh-Ku3yUS8NVE0BdzSlMLSuTU",
+    "czd": "xrYMu87EXes58PnEACcDW1t0jF2ez4FCN-njTF0MHNo",
+    "sig": "OJ4_timgp-wxpLF3hllrbe55wdjhzGOLgRYsGO1BmIMYbo4VKAdgZHnYyIU907ZTJkVr8B81A2K8U4nQA6ONEg"
+  }
 }
 ```
 
@@ -191,14 +191,14 @@ Simplified:
 
 ```JSON
 {
-	"pay": {
-		"msg": "Coz is a cryptographic JSON messaging specification.",
-		"alg": "ES256",
-		"now": 1623132000,
-		"tmb": "U5XUZots-WmQYcQWmsO751Xk0yeVi9XUKWQ2mGz6Aqg",
-		"typ": "cyphr.me/msg/create"
-	},
-	"sig": "OJ4_timgp-wxpLF3hllrbe55wdjhzGOLgRYsGO1BmIMYbo4VKAdgZHnYyIU907ZTJkVr8B81A2K8U4nQA6ONEg"
+  "pay": {
+    "msg": "Coz is a cryptographic JSON messaging specification.",
+    "alg": "ES256",
+    "now": 1623132000,
+    "tmb": "U5XUZots-WmQYcQWmsO751Xk0yeVi9XUKWQ2mGz6Aqg",
+    "typ": "cyphr.me/msg/create"
+  },
+  "sig": "OJ4_timgp-wxpLF3hllrbe55wdjhzGOLgRYsGO1BmIMYbo4VKAdgZHnYyIU907ZTJkVr8B81A2K8U4nQA6ONEg"
 }
 ```
 
@@ -269,9 +269,9 @@ digest.
 
 ```JSON
 {
-	"alg":"SHA-256",
-	"file_name":"coz_logo_icon_256.png",
-	"id":"oDBDAg4xplHQby6iQ2lZMS1Jz4Op0bNoD5LK3KxEUZo"
+  "alg":"SHA-256",
+  "file_name":"coz_logo_icon_256.png",
+  "id":"oDBDAg4xplHQby6iQ2lZMS1Jz4Op0bNoD5LK3KxEUZo"
 }
 ```
 
@@ -281,15 +281,15 @@ to upload a file to a user's account. Note that Coz associates the signature
 
 ```JSON
 {
- "pay": {
-  "alg": "ES256",
-  "file_name": "coz_logo_icon_256.png",
-  "id": "oDBDAg4xplHQby6iQ2lZMS1Jz4Op0bNoD5LK3KxEUZo",
-  "now": 1623132000,
-  "tmb": "U5XUZots-WmQYcQWmsO751Xk0yeVi9XUKWQ2mGz6Aqg",
-  "typ": "cyphr.me/file/create"
- },
- "sig": "AV_gPaDCEd9OEyA1oZPo7LwpypzXkk2htmA-bEobpmcA4Vc7xNcaFPVaEBgU8DDCAZcQZcBHgRlOIjNk9g-Mkw"
+  "pay": {
+    "alg": "ES256",
+    "file_name": "coz_logo_icon_256.png",
+    "id": "oDBDAg4xplHQby6iQ2lZMS1Jz4Op0bNoD5LK3KxEUZo",
+    "now": 1623132000,
+    "tmb": "U5XUZots-WmQYcQWmsO751Xk0yeVi9XUKWQ2mGz6Aqg",
+    "typ": "cyphr.me/file/create"
+  },
+  "sig": "AV_gPaDCEd9OEyA1oZPo7LwpypzXkk2htmA-bEobpmcA4Vc7xNcaFPVaEBgU8DDCAZcQZcBHgRlOIjNk9g-Mkw"
 }
 ```
 
@@ -561,11 +561,11 @@ The following example, which signs a portion of this README, isn't ergonomic.
 
 ```JSON
 {
-"alg": "ES256",
-"now": 1623132000,
-"msg": "# Coz \n**Coz** is a cryptographic JSON messaging specification.\n\n[Try Coz out!](https://cyphr.me/coz)",
-"tmb": "U5XUZots-WmQYcQWmsO751Xk0yeVi9XUKWQ2mGz6Aqg",
-"typ": "cyphr.me/msg/create"
+  "alg": "ES256",
+  "now": 1623132000,
+  "msg": "# Coz \n**Coz** is a cryptographic JSON messaging specification.\n\n[Try Coz out!](https://cyphr.me/coz)",
+  "tmb": "U5XUZots-WmQYcQWmsO751Xk0yeVi9XUKWQ2mGz6Aqg",
+  "typ": "cyphr.me/msg/create"
 }
 ```
 
@@ -574,11 +574,11 @@ The SHA-256 digest (which aligns with an `alg` of ES256) of the message gives
 
 ```JSON
 {
-"alg": "ES256",
-"now": 1623132000,
-"dig": "4FO2pB9yGxo8BBW2whULqbL5m7eAfUWOkvgQu7-9h08",
-"tmb": "U5XUZots-WmQYcQWmsO751Xk0yeVi9XUKWQ2mGz6Aqg",
-"typ": "cyphr.me/msg/dig/create"
+  "alg": "ES256",
+  "now": 1623132000,
+  "dig": "4FO2pB9yGxo8BBW2whULqbL5m7eAfUWOkvgQu7-9h08",
+  "tmb": "U5XUZots-WmQYcQWmsO751Xk0yeVi9XUKWQ2mGz6Aqg",
+  "typ": "cyphr.me/msg/dig/create"
 }
 ```
 
@@ -717,6 +717,7 @@ the example key "cLj8vs".
 required and non-strict encoding of both b64ut and UTF-8 must error. For the
 initial reason for why Coz uses b64ut see [base64.md][base64.md].
 
+
 #### Why not PGP/OpenSSL/LibreSSL/SSHSIG/libsodium/JOSE(JWT)/COSE/etc...? How does Coz compare with prior arts?
 We respect the various projects in the space. Other projects have noble goals
 and we're thankful they exist. Coz is influenced by ideas from many others.
@@ -780,6 +781,96 @@ before signing, and Coz verifies UTF-8 before unmarshalling into JSON.
 
 Additionally, object field order may be denoted by `can`, [chaining
 normals][Normal], or communicate via other means.
+
+
+#### Does Coz support multisig?
+No. At the protocol level, Coz only supports atomic signing (each key signs
+independently) and does not include built-in multisig aggregation.
+
+Adding multisig would significantly complicate Coz implementations so it is
+omitted from the core specification. Systems can achieve multisignature
+functionality at the application layer by composing multiple cozies.
+Applications must verify each signature independently and enforce thresholds
+(e.g., 2-of-3 or otherwise M-of-N). For true cryptographic multisig aggregation
+(e.g., Schnorr or BLS primitives), a different scheme is required.
+
+1. **Use an array of cozies**: Each coz signs the same payload (or a shared
+   digest). This is verbose but provides full auditability.  Use this when you
+   need per-signature metadata (different now, alg, explicit tmb, etc.)
+
+  For example, a transaction adding a key to an account with two signing keys:
+
+```json5
+{
+  "cozies": [
+    {
+      "pay": {
+        "alg": "ES256",
+        "now": 1628181264,
+        "tmb": "<first-signing-key-tmb>",  
+        "typ": "cyphr.me/cyphrpass/key/add",
+        "id": "<new-key-tmb>"
+      },
+      "sig": "<signature-0>"
+    },
+    {
+      "pay": {
+        "alg": "ES256",
+        "now": 1628181264,
+        "tmb": "<second-signing-key-tmb>", 
+        "typ": "cyphr.me/cyphrpass/key/add",
+        "id": "<new-key-tmb>"
+      },
+      "sig": "<signature-1>"
+    }
+  ],
+  "key": {
+    /* new key details */
+  }
+}
+```
+
+2. **Sign a shared digest**: Each coz references the same content via `dig`.
+   Optionally include standard fields like `now`, `tmb`, in each `pay`. This is
+   good for signing external or large payloads without duplicating content:
+
+```json5
+{
+  "cozies": [
+    {
+      "pay": {
+        "alg": "ES256",
+        "dig": "<shared-content-digest>"
+      },
+      "sig": "<signature-0>"
+    },
+    {
+      "pay": {
+        "alg": "ES384",
+        "dig": "<shared-content-digest>"
+      },
+      "sig": "<signature-1>"
+    }
+  ]
+}
+```
+
+
+3. **Compact map of signatures**: If all keys use the same `alg` and `now` is
+   implicit/shared, and `tmb` is implicit or known out-of-band, use a single
+   `cad` (canonical digest) with a map of thumbprints to signatures.   This is
+   the most compact option and ideal for bandwidth-constrained apps, but
+   requires app-level logic to verify all `sig`s against `cad`.
+
+```json5
+{
+  "cad": "<canonical-digest-of-shared-payload>",
+  "sigs": {
+    "<tmb0>": "<signature-0>",
+    "<tmb1>": "<signature-1>"
+  }
+}
+```
 
 
 #### Where does the cryptography come from?
