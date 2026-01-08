@@ -455,19 +455,22 @@ Repository structure:
 #### Pronunciation? What does "Coz" mean? "Coz" vs "coz"?
 We say "Co-zee" like a comfy cozy couch. Jared suggested Coz because it's funny.
 The English word coze (pronounced "kohz") and means "a friendly talk; a chat"
-which is the perfect name for a messaging standard. We use upper case "Coz" to
-refer to the specification, and "coz"/"cozies" to refer to messages.
+which is the perfect name for a messaging specification. Upper case "Coz" refers
+to the specification and lower case "coz"/"cozies" to refer to messages.  Coz
+was formerly spelled "Coze", but to avoid conflict with a large corporation's AI
+chat bot, Coze was respelled to Coz.
 
 
 ### What is Coz useful for?
 Coz's applications are endless as Coz is useful for anything needing
 cryptographic signing. Coz is deployed in various applications such as user
-authentication (user login), authorization, product tracking, user comments,
-user votes, chain of custody, Internet of things (IoT), sessions, and cookies.
+authentication, authorization, product tracking, user comments, user votes,
+chain of custody, Internet of things (IoT), password replacement, user login,
+passwordless login, sessions, bearer tokens, "stateless tokens", and cookies.
 
-As a timely example the CEO of Reddit (reddit.com/u/spez) [edited people's
+As a timely example the CEO of Reddit, spez, [edited people's
 comments.](https://www.theverge.com/2016/11/23/13739026/reddit-ceo-steve-huffman-edit-comments)
-Messages signed by Coz prevents tampering by third parties.
+Messages signed by Coz prevents such tampering by third parties.
 
 
 ## The Coz Philosophy of Abstraction
@@ -854,7 +857,6 @@ Applications must verify each signature independently and enforce thresholds
   ]
 }
 ```
-
 
 3. **Compact map of signatures**: If all keys use the same `alg` and `now` is
    implicit/shared, and `tmb` is implicit or known out-of-band, use a single
