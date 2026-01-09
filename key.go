@@ -81,6 +81,11 @@ func NewKey(alg SEAlg) (c *Key, err error) {
 	return c, c.Thumbprint()
 }
 
+// NewKey generates a new signing Coz key.
+func NewSigningKey(alg SigAlg) (c *Key, err error) {
+	return NewKey(SEAlg(alg))
+}
+
 // Thumbprint generates `tmb` which is the digest of canon [alg, pub].  Pub must be
 // set and be a valid length.  On error, tmb is set to nil.
 func (c *Key) Thumbprint() (err error) {

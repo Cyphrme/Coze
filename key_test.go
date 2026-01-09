@@ -308,8 +308,8 @@ func ExampleKey_Valid() {
 	// Output: true false
 }
 
-func ExampleNewKey_valid() {
-	ck, err := NewKey(SEAlg(ES256))
+func ExampleNewSigningKey_valid() {
+	ck, err := NewSigningKey(ES256)
 	if err != nil {
 		panic(err)
 	}
@@ -318,7 +318,7 @@ func ExampleNewKey_valid() {
 	// Output: true
 }
 
-func ExampleNewKey() {
+func ExampleNewSigningKey() {
 	algs := []SigAlg{
 		ES224,
 		ES256,
@@ -328,7 +328,7 @@ func ExampleNewKey() {
 	}
 
 	for _, alg := range algs {
-		Key, err := NewKey(SEAlg(alg))
+		Key, err := NewSigningKey(alg)
 		if err != nil {
 			panic(err)
 		}
@@ -343,8 +343,8 @@ func ExampleNewKey() {
 	// Ed25519, true
 }
 
-func ExampleNewKey_bad() {
-	fmt.Println(NewKey(SEAlg(SHA256))) // Invalid signing alg, fails.
+func ExampleNewSigningKey_bad() {
+	fmt.Println(NewSigningKey(SigAlg(SHA256))) // Invalid signing alg, fails.
 
 	// Output: <nil> NewKey: unsupported alg "SHA-256"
 }
@@ -371,7 +371,7 @@ func ExampleKey_Correct() {
 	// Test new keys.  These keys should pass every test.
 	algs := []string{"ES224", "ES256", "ES384", "ES512", "Ed25519"}
 	for _, alg := range algs {
-		key, err := NewKey(SEAlg(Parse(alg)))
+		key, err := NewSigningKey(SigAlg(Parse(alg)))
 		if err != nil {
 			panic(err)
 		}
@@ -442,7 +442,7 @@ func BenchmarkNSV(b *testing.B) {
 	algs := []SigAlg{ES224, ES256, ES384, ES512, Ed25519}
 	for j := 0; j < b.N; j++ {
 		for _, alg := range algs {
-			ck, err := NewKey(SEAlg(alg))
+			ck, err := NewSigningKey(alg)
 			if err != nil {
 				b.Fatal("Could not generate Coz Key.")
 			}
@@ -550,7 +550,7 @@ func Test_lowS(t *testing.T) {
 	algs := []SigAlg{ES224, ES256, ES384, ES512}
 	for i := 0; i < 128; i++ {
 		for _, alg := range algs {
-			ck, err := NewKey(SEAlg(alg))
+			ck, err := NewSigningKey(alg)
 			if err != nil {
 				panic(err)
 			}
